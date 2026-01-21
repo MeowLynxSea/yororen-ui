@@ -2,7 +2,7 @@ use std::{panic::Location, sync::Arc};
 
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
-    SharedString, StatefulInteractiveElement, Styled, div, px,
+    SharedString, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
 use crate::{
@@ -326,6 +326,10 @@ impl RenderOnce for Select {
                             };
 
                             div()
+                                .id((
+                                    ElementId::from("ui:select:option"),
+                                    option_value.clone(),
+                                ))
                                 .px_3()
                                 .py_2()
                                 .flex()

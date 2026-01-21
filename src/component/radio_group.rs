@@ -1,5 +1,7 @@
 use std::panic::Location;
 
+use std::sync::Arc;
+
 use gpui::{
     AnyElement, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement,
     RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
@@ -7,7 +9,6 @@ use gpui::{
 
 use crate::{
     component::{Radio, radio},
-    theme::ActiveTheme,
 };
 
 #[derive(Clone, Debug)]
@@ -36,7 +37,7 @@ pub fn radio_group() -> RadioGroup {
     RadioGroup::new()
 }
 
-type ChangeFn = Box<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
+type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct RadioGroup {
@@ -104,7 +105,7 @@ impl RadioGroup {
     where
         F: 'static + Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
-        self.on_change = Some(Box::new(handler));
+        self.on_change = Some(Arc::new(handler));
         self
     }
 
@@ -189,7 +190,7 @@ impl RenderOnce for RadioGroup {
                 let radio = radio.on_toggle({
                     let value = option.value.clone();
                     let internal_value = internal_value.clone();
-                    let on_change = on_change.as_ref().map(|f| &**f);
+                    let on_change = on_change.clone();
                     move |_checked, ev, window, cx| {
                         if option_disabled {
                             return;
@@ -201,7 +202,7 @@ impl RenderOnce for RadioGroup {
                             });
                         }
 
-                        if let Some(handler) = on_change {
+                        if let Some(handler) = &on_change {
                             handler(value.clone(), ev, window, cx);
                         }
                     }
