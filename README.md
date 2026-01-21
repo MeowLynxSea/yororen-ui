@@ -22,11 +22,11 @@ self-contained (theme, components, widgets, and embedded icon assets).
 
 ### Use from GitHub (recommended)
 
-Add this crate as a dependency via git, and pin it with a `rev`:
+Add this crate as a dependency via git, and pin it with a release tag (recommended):
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", rev = "<commit>" }
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.1.0" }
 ```
 
 ### Use from a local path (development)
