@@ -1,7 +1,5 @@
 use std::{ops::Range, panic::Location};
 
-use super::TextEditState;
-use crate::theme::ActiveTheme;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
     Entity, EntityInputHandler, FocusHandle, Focusable, GlobalElementId, Hsla, InteractiveElement,
@@ -11,18 +9,25 @@ use gpui::{
     px, relative, size,
 };
 
+use crate::{component::TextEditState, theme::ActiveTheme};
+
 actions!(
-    ui_text_input,
+    ui_text_area,
     [
         Backspace,
         Delete,
         Left,
         Right,
+        Up,
+        Down,
         SelectLeft,
         SelectRight,
+        SelectUp,
+        SelectDown,
         SelectAll,
         Home,
         End,
+        Enter,
         ShowCharacterPalette,
         Paste,
         Cut,
@@ -31,63 +36,116 @@ actions!(
 );
 
 #[track_caller]
-pub fn text_input() -> TextInput {
-    TextInput::new().id(ElementId::from(Location::caller()))
+pub fn text_area() -> TextArea {
+    TextArea::new().id(ElementId::from(Location::caller()))
 }
 
 pub(crate) fn init(cx: &mut App) {
     cx.bind_keys([
-        gpui::KeyBinding::new("backspace", Backspace, Some("UITextInput")),
-        gpui::KeyBinding::new("delete", Delete, Some("UITextInput")),
-        gpui::KeyBinding::new("left", Left, Some("UITextInput")),
-        gpui::KeyBinding::new("right", Right, Some("UITextInput")),
-        gpui::KeyBinding::new("shift-left", SelectLeft, Some("UITextInput")),
-        gpui::KeyBinding::new("shift-right", SelectRight, Some("UITextInput")),
-        gpui::KeyBinding::new("secondary-a", SelectAll, Some("UITextInput")),
-        gpui::KeyBinding::new("secondary-v", Paste, Some("UITextInput")),
-        gpui::KeyBinding::new("secondary-c", Copy, Some("UITextInput")),
-        gpui::KeyBinding::new("secondary-x", Cut, Some("UITextInput")),
-        gpui::KeyBinding::new("home", Home, Some("UITextInput")),
-        gpui::KeyBinding::new("end", End, Some("UITextInput")),
+        gpui::KeyBinding::new("backspace", Backspace, Some("UITextArea")),
+        gpui::KeyBinding::new("delete", Delete, Some("UITextArea")),
+        gpui::KeyBinding::new("left", Left, Some("UITextArea")),
+        gpui::KeyBinding::new("right", Right, Some("UITextArea")),
+        gpui::KeyBinding::new("up", Up, Some("UITextArea")),
+        gpui::KeyBinding::new("down", Down, Some("UITextArea")),
+        gpui::KeyBinding::new("shift-left", SelectLeft, Some("UITextArea")),
+        gpui::KeyBinding::new("shift-right", SelectRight, Some("UITextArea")),
+        gpui::KeyBinding::new("shift-up", SelectUp, Some("UITextArea")),
+        gpui::KeyBinding::new("shift-down", SelectDown, Some("UITextArea")),
+        gpui::KeyBinding::new("secondary-a", SelectAll, Some("UITextArea")),
+        gpui::KeyBinding::new("secondary-v", Paste, Some("UITextArea")),
+        gpui::KeyBinding::new("secondary-c", Copy, Some("UITextArea")),
+        gpui::KeyBinding::new("secondary-x", Cut, Some("UITextArea")),
+        gpui::KeyBinding::new("home", Home, Some("UITextArea")),
+        gpui::KeyBinding::new("end", End, Some("UITextArea")),
+        gpui::KeyBinding::new("enter", Enter, Some("UITextArea")),
         gpui::KeyBinding::new(
             "ctrl-secondary-space",
             ShowCharacterPalette,
-            Some("UITextInput"),
+            Some("UITextArea"),
         ),
     ]);
 }
 
-pub struct TextInputState {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum WrapMode {
+    #[default]
+    None,
+    Soft,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum EnterBehavior {
+    #[default]
+    Newline,
+    Submit,
+    Disabled,
+}
+
+pub struct TextAreaState {
     focus_handle: FocusHandle,
     edit: TextEditState,
     placeholder: SharedString,
+
     scroll_x: Pixels,
-    last_layout: Option<ShapedLine>,
+    scroll_y: Pixels,
+
+    last_layout: Option<TextAreaLayout>,
     last_bounds: Option<Bounds<Pixels>>,
     is_selecting: bool,
 
     cursor_visible: bool,
     cursor_blink_epoch: usize,
-
     focus_subscription: Option<gpui::Subscription>,
+
+    preferred_x: Option<Pixels>,
+
+    wrap: WrapMode,
+    enter: EnterBehavior,
 }
 
-impl TextInputState {
+impl TextAreaState {
     pub fn new(cx: &mut App) -> Self {
         Self {
             focus_handle: cx.focus_handle(),
             edit: TextEditState::new(),
             placeholder: "".into(),
+
             scroll_x: Pixels::ZERO,
+            scroll_y: Pixels::ZERO,
+
             last_layout: None,
             last_bounds: None,
             is_selecting: false,
 
             cursor_visible: true,
             cursor_blink_epoch: 0,
-
             focus_subscription: None,
+
+            preferred_x: None,
+
+            wrap: WrapMode::None,
+            enter: EnterBehavior::Newline,
         }
+    }
+
+    pub fn content(&self) -> &SharedString {
+        self.edit.content()
+    }
+
+    pub fn set_content(&mut self, content: impl Into<SharedString>) {
+        self.edit.set_content(content);
+        self.scroll_x = Pixels::ZERO;
+        self.scroll_y = Pixels::ZERO;
+        self.preferred_x = None;
+    }
+
+    pub fn scroll_x(&self) -> Pixels {
+        self.scroll_x
+    }
+
+    pub fn scroll_y(&self) -> Pixels {
+        self.scroll_y
     }
 
     fn show_cursor(&mut self, cx: &mut Context<Self>) {
@@ -142,15 +200,6 @@ impl TextInputState {
             .detach();
     }
 
-    pub fn content(&self) -> &SharedString {
-        self.edit.content()
-    }
-
-    pub fn set_content(&mut self, content: impl Into<SharedString>) {
-        self.edit.set_content(content);
-        self.scroll_x = Pixels::ZERO;
-    }
-
     fn focus_in(&mut self, window: &mut gpui::Window, cx: &mut Context<Self>) {
         if self.focus_subscription.is_none() {
             let focus_handle = self.focus_handle.clone();
@@ -166,7 +215,21 @@ impl TextInputState {
         self.reset_cursor_blink(window, cx);
     }
 
+    fn move_to(&mut self, offset: usize, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
+        self.edit.move_to(offset);
+        self.reset_cursor_blink(window, cx);
+        cx.notify();
+    }
+
+    fn select_to(&mut self, offset: usize, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.reset_cursor_blink(window, cx);
+        self.edit.select_to(offset);
+        cx.notify();
+    }
+
     fn left(&mut self, _: &Left, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         if self.edit.selected_range().is_empty() {
             self.move_to(
                 self.edit.previous_boundary(self.edit.cursor_offset()),
@@ -179,6 +242,7 @@ impl TextInputState {
     }
 
     fn right(&mut self, _: &Right, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         if self.edit.selected_range().is_empty() {
             self.move_to(
                 self.edit.next_boundary(self.edit.selected_range().end),
@@ -190,7 +254,16 @@ impl TextInputState {
         }
     }
 
+    fn up(&mut self, _: &Up, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.move_vertically(-1, false, window, cx);
+    }
+
+    fn down(&mut self, _: &Down, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.move_vertically(1, false, window, cx);
+    }
+
     fn select_left(&mut self, _: &SelectLeft, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         self.select_to(
             self.edit.previous_boundary(self.edit.cursor_offset()),
             window,
@@ -199,6 +272,7 @@ impl TextInputState {
     }
 
     fn select_right(&mut self, _: &SelectRight, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         self.select_to(
             self.edit.next_boundary(self.edit.cursor_offset()),
             window,
@@ -206,20 +280,66 @@ impl TextInputState {
         );
     }
 
+    fn select_up(&mut self, _: &SelectUp, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.move_vertically(-1, true, window, cx);
+    }
+
+    fn select_down(&mut self, _: &SelectDown, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.move_vertically(1, true, window, cx);
+    }
+
     fn select_all(&mut self, _: &SelectAll, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         self.move_to(0, window, cx);
         self.select_to(self.edit.content().len(), window, cx)
     }
 
     fn home(&mut self, _: &Home, window: &mut gpui::Window, cx: &mut Context<Self>) {
-        self.move_to(0, window, cx);
+        self.preferred_x = None;
+
+        let cursor = self.edit.cursor_offset();
+        let Some(layout) = self.last_layout.as_ref() else {
+            self.move_to(0, window, cx);
+            return;
+        };
+        let Some((row, _x)) = layout.position_for_index(cursor) else {
+            self.move_to(0, window, cx);
+            return;
+        };
+        let line = &layout.lines[row];
+        self.move_to(line.range.start, window, cx);
     }
 
     fn end(&mut self, _: &End, window: &mut gpui::Window, cx: &mut Context<Self>) {
-        self.move_to(self.edit.content().len(), window, cx);
+        self.preferred_x = None;
+
+        let cursor = self.edit.cursor_offset();
+        let Some(layout) = self.last_layout.as_ref() else {
+            self.move_to(self.edit.content().len(), window, cx);
+            return;
+        };
+        let Some((row, _x)) = layout.position_for_index(cursor) else {
+            self.move_to(self.edit.content().len(), window, cx);
+            return;
+        };
+        let line = &layout.lines[row];
+        self.move_to(line.range.end, window, cx);
+    }
+
+    fn enter(&mut self, _: &Enter, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        match self.enter {
+            EnterBehavior::Newline => {
+                self.reset_cursor_blink(window, cx);
+                self.edit.replace_text_in_range(None, "\n");
+                cx.notify();
+            }
+            EnterBehavior::Submit => {}
+            EnterBehavior::Disabled => {}
+        }
     }
 
     fn backspace(&mut self, _: &Backspace, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         if self.edit.selected_range().is_empty() {
             self.select_to(
                 self.edit.previous_boundary(self.edit.cursor_offset()),
@@ -228,10 +348,12 @@ impl TextInputState {
             )
         }
         self.reset_cursor_blink(window, cx);
-        self.replace_text_in_range(None, "", window, cx)
+        self.edit.replace_text_in_range(None, "");
+        cx.notify();
     }
 
     fn delete(&mut self, _: &Delete, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
         if self.edit.selected_range().is_empty() {
             self.select_to(
                 self.edit.next_boundary(self.edit.cursor_offset()),
@@ -240,7 +362,46 @@ impl TextInputState {
             )
         }
         self.reset_cursor_blink(window, cx);
-        self.replace_text_in_range(None, "", window, cx)
+        self.edit.replace_text_in_range(None, "");
+        cx.notify();
+    }
+
+    fn show_character_palette(
+        &mut self,
+        _: &ShowCharacterPalette,
+        window: &mut gpui::Window,
+        _: &mut Context<Self>,
+    ) {
+        window.show_character_palette();
+    }
+
+    fn paste(&mut self, _: &Paste, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
+        if let Some(text) = cx.read_from_clipboard().and_then(|item| item.text()) {
+            self.reset_cursor_blink(window, cx);
+            self.edit.replace_text_in_range(None, &text);
+            cx.notify();
+        }
+    }
+
+    fn copy(&mut self, _: &Copy, _: &mut gpui::Window, cx: &mut Context<Self>) {
+        if !self.edit.selected_range().is_empty() {
+            cx.write_to_clipboard(gpui::ClipboardItem::new_string(
+                self.edit.content()[self.edit.selected_range().clone()].to_string(),
+            ));
+        }
+    }
+
+    fn cut(&mut self, _: &Cut, window: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.preferred_x = None;
+        if !self.edit.selected_range().is_empty() {
+            cx.write_to_clipboard(gpui::ClipboardItem::new_string(
+                self.edit.content()[self.edit.selected_range().clone()].to_string(),
+            ));
+            self.reset_cursor_blink(window, cx);
+            self.edit.replace_text_in_range(None, "");
+            cx.notify();
+        }
     }
 
     fn on_mouse_down(
@@ -250,6 +411,7 @@ impl TextInputState {
         cx: &mut Context<Self>,
     ) {
         self.is_selecting = true;
+        self.preferred_x = None;
         self.reset_cursor_blink(window, cx);
 
         if event.modifiers.shift {
@@ -275,43 +437,35 @@ impl TextInputState {
         }
     }
 
-    fn show_character_palette(
+    fn move_vertically(
         &mut self,
-        _: &ShowCharacterPalette,
+        row_delta: isize,
+        selecting: bool,
         window: &mut gpui::Window,
-        _: &mut Context<Self>,
+        cx: &mut Context<Self>,
     ) {
-        window.show_character_palette();
-    }
+        let Some(layout) = self.last_layout.as_ref() else {
+            return;
+        };
 
-    fn paste(&mut self, _: &Paste, window: &mut gpui::Window, cx: &mut Context<Self>) {
-        if let Some(text) = cx.read_from_clipboard().and_then(|item| item.text()) {
-            self.reset_cursor_blink(window, cx);
-            self.replace_text_in_range(None, &text.replace("\n", " "), window, cx);
+        let cursor = self.edit.cursor_offset();
+        let Some((row, x)) = layout.position_for_index(cursor) else {
+            return;
+        };
+
+        let target_x = self.preferred_x.get_or_insert(x);
+        let target_row = (row as isize + row_delta)
+            .clamp(0, layout.lines.len().saturating_sub(1) as isize)
+            as usize;
+        let line = &layout.lines[target_row];
+        let idx_in_line = line.shaped.closest_index_for_x(*target_x);
+        let target = line.range.start + idx_in_line;
+
+        if selecting {
+            self.select_to(target, window, cx);
+        } else {
+            self.move_to(target, window, cx);
         }
-    }
-
-    fn copy(&mut self, _: &Copy, _: &mut gpui::Window, cx: &mut Context<Self>) {
-        if !self.edit.selected_range().is_empty() {
-            cx.write_to_clipboard(gpui::ClipboardItem::new_string(
-                self.edit.content()[self.edit.selected_range().clone()].to_string(),
-            ));
-        }
-    }
-
-    fn cut(&mut self, _: &Cut, window: &mut gpui::Window, cx: &mut Context<Self>) {
-        if !self.edit.selected_range().is_empty() {
-            cx.write_to_clipboard(gpui::ClipboardItem::new_string(
-                self.edit.content()[self.edit.selected_range().clone()].to_string(),
-            ));
-            self.replace_text_in_range(None, "", window, cx)
-        }
-    }
-
-    fn move_to(&mut self, offset: usize, window: &mut gpui::Window, cx: &mut Context<Self>) {
-        self.edit.move_to(offset);
-        self.reset_cursor_blink(window, cx);
-        cx.notify();
     }
 
     fn index_for_mouse_position(&self, position: Point<Pixels>) -> usize {
@@ -319,33 +473,37 @@ impl TextInputState {
             return 0;
         }
 
-        let (Some(bounds), Some(line)) = (self.last_bounds.as_ref(), self.last_layout.as_ref())
+        let (Some(bounds), Some(layout)) = (self.last_bounds.as_ref(), self.last_layout.as_ref())
         else {
             return 0;
         };
-        if position.y < bounds.top() {
-            return 0;
-        }
-        if position.y > bounds.bottom() {
-            return self.edit.content().len();
-        }
-        line.closest_index_for_x(position.x - bounds.left() + self.scroll_x)
-    }
 
-    fn select_to(&mut self, offset: usize, window: &mut gpui::Window, cx: &mut Context<Self>) {
-        self.reset_cursor_blink(window, cx);
-        self.edit.select_to(offset);
-        cx.notify();
+        let mut local_x = position.x - bounds.left() + self.scroll_x;
+        let mut local_y = position.y - bounds.top() + self.scroll_y;
+
+        if local_y < Pixels::ZERO {
+            local_y = Pixels::ZERO;
+        }
+        if local_x < Pixels::ZERO {
+            local_x = Pixels::ZERO;
+        }
+
+        let row = layout
+            .row_for_y(local_y)
+            .unwrap_or_else(|| layout.lines.len().saturating_sub(1));
+        let line = &layout.lines[row];
+        let idx_in_line = line.shaped.closest_index_for_x(local_x);
+        line.range.start + idx_in_line
     }
 }
 
-impl RenderOnce for TextInputState {
+impl RenderOnce for TextAreaState {
     fn render(self, _window: &mut gpui::Window, _cx: &mut App) -> impl IntoElement {
         div().child(self.edit.content().clone())
     }
 }
 
-impl EntityInputHandler for TextInputState {
+impl EntityInputHandler for TextAreaState {
     fn text_for_range(
         &mut self,
         range_utf16: Range<usize>,
@@ -386,6 +544,7 @@ impl EntityInputHandler for TextInputState {
         window: &mut gpui::Window,
         cx: &mut Context<Self>,
     ) {
+        self.preferred_x = None;
         self.reset_cursor_blink(window, cx);
         self.edit.replace_text_in_range(range_utf16, new_text);
         cx.notify();
@@ -399,10 +558,10 @@ impl EntityInputHandler for TextInputState {
         window: &mut gpui::Window,
         cx: &mut Context<Self>,
     ) {
+        self.preferred_x = None;
         self.reset_cursor_blink(window, cx);
         self.edit
             .replace_and_mark_text_in_range(range_utf16, new_text, new_selected_range_utf16);
-
         cx.notify();
     }
 
@@ -413,17 +572,17 @@ impl EntityInputHandler for TextInputState {
         _window: &mut gpui::Window,
         _cx: &mut Context<Self>,
     ) -> Option<Bounds<Pixels>> {
-        let last_layout = self.last_layout.as_ref()?;
+        let layout = self.last_layout.as_ref()?;
         let range = self.edit.range_from_utf16(&range_utf16);
-        Some(Bounds::from_corners(
+        let (row, x) = layout.position_for_index(range.start)?;
+        let y = layout.lines[row].y;
+
+        Some(Bounds::new(
             point(
-                bounds.left() + last_layout.x_for_index(range.start) - self.scroll_x,
-                bounds.top(),
+                bounds.left() + x - self.scroll_x,
+                bounds.top() + y - self.scroll_y,
             ),
-            point(
-                bounds.left() + last_layout.x_for_index(range.end) - self.scroll_x,
-                bounds.bottom(),
-            ),
+            size(px(2.), layout.line_height),
         ))
     }
 
@@ -436,37 +595,84 @@ impl EntityInputHandler for TextInputState {
         if self.edit.content().is_empty() {
             return Some(0);
         }
+        let layout = self.last_layout.as_ref()?;
+        let bounds = self.last_bounds?;
+        let local = bounds.localize(&point)?;
 
-        let line_point = self.last_bounds?.localize(&point)?;
-        let last_layout = self.last_layout.as_ref()?;
+        let local_x = local.x + self.scroll_x;
+        let local_y = local.y + self.scroll_y;
 
-        debug_assert!(last_layout.text == *self.edit.content());
-        let utf8_index = last_layout
-            .index_for_x(line_point.x + self.scroll_x)
-            .unwrap_or_else(|| last_layout.len());
-        Some(self.edit.offset_to_utf16(utf8_index))
+        let row = layout
+            .row_for_y(local_y)
+            .unwrap_or_else(|| layout.lines.len().saturating_sub(1));
+        let line = &layout.lines[row];
+        let idx_in_line = line
+            .shaped
+            .index_for_x(local_x)
+            .unwrap_or_else(|| line.shaped.len());
+        Some(self.edit.offset_to_utf16(line.range.start + idx_in_line))
     }
 }
 
-impl Focusable for TextInputState {
+impl Focusable for TextAreaState {
     fn focus_handle(&self, _: &App) -> FocusHandle {
         self.focus_handle.clone()
     }
 }
 
-struct TextLineElement {
-    input: Entity<TextInputState>,
+struct LineLayout {
+    range: Range<usize>,
+    shaped: ShapedLine,
+    y: Pixels,
+}
+
+struct TextAreaLayout {
+    lines: Vec<LineLayout>,
+    line_height: Pixels,
+    content_height: Pixels,
+    content_width: Pixels,
+}
+
+impl TextAreaLayout {
+    fn row_for_y(&self, y: Pixels) -> Option<usize> {
+        if self.lines.is_empty() {
+            return None;
+        }
+        let row = (y / self.line_height) as usize;
+        Some(row.min(self.lines.len().saturating_sub(1)))
+    }
+
+    fn position_for_index(&self, index: usize) -> Option<(usize, Pixels)> {
+        for (row, line) in self.lines.iter().enumerate() {
+            if index < line.range.start {
+                continue;
+            }
+            if index > line.range.end {
+                continue;
+            }
+            let idx_in_line = (index - line.range.start).min(line.shaped.len());
+            return Some((row, line.shaped.x_for_index(idx_in_line)));
+        }
+        self.lines
+            .last()
+            .map(|line| (self.lines.len().saturating_sub(1), line.shaped.width))
+    }
+}
+
+struct TextAreaElement {
+    input: Entity<TextAreaState>,
     disabled: bool,
 }
 
 struct PrepaintState {
-    line: Option<ShapedLine>,
+    layout: TextAreaLayout,
     cursor: Option<PaintQuad>,
-    selection: Option<PaintQuad>,
+    selection: Vec<PaintQuad>,
     scroll_x: Pixels,
+    scroll_y: Pixels,
 }
 
-impl IntoElement for TextLineElement {
+impl IntoElement for TextAreaElement {
     type Element = Self;
 
     fn into_element(self) -> Self::Element {
@@ -474,7 +680,7 @@ impl IntoElement for TextLineElement {
     }
 }
 
-impl Element for TextLineElement {
+impl Element for TextAreaElement {
     type RequestLayoutState = ();
     type PrepaintState = PrepaintState;
 
@@ -495,7 +701,7 @@ impl Element for TextLineElement {
     ) -> (LayoutId, Self::RequestLayoutState) {
         let mut style = Style::default();
         style.size.width = relative(1.).into();
-        style.size.height = window.line_height().into();
+        style.size.height = relative(1.).into();
         (window.request_layout(style, [], cx), ())
     }
 
@@ -514,6 +720,9 @@ impl Element for TextLineElement {
         let selected_range = input.edit.selected_range().clone();
         let cursor = input.edit.cursor_offset();
         let marked_range = input.edit.marked_range().cloned();
+        let mut scroll_x = input.scroll_x;
+        let mut scroll_y = input.scroll_y;
+        let wrap = input.wrap;
         let style = window.text_style();
 
         let (display_text, text_color) = if content.is_empty() {
@@ -522,97 +731,200 @@ impl Element for TextLineElement {
             (content, style.color)
         };
 
-        let run = TextRun {
-            len: display_text.len(),
+        let font_size = style.font_size.to_pixels(window.rem_size());
+        let line_height = window.line_height();
+
+        let base_run = TextRun {
+            len: 0,
             font: style.font(),
             color: text_color,
             background_color: None,
             underline: None,
             strikethrough: None,
         };
-        let runs = if let Some(marked_range) = marked_range.as_ref() {
-            vec![
-                TextRun {
-                    len: marked_range.start,
-                    ..run.clone()
-                },
-                TextRun {
-                    len: marked_range.end - marked_range.start,
-                    underline: Some(UnderlineStyle {
-                        color: Some(run.color),
-                        thickness: px(1.0),
-                        wavy: false,
-                    }),
-                    ..run.clone()
-                },
-                TextRun {
-                    len: display_text.len() - marked_range.end,
-                    ..run
-                },
-            ]
-            .into_iter()
-            .filter(|run| run.len > 0)
-            .collect()
+
+        let mut lines = Vec::new();
+        let mut y = Pixels::ZERO;
+        let mut max_width = Pixels::ZERO;
+
+        let marked_range = if display_text.is_empty() {
+            None
         } else {
-            vec![run]
+            marked_range
         };
 
-        let font_size = style.font_size.to_pixels(window.rem_size());
-        let line = window
-            .text_system()
-            .shape_line(display_text, font_size, &runs, None);
-
-        let cursor_pos = line.x_for_index(cursor);
-
-        let cursor_width = px(2.);
-        let max_cursor_x = (bounds.size.width - cursor_width).max(Pixels::ZERO);
-        let max_scroll_x = (line.width - max_cursor_x).max(Pixels::ZERO);
-        let mut scroll_x = input.scroll_x.clamp(Pixels::ZERO, max_scroll_x);
-
-        if cursor_pos < scroll_x {
-            scroll_x = cursor_pos;
-        } else if cursor_pos > scroll_x + max_cursor_x {
-            scroll_x = cursor_pos - max_cursor_x;
+        match wrap {
+            WrapMode::None => {
+                let mut start = 0;
+                for (i, ch) in display_text.char_indices() {
+                    if ch == '\n' {
+                        let line_text = SharedString::new(display_text[start..i].to_string());
+                        let runs = runs_for_line(&base_run, start..i, marked_range.as_ref());
+                        let shaped = window.text_system().shape_line(
+                            line_text.clone(),
+                            font_size,
+                            &runs,
+                            None,
+                        );
+                        max_width = max_width.max(shaped.width);
+                        lines.push(LineLayout {
+                            range: start..i,
+                            shaped,
+                            y,
+                        });
+                        y += line_height;
+                        start = i + '\n'.len_utf8();
+                    }
+                }
+                let end = display_text.len();
+                let line_text = SharedString::new(display_text[start..end].to_string());
+                let runs = runs_for_line(&base_run, start..end, marked_range.as_ref());
+                let shaped =
+                    window
+                        .text_system()
+                        .shape_line(line_text.clone(), font_size, &runs, None);
+                max_width = max_width.max(shaped.width);
+                lines.push(LineLayout {
+                    range: start..end,
+                    shaped,
+                    y,
+                });
+                y += line_height;
+            }
+            WrapMode::Soft => {
+                // Minimal implementation: only respect explicit newlines.
+                // Soft wrapping by width can be layered on later.
+                let mut start = 0;
+                for (i, ch) in display_text.char_indices() {
+                    if ch == '\n' {
+                        let line_text = SharedString::new(display_text[start..i].to_string());
+                        let runs = runs_for_line(&base_run, start..i, marked_range.as_ref());
+                        let shaped = window.text_system().shape_line(
+                            line_text.clone(),
+                            font_size,
+                            &runs,
+                            None,
+                        );
+                        max_width = max_width.max(shaped.width);
+                        lines.push(LineLayout {
+                            range: start..i,
+                            shaped,
+                            y,
+                        });
+                        y += line_height;
+                        start = i + '\n'.len_utf8();
+                    }
+                }
+                let end = display_text.len();
+                let line_text = SharedString::new(display_text[start..end].to_string());
+                let runs = runs_for_line(&base_run, start..end, marked_range.as_ref());
+                let shaped =
+                    window
+                        .text_system()
+                        .shape_line(line_text.clone(), font_size, &runs, None);
+                max_width = max_width.max(shaped.width);
+                lines.push(LineLayout {
+                    range: start..end,
+                    shaped,
+                    y,
+                });
+                y += line_height;
+            }
         }
+
+        let content_height = y.max(line_height);
+        let layout = TextAreaLayout {
+            lines,
+            line_height,
+            content_height,
+            content_width: max_width,
+        };
+
+        let max_scroll_y = (layout.content_height - bounds.size.height).max(Pixels::ZERO);
+        scroll_y = scroll_y.clamp(Pixels::ZERO, max_scroll_y);
+
+        let max_scroll_x = match wrap {
+            WrapMode::None => (layout.content_width - bounds.size.width).max(Pixels::ZERO),
+            WrapMode::Soft => Pixels::ZERO,
+        };
         scroll_x = scroll_x.clamp(Pixels::ZERO, max_scroll_x);
 
-        let (selection, cursor) = if selected_range.is_empty() {
-            (
-                None,
-                input.cursor_visible.then(|| {
+        let mut selection = Vec::new();
+        let cursor_width = px(2.);
+        let mut cursor_quad = None;
+        let mut cursor_row = None;
+        let mut cursor_x = Pixels::ZERO;
+        let mut cursor_y = Pixels::ZERO;
+
+        if selected_range.is_empty() {
+            if let Some((row, x)) = layout.position_for_index(cursor) {
+                let line = &layout.lines[row];
+                cursor_row = Some(row);
+                cursor_x = x;
+                cursor_y = line.y;
+                cursor_quad = input.cursor_visible.then(|| {
                     fill(
                         Bounds::new(
-                            point(bounds.left() + cursor_pos - scroll_x, bounds.top()),
-                            size(px(2.), bounds.bottom() - bounds.top()),
+                            point(
+                                bounds.left() + x - scroll_x,
+                                bounds.top() + line.y - scroll_y,
+                            ),
+                            size(cursor_width, line_height),
                         ),
                         cx.theme().border.focus,
                     )
-                }),
-            )
+                });
+            }
         } else {
-            (
-                Some(fill(
+            for (row, line) in layout.lines.iter().enumerate() {
+                let start = selected_range.start.max(line.range.start);
+                let end = selected_range.end.min(line.range.end);
+                if start >= end {
+                    continue;
+                }
+                let start_x = line.shaped.x_for_index(start - line.range.start);
+                let end_x = line.shaped.x_for_index(end - line.range.start);
+                selection.push(fill(
                     Bounds::from_corners(
                         point(
-                            bounds.left() + line.x_for_index(selected_range.start) - scroll_x,
-                            bounds.top(),
+                            bounds.left() + start_x - scroll_x,
+                            bounds.top() + layout.lines[row].y - scroll_y,
                         ),
                         point(
-                            bounds.left() + line.x_for_index(selected_range.end) - scroll_x,
-                            bounds.bottom(),
+                            bounds.left() + end_x - scroll_x,
+                            bounds.top() + layout.lines[row].y + line_height - scroll_y,
                         ),
                     ),
                     cx.theme().border.focus.alpha(0.25),
-                )),
-                None,
-            )
-        };
+                ));
+            }
+        }
+
+        // Keep the cursor within view.
+        if cursor_row.is_some() {
+            let max_cursor_x = (bounds.size.width - cursor_width).max(Pixels::ZERO);
+            if cursor_x < scroll_x {
+                scroll_x = cursor_x;
+            } else if cursor_x > scroll_x + max_cursor_x {
+                scroll_x = cursor_x - max_cursor_x;
+            }
+            scroll_x = scroll_x.clamp(Pixels::ZERO, max_scroll_x);
+
+            let cursor_bottom = cursor_y + line_height;
+            if cursor_y < scroll_y {
+                scroll_y = cursor_y;
+            } else if cursor_bottom > scroll_y + bounds.size.height {
+                scroll_y = (cursor_bottom - bounds.size.height).max(Pixels::ZERO);
+            }
+            scroll_y = scroll_y.clamp(Pixels::ZERO, max_scroll_y);
+        }
 
         PrepaintState {
-            line: Some(line),
-            cursor,
+            layout,
+            cursor: cursor_quad,
             selection,
             scroll_x,
+            scroll_y,
         }
     }
 
@@ -634,19 +946,31 @@ impl Element for TextLineElement {
                 cx,
             );
         }
-        if let Some(selection) = prepaint.selection.take() {
-            window.paint_quad(selection)
+
+        for quad in prepaint.selection.drain(..) {
+            window.paint_quad(quad)
         }
-        let line = prepaint.line.take().expect("line should exist");
-        line.paint(
-            point(bounds.left() - prepaint.scroll_x, bounds.top()),
-            window.line_height(),
-            gpui::TextAlign::Left,
-            None,
-            window,
-            cx,
-        )
-        .expect("paint should succeed");
+
+        let line_height = window.line_height();
+        for line in &prepaint.layout.lines {
+            // Clip by bounds to avoid painting offscreen lines.
+            let y_top = bounds.top() + line.y - prepaint.scroll_y;
+            let y_bottom = y_top + line_height;
+            if y_bottom < bounds.top() || y_top > bounds.bottom() {
+                continue;
+            }
+
+            line.shaped
+                .paint(
+                    point(bounds.left() - prepaint.scroll_x, y_top),
+                    line_height,
+                    gpui::TextAlign::Left,
+                    None,
+                    window,
+                    cx,
+                )
+                .expect("paint should succeed");
+        }
 
         if !self.disabled
             && focus_handle.is_focused(window)
@@ -655,21 +979,88 @@ impl Element for TextLineElement {
             window.paint_quad(cursor);
         }
 
+        let layout = TextAreaLayout {
+            lines: prepaint
+                .layout
+                .lines
+                .iter()
+                .map(|line| LineLayout {
+                    range: line.range.clone(),
+                    shaped: line.shaped.clone(),
+                    y: line.y,
+                })
+                .collect(),
+            line_height: prepaint.layout.line_height,
+            content_height: prepaint.layout.content_height,
+            content_width: prepaint.layout.content_width,
+        };
+
         self.input.update(cx, |input, _cx| {
-            input.last_layout = Some(line);
+            input.last_layout = Some(layout);
             input.last_bounds = Some(bounds);
             input.scroll_x = prepaint.scroll_x;
+            input.scroll_y = prepaint.scroll_y;
         });
     }
 }
 
+fn runs_for_line(
+    base_run: &TextRun,
+    line_range: Range<usize>,
+    marked_range: Option<&Range<usize>>,
+) -> Vec<TextRun> {
+    let line_len = line_range.end.saturating_sub(line_range.start);
+    let base = TextRun {
+        len: line_len,
+        ..base_run.clone()
+    };
+
+    let Some(marked_range) = marked_range else {
+        return vec![base];
+    };
+    let marked_start = marked_range.start.clamp(line_range.start, line_range.end);
+    let marked_end = marked_range.end.clamp(line_range.start, line_range.end);
+    if marked_start >= marked_end {
+        return vec![base];
+    }
+
+    let before_len = marked_start - line_range.start;
+    let marked_len = marked_end - marked_start;
+    let after_len = line_range.end - marked_end;
+
+    [
+        TextRun {
+            len: before_len,
+            ..base.clone()
+        },
+        TextRun {
+            len: marked_len,
+            underline: Some(UnderlineStyle {
+                color: Some(base.color),
+                thickness: px(1.0),
+                wavy: false,
+            }),
+            ..base.clone()
+        },
+        TextRun {
+            len: after_len,
+            ..base
+        },
+    ]
+    .into_iter()
+    .filter(|run| run.len > 0)
+    .collect()
+}
+
 #[derive(IntoElement)]
-pub struct TextInput {
+pub struct TextArea {
     element_id: Option<ElementId>,
     base: Div,
     placeholder: SharedString,
 
     disabled: bool,
+    wrap: WrapMode,
+    enter: EnterBehavior,
 
     bg_color: Option<Hsla>,
     border_color: Option<Hsla>,
@@ -680,14 +1071,17 @@ pub struct TextInput {
     on_change: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
 }
 
-impl TextInput {
+impl TextArea {
     pub fn new() -> Self {
         Self {
             element_id: None,
-            base: div().h(px(36.)).px_3(),
+            base: div().h(px(120.)).px_3(),
             placeholder: "".into(),
 
             disabled: false,
+            wrap: WrapMode::None,
+            enter: EnterBehavior::Newline,
+
             bg_color: None,
             border_color: None,
             focus_border_color: None,
@@ -709,6 +1103,16 @@ impl TextInput {
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub fn wrap(mut self, wrap: WrapMode) -> Self {
+        self.wrap = wrap;
+        self
+    }
+
+    pub fn enter_behavior(mut self, enter: EnterBehavior) -> Self {
+        self.enter = enter;
         self
     }
 
@@ -746,55 +1150,58 @@ impl TextInput {
     }
 }
 
-impl Default for TextInput {
+impl Default for TextArea {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl ParentElement for TextInput {
+impl ParentElement for TextArea {
     fn extend(&mut self, elements: impl IntoIterator<Item = AnyElement>) {
         self.base.extend(elements);
     }
 }
 
-impl Styled for TextInput {
+impl Styled for TextArea {
     fn style(&mut self) -> &mut gpui::StyleRefinement {
         self.base.style()
     }
 }
 
-impl InteractiveElement for TextInput {
+impl InteractiveElement for TextArea {
     fn interactivity(&mut self) -> &mut gpui::Interactivity {
         self.base.interactivity()
     }
 }
 
-impl StatefulInteractiveElement for TextInput {}
+impl StatefulInteractiveElement for TextArea {}
 
-impl RenderOnce for TextInput {
+impl RenderOnce for TextArea {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
         let id = self
             .element_id
             .unwrap_or_else(|| ElementId::from(Location::caller()));
 
         let disabled = self.disabled;
-
-        let state = window.use_keyed_state(id.clone(), cx, |_, cx| TextInputState::new(cx));
+        let state = window.use_keyed_state(id.clone(), cx, |_, cx| TextAreaState::new(cx));
         let focus_handle = state.read(cx).focus_handle.clone();
+
         let placeholder = self.placeholder;
+        let wrap = self.wrap;
+        let enter = self.enter;
         state.update(cx, |state, _cx| {
             state.placeholder = placeholder;
+            state.wrap = wrap;
+            state.enter = enter;
         });
 
         let on_change = self.on_change;
         let last_content =
-            window.use_keyed_state((id.clone(), "ui:text-input:last-content"), cx, |_, _cx| {
+            window.use_keyed_state((id.clone(), "ui:text-area:last-content"), cx, |_, _cx| {
                 SharedString::new_static("")
             });
 
         let theme = cx.theme();
-
         let bg = if disabled {
             theme.surface.sunken
         } else {
@@ -814,14 +1221,14 @@ impl RenderOnce for TextInput {
         } else {
             self.text_color.unwrap_or_else(|| theme.content.primary)
         };
-        let height = self.height.unwrap_or_else(|| px(36.).into());
+        let height = self.height.unwrap_or_else(|| px(120.).into());
         let inset = if disabled { px(6.) } else { px(5.) };
 
         let mut base = self
             .base
             .id(id.clone())
             .flex()
-            .items_center()
+            .items_start()
             .w_full()
             .h(height)
             .rounded_md()
@@ -834,7 +1241,7 @@ impl RenderOnce for TextInput {
             .when(!disabled, |this| this.track_focus(&focus_handle))
             .when(!disabled, |this| this.cursor(CursorStyle::IBeam))
             .when(disabled, |this| this.cursor_not_allowed().opacity(0.6))
-            .key_context("UITextInput")
+            .key_context("UITextArea")
             .on_action({
                 let state = state.clone();
                 let disabled = disabled;
@@ -878,6 +1285,26 @@ impl RenderOnce for TextInput {
             .on_action({
                 let state = state.clone();
                 let disabled = disabled;
+                move |action: &Up, window, cx| {
+                    if disabled {
+                        return;
+                    }
+                    state.update(cx, |state, cx| state.up(action, window, cx));
+                }
+            })
+            .on_action({
+                let state = state.clone();
+                let disabled = disabled;
+                move |action: &Down, window, cx| {
+                    if disabled {
+                        return;
+                    }
+                    state.update(cx, |state, cx| state.down(action, window, cx));
+                }
+            })
+            .on_action({
+                let state = state.clone();
+                let disabled = disabled;
                 move |action: &SelectLeft, window, cx| {
                     if disabled {
                         return;
@@ -893,6 +1320,26 @@ impl RenderOnce for TextInput {
                         return;
                     }
                     state.update(cx, |state, cx| state.select_right(action, window, cx));
+                }
+            })
+            .on_action({
+                let state = state.clone();
+                let disabled = disabled;
+                move |action: &SelectUp, window, cx| {
+                    if disabled {
+                        return;
+                    }
+                    state.update(cx, |state, cx| state.select_up(action, window, cx));
+                }
+            })
+            .on_action({
+                let state = state.clone();
+                let disabled = disabled;
+                move |action: &SelectDown, window, cx| {
+                    if disabled {
+                        return;
+                    }
+                    state.update(cx, |state, cx| state.select_down(action, window, cx));
                 }
             })
             .on_action({
@@ -923,6 +1370,16 @@ impl RenderOnce for TextInput {
                         return;
                     }
                     state.update(cx, |state, cx| state.end(action, window, cx));
+                }
+            })
+            .on_action({
+                let state = state.clone();
+                let disabled = disabled;
+                move |action: &Enter, window, cx| {
+                    if disabled {
+                        return;
+                    }
+                    state.update(cx, |state, cx| state.enter(action, window, cx));
                 }
             })
             .on_action({
@@ -1011,36 +1468,35 @@ impl RenderOnce for TextInput {
                 }
             });
 
-        base =
-            base.text_color(text_color)
-                .child(
+        base = base
+            .text_color(text_color)
+            .child(
+                div().w_full().h_full().flex().px(inset).child(
                     div()
                         .w_full()
                         .h_full()
-                        .flex()
-                        .items_center()
-                        .px(inset)
-                        .child(div().w_full().rounded_sm().overflow_hidden().child(
-                            TextLineElement {
-                                input: state.clone(),
-                                disabled,
-                            },
-                        )),
-                )
-                .on_mouse_down_out(move |_event, window, _cx| {
-                    if disabled {
-                        return;
-                    }
-                    if focus_handle.is_focused(window) {
-                        window.blur();
-                    }
-                });
+                        .rounded_sm()
+                        .id((id.clone(), "ui:text-area:scroll"))
+                        .overflow_scroll()
+                        .child(TextAreaElement {
+                            input: state.clone(),
+                            disabled,
+                        }),
+                ),
+            )
+            .on_mouse_down_out(move |_event, window, _cx| {
+                if disabled {
+                    return;
+                }
+                if focus_handle.is_focused(window) {
+                    window.blur();
+                }
+            });
 
         base.map(move |this| {
             if on_change.is_none() {
                 return this;
             }
-
             let on_change = on_change.expect("checked");
             let current = state.read(cx).edit.content().clone();
             let prev = last_content.read(cx).clone();

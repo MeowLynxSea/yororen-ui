@@ -18,6 +18,8 @@ mod spacer;
 mod split_button;
 mod tag;
 mod text;
+mod text_area;
+mod text_edit_state;
 mod text_input;
 mod toggle_button;
 mod tooltip;
@@ -42,11 +44,14 @@ pub use spacer::*;
 pub use split_button::*;
 pub use tag::*;
 pub use text::*;
+pub use text_area::{EnterBehavior, TextArea, TextAreaState, WrapMode, text_area};
+pub use text_edit_state::*;
 pub use text_input::{TextInput, TextInputState, text_input};
 pub use toggle_button::*;
 pub use tooltip::*;
 
 pub fn init(cx: &mut gpui::App) {
     text_input::init(cx);
+    text_area::init(cx);
     password_input::init(cx);
 }
