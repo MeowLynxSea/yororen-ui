@@ -30,8 +30,9 @@ impl RadioOption {
     }
 }
 
+#[track_caller]
 pub fn radio_group() -> RadioGroup {
-    RadioGroup::new()
+    RadioGroup::new().id(ElementId::from(Location::caller()))
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -55,9 +56,10 @@ impl Default for RadioGroup {
 }
 
 impl RadioGroup {
+    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: Some(ElementId::from(Location::caller())),
             base: div(),
             options: Vec::new(),
             value: None,
