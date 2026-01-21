@@ -31,6 +31,7 @@ pub enum IconName {
     Search,
 
     Arrow(ArrowDirection),
+    Check,
     Close,
     Maximize(bool),
     Minimize,
@@ -49,6 +50,7 @@ impl From<IconName> for SharedString {
             IconName::Search => "search".into(),
 
             IconName::Arrow(direction) => format!("arrow-{direction}").into(),
+            IconName::Check => "check".into(),
             IconName::Close => "close".into(),
             IconName::Maximize(i) => format!("maximize-{}", if i { "on" } else { "off" }).into(),
             IconName::Minimize => "minimize".into(),

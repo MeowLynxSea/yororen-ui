@@ -271,9 +271,9 @@ impl Render for TitleBar {
                             1 => {
                                 window.zoom_window();
                                 cx.notify();
-                            },
+                            }
                             2 => window.remove_window(),
-                            _ => {},
+                            _ => {}
                         }))
                 }))
             })
