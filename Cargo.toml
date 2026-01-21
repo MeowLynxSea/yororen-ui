@@ -1,0 +1,15 @@
+[package]
+name = "yororen_ui"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Reusable UI components and widgets built on top of gpui."
+readme = "README.md"
+
+[dependencies]
+gpui = { git = "https://github.com/zed-industries/zed", rev = "acee48bfda7b71e1347129bddccfcca85d40b4c7" }
+
+rust-embed = "8.9.0"
+smallvec = "1.15"
+stacksafe = "1"
+unicode-segmentation = "1"
