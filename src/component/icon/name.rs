@@ -28,6 +28,8 @@ pub enum IconName {
     Microsoft,
     Minecraft,
 
+    Search,
+
     Arrow(ArrowDirection),
     Close,
     Maximize(bool),
@@ -43,6 +45,8 @@ impl From<IconName> for SharedString {
         let name: Cow<str> = match value {
             IconName::Microsoft => "microsoft".into(),
             IconName::Minecraft => "minecraft".into(),
+
+            IconName::Search => "search".into(),
 
             IconName::Arrow(direction) => format!("arrow-{direction}").into(),
             IconName::Close => "close".into(),

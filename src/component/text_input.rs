@@ -16,6 +16,7 @@ actions!(
     [
         Backspace,
         Delete,
+        Enter,
         Left,
         Right,
         SelectLeft,
@@ -39,6 +40,7 @@ pub(crate) fn init(cx: &mut App) {
     cx.bind_keys([
         gpui::KeyBinding::new("backspace", Backspace, Some("UITextInput")),
         gpui::KeyBinding::new("delete", Delete, Some("UITextInput")),
+        gpui::KeyBinding::new("enter", Enter, Some("UITextInput")),
         gpui::KeyBinding::new("left", Left, Some("UITextInput")),
         gpui::KeyBinding::new("right", Right, Some("UITextInput")),
         gpui::KeyBinding::new("shift-left", SelectLeft, Some("UITextInput")),
@@ -677,7 +679,11 @@ pub struct TextInput {
     text_color: Option<Hsla>,
     height: Option<gpui::AbsoluteLength>,
 
+    content: Option<SharedString>,
+
     on_change: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
+
+    on_submit: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
 }
 
 impl TextInput {
@@ -693,7 +699,9 @@ impl TextInput {
             focus_border_color: None,
             text_color: None,
             height: None,
+            content: None,
             on_change: None,
+            on_submit: None,
         }
     }
 
@@ -712,11 +720,24 @@ impl TextInput {
         self
     }
 
+    pub fn content(mut self, content: impl Into<SharedString>) -> Self {
+        self.content = Some(content.into());
+        self
+    }
+
     pub fn on_change<F>(mut self, handler: F) -> Self
     where
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
         self.on_change = Some(Box::new(handler));
+        self
+    }
+
+    pub fn on_submit<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
+    {
+        self.on_submit = Some(Box::new(handler));
         self
     }
 
@@ -783,9 +804,36 @@ impl RenderOnce for TextInput {
         let state = window.use_keyed_state(id.clone(), cx, |_, cx| TextInputState::new(cx));
         let focus_handle = state.read(cx).focus_handle.clone();
         let placeholder = self.placeholder;
+
         state.update(cx, |state, _cx| {
             state.placeholder = placeholder;
         });
+
+        let content = self.content;
+        let last_prop_content = window.use_keyed_state(
+            (id.clone(), "ui:text-input:last-prop-content"),
+            cx,
+            |_, _cx| None::<SharedString>,
+        );
+
+        if let Some(prop_content) = content.clone() {
+            let should_sync = last_prop_content.read(cx).as_ref() != Some(&prop_content);
+            if should_sync {
+                last_prop_content.update(cx, |state, _cx| {
+                    *state = Some(prop_content.clone());
+                });
+
+                if state.read(cx).edit.content() != &prop_content {
+                    state.update(cx, |state, _cx| {
+                        state.set_content(prop_content);
+                    });
+                }
+            }
+        } else if last_prop_content.read(cx).is_some() {
+            last_prop_content.update(cx, |state, _cx| {
+                *state = None;
+            });
+        }
 
         let on_change = self.on_change;
         let last_content =
@@ -817,6 +865,7 @@ impl RenderOnce for TextInput {
         let height = self.height.unwrap_or_else(|| px(36.).into());
         let inset = if disabled { px(6.) } else { px(5.) };
 
+        let on_submit = self.on_submit;
         let mut base = self
             .base
             .id(id.clone())
@@ -835,6 +884,21 @@ impl RenderOnce for TextInput {
             .when(!disabled, |this| this.cursor(CursorStyle::IBeam))
             .when(disabled, |this| this.cursor_not_allowed().opacity(0.6))
             .key_context("UITextInput")
+            .on_action({
+                let state = state.clone();
+                let disabled = disabled;
+                let on_submit = on_submit;
+                move |_: &Enter, window, cx| {
+                    if disabled {
+                        return;
+                    }
+
+                    let content = state.read(cx).edit.content().clone();
+                    if let Some(on_submit) = &on_submit {
+                        on_submit(content.clone(), window, cx);
+                    }
+                }
+            })
             .on_action({
                 let state = state.clone();
                 let disabled = disabled;
