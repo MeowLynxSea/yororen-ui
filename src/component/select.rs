@@ -1,8 +1,9 @@
 use std::{panic::Location, sync::Arc};
 
 use gpui::{
-    ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
-    SharedString, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
+    Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
+    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
+    ease_out_quint, prelude::FluentBuilder, px,
 };
 
 use crate::{
@@ -293,82 +294,86 @@ impl RenderOnce for Select {
                 let internal_value = internal_value_for_select.clone();
                 let text_color = text_color;
 
-                this.child(
-                    div()
-                        .id("select-menu")
-                        .absolute()
-                        .top_full()
-                        .left_0()
-                        .mt(px(10.))
-                        .rounded_md()
-                        .border_1()
-                        .border_color(theme.border.default)
-                        .bg(theme.surface.raised)
-                        .shadow_md()
-                        .py_1()
-                        .when_some(menu_width, |this, width| this.w(width))
-                        .occlude()
-                        .on_mouse_down_out(move |_ev, _window, cx| {
-                            menu_open_for_outside.update(cx, |open, _cx| *open = false);
-                        })
-                        .children(options.into_iter().map(move |opt| {
-                            let is_selected = opt.value == value;
-                            let is_disabled = disabled || opt.disabled;
-                            let option_value = opt.value.clone();
-                            let menu_open_for_select = menu_open_for_select.clone();
-                            let on_change = on_change.clone();
-                            let internal_value = internal_value.clone();
+                let menu = div()
+                    .id("select-menu")
+                    .absolute()
+                    .top_full()
+                    .left_0()
+                    .mt(px(10.))
+                    .rounded_md()
+                    .border_1()
+                    .border_color(theme.border.default)
+                    .bg(theme.surface.raised)
+                    .shadow_md()
+                    .py_1()
+                    .when_some(menu_width, |this, width| this.w(width))
+                    .occlude()
+                    .on_mouse_down_out(move |_ev, _window, cx| {
+                        menu_open_for_outside.update(cx, |open, _cx| *open = false);
+                    })
+                    .children(options.into_iter().map(move |opt| {
+                        let is_selected = opt.value == value;
+                        let is_disabled = disabled || opt.disabled;
+                        let option_value = opt.value.clone();
+                        let menu_open_for_select = menu_open_for_select.clone();
+                        let on_change = on_change.clone();
+                        let internal_value = internal_value.clone();
 
-                            let row_fg = if is_disabled {
-                                theme.content.disabled
-                            } else {
-                                text_color
-                            };
+                        let row_fg = if is_disabled {
+                            theme.content.disabled
+                        } else {
+                            text_color
+                        };
 
-                            div()
-                                .id((
-                                    ElementId::from("ui:select:option"),
-                                    option_value.clone(),
-                                ))
-                                .px_3()
-                                .py_2()
-                                .flex()
-                                .items_center()
-                                .justify_between()
-                                .gap_2()
-                                .text_color(row_fg)
-                                .when(!is_disabled, |this| {
-                                    this.cursor_pointer()
-                                        .hover(|this| this.bg(theme.surface.hover))
-                                })
-                                .when(is_disabled, |this| this.cursor_not_allowed().opacity(0.6))
-                                .child(opt.label)
-                                .when(is_selected, |this| {
-                                    this.child(
-                                        icon(IconName::Check)
-                                            .size(px(12.))
-                                            .color(theme.action.primary.bg),
-                                    )
-                                })
-                                .on_click(move |ev, window, cx| {
-                                    if is_disabled {
-                                        return;
-                                    }
+                        div()
+                            .id((ElementId::from("ui:select:option"), option_value.clone()))
+                            .px_3()
+                            .py_2()
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .gap_2()
+                            .text_color(row_fg)
+                            .when(!is_disabled, |this| {
+                                this.cursor_pointer()
+                                    .hover(|this| this.bg(theme.surface.hover))
+                            })
+                            .when(is_disabled, |this| this.cursor_not_allowed().opacity(0.6))
+                            .child(opt.label)
+                            .when(is_selected, |this| {
+                                this.child(
+                                    icon(IconName::Check)
+                                        .size(px(12.))
+                                        .color(theme.action.primary.bg),
+                                )
+                            })
+                            .on_click(move |ev, window, cx| {
+                                if is_disabled {
+                                    return;
+                                }
 
-                                    if let Some(internal_value) = &internal_value {
-                                        internal_value.update(cx, |state, _| {
-                                            *state = option_value.clone();
-                                        });
-                                    }
+                                if let Some(internal_value) = &internal_value {
+                                    internal_value.update(cx, |state, _| {
+                                        *state = option_value.clone();
+                                    });
+                                }
 
-                                    if let Some(handler) = &on_change {
-                                        handler(option_value.clone(), ev, window, cx);
-                                    }
+                                if let Some(handler) = &on_change {
+                                    handler(option_value.clone(), ev, window, cx);
+                                }
 
-                                    menu_open_for_select.update(cx, |open, _| *open = false);
-                                })
-                        })),
-                )
+                                menu_open_for_select.update(cx, |open, _| *open = false);
+                            })
+                    }));
+
+                let animated_menu = menu.with_animation(
+                    format!("select-menu-{}", is_open),
+                    Animation::new(std::time::Duration::from_millis(160))
+                        .with_easing(ease_out_quint()),
+                    |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
+                );
+
+                this.child(gpui::deferred(animated_menu).with_priority(100))
             })
     }
 }

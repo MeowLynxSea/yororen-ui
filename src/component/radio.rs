@@ -5,10 +5,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::{
-    component::{IconName, icon},
-    theme::ActiveTheme,
-};
+use crate::theme::ActiveTheme;
 
 #[track_caller]
 pub fn radio() -> Radio {
@@ -122,12 +119,14 @@ impl RenderOnce for Radio {
         let theme = cx.theme();
         let accent = tone.unwrap_or_else(|| theme.action.primary.bg);
 
-        let bg = theme.surface.base;
+        let bg = if checked { accent } else { theme.surface.base };
+
         let border = if checked {
             accent
         } else {
             theme.border.default
         };
+
         let fg = if checked {
             theme.action.primary.fg
         } else {
@@ -155,9 +154,7 @@ impl RenderOnce for Radio {
             base = base.cursor_pointer().hover(move |this| this.bg(hover_bg));
         }
 
-        base = base.when(checked, |this| {
-            this.child(icon(IconName::Check).size(px(12.)).color(fg))
-        });
+        base = base.when(checked, |this| this.border_color(accent).text_color(fg));
 
         base.on_click(move |ev, window, cx| {
             if disabled {

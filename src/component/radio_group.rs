@@ -1,5 +1,4 @@
 use std::panic::Location;
-
 use std::sync::Arc;
 
 use gpui::{
@@ -7,9 +6,7 @@ use gpui::{
     RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::{
-    component::{Radio, radio},
-};
+use crate::component::{Radio, radio};
 
 #[derive(Clone, Debug)]
 pub struct RadioOption {
@@ -173,9 +170,10 @@ impl RenderOnce for RadioGroup {
 
         let render_option = self.render_option;
         let options = self.options;
+        let group_id = id.clone();
 
         self.base
-            .id(id.clone())
+            .id(group_id.clone())
             .flex()
             .flex_col()
             .gap_2()
@@ -187,11 +185,14 @@ impl RenderOnce for RadioGroup {
                     .disabled(option_disabled)
                     .when_some(tone, |this, tone| this.tone(tone));
 
-                let radio = radio.on_toggle({
-                    let value = option.value.clone();
-                    let internal_value = internal_value.clone();
-                    let on_change = on_change.clone();
-                    move |_checked, ev, window, cx| {
+                let value = option.value.clone();
+                let value_for_id = value.clone();
+                let option_label = option.label.clone();
+                let internal_value = internal_value.clone();
+                let on_change = on_change.clone();
+
+                let select = Arc::new(
+                    move |ev: &ClickEvent, window: &mut gpui::Window, cx: &mut gpui::App| {
                         if option_disabled {
                             return;
                         }
@@ -205,18 +206,32 @@ impl RenderOnce for RadioGroup {
                         if let Some(handler) = &on_change {
                             handler(value.clone(), ev, window, cx);
                         }
-                    }
+                    },
+                );
+
+                let radio = radio.on_toggle({
+                    let select = select.clone();
+                    move |_checked, ev, window, cx| select(ev, window, cx)
                 });
 
                 if let Some(render_option) = &render_option {
                     render_option(&option, radio)
                 } else {
                     div()
+                        .id((ElementId::from("ui:radio-group:option"), value_for_id))
                         .flex()
                         .items_center()
                         .gap_2()
+                        .when(!option_disabled, |this| this.cursor_pointer())
+                        .when(option_disabled, |this| {
+                            this.cursor_not_allowed().opacity(0.6)
+                        })
+                        .on_click({
+                            let select = select.clone();
+                            move |ev, window, cx| select(ev, window, cx)
+                        })
                         .child(radio)
-                        .child(option.label)
+                        .child(option_label)
                         .into_any_element()
                 }
             }))
