@@ -116,7 +116,7 @@ impl RenderOnce for Tag {
                     .justify_center()
                     .hover(|this| this.bg(cx.theme().action.neutral.hover_bg))
                     .cursor_pointer()
-                    .child(icon(IconName::Close).size(px(10.)).inherit_color(true))
+                    .child(icon(IconName::Close).size(px(10.)).color(tone_fg))
                     .on_click(move |ev, window, cx| {
                         if let Some(handler) = &on_close {
                             handler(ev, window, cx);
