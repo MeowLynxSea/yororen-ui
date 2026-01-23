@@ -169,36 +169,6 @@ When changing visuals:
 - Keep changes `rustfmt` clean.
 
 
-## UI guidelines
+## Wiki
 
-### Keyed state (`key(...)`)
-
-GPUI stores many pieces of UI state (cursor, selection, open menus, toggles, etc.) against an
-`ElementId`. Any component that owns internal UI state should expose a `key(...)` setter as an
-alias for `id(...)`.
-
-- Use `key(...)` when you want to emphasize **state identity** (it reads better at call sites).
-- Always derive keys from your data model (id/uuid/path), not from call sites.
-- In virtualized lists, stable keys are mandatory; otherwise state can “bleed” between recycled
-  rows.
-
-### Virtualization (`VirtualList` / `VirtualRow`)
-
-For long, scrollable content use Yororen UI’s virtualization primitives:
-
-- `VirtualList` (widget): a wrapper around `gpui::list(ListState, ...)`.
-- `VirtualRow` (component): a virtualization-safe row shell.
-
-`VirtualRow` responsibilities:
-
-1) Stable row key (required).
-2) Row-local element namespace, so `Location::caller()`-based ids don’t collide across recycled rows.
-3) Row spacing/dividers belong to the shell; callers should render only content.
-
-If row height can change (expand/collapse, async-loaded content), notify the list via
-`VirtualListController.reset(...)` or `VirtualListController.splice(...)`.
-
-### `ListItem` layout
-
-`ListItem` is a row content container. By default it **does not stretch** child components
-horizontally; children keep their intrinsic widths unless you explicitly opt into flex growth.
+See `wiki/Home.md`.
