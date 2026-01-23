@@ -137,7 +137,7 @@ impl Slider {
         self
     }
 
-    pub fn key(mut self, key: impl Into<ElementId>) -> Self {
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
         self.id(key)
     }
 

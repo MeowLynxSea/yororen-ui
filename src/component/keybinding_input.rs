@@ -65,7 +65,7 @@ impl KeybindingInput {
     }
 
     /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
-    pub fn key(mut self, key: impl Into<ElementId>) -> Self {
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
         self.id(key)
     }
 
