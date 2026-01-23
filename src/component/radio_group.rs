@@ -75,6 +75,11 @@ impl RadioGroup {
         self
     }
 
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(mut self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
+    }
+
     pub fn option(mut self, option: RadioOption) -> Self {
         self.options.push(option);
         self
