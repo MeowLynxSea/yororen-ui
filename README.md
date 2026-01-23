@@ -171,4 +171,4 @@ When changing visuals:
 
 ## Wiki
 
-See `wiki/Home.md`.
+See [Yororen UI Wiki](https://github.com/MeowLynxSea/yororen-ui/wiki)
