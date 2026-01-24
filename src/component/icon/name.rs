@@ -32,6 +32,7 @@ pub enum IconName {
 
     Arrow(ArrowDirection),
     Check,
+    Warning,
     Close,
     Maximize(bool),
     Minimize,
@@ -51,6 +52,7 @@ impl From<IconName> for SharedString {
 
             IconName::Arrow(direction) => format!("arrow-{direction}").into(),
             IconName::Check => "check".into(),
+            IconName::Warning => "warning".into(),
             IconName::Close => "close".into(),
             IconName::Maximize(i) => format!("maximize-{}", if i { "on" } else { "off" }).into(),
             IconName::Minimize => "minimize".into(),
