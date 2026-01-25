@@ -827,6 +827,9 @@ pub struct PasswordInput {
 
     disabled: bool,
 
+    allow_copy: bool,
+    allow_cut: bool,
+
     bg_color: Option<Hsla>,
     border_color: Option<Hsla>,
     focus_border_color: Option<Hsla>,
@@ -844,6 +847,10 @@ impl PasswordInput {
             placeholder: "".into(),
 
             disabled: false,
+
+            allow_copy: false,
+            allow_cut: false,
+
             bg_color: None,
             border_color: None,
             focus_border_color: None,
@@ -870,6 +877,22 @@ impl PasswordInput {
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    /// Allow copy action to write selected text into clipboard.
+    ///
+    /// Default: `false`.
+    pub fn allow_copy(mut self, allow: bool) -> Self {
+        self.allow_copy = allow;
+        self
+    }
+
+    /// Allow cut action to write selected text into clipboard and delete it.
+    ///
+    /// Default: `false`.
+    pub fn allow_cut(mut self, allow: bool) -> Self {
+        self.allow_cut = allow;
         self
     }
 
@@ -940,6 +963,8 @@ impl RenderOnce for PasswordInput {
             .unwrap_or_else(|| ElementId::from(Location::caller()));
 
         let disabled = self.disabled;
+        let allow_copy = self.allow_copy;
+        let allow_cut = self.allow_cut;
 
         let state = window.use_keyed_state(id.clone(), cx, |_, cx| PasswordInputState::new(cx));
         let focus_handle = state.read(cx).focus_handle.clone();
@@ -1113,7 +1138,7 @@ impl RenderOnce for PasswordInput {
                 let state = state.clone();
                 let disabled = disabled;
                 move |action: &Cut, window, cx| {
-                    if disabled {
+                    if disabled || !allow_cut {
                         return;
                     }
                     state.update(cx, |state, cx| state.cut(action, window, cx));
@@ -1123,7 +1148,7 @@ impl RenderOnce for PasswordInput {
                 let state = state.clone();
                 let disabled = disabled;
                 move |action: &Copy, window, cx| {
-                    if disabled {
+                    if disabled || !allow_copy {
                         return;
                     }
                     state.update(cx, |state, cx| state.copy(action, window, cx));
