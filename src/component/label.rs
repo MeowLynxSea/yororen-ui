@@ -21,6 +21,8 @@ pub struct Label {
     mono: bool,
     ellipsis: bool,
     max_lines: Option<usize>,
+
+    preview_lines: Option<usize>,
 }
 
 impl Label {
@@ -36,6 +38,8 @@ impl Label {
             mono: false,
             ellipsis: false,
             max_lines: None,
+
+            preview_lines: None,
         }
     }
 
@@ -73,6 +77,21 @@ impl Label {
         self.max_lines = Some(lines);
         self
     }
+
+    /// Render a multi-line preview that clamps to `lines`.
+    ///
+    /// This is designed for previews of potentially multi-paragraph content (news, descriptions).
+    /// It will:
+    ///
+    /// - Keep only the first paragraph (split on a blank line).
+    /// - Trim trailing whitespace.
+    /// - Apply line clamping to `lines`.
+    ///
+    /// Use the original full text in a modal/popover when the user clicks "read more".
+    pub fn preview_lines(mut self, lines: usize) -> Self {
+        self.preview_lines = Some(lines);
+        self
+    }
 }
 
 impl ParentElement for Label {
@@ -95,14 +114,37 @@ impl RenderOnce for Label {
             self.text.clone().into()
         };
 
-        let base = self
+        let mut base = self
             .base
             .id(id)
             .when(self.strong, |this| this.font_weight(FontWeight::SEMIBOLD))
             .when(self.mono, |this| this.font_family("monospace"))
             .when(self.ellipsis, |this| this.truncate())
-            .when_some(self.max_lines, |this, lines| this.line_clamp(lines))
-            .child(self.text);
+
+            // If both are provided, `preview_lines` wins: it also controls the line clamp.
+            .when_some(self.preview_lines, |this, lines| this.relative().line_clamp(lines))
+            .when(self.preview_lines.is_none(), |this| {
+                this.when_some(self.max_lines, |this, lines| this.line_clamp(lines))
+            });
+
+        if let Some(_lines) = self.preview_lines {
+            let full = self.text.as_ref();
+            let mut paragraphs = full.split("\n\n");
+            let first_paragraph = paragraphs.next().unwrap_or("");
+
+            let trimmed = first_paragraph.trim_end();
+
+            let preview_text: SharedString = if trimmed.is_empty() {
+                self.text
+            } else {
+                // Prevent previews from accidentally showing the next paragraph.
+                SharedString::from(trimmed.replace('\n', " "))
+            };
+
+            base = base.child(preview_text);
+        } else {
+            base = base.child(self.text);
+        }
 
         if self.inherit_color {
             base
