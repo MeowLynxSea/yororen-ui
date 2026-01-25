@@ -1,12 +1,12 @@
 use std::panic::Location;
 
+use gpui::prelude::FluentBuilder;
 use gpui::{
     Div, ElementId, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, Styled,
     div, px,
 };
-use gpui::prelude::FluentBuilder;
 
-use crate::component::{Icon, IconName, Label, Heading, HeadingLevel, button, heading, label};
+use crate::component::{Heading, HeadingLevel, Icon, IconName, Label, button, heading, label};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 #[track_caller]
@@ -95,7 +95,9 @@ impl RenderOnce for EmptyState {
             .unwrap_or_else(|| ElementId::from("ui:empty-state"));
         let theme = cx.theme();
 
-        let icon = self.icon.unwrap_or_else(|| crate::component::icon(IconName::Info));
+        let icon = self
+            .icon
+            .unwrap_or_else(|| crate::component::icon(IconName::Info));
 
         self.base
             .id(id)
@@ -126,9 +128,10 @@ impl RenderOnce for EmptyState {
             )
             .children(self.title.map(|t| t.into_any_element()))
             .children(self.description.map(|d| d.into_any_element()))
-            .children(self.action.map(|a| {
-                div().pt_2().child(a).into_any_element()
-            }))
+            .children(
+                self.action
+                    .map(|a| div().pt_2().child(a).into_any_element()),
+            )
     }
 }
 

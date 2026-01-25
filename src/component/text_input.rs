@@ -31,6 +31,8 @@ actions!(
     ]
 );
 
+type TextInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
+
 #[track_caller]
 pub fn text_input() -> TextInput {
     TextInput::new().id(ElementId::from(Location::caller()))
@@ -681,9 +683,9 @@ pub struct TextInput {
 
     content: Option<SharedString>,
 
-    on_change: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
+    on_change: Option<TextInputHandler>,
 
-    on_submit: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
+    on_submit: Option<TextInputHandler>,
 }
 
 impl TextInput {
@@ -891,7 +893,6 @@ impl RenderOnce for TextInput {
             .key_context("UITextInput")
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 let on_submit = on_submit;
                 move |_: &Enter, window, cx| {
                     if disabled {
@@ -906,7 +907,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Backspace, window, cx| {
                     if disabled {
                         return;
@@ -916,7 +916,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Delete, window, cx| {
                     if disabled {
                         return;
@@ -926,7 +925,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Left, window, cx| {
                     if disabled {
                         return;
@@ -936,7 +934,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Right, window, cx| {
                     if disabled {
                         return;
@@ -946,7 +943,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectLeft, window, cx| {
                     if disabled {
                         return;
@@ -956,7 +952,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectRight, window, cx| {
                     if disabled {
                         return;
@@ -966,7 +961,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectAll, window, cx| {
                     if disabled {
                         return;
@@ -976,7 +970,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Home, window, cx| {
                     if disabled {
                         return;
@@ -986,7 +979,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &End, window, cx| {
                     if disabled {
                         return;
@@ -996,7 +988,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &ShowCharacterPalette, window, cx| {
                     if disabled {
                         return;
@@ -1008,7 +999,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Paste, window, cx| {
                     if disabled {
                         return;
@@ -1018,7 +1008,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Cut, window, cx| {
                     if disabled {
                         return;
@@ -1028,7 +1017,6 @@ impl RenderOnce for TextInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Copy, window, cx| {
                     if disabled {
                         return;
@@ -1038,7 +1026,6 @@ impl RenderOnce for TextInput {
             })
             .on_mouse_down(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1051,7 +1038,6 @@ impl RenderOnce for TextInput {
             })
             .on_mouse_up(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1061,7 +1047,6 @@ impl RenderOnce for TextInput {
             })
             .on_mouse_up_out(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1071,7 +1056,6 @@ impl RenderOnce for TextInput {
             })
             .on_mouse_move({
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;

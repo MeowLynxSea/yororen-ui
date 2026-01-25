@@ -35,6 +35,8 @@ actions!(
     ]
 );
 
+type TextAreaHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
+
 #[track_caller]
 pub fn text_area() -> TextArea {
     TextArea::new().id(ElementId::from(Location::caller()))
@@ -1068,7 +1070,7 @@ pub struct TextArea {
     text_color: Option<Hsla>,
     height: Option<gpui::AbsoluteLength>,
 
-    on_change: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
+    on_change: Option<TextAreaHandler>,
 }
 
 impl TextArea {
@@ -1249,7 +1251,6 @@ impl RenderOnce for TextArea {
             .key_context("UITextArea")
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Backspace, window, cx| {
                     if disabled {
                         return;
@@ -1259,7 +1260,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Delete, window, cx| {
                     if disabled {
                         return;
@@ -1269,7 +1269,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Left, window, cx| {
                     if disabled {
                         return;
@@ -1279,7 +1278,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Right, window, cx| {
                     if disabled {
                         return;
@@ -1289,7 +1287,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Up, window, cx| {
                     if disabled {
                         return;
@@ -1299,7 +1296,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Down, window, cx| {
                     if disabled {
                         return;
@@ -1309,7 +1305,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectLeft, window, cx| {
                     if disabled {
                         return;
@@ -1319,7 +1314,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectRight, window, cx| {
                     if disabled {
                         return;
@@ -1329,7 +1323,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectUp, window, cx| {
                     if disabled {
                         return;
@@ -1339,7 +1332,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectDown, window, cx| {
                     if disabled {
                         return;
@@ -1349,7 +1341,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectAll, window, cx| {
                     if disabled {
                         return;
@@ -1359,7 +1350,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Home, window, cx| {
                     if disabled {
                         return;
@@ -1369,7 +1359,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &End, window, cx| {
                     if disabled {
                         return;
@@ -1379,7 +1368,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Enter, window, cx| {
                     if disabled {
                         return;
@@ -1389,7 +1377,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &ShowCharacterPalette, window, cx| {
                     if disabled {
                         return;
@@ -1401,7 +1388,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Paste, window, cx| {
                     if disabled {
                         return;
@@ -1411,7 +1397,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Cut, window, cx| {
                     if disabled {
                         return;
@@ -1421,7 +1406,6 @@ impl RenderOnce for TextArea {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Copy, window, cx| {
                     if disabled {
                         return;
@@ -1431,7 +1415,6 @@ impl RenderOnce for TextArea {
             })
             .on_mouse_down(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1444,7 +1427,6 @@ impl RenderOnce for TextArea {
             })
             .on_mouse_up(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1454,7 +1436,6 @@ impl RenderOnce for TextArea {
             })
             .on_mouse_up_out(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1464,7 +1445,6 @@ impl RenderOnce for TextArea {
             })
             .on_mouse_move({
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;

@@ -1,4 +1,5 @@
 use std::panic::Location;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use gpui::{
@@ -37,6 +38,8 @@ pub fn radio_group() -> RadioGroup {
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
 
+type RenderOptionFn = Box<dyn Fn(&RadioOption, Radio) -> AnyElement>;
+
 #[derive(IntoElement)]
 pub struct RadioGroup {
     element_id: Option<ElementId>,
@@ -46,7 +49,7 @@ pub struct RadioGroup {
     disabled: bool,
     tone: Option<Hsla>,
     on_change: Option<ChangeFn>,
-    render_option: Option<Box<dyn Fn(&RadioOption, Radio) -> AnyElement>>,
+    render_option: Option<RenderOptionFn>,
 }
 
 impl Default for RadioGroup {
@@ -198,7 +201,7 @@ impl RenderOnce for RadioGroup {
                 let internal_value = internal_value.clone();
                 let on_change = on_change.clone();
 
-                let select = Arc::new(
+                let select = Rc::new(
                     move |ev: &ClickEvent, window: &mut gpui::Window, cx: &mut gpui::App| {
                         if option_disabled {
                             return;

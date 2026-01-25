@@ -9,16 +9,16 @@ pub fn format_keybinding_ui(keystroke: &Keystroke) -> SharedString {
 
 fn push_modifiers(out: &mut String, m: &Modifiers) {
     if m.control {
-        out.push_str("⌃");
+        out.push('⌃');
     }
     if m.alt {
-        out.push_str("⌥");
+        out.push('⌥');
     }
     if m.shift {
-        out.push_str("⇧");
+        out.push('⇧');
     }
     if m.platform {
-        out.push_str("⌘");
+        out.push('⌘');
     }
     if m.function {
         out.push_str("fn ");

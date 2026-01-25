@@ -65,7 +65,6 @@ impl Element for TrackBoundsElement {
             *state = bounds;
         });
         self.inner.prepaint(window, cx);
-        ()
     }
 
     fn paint(
@@ -336,7 +335,7 @@ impl RenderOnce for Slider {
                         return;
                     }
 
-                    let bounds = track_bounds_state.read(cx).clone();
+                    let bounds = *track_bounds_state.read(cx);
                     if bounds.size.width > px(1.) {
                         let x: f32 = ev.position.x.into();
                         set_from_mouse_x(x, bounds, window, cx);
@@ -353,7 +352,7 @@ impl RenderOnce for Slider {
                         return;
                     }
 
-                    let bounds = track_bounds_state.read(cx).clone();
+                    let bounds = *track_bounds_state.read(cx);
                     if bounds.size.width > px(1.) {
                         let x: f32 = ev.event.position.x.into();
                         set_from_mouse_x(x, bounds, window, cx);
@@ -380,7 +379,7 @@ impl RenderOnce for Slider {
                             return;
                         }
 
-                        let bounds = track_bounds_state.read(cx).clone();
+                        let bounds = *track_bounds_state.read(cx);
                         if bounds.size.width > px(1.) {
                             let x: f32 = ev.position.x.into();
                             set_from_mouse_x(x, bounds, window, cx);

@@ -12,6 +12,8 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use crate::theme::ActiveTheme;
 
+type PasswordInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
+
 const MASK_CHAR: char = '•';
 
 actions!(
@@ -413,12 +415,10 @@ impl PasswordInputState {
     }
 
     fn content_offset_for_grapheme_index(&self, grapheme_index: usize) -> usize {
-        let mut current = 0;
-        for (byte_index, _) in self.content.grapheme_indices(true) {
+        for (current, (byte_index, _)) in self.content.grapheme_indices(true).enumerate() {
             if current == grapheme_index {
                 return byte_index;
             }
-            current += 1;
         }
         self.content.len()
     }
@@ -836,7 +836,7 @@ pub struct PasswordInput {
     text_color: Option<Hsla>,
     height: Option<gpui::AbsoluteLength>,
 
-    on_change: Option<Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>>,
+    on_change: Option<PasswordInputHandler>,
 }
 
 impl PasswordInput {
@@ -1024,7 +1024,6 @@ impl RenderOnce for PasswordInput {
             .key_context("UIPasswordInput")
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Backspace, window, cx| {
                     if disabled {
                         return;
@@ -1034,7 +1033,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Delete, window, cx| {
                     if disabled {
                         return;
@@ -1044,7 +1042,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Left, window, cx| {
                     if disabled {
                         return;
@@ -1054,7 +1051,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Right, window, cx| {
                     if disabled {
                         return;
@@ -1064,7 +1060,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectLeft, window, cx| {
                     if disabled {
                         return;
@@ -1074,7 +1069,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectRight, window, cx| {
                     if disabled {
                         return;
@@ -1084,7 +1078,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &SelectAll, window, cx| {
                     if disabled {
                         return;
@@ -1094,7 +1087,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Home, window, cx| {
                     if disabled {
                         return;
@@ -1104,7 +1096,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &End, window, cx| {
                     if disabled {
                         return;
@@ -1114,7 +1105,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &ShowCharacterPalette, window, cx| {
                     if disabled {
                         return;
@@ -1126,7 +1116,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Paste, window, cx| {
                     if disabled {
                         return;
@@ -1136,7 +1125,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Cut, window, cx| {
                     if disabled || !allow_cut {
                         return;
@@ -1146,7 +1134,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_action({
                 let state = state.clone();
-                let disabled = disabled;
                 move |action: &Copy, window, cx| {
                     if disabled || !allow_copy {
                         return;
@@ -1156,7 +1143,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_mouse_down(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1169,7 +1155,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_mouse_up(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1179,7 +1164,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_mouse_up_out(MouseButton::Left, {
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;
@@ -1189,7 +1173,6 @@ impl RenderOnce for PasswordInput {
             })
             .on_mouse_move({
                 let state = state.clone();
-                let disabled = disabled;
                 move |event, window, cx| {
                     if disabled {
                         return;

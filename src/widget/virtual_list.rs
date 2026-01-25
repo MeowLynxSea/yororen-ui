@@ -2,6 +2,9 @@ use gpui::{
     AnyElement, IntoElement, ListAlignment, ListSizingBehavior, Pixels, RenderOnce, Styled, list,
 };
 
+#[allow(clippy::type_complexity)]
+type RenderRowFn = Box<dyn FnMut(usize, &mut gpui::Window, &mut gpui::App) -> AnyElement + 'static>;
+
 /// Controller for a [`VirtualList`].
 ///
 /// This is intentionally a thin wrapper over `gpui::ListState` so Yororen UI users
@@ -48,7 +51,7 @@ impl VirtualListController {
 pub struct VirtualList {
     state: gpui::ListState,
     sizing_behavior: ListSizingBehavior,
-    render_row: Box<dyn FnMut(usize, &mut gpui::Window, &mut gpui::App) -> AnyElement + 'static>,
+    render_row: RenderRowFn,
     style: gpui::StyleRefinement,
 }
 

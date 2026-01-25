@@ -116,7 +116,10 @@ impl RenderOnce for Spinner {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let id = self.element_id.unwrap_or_else(|| "ui:spinner".into());
         let diameter = self.diameter.unwrap_or_else(|| self.size.pixels());
-        let stroke = self.stroke.unwrap_or_else(|| self.size.stroke()).max(px(1.));
+        let stroke = self
+            .stroke
+            .unwrap_or_else(|| self.size.stroke())
+            .max(px(1.));
 
         let theme = cx.theme();
         let track = theme.border.muted;
@@ -479,77 +482,74 @@ impl RenderOnce for ProgressCircle {
         let indicator = self.indicator_color.unwrap_or(theme.action.primary.bg);
 
         let diameter = self.diameter.unwrap_or_else(|| self.size.pixels());
-        let stroke = self.stroke.unwrap_or_else(|| self.size.stroke()).max(px(1.));
+        let stroke = self
+            .stroke
+            .unwrap_or_else(|| self.size.stroke())
+            .max(px(1.));
         let t = self.value.clamp(0.0, 1.0);
 
-        self.base
-            .id(id)
-            .relative()
-            .w(diameter)
-            .h(diameter)
-            .child(
-                gpui::canvas(
-                    move |_bounds, _window, _cx| (),
-                    move |bounds, _, window, _cx| {
-                        let tau = std::f32::consts::TAU;
-                        let start_angle = -std::f32::consts::FRAC_PI_2;
+        self.base.id(id).relative().w(diameter).h(diameter).child(
+            gpui::canvas(
+                move |_bounds, _window, _cx| (),
+                move |bounds, _, window, _cx| {
+                    let tau = std::f32::consts::TAU;
+                    let start_angle = -std::f32::consts::FRAC_PI_2;
 
-                        let center = gpui::point(
-                            bounds.origin.x + (bounds.size.width / 2.0),
-                            bounds.origin.y + (bounds.size.height / 2.0),
+                    let center = gpui::point(
+                        bounds.origin.x + (bounds.size.width / 2.0),
+                        bounds.origin.y + (bounds.size.height / 2.0),
+                    );
+                    let radius = (bounds.size.width.min(bounds.size.height) / 2.0) - (stroke / 2.0);
+                    if radius <= px(0.5) {
+                        return;
+                    }
+
+                    let steps = 128usize;
+
+                    // Track circle
+                    let mut track_path = gpui::PathBuilder::stroke(stroke);
+                    for i in 0..=steps {
+                        let frac = i as f32 / steps as f32;
+                        let angle = start_angle + (tau * frac);
+                        let p = gpui::point(
+                            center.x + radius * angle.cos(),
+                            center.y + radius * angle.sin(),
                         );
-                        let radius = (bounds.size.width.min(bounds.size.height) / 2.0)
-                            - (stroke / 2.0);
-                        if radius <= px(0.5) {
-                            return;
+                        if i == 0 {
+                            track_path.move_to(p);
+                        } else {
+                            track_path.line_to(p);
                         }
+                    }
+                    if let Ok(path) = track_path.build() {
+                        window.paint_path(path, track);
+                    }
 
-                        let steps = 128usize;
-
-                        // Track circle
-                        let mut track_path = gpui::PathBuilder::stroke(stroke);
+                    // Indicator arc
+                    let sweep = (t * tau).clamp(0.0, tau);
+                    if sweep > 0.0 {
+                        let mut arc_path = gpui::PathBuilder::stroke(stroke);
                         for i in 0..=steps {
                             let frac = i as f32 / steps as f32;
-                            let angle = start_angle + (tau * frac);
+                            let angle = start_angle + (sweep * frac);
                             let p = gpui::point(
                                 center.x + radius * angle.cos(),
                                 center.y + radius * angle.sin(),
                             );
                             if i == 0 {
-                                track_path.move_to(p);
+                                arc_path.move_to(p);
                             } else {
-                                track_path.line_to(p);
+                                arc_path.line_to(p);
                             }
                         }
-                        if let Ok(path) = track_path.build() {
-                            window.paint_path(path, track);
+                        if let Ok(path) = arc_path.build() {
+                            window.paint_path(path, indicator);
                         }
-
-                        // Indicator arc
-                        let sweep = (t * tau).clamp(0.0, tau);
-                        if sweep > 0.0 {
-                            let mut arc_path = gpui::PathBuilder::stroke(stroke);
-                            for i in 0..=steps {
-                                let frac = i as f32 / steps as f32;
-                                let angle = start_angle + (sweep * frac);
-                                let p = gpui::point(
-                                    center.x + radius * angle.cos(),
-                                    center.y + radius * angle.sin(),
-                                );
-                                if i == 0 {
-                                    arc_path.move_to(p);
-                                } else {
-                                    arc_path.line_to(p);
-                                }
-                            }
-                            if let Ok(path) = arc_path.build() {
-                                window.paint_path(path, indicator);
-                            }
-                        }
-                    },
-                )
-                .w_full()
-                .h_full(),
+                    }
+                },
             )
+            .w_full()
+            .h_full(),
+        )
     }
 }

@@ -260,7 +260,7 @@ impl RenderOnce for NumberInput {
                         .on_change({
                             let set_value = set_value.clone();
                             move |value, window, cx| {
-                                if let Some(parsed) = sanitize(&value.to_string()) {
+                                if let Some(parsed) = sanitize(value.as_ref()) {
                                     set_value(parsed, window, cx);
                                 }
                             }

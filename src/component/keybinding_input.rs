@@ -304,7 +304,7 @@ impl RenderOnce for KeybindingInput {
             .border_color(border_color)
             .focusable()
             .focus_visible(|style| style.border_2().border_color(focus_border_color))
-            .track_focus(&focus_handle.read(cx))
+            .track_focus(focus_handle.read(cx))
             .when(disabled, |this| this.opacity(0.6).cursor_not_allowed())
             .when(!disabled, |this| this.cursor_pointer())
             .on_click({
@@ -373,8 +373,10 @@ impl RenderOnce for KeybindingInput {
             .child(
                 div().flex().items_center().gap_2().child(
                     (if is_active {
-                        let mut ks = Keystroke::default();
-                        ks.modifiers = mods_for_display;
+                        let ks = Keystroke {
+                            modifiers: mods_for_display,
+                            ..Default::default()
+                        };
                         let hint = if ks.modifiers.modified() {
                             format_keybinding_ui(&ks)
                         } else {
