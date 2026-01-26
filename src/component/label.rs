@@ -48,6 +48,11 @@ impl Label {
         self
     }
 
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
+    }
+
     pub fn muted(mut self, value: bool) -> Self {
         self.muted = value;
         self
@@ -120,9 +125,10 @@ impl RenderOnce for Label {
             .when(self.strong, |this| this.font_weight(FontWeight::SEMIBOLD))
             .when(self.mono, |this| this.font_family("monospace"))
             .when(self.ellipsis, |this| this.truncate())
-
             // If both are provided, `preview_lines` wins: it also controls the line clamp.
-            .when_some(self.preview_lines, |this, lines| this.relative().line_clamp(lines))
+            .when_some(self.preview_lines, |this, lines| {
+                this.relative().line_clamp(lines)
+            })
             .when(self.preview_lines.is_none(), |this| {
                 this.when_some(self.max_lines, |this, lines| this.line_clamp(lines))
             });

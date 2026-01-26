@@ -1,8 +1,8 @@
 mod avatar;
 mod badge;
-mod card;
 mod button;
 mod button_group;
+mod card;
 mod checkbox;
 mod clickable_surface;
 mod combo_box;
@@ -50,9 +50,9 @@ mod virtual_row;
 
 pub use avatar::*;
 pub use badge::*;
-pub use card::*;
 pub use button::*;
 pub use button_group::*;
+pub use card::*;
 pub use checkbox::*;
 pub use clickable_surface::*;
 pub use combo_box::*;

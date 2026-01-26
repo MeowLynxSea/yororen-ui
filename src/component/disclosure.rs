@@ -18,6 +18,7 @@ pub fn disclosure() -> Disclosure {
 #[derive(IntoElement)]
 pub struct Disclosure {
     element_id: Option<ElementId>,
+    base: gpui::Div,
     expanded: bool,
     size: gpui::Pixels,
 }
@@ -33,6 +34,7 @@ impl Disclosure {
     pub fn new() -> Self {
         Self {
             element_id: Some(ElementId::from(Location::caller())),
+            base: div(),
             expanded: false,
             size: px(14.),
         }
@@ -41,6 +43,11 @@ impl Disclosure {
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
         self.element_id = Some(id.into());
         self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn expanded(mut self, expanded: bool) -> Self {
@@ -54,13 +61,31 @@ impl Disclosure {
     }
 }
 
+impl ParentElement for Disclosure {
+    fn extend(&mut self, elements: impl IntoIterator<Item = gpui::AnyElement>) {
+        self.base.extend(elements);
+    }
+}
+
+impl Styled for Disclosure {
+    fn style(&mut self) -> &mut gpui::StyleRefinement {
+        self.base.style()
+    }
+}
+
+impl InteractiveElement for Disclosure {
+    fn interactivity(&mut self) -> &mut gpui::Interactivity {
+        self.base.interactivity()
+    }
+}
+
 impl RenderOnce for Disclosure {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let id = self.element_id.unwrap_or_else(|| "disclosure".into());
         let expanded = self.expanded;
         let size = self.size;
 
-        div()
+        self.base
             .id(id)
             .w(size)
             .h(size)

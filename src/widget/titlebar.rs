@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use gpui::{
-    Animation, AnimationExt, App, Decorations, Entity, FontWeight, MouseDownEvent, div,
-    ease_out_quint, prelude::*, px,
+    Animation, AnimationExt, App, Decorations, Entity, FontWeight, MouseDownEvent, SharedString,
+    div, ease_out_quint, prelude::*, px,
 };
 
 use crate::{
@@ -10,33 +10,66 @@ use crate::{
     theme::ActiveTheme,
 };
 
+pub const DEFAULT_NAV_ITEMS: [&str; 5] = ["Home", "Explore", "Player", "Components", "Settings"];
 
-pub const DEFAULT_NAV_ITEMS: [&str; 5] = ["首页", "探索", "角色", "组件", "设置"];
+#[derive(Clone, Debug, Default)]
+pub struct TitleBarConfig {
+    pub title: SharedString,
+    pub badge: Option<SharedString>,
+}
+
+impl TitleBarConfig {
+    pub fn new(title: impl Into<SharedString>) -> Self {
+        Self {
+            title: title.into(),
+            badge: None,
+        }
+    }
+
+    pub fn badge(mut self, badge: impl Into<SharedString>) -> Self {
+        self.badge = Some(badge.into());
+        self
+    }
+}
 
 pub fn titlebar(cx: &mut App) -> Entity<TitleBar> {
     cx.new(|cx| TitleBar::new(cx))
 }
 
+pub fn titlebar_with_config(cx: &mut App, config: TitleBarConfig) -> Entity<TitleBar> {
+    cx.new(|cx| TitleBar::with_items_and_config(cx, DEFAULT_NAV_ITEMS, config))
+}
+
 pub fn titlebar_with_items(
     cx: &mut App,
-    items: impl IntoIterator<Item = &'static str>,
+    items: impl IntoIterator<Item = impl Into<SharedString>>,
 ) -> Entity<TitleBar> {
-    let items: Vec<&'static str> = items.into_iter().collect();
     cx.new(|cx| TitleBar::with_items(cx, items))
+}
+
+pub fn titlebar_with_items_and_config(
+    cx: &mut App,
+    items: impl IntoIterator<Item = impl Into<SharedString>>,
+    config: TitleBarConfig,
+) -> Entity<TitleBar> {
+    cx.new(|cx| TitleBar::with_items_and_config(cx, items, config))
 }
 
 pub fn navigator(cx: &mut App) -> Navigator {
     Navigator::new(cx)
 }
 
-pub fn navigator_with_items(cx: &mut App, items: Vec<&'static str>) -> Navigator {
+pub fn navigator_with_items(
+    cx: &mut App,
+    items: impl IntoIterator<Item = impl Into<SharedString>>,
+) -> Navigator {
     Navigator::with_items(cx, items)
 }
 
 #[derive(IntoElement, Clone)]
 pub struct Navigator {
     navigator_state: Entity<NavigatorState>,
-    items: Vec<&'static str>,
+    items: Vec<SharedString>,
 }
 
 impl Navigator {
@@ -91,10 +124,13 @@ impl Navigator {
         Self::with_items(cx, DEFAULT_NAV_ITEMS)
     }
 
-    pub fn with_items(cx: &mut App, items: impl IntoIterator<Item = &'static str>) -> Self {
+    pub fn with_items(
+        cx: &mut App,
+        items: impl IntoIterator<Item = impl Into<SharedString>>,
+    ) -> Self {
         Self {
             navigator_state: cx.new(|_cx| NavigatorState::new()),
-            items: items.into_iter().collect(),
+            items: items.into_iter().map(Into::into).collect(),
         }
     }
 }
@@ -153,6 +189,8 @@ impl RenderOnce for Navigator {
 pub struct TitleBar {
     navigator: Navigator,
     should_move: bool,
+    title: SharedString,
+    badge: Option<SharedString>,
 }
 
 impl TitleBar {
@@ -160,13 +198,28 @@ impl TitleBar {
         Self {
             navigator: navigator(cx),
             should_move: false,
+            title: SharedString::default(),
+            badge: None,
         }
     }
 
-    pub fn with_items(cx: &mut App, items: Vec<&'static str>) -> Self {
+    pub fn with_items(
+        cx: &mut App,
+        items: impl IntoIterator<Item = impl Into<SharedString>>,
+    ) -> Self {
+        Self::with_items_and_config(cx, items, TitleBarConfig::default())
+    }
+
+    pub fn with_items_and_config(
+        cx: &mut App,
+        items: impl IntoIterator<Item = impl Into<SharedString>>,
+        config: TitleBarConfig,
+    ) -> Self {
         Self {
             navigator: navigator_with_items(cx, items),
             should_move: false,
+            title: config.title,
+            badge: config.badge,
         }
     }
 
@@ -220,8 +273,8 @@ impl Render for TitleBar {
                     .flex_row()
                     .items_center()
                     .gap_2()
-                    .child("Vertex Hub")
-                    .child(
+                    .child(self.title.clone())
+                    .children(self.badge.clone().map(|badge| {
                         div()
                             .h_6()
                             .px_2()
@@ -233,8 +286,9 @@ impl Render for TitleBar {
                             .flex()
                             .justify_center()
                             .items_center()
-                            .child("Beta"),
-                    ),
+                            .child(badge)
+                            .into_any_element()
+                    })),
             )
             .child(div().flex_grow())
             .child(self.navigator.clone())

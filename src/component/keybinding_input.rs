@@ -25,6 +25,7 @@ pub struct KeybindingInput {
 
     value: Option<SharedString>,
     placeholder: SharedString,
+    waiting_hint: SharedString,
     disabled: bool,
 
     bg_color: Option<Hsla>,
@@ -49,6 +50,7 @@ impl KeybindingInput {
             base: div(),
             value: None,
             placeholder: "Press keys…".into(),
+            waiting_hint: "Waiting for keys…".into(),
             disabled: false,
             bg_color: None,
             border_color: None,
@@ -76,6 +78,11 @@ impl KeybindingInput {
 
     pub fn placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
         self.placeholder = placeholder.into();
+        self
+    }
+
+    pub fn waiting_hint(mut self, hint: impl Into<SharedString>) -> Self {
+        self.waiting_hint = hint.into();
         self
     }
 
@@ -169,6 +176,7 @@ impl RenderOnce for KeybindingInput {
 
         let height = self.height.unwrap_or_else(|| px(36.).into());
         let placeholder = self.placeholder;
+        let waiting_hint = self.waiting_hint;
 
         let on_change = self.on_change;
         let use_internal_value = on_change.is_none();
@@ -380,7 +388,7 @@ impl RenderOnce for KeybindingInput {
                         let hint = if ks.modifiers.modified() {
                             format_keybinding_ui(&ks)
                         } else {
-                            SharedString::new_static("等待按键…")
+                            waiting_hint.clone()
                         };
 
                         div()

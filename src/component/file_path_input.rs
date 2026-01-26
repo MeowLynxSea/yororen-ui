@@ -31,6 +31,8 @@ pub struct FilePathInput {
 
     value: Option<PathBuf>,
     placeholder: SharedString,
+    button_label: SharedString,
+    dialog_prompt: SharedString,
     disabled: bool,
 
     status: Option<FilePathStatus>,
@@ -56,7 +58,9 @@ impl FilePathInput {
             element_id: None,
             base: div(),
             value: None,
-            placeholder: "选择路径…".into(),
+            placeholder: "Select a path…".into(),
+            button_label: "Select…".into(),
+            dialog_prompt: "Select a path".into(),
             disabled: false,
             status: None,
             bg_color: None,
@@ -85,6 +89,16 @@ impl FilePathInput {
 
     pub fn placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
         self.placeholder = placeholder.into();
+        self
+    }
+
+    pub fn button_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.button_label = label.into();
+        self
+    }
+
+    pub fn dialog_prompt(mut self, prompt: impl Into<SharedString>) -> Self {
+        self.dialog_prompt = prompt.into();
         self
     }
 
@@ -237,16 +251,17 @@ impl RenderOnce for FilePathInput {
                     .rounded_md()
                     .variant(ActionVariantKind::Neutral)
                     .disabled(disabled)
-                    .child(label("选择…").inherit_color(true))
+                    .child(label(self.button_label).inherit_color(true))
                     .on_click({
                         let value_state = value_state.clone();
                         let on_change = on_change.clone();
+                        let dialog_prompt = self.dialog_prompt.clone();
                         move |_ev: &ClickEvent, window, cx| {
                             if disabled {
                                 return;
                             }
 
-                            let prompt = Some(SharedString::new_static("选择路径"));
+                            let prompt = Some(dialog_prompt.clone());
                             let receiver = cx.prompt_for_paths(gpui::PathPromptOptions {
                                 files: true,
                                 directories: true,

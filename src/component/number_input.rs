@@ -91,6 +91,7 @@ impl NumberInput {
     }
 
     pub fn step(mut self, step: f64) -> Self {
+        assert!(step != 0.0, "NumberInput step cannot be zero");
         self.step = step;
         self
     }
@@ -166,7 +167,7 @@ impl RenderOnce for NumberInput {
             .unwrap_or_else(|| ElementId::from(Location::caller()));
 
         let disabled = self.disabled;
-        let step = if self.step == 0.0 { 1.0 } else { self.step };
+        let step = self.step;
         let min = self.min;
         let max = self.max;
         let on_change = self.on_change;

@@ -38,6 +38,11 @@ impl FocusRing {
         self
     }
 
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
+    }
+
     pub fn color(mut self, color: impl Into<Hsla>) -> Self {
         self.color = Some(color.into());
         self

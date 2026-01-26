@@ -48,6 +48,7 @@ pub struct ComboBox {
 
     value: Option<String>,
     placeholder: SharedString,
+    search_placeholder: SharedString,
     disabled: bool,
 
     bg_color: Option<Hsla>,
@@ -75,6 +76,7 @@ impl ComboBox {
             options: Vec::new(),
             value: None,
             placeholder: "Select…".into(),
+            search_placeholder: "Search…".into(),
             disabled: false,
             bg_color: None,
             border_color: None,
@@ -114,6 +116,11 @@ impl ComboBox {
 
     pub fn placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
         self.placeholder = placeholder.into();
+        self
+    }
+
+    pub fn search_placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
+        self.search_placeholder = placeholder.into();
         self
     }
 
@@ -198,6 +205,7 @@ impl RenderOnce for ComboBox {
         let menu_width = self.menu_width;
         let options = self.options;
         let placeholder = self.placeholder;
+        let search_placeholder = self.search_placeholder;
         let on_change = self.on_change;
         let max_results = self.max_results;
 
@@ -354,7 +362,7 @@ impl RenderOnce for ComboBox {
                         div().px_2().pb_2().child(
                             text_input()
                                 .id(query_id.clone())
-                                .placeholder("搜索…")
+                                .placeholder(search_placeholder)
                                 .bg(theme.surface.base)
                                 .border(theme.border.default)
                                 .focus_border(theme.border.focus)

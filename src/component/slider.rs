@@ -141,12 +141,17 @@ impl Slider {
     }
 
     pub fn range(mut self, min: f32, max: f32) -> Self {
+        assert!(
+            min < max,
+            "Slider range: min ({min}) must be less than max ({max})"
+        );
         self.min = min;
         self.max = max;
         self
     }
 
     pub fn step(mut self, step: f32) -> Self {
+        assert!(step > 0.0, "Slider step must be greater than 0");
         self.step = Some(step);
         self
     }

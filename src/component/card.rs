@@ -1,6 +1,9 @@
 use std::panic::Location;
 
-use gpui::{DefiniteLength, Div, Edges, EdgesRefinement, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div};
+use gpui::{
+    DefiniteLength, Div, Edges, EdgesRefinement, ElementId, Hsla, InteractiveElement, IntoElement,
+    ParentElement, RenderOnce, Styled, div,
+};
 
 use crate::theme::ActiveTheme;
 

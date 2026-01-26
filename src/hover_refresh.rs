@@ -11,7 +11,6 @@ where
     fn hover_bg_refresh(self, bg: impl Into<Hsla>) -> Self {
         let bg = bg.into();
         self.hover(move |this| this.bg(bg))
-            
     }
 }
 

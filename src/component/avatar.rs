@@ -1,14 +1,15 @@
-use std::sync::Arc;
+use std::{panic::Location, sync::Arc};
 
 use gpui::{
-    Div, Hsla, Image, IntoElement, ObjectFit, ParentElement, RenderOnce, Styled, StyledImage, div,
-    img, prelude::FluentBuilder, px,
+    Div, ElementId, Hsla, Image, InteractiveElement, IntoElement, ObjectFit, ParentElement,
+    RenderOnce, Styled, StyledImage, div, img, prelude::FluentBuilder, px,
 };
 
 use crate::theme::ActiveTheme;
 
+#[track_caller]
 pub fn avatar(image: Option<Arc<Image>>) -> Avatar {
-    Avatar::new(image)
+    Avatar::new(image).id(ElementId::from(Location::caller()))
 }
 
 #[derive(Clone, Copy)]
@@ -19,6 +20,7 @@ pub enum AvatarShape {
 
 #[derive(IntoElement)]
 pub struct Avatar {
+    element_id: Option<ElementId>,
     base: Div,
     image: Option<Arc<Image>>,
     shape: AvatarShape,
@@ -27,14 +29,26 @@ pub struct Avatar {
 }
 
 impl Avatar {
+    #[track_caller]
     pub fn new(image: Option<Arc<Image>>) -> Self {
         Self {
+            element_id: Some(ElementId::from(Location::caller())),
             base: div(),
             image,
             shape: AvatarShape::Circle,
             bg_color: None,
             status: None,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = Some(id.into());
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn shape(mut self, shape: AvatarShape) -> Self {
@@ -67,10 +81,15 @@ impl Styled for Avatar {
 
 impl RenderOnce for Avatar {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
+        let id = self
+            .element_id
+            .unwrap_or_else(|| ElementId::from(Location::caller()));
+
         let is_circle = matches!(self.shape, AvatarShape::Circle);
 
         let mut base = self
             .base
+            .id(id)
             .size_10()
             .overflow_hidden()
             .flex()
