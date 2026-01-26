@@ -253,18 +253,52 @@ impl Global for GlobalTheme {}
 
 impl GlobalTheme {
     pub fn new(appearance: WindowAppearance) -> Self {
-        match appearance {
-            WindowAppearance::Dark | WindowAppearance::VibrantDark => Self {
-                theme: Arc::new(Theme::default_dark()),
-            },
-            WindowAppearance::Light | WindowAppearance::VibrantLight => Self {
-                theme: Arc::new(Theme::default_light()),
-            },
+        Self::new_with_themes(
+            appearance,
+            ThemeSet::new(Theme::default_light()).dark(Theme::default_dark()),
+        )
+    }
+
+    pub fn new_with_themes(appearance: WindowAppearance, themes: ThemeSet) -> Self {
+        Self {
+            theme: themes.resolve(appearance),
         }
     }
 
     fn theme(cx: &App) -> &Arc<Theme> {
         &cx.global::<Self>().theme
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ThemeSet {
+    pub light: Arc<Theme>,
+    pub dark: Option<Arc<Theme>>,
+}
+
+impl ThemeSet {
+    pub fn new(light: impl Into<Arc<Theme>>) -> Self {
+        Self {
+            light: light.into(),
+            dark: None,
+        }
+    }
+
+    pub fn dark(mut self, dark: impl Into<Arc<Theme>>) -> Self {
+        self.dark = Some(dark.into());
+        self
+    }
+
+    pub fn resolve(&self, appearance: WindowAppearance) -> Arc<Theme> {
+        if let Some(dark) = &self.dark {
+            match appearance {
+                WindowAppearance::Dark | WindowAppearance::VibrantDark => dark.clone(),
+                WindowAppearance::Light | WindowAppearance::VibrantLight => self.light.clone(),
+            }
+        } else {
+            // If the caller did not provide a dark palette, force light mode.
+            self.light.clone()
+        }
     }
 }
 
