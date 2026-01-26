@@ -10,6 +10,7 @@ use crate::{
     theme::ActiveTheme,
 };
 
+
 pub const DEFAULT_NAV_ITEMS: [&str; 5] = ["首页", "探索", "角色", "组件", "设置"];
 
 pub fn titlebar(cx: &mut App) -> Entity<TitleBar> {
@@ -265,7 +266,7 @@ impl Render for TitleBar {
                             .size(px(10.)),
                         )
                         .cursor_pointer()
-                        .hover(|this| this.bg(cx.theme().action.neutral.hover_bg))
+                        .map(|this| this.hover(|this| this.bg(cx.theme().action.neutral.hover_bg)))
                         .on_click(cx.listener(move |_this, _ev, window, cx| match i {
                             0 => window.minimize_window(),
                             1 => {
