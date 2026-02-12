@@ -20,6 +20,7 @@ pub struct Label {
     inherit_color: bool,
     mono: bool,
     ellipsis: bool,
+    wrap: bool,
     max_lines: Option<usize>,
 
     preview_lines: Option<usize>,
@@ -37,6 +38,7 @@ impl Label {
             inherit_color: false,
             mono: false,
             ellipsis: false,
+            wrap: false,
             max_lines: None,
 
             preview_lines: None,
@@ -75,6 +77,11 @@ impl Label {
 
     pub fn ellipsis(mut self, value: bool) -> Self {
         self.ellipsis = value;
+        self
+    }
+
+    pub fn wrap(mut self) -> Self {
+        self.wrap = true;
         self
     }
 
@@ -125,6 +132,10 @@ impl RenderOnce for Label {
             .when(self.strong, |this| this.font_weight(FontWeight::SEMIBOLD))
             .when(self.mono, |this| this.font_family("monospace"))
             .when(self.ellipsis, |this| this.truncate())
+            // If wrap is enabled and ellipsis is not, allow text to wrap naturally
+            .when(self.wrap && !self.ellipsis, |this| {
+                this.overflow_x_hidden().overflow_y_hidden().whitespace_normal()
+            })
             // If both are provided, `preview_lines` wins: it also controls the line clamp.
             .when_some(self.preview_lines, |this, lines| {
                 this.relative().line_clamp(lines)

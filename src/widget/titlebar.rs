@@ -5,10 +5,7 @@ use gpui::{
     div, ease_out_quint, prelude::*, px,
 };
 
-use crate::{
-    component::{IconName, icon},
-    theme::ActiveTheme,
-};
+use crate::{component::icon, theme::ActiveTheme};
 
 pub const DEFAULT_NAV_ITEMS: [&str; 5] = ["Home", "Explore", "Player", "Components", "Settings"];
 
@@ -188,7 +185,6 @@ impl RenderOnce for Navigator {
 
 pub struct TitleBar {
     navigator: Navigator,
-    should_move: bool,
     title: SharedString,
     badge: Option<SharedString>,
 }
@@ -197,7 +193,6 @@ impl TitleBar {
     pub fn new(cx: &mut App) -> Self {
         Self {
             navigator: navigator(cx),
-            should_move: false,
             title: SharedString::default(),
             badge: None,
         }
@@ -217,7 +212,6 @@ impl TitleBar {
     ) -> Self {
         Self {
             navigator: navigator_with_items(cx, items),
-            should_move: false,
             title: config.title,
             badge: config.badge,
         }
@@ -228,7 +222,7 @@ impl TitleBar {
     }
 }
 
-#[cfg(macos_sdk_26)]
+#[cfg(all(target_os = "macos", macos_sdk_26))]
 const TRAFFIC_LIGHT_WIDTH: f32 = 73.;
 
 #[cfg(all(target_os = "macos", not(macos_sdk_26)))]
@@ -251,16 +245,18 @@ impl Render for TitleBar {
 
         let window_is_maximized = is_tiled;
 
-        div()
-            .id("titlebar")
+        let drag_area = div()
+            .id("titlebar:drag-area")
             .window_control_area(gpui::WindowControlArea::Drag)
-            .w_full()
-            .h_10()
-            .pl_3()
-            .text_color(cx.theme().content.primary)
+            .h_full()
             .flex()
             .flex_row()
             .items_center()
+            // Occupy remaining space so nav items stay on the right.
+            // (Also keeps the empty area draggable on Windows.)
+            .flex_grow()
+            .min_w(px(0.0))
+            .pl_3()
             .when(
                 !window.is_fullscreen() && cfg!(target_os = "macos"),
                 |this| this.child(div().id("traffic-light-pos").w(px(TRAFFIC_LIGHT_WIDTH))),
@@ -290,35 +286,50 @@ impl Render for TitleBar {
                             .into_any_element()
                     })),
             )
-            .child(div().flex_grow())
+            // Keep the draggable region on the left side (including empty space before the nav)
+            // so it doesn't interfere with nav items or window controls.
+            .child(div().flex_grow());
+
+        div()
+            .id("titlebar")
+            .w_full()
+            .h_10()
+            .text_color(cx.theme().content.primary)
+            .flex()
+            .flex_row()
+            .items_center()
+            .child(drag_area)
             .child(self.navigator.clone())
             .when(cfg!(not(target_os = "macos")) && !is_tiled, |this| {
                 this.children((0..3).map(|i| {
-                    // TO FIX: Still have problem on maximized status
-                    //         The maxmized status cannot solve system fullscreen events now.
+                    let (area, icon_path): (gpui::WindowControlArea, SharedString) = match i {
+                        0 => (
+                            gpui::WindowControlArea::Min,
+                            "icons/window-minimize.svg".into(),
+                        ),
+                        1 => (
+                            gpui::WindowControlArea::Max,
+                            if window_is_maximized {
+                                "icons/window-maximize-on.svg".into()
+                            } else {
+                                "icons/window-maximize-off.svg".into()
+                            },
+                        ),
+                        _ => (
+                            gpui::WindowControlArea::Close,
+                            "icons/window-close.svg".into(),
+                        ),
+                    };
 
                     div()
-                        .id(i)
-                        .window_control_area(
-                            [
-                                gpui::WindowControlArea::Min,
-                                gpui::WindowControlArea::Max,
-                                gpui::WindowControlArea::Close,
-                            ][i],
-                        )
+                        .id(("window-control", i as usize))
+                        .window_control_area(area)
                         .w(px(56.))
                         .h_full()
                         .flex()
                         .justify_center()
                         .items_center()
-                        .child(
-                            icon(match i {
-                                0 => IconName::Minimize,
-                                1 => IconName::Maximize(window_is_maximized),
-                                _ => IconName::Close,
-                            })
-                            .size(px(10.)),
-                        )
+                        .child(icon(icon_path).size(px(12.)))
                         .cursor_pointer()
                         .map(|this| this.hover(|this| this.bg(cx.theme().action.neutral.hover_bg)))
                         .on_click(cx.listener(move |_this, _ev, window, cx| match i {
@@ -332,31 +343,14 @@ impl Render for TitleBar {
                         }))
                 }))
             })
-            .on_mouse_down_out(cx.listener(move |this, _ev, _window, _cx| {
-                this.should_move = false;
-            }))
-            .on_mouse_up(
-                gpui::MouseButton::Left,
-                cx.listener(move |this, _ev, _window, _cx| {
-                    this.should_move = false;
-                }),
-            )
             .on_mouse_down(
                 gpui::MouseButton::Left,
-                cx.listener(move |this, ev: &MouseDownEvent, window, cx| {
+                cx.listener(move |_this, ev: &MouseDownEvent, window, cx| {
                     if ev.click_count > 1 {
                         window.zoom_window();
                         cx.notify();
-                    } else {
-                        this.should_move = true;
                     }
                 }),
             )
-            .on_mouse_move(cx.listener(move |this, _ev, window, _| {
-                if this.should_move {
-                    this.should_move = false;
-                    window.start_window_move();
-                }
-            }))
     }
 }
