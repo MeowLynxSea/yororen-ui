@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     DefiniteLength, Div, Edges, EdgesRefinement, ElementId, Hsla, InteractiveElement, IntoElement,
     ParentElement, RenderOnce, Styled, div,
@@ -11,9 +9,10 @@ use crate::theme::ActiveTheme;
 ///
 /// For a "glass" look, combine a translucent card background with a blurred/mica window
 /// background (e.g. `WindowBackgroundAppearance::Blurred` on macOS).
-#[track_caller]
+///
+/// Use `.id()` to set a stable element ID for state management.
 pub fn card() -> Card {
-    Card::new().id(ElementId::from(Location::caller()))
+    Card::new()
 }
 
 #[derive(IntoElement)]
@@ -32,9 +31,11 @@ impl Default for Card {
 }
 
 impl Card {
+    /// Creates a new card with default styles.
+    /// Use `.id()` to set a stable element ID for state management.
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div().rounded_lg().border_1().shadow_md().p_4(),
             bg: None,
             border: None,
@@ -117,9 +118,7 @@ impl Styled for Card {
 
 impl RenderOnce for Card {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
 
         let theme = cx.theme();
         let bg = match (self.bg, self.glass_alpha) {
@@ -134,6 +133,8 @@ impl RenderOnce for Card {
             (None, None) => theme.border.default,
         };
 
-        self.base.id(id).bg(bg).border_color(border)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
+            .bg(bg)
+            .border_color(border)
     }
 }

@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     Animation, AnimationExt, Div, ElementId, Hsla, IntoElement, ParentElement, Pixels, RenderOnce,
     Styled, div, ease_in_out, px, relative,
@@ -9,9 +7,9 @@ use gpui::InteractiveElement;
 
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new spinner element.
 pub fn spinner() -> Spinner {
-    Spinner::new().id(ElementId::from(Location::caller()))
+    Spinner::new()
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -56,10 +54,9 @@ impl Default for Spinner {
 }
 
 impl Spinner {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             size: SpinnerSize::Md,
             diameter: None,
@@ -119,7 +116,8 @@ impl Styled for Spinner {
 
 impl RenderOnce for Spinner {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self.element_id.unwrap_or_else(|| "ui:spinner".into());
+        let element_id = self.element_id;
+        let id = element_id.clone().unwrap_or_else(|| "ui:spinner".into());
         let diameter = self.diameter.unwrap_or_else(|| self.size.pixels());
         let stroke = self
             .stroke
@@ -205,8 +203,7 @@ impl RenderOnce for Spinner {
             move |_this, delta| make_canvas(delta * std::f32::consts::TAU),
         );
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .relative()
             .w(diameter)
             .h(diameter)
@@ -214,9 +211,9 @@ impl RenderOnce for Spinner {
     }
 }
 
-#[track_caller]
+/// Creates a new progress bar element.
 pub fn progress_bar() -> ProgressBar {
-    ProgressBar::new().id(ElementId::from(Location::caller()))
+    ProgressBar::new()
 }
 
 #[derive(IntoElement)]
@@ -237,10 +234,9 @@ impl Default for ProgressBar {
 }
 
 impl ProgressBar {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div().w_full(),
             value: 0.0,
             indeterminate: false,
@@ -297,9 +293,8 @@ impl Styled for ProgressBar {
 
 impl RenderOnce for ProgressBar {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from("ui:progress-bar"));
+        let element_id = self.element_id;
+        let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:progress-bar"));
 
         let theme = cx.theme();
         let track = self.track_color.unwrap_or(theme.surface.hover);
@@ -308,9 +303,7 @@ impl RenderOnce for ProgressBar {
         let height = self.height;
         let t = self.value.clamp(0.0, 1.0);
 
-        let base = self
-            .base
-            .id(id.clone())
+        let base = self.base.id(element_id.unwrap_or_else(|| "".into()))
             .relative()
             .h(height)
             .rounded_full()
@@ -358,9 +351,9 @@ impl RenderOnce for ProgressBar {
     }
 }
 
-#[track_caller]
+/// Creates a new progress circle element.
 pub fn progress_circle() -> ProgressCircle {
-    ProgressCircle::new().id(ElementId::from(Location::caller()))
+    ProgressCircle::new()
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -407,10 +400,9 @@ impl Default for ProgressCircle {
 }
 
 impl ProgressCircle {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             value: 0.0,
             size: ProgressCircleSize::Md,
@@ -478,9 +470,8 @@ impl Styled for ProgressCircle {
 
 impl RenderOnce for ProgressCircle {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from("ui:progress-circle"));
+        let element_id = self.element_id;
+        let _id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:progress-circle"));
 
         let theme = cx.theme();
         let track = self.track_color.unwrap_or(theme.border.muted);
@@ -493,7 +484,7 @@ impl RenderOnce for ProgressCircle {
             .max(px(1.));
         let t = self.value.clamp(0.0, 1.0);
 
-        self.base.id(id).relative().w(diameter).h(diameter).child(
+        self.base.id(element_id.unwrap_or_else(|| "".into())).relative().w(diameter).h(diameter).child(
             gpui::canvas(
                 move |_bounds, _window, _cx| (),
                 move |bounds, _, window, _cx| {

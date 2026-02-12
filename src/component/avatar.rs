@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     Div, ElementId, Hsla, Image, InteractiveElement, IntoElement, ObjectFit, ParentElement,
@@ -7,9 +7,9 @@ use gpui::{
 
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new avatar element.
 pub fn avatar(image: Option<Arc<Image>>) -> Avatar {
-    Avatar::new(image).id(ElementId::from(Location::caller()))
+    Avatar::new(image)
 }
 
 #[derive(Clone, Copy)]
@@ -29,10 +29,9 @@ pub struct Avatar {
 }
 
 impl Avatar {
-    #[track_caller]
     pub fn new(image: Option<Arc<Image>>) -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             image,
             shape: AvatarShape::Circle,
@@ -81,21 +80,10 @@ impl Styled for Avatar {
 
 impl RenderOnce for Avatar {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
-
+        let element_id = self.element_id;
         let is_circle = matches!(self.shape, AvatarShape::Circle);
 
-        let mut base = self
-            .base
-            .id(id)
-            .size_10()
-            .overflow_hidden()
-            .flex()
-            .items_center()
-            .justify_center()
-            .text_color(cx.theme().content.tertiary);
+        let mut base = self.base.id(element_id.unwrap_or_else(|| "".into()));
 
         if let Some(bg) = self.bg_color {
             base = base.bg(bg);

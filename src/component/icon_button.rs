@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
     RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
@@ -10,9 +8,9 @@ use crate::{
     theme::{ActionVariantKind, ActiveTheme},
 };
 
-#[track_caller]
+/// Creates a new icon button element.
 pub fn icon_button(icon: impl Into<Icon>) -> IconButton {
-    IconButton::new(icon).id(ElementId::from(Location::caller()))
+    IconButton::new(icon)
 }
 
 type ClickFn = Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -37,10 +35,9 @@ pub struct IconButton {
 }
 
 impl IconButton {
-    #[track_caller]
     pub fn new(icon: impl Into<Icon>) -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div().w(px(36.)).h(px(36.)),
             icon: icon.into(),
 
@@ -143,10 +140,7 @@ impl RenderOnce for IconButton {
         let disabled = self.disabled;
         let variant = self.variant;
         let icon_size = self.icon_size;
-
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
 
         let action_variant = cx.theme().action_variant(variant);
         let mut resolved_bg = bg.unwrap_or(action_variant.bg);
@@ -159,8 +153,7 @@ impl RenderOnce for IconButton {
             resolved_text_color = action_variant.disabled_fg;
         }
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .rounded_md()
             .flex()
             .items_center()

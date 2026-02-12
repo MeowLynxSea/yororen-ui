@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     ClickEvent, Div, ElementId, FontWeight, Hsla, InteractiveElement, IntoElement, ParentElement,
     RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
@@ -7,9 +5,10 @@ use gpui::{
 
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
-#[track_caller]
+/// Creates a new toggle button element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn toggle_button(label: impl Into<String>) -> ToggleButton {
-    ToggleButton::new(label).id(ElementId::from(Location::caller()))
+    ToggleButton::new(label)
 }
 
 type ToggleFn = Box<dyn Fn(bool, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -32,10 +31,9 @@ pub struct ToggleButton {
 }
 
 impl ToggleButton {
-    #[track_caller]
     pub fn new(label: impl Into<String>) -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div().h(px(36.)).px_4().py_2(),
             label: label.into(),
             selected: false,
@@ -140,10 +138,11 @@ impl RenderOnce for ToggleButton {
         let variant = self.variant;
         let group = self.group;
         let default_selected = self.default_selected;
+        let element_id = self.element_id;
 
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let id = element_id.expect(
+            "ToggleButton requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let use_internal_state = on_toggle.is_none();
         let internal_selected = use_internal_state

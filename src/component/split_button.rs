@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
@@ -9,9 +9,10 @@ use gpui::{
 use crate::component::{ArrowDirection, Icon, IconName, button};
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new split button element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn split_button() -> SplitButton {
-    SplitButton::new().id(ElementId::from(Location::caller()))
+    SplitButton::new()
 }
 
 type ClickFn = Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -173,11 +174,9 @@ impl RenderOnce for SplitButton {
         let border_divider = cx.theme().border.divider;
         let surface_raised = cx.theme().surface.raised;
 
-        let id = if let Some(id) = self.element_id.clone() {
-            id
-        } else {
-            "split-button".into()
-        };
+        let id = self.element_id.expect(
+            "SplitButton requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let menu_open = window.use_keyed_state(id.clone(), cx, |_window, _cx| false);
         let is_open = *menu_open.read(cx);

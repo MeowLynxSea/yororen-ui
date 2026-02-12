@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
@@ -10,9 +10,10 @@ use crate::{
     theme::{ActionVariantKind, ActiveTheme},
 };
 
-#[track_caller]
+/// Creates a new number input element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn number_input() -> NumberInput {
-    NumberInput::new().id(ElementId::from(Location::caller()))
+    NumberInput::new()
 }
 
 type ChangeFn = Arc<dyn Fn(f64, &mut gpui::Window, &mut gpui::App)>;
@@ -162,9 +163,11 @@ impl StatefulInteractiveElement for NumberInput {}
 
 impl RenderOnce for NumberInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "NumberInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let disabled = self.disabled;
         let step = self.step;

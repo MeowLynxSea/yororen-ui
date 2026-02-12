@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     Div, ElementId, Hsla, InteractiveElement, IntoElement, MouseButton, MouseDownEvent,
     MouseMoveEvent, ParentElement, RenderOnce, Styled, div, prelude::FluentBuilder,
@@ -7,9 +5,9 @@ use gpui::{
 
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
-#[track_caller]
+/// Creates a new drag handle element.
 pub fn drag_handle() -> DragHandle {
-    DragHandle::new().id(ElementId::from(Location::caller()))
+    DragHandle::new()
 }
 
 type DragMoveFn = Box<dyn Fn(&MouseMoveEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -42,10 +40,9 @@ impl Default for DragHandle {
 }
 
 impl DragHandle {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
 
             on_drag_start: None,
@@ -143,10 +140,7 @@ impl RenderOnce for DragHandle {
         let bg = self.bg_color;
         let hover_bg = self.hover_bg_color;
         let variant = self.variant;
-
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
 
         let action_variant = _cx.theme().action_variant(variant);
         let hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
@@ -158,8 +152,7 @@ impl RenderOnce for DragHandle {
             resolved_hover_bg = action_variant.disabled_bg;
         }
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .when(enabled, |this| this.cursor_grab())
             .when(dragging, |this| this.cursor_grabbing())
             .bg(resolved_bg)

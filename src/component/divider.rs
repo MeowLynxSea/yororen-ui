@@ -1,13 +1,12 @@
-use std::panic::Location;
-
 use gpui::{
     Div, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div, px,
 };
 
 use crate::theme::ActiveTheme;
 
+/// Creates a new divider element.
 pub fn divider() -> Divider {
-    Divider::new().id(ElementId::from(Location::caller()))
+    Divider::new()
 }
 
 #[derive(IntoElement)]
@@ -62,22 +61,14 @@ impl Styled for Divider {
 
 impl RenderOnce for Divider {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let base = self.base.id(element_id.unwrap_or_else(|| "".into()));
 
         if self.vertical {
-            self.base
-                .id(id)
-                .w(px(1.))
-                .h_full()
-                .bg(cx.theme().border.divider)
+            base.w(px(1.)).h_full().bg(cx.theme().border.divider)
         } else {
-            self.base
-                .id(id)
-                .h(px(1.))
-                .w_full()
-                .bg(cx.theme().border.divider)
+            base.h(px(1.)).w_full().bg(cx.theme().border.divider)
         }
     }
 }

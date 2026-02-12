@@ -1,4 +1,3 @@
-use std::panic::Location;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -31,9 +30,10 @@ impl RadioOption {
     }
 }
 
-#[track_caller]
+/// Creates a new radio group.
+/// Use `.id()` to set a stable element ID for state management.
 pub fn radio_group() -> RadioGroup {
-    RadioGroup::new().id(ElementId::from(Location::caller()))
+    RadioGroup::new()
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -59,10 +59,11 @@ impl Default for RadioGroup {
 }
 
 impl RadioGroup {
-    #[track_caller]
+    /// Creates a new radio group.
+    /// Use `.id()` to set a stable element ID for state management.
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             options: Vec::new(),
             value: None,
@@ -151,9 +152,11 @@ impl RenderOnce for RadioGroup {
         let tone = self.tone;
         let on_change = self.on_change;
 
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        // RadioGroup requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID.
+        let id = self.element_id.unwrap_or_else(|| {
+            panic!("RadioGroup requires an element ID. Use `.id()` to set a stable ID.")
+        });
 
         let use_internal_state = on_change.is_none() && self.value.is_none();
         let internal_value = use_internal_state.then(|| {

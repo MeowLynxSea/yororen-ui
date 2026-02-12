@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     Animation, AnimationExt, Div, ElementId, Hsla, IntoElement, ParentElement, Pixels, RenderOnce,
     Styled, div, ease_in_out, px,
@@ -10,9 +8,9 @@ use gpui::prelude::FluentBuilder;
 
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new skeleton line element.
 pub fn skeleton_line() -> SkeletonLine {
-    SkeletonLine::new().id(ElementId::from(Location::caller()))
+    SkeletonLine::new()
 }
 
 #[derive(IntoElement)]
@@ -31,10 +29,9 @@ impl Default for SkeletonLine {
 }
 
 impl SkeletonLine {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             width: None,
             height: px(12.),
@@ -82,14 +79,11 @@ impl Styled for SkeletonLine {
 
 impl RenderOnce for SkeletonLine {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from("ui:skeleton-line"));
+        let element_id = self.element_id;
+        let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:skeleton-line"));
         let theme = cx.theme();
 
-        let base = self
-            .base
-            .id(id.clone())
+        let base = self.base.id(element_id.unwrap_or_else(|| "".into()))
             .h(self.height)
             .rounded_full()
             .bg(self.tone.unwrap_or(theme.surface.hover))
@@ -110,9 +104,9 @@ impl RenderOnce for SkeletonLine {
     }
 }
 
-#[track_caller]
+/// Creates a new skeleton block element.
 pub fn skeleton_block() -> SkeletonBlock {
-    SkeletonBlock::new().id(ElementId::from(Location::caller()))
+    SkeletonBlock::new()
 }
 
 #[derive(IntoElement)]
@@ -132,10 +126,9 @@ impl Default for SkeletonBlock {
 }
 
 impl SkeletonBlock {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             width: None,
             height: px(80.),
@@ -189,14 +182,11 @@ impl Styled for SkeletonBlock {
 
 impl RenderOnce for SkeletonBlock {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from("ui:skeleton-block"));
+        let element_id = self.element_id;
+        let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:skeleton-block"));
         let theme = cx.theme();
 
-        let base = self
-            .base
-            .id(id.clone())
+        let base = self.base.id(element_id.unwrap_or_else(|| "".into()))
             .h(self.height)
             .when(self.rounded, |this| this.rounded_md())
             .when(!self.rounded, |this| this.rounded_none())

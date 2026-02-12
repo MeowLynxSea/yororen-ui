@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div, px,
 };
@@ -10,9 +8,8 @@ use crate::theme::ActiveTheme;
 /// A disclosure arrow with expanded/collapsed state.
 ///
 /// This is a visual primitive only. It does not manage state by itself.
-#[track_caller]
 pub fn disclosure() -> Disclosure {
-    Disclosure::new().id(ElementId::from(Location::caller()))
+    Disclosure::new()
 }
 
 #[derive(IntoElement)]
@@ -30,10 +27,9 @@ impl Default for Disclosure {
 }
 
 impl Disclosure {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             expanded: false,
             size: px(14.),
@@ -81,12 +77,11 @@ impl InteractiveElement for Disclosure {
 
 impl RenderOnce for Disclosure {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self.element_id.unwrap_or_else(|| "disclosure".into());
+        let element_id = self.element_id;
         let expanded = self.expanded;
         let size = self.size;
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .w(size)
             .h(size)
             .flex()

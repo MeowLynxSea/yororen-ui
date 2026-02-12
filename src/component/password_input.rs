@@ -1,4 +1,4 @@
-use std::{ops::Range, panic::Location};
+use std::ops::Range;
 
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -35,9 +35,10 @@ actions!(
     ]
 );
 
-#[track_caller]
+/// Creates a new password input element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn password_input() -> PasswordInput {
-    PasswordInput::new().id(ElementId::from(Location::caller()))
+    PasswordInput::new()
 }
 
 pub(crate) fn init(cx: &mut App) {
@@ -958,9 +959,11 @@ impl StatefulInteractiveElement for PasswordInput {}
 
 impl RenderOnce for PasswordInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "PasswordInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let disabled = self.disabled;
         let allow_copy = self.allow_copy;

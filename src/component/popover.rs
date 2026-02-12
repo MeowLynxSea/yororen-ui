@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::prelude::FluentBuilder;
 use gpui::{
     Animation, AnimationExt, ClickEvent, ElementId, Hsla, InteractiveElement, IntoElement,
@@ -14,9 +12,9 @@ pub enum PopoverPlacement {
     BottomEnd,
 }
 
-#[track_caller]
+/// Creates a new popover element.
 pub fn popover() -> Popover {
-    Popover::new().id(ElementId::from(Location::caller()))
+    Popover::new()
 }
 
 type CloseFn = Box<dyn Fn(&mut gpui::Window, &mut gpui::App)>;
@@ -130,9 +128,8 @@ impl Styled for Popover {
 
 impl RenderOnce for Popover {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+        let id = element_id.clone().unwrap_or_else(|| "ui:popover".into());
 
         let theme = cx.theme();
         let bg = self.bg.unwrap_or(theme.surface.raised);
@@ -148,8 +145,7 @@ impl RenderOnce for Popover {
 
         // Like Select/ComboBox, Popover is a relative container and the menu is an absolute child
         // rendered via `gpui::deferred(...)` so it is painted above.
-        self.base
-            .id(id.clone())
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .relative()
             .child(trigger)
             .when(is_open, move |this| {

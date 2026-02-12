@@ -12,7 +12,7 @@ use crate::theme::ActiveTheme;
 ///    This prevents state bleeding when list virtualization reuses layout slots.
 /// 2) Row-local element namespace: the row is rendered inside
 ///    `window.with_element_namespace((key, "virtual-row-ns"), ...)` so that any
-///    `Location::caller()`-based component ids do not collide across recycled rows.
+///    component ids do not collide across recycled rows.
 /// 3) Spacing/dividers belong to the shell: callers should render only content.
 #[derive(IntoElement)]
 pub struct VirtualRow {
@@ -84,7 +84,7 @@ impl RenderOnce for VirtualRow {
         let gap_below = self.gap_below;
         let divider_color = cx.theme().border.divider;
 
-        // This namespace prevents `Location::caller()` ids inside the row content
+        // This namespace prevents ids inside the row content
         // from colliding with other rows when gpui virtualizes and reuses slots.
         window.with_element_namespace((key.clone(), "virtual-row-ns"), |_window| {
             div()

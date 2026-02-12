@@ -1,4 +1,4 @@
-use std::{panic::Location, rc::Rc};
+use std::rc::Rc;
 
 use gpui::prelude::FluentBuilder;
 use gpui::{
@@ -10,8 +10,10 @@ use crate::{
     theme::{ActionVariantKind, ActiveTheme},
 };
 
+/// Creates a new dropdown menu element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn dropdown_menu() -> DropdownMenu {
-    DropdownMenu::new().id(ElementId::from(Location::caller()))
+    DropdownMenu::new()
 }
 
 type SelectFn = Rc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -126,9 +128,11 @@ impl ParentElement for DropdownMenu {
 
 impl RenderOnce for DropdownMenu {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "DropdownMenu requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let open_state =
             window.use_keyed_state((id.clone(), "ui:dropdown-menu:open"), cx, |_, _| self.open);

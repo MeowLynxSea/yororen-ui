@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     Div, ElementId, Hsla, InteractiveElement, IntoElement, KeyDownEvent, Keystroke,
     ModifiersChangedEvent, ParentElement, RenderOnce, SharedString, StatefulInteractiveElement,
@@ -11,9 +9,10 @@ use crate::{
     theme::ActiveTheme,
 };
 
-#[track_caller]
+/// Creates a new keybinding input element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn keybinding_input() -> KeybindingInput {
-    KeybindingInput::new().id(ElementId::from(Location::caller()))
+    KeybindingInput::new()
 }
 
 type ChangeFn = std::sync::Arc<dyn Fn(SharedString, &mut gpui::Window, &mut gpui::App)>;
@@ -147,9 +146,11 @@ impl StatefulInteractiveElement for KeybindingInput {}
 
 impl RenderOnce for KeybindingInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "KeybindingInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();

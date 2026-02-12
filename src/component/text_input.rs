@@ -1,4 +1,4 @@
-use std::{ops::Range, panic::Location};
+use std::ops::Range;
 
 use super::TextEditState;
 use crate::theme::ActiveTheme;
@@ -33,9 +33,10 @@ actions!(
 
 type TextInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
-#[track_caller]
+/// Creates a new text input.
+/// Use `.id()` to set a stable element ID for state management.
 pub fn text_input() -> TextInput {
-    TextInput::new().id(ElementId::from(Location::caller()))
+    TextInput::new()
 }
 
 pub(crate) fn init(cx: &mut App) {
@@ -802,9 +803,11 @@ impl StatefulInteractiveElement for TextInput {}
 
 impl RenderOnce for TextInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        // TextInput requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID.
+        let id = self.element_id.unwrap_or_else(|| {
+            panic!("TextInput requires an element ID. Use `.id()` to set a stable ID.")
+        });
 
         let disabled = self.disabled;
 

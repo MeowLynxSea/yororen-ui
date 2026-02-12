@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
@@ -33,9 +33,10 @@ impl SelectOption {
     }
 }
 
-#[track_caller]
+/// Creates a new select dropdown.
+/// Use `.id()` to set a stable element ID for state management.
 pub fn select() -> Select {
-    Select::new().id(ElementId::from(Location::caller()))
+    Select::new()
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -188,9 +189,11 @@ impl RenderOnce for Select {
         let placeholder = self.placeholder;
         let on_change = self.on_change;
 
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        // Select requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID.
+        let id = self.element_id.unwrap_or_else(|| {
+            panic!("Select requires an element ID. Use `.id()` to set a stable ID.")
+        });
 
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);

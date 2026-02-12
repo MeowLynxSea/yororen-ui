@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::prelude::FluentBuilder;
 use gpui::{
     Div, ElementId, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, Styled,
@@ -9,9 +7,9 @@ use gpui::{
 use crate::component::{Heading, HeadingLevel, Icon, IconName, Label, button, heading, label};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
-#[track_caller]
+/// Creates a new empty state element.
 pub fn empty_state() -> EmptyState {
-    EmptyState::new().id(ElementId::from(Location::caller()))
+    EmptyState::new()
 }
 
 #[derive(IntoElement)]
@@ -32,10 +30,9 @@ impl Default for EmptyState {
 }
 
 impl EmptyState {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             icon: Some(crate::component::icon(IconName::Info).size(px(20.))),
             title: None,
@@ -95,17 +92,14 @@ impl Styled for EmptyState {
 
 impl RenderOnce for EmptyState {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from("ui:empty-state"));
+        let element_id = self.element_id;
         let theme = cx.theme();
 
         let icon = self
             .icon
             .unwrap_or_else(|| crate::component::icon(IconName::Info));
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .flex()
             .flex_col()
             .items_center()

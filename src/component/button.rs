@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
@@ -7,9 +5,10 @@ use gpui::{
 
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
-#[track_caller]
+/// Creates a new button.
+/// Use `.id()` to set a stable element ID for state management.
 pub fn button() -> Button {
-    Button::new().id(ElementId::from(Location::caller()))
+    Button::new()
 }
 
 type ClickFn = Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -38,10 +37,11 @@ impl Default for Button {
 }
 
 impl Button {
-    #[track_caller]
+    /// Creates a new button with default styles.
+    /// Use `.id()` to set a stable element ID for state management.
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div().h(px(36.)).px_4().py_2(),
             click_fn: None,
             hover_fn: None,
@@ -134,10 +134,7 @@ impl RenderOnce for Button {
         let bg = self.bg_color;
         let hover_bg = self.hover_bg_color;
         let variant = self.variant;
-
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
 
         let action_variant = cx.theme().action_variant(variant);
         let mut resolved_bg = bg.unwrap_or(action_variant.bg);
@@ -150,8 +147,7 @@ impl RenderOnce for Button {
             resolved_text_color = action_variant.disabled_fg;
         }
 
-        self.base
-            .id(id.clone())
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .rounded_md()
             .flex()
             .items_center()

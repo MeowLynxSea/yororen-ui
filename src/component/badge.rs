@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     Div, ElementId, FontWeight, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
     SharedString, Styled, div,
@@ -7,7 +5,7 @@ use gpui::{
 
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new badge element.
 pub fn badge(text: impl Into<SharedString>) -> Badge {
     Badge::new(text)
 }
@@ -21,10 +19,9 @@ pub struct Badge {
 }
 
 impl Badge {
-    #[track_caller]
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             text: text.into(),
             tone: None,
@@ -61,9 +58,7 @@ impl Styled for Badge {
 
 impl RenderOnce for Badge {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
 
         let default_bg = cx.theme().status.info.bg;
         let bg = self.tone.unwrap_or(default_bg);
@@ -73,8 +68,7 @@ impl RenderOnce for Badge {
             cx.theme().status.info.fg
         };
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .px_2()
             .h_5()
             .rounded_full()

@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div,
     prelude::FluentBuilder, px,
@@ -15,9 +13,8 @@ use crate::theme::ActiveTheme;
 ///
 /// Note: virtualization shell responsibilities (spacing/dividers/stable row ids)
 /// are handled by [`crate::component::VirtualRow`].
-#[track_caller]
 pub fn list_item() -> ListItem {
-    ListItem::new().id(ElementId::from(Location::caller()))
+    ListItem::new()
 }
 
 #[derive(IntoElement)]
@@ -41,10 +38,9 @@ impl Default for ListItem {
 }
 
 impl ListItem {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div(),
             leading: None,
             content: None,
@@ -122,7 +118,7 @@ impl Styled for ListItem {
 
 impl RenderOnce for ListItem {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self.element_id.unwrap_or_else(|| "list-item".into());
+        let element_id = self.element_id;
         let hoverable = self.hoverable;
         let selected = self.selected;
         let hover_bg = self.hover_bg.unwrap_or(cx.theme().surface.hover);
@@ -135,8 +131,7 @@ impl RenderOnce for ListItem {
         let secondary = self.secondary;
         let trailing = self.trailing;
 
-        self.base
-            .id(id)
+        self.base.id(element_id.unwrap_or_else(|| "".into()))
             .w_full()
             .min_h(px(32.))
             .px_3()

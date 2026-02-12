@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     AppContext, Bounds, Div, Element, ElementId, Empty, GlobalElementId, Hsla, InspectorElementId,
@@ -10,9 +10,10 @@ use gpui::prelude::FluentBuilder;
 
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new slider element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn slider() -> Slider {
-    Slider::new().id(ElementId::from(Location::caller()))
+    Slider::new()
 }
 
 type ChangeFn = Arc<dyn Fn(f32, &mut gpui::Window, &mut gpui::App)>;
@@ -222,9 +223,11 @@ impl StatefulInteractiveElement for Slider {}
 
 impl RenderOnce for Slider {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "Slider requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();

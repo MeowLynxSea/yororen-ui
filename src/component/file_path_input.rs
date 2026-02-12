@@ -1,4 +1,4 @@
-use std::{panic::Location, path::PathBuf, sync::Arc};
+use std::{path::PathBuf, sync::Arc};
 
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
@@ -17,9 +17,10 @@ pub enum FilePathStatus {
     Error,
 }
 
-#[track_caller]
+/// Creates a new file path input element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn file_path_input() -> FilePathInput {
-    FilePathInput::new().id(ElementId::from(Location::caller()))
+    FilePathInput::new()
 }
 
 type ChangeFn = Arc<dyn Fn(PathBuf, &mut gpui::Window, &mut gpui::App)>;
@@ -168,9 +169,11 @@ impl StatefulInteractiveElement for FilePathInput {}
 
 impl RenderOnce for FilePathInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "FilePathInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();

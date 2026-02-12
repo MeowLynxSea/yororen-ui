@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
@@ -33,9 +33,10 @@ impl ComboBoxOption {
     }
 }
 
-#[track_caller]
+/// Creates a new combo box element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn combo_box() -> ComboBox {
-    ComboBox::new().id(ElementId::from(Location::caller()))
+    ComboBox::new()
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -208,10 +209,11 @@ impl RenderOnce for ComboBox {
         let search_placeholder = self.search_placeholder;
         let on_change = self.on_change;
         let max_results = self.max_results;
+        let element_id = self.element_id;
 
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let id = element_id.expect(
+            "ComboBox requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let menu_open = window.use_keyed_state((id.clone(), "ui:combo-box:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);

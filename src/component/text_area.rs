@@ -1,4 +1,4 @@
-use std::{ops::Range, panic::Location};
+use std::ops::Range;
 
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -37,9 +37,10 @@ actions!(
 
 type TextAreaHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
-#[track_caller]
+/// Creates a new text area element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn text_area() -> TextArea {
-    TextArea::new().id(ElementId::from(Location::caller()))
+    TextArea::new()
 }
 
 pub(crate) fn init(cx: &mut App) {
@@ -1185,9 +1186,11 @@ impl StatefulInteractiveElement for TextArea {}
 
 impl RenderOnce for TextArea {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "TextArea requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let disabled = self.disabled;
         let state = window.use_keyed_state(id.clone(), cx, |_, cx| TextAreaState::new(cx));

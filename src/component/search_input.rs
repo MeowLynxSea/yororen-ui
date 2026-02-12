@@ -1,4 +1,4 @@
-use std::{panic::Location, sync::Arc};
+use std::sync::Arc;
 
 use gpui::{
     App, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
@@ -10,9 +10,10 @@ use crate::{
     theme::ActiveTheme,
 };
 
-#[track_caller]
+/// Creates a new search input element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn search_input() -> SearchInput {
-    SearchInput::new().id(ElementId::from(Location::caller()))
+    SearchInput::new()
 }
 
 type ChangeFn = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
@@ -146,9 +147,11 @@ impl StatefulInteractiveElement for SearchInput {}
 
 impl RenderOnce for SearchInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let element_id = self.element_id;
+
+        let id = element_id.expect(
+            "SearchInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
         let placeholder = self.placeholder;
         let disabled = self.disabled;
         let height = self.height.unwrap_or_else(|| px(36.).into());

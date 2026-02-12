@@ -1,5 +1,3 @@
-use std::panic::Location;
-
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
@@ -7,9 +5,10 @@ use gpui::{
 
 use crate::theme::ActiveTheme;
 
-#[track_caller]
+/// Creates a new radio button element.
+/// Requires an id to be set via `.id()` for internal state management.
 pub fn radio() -> Radio {
-    Radio::new().id(ElementId::from(Location::caller()))
+    Radio::new()
 }
 
 type ToggleFn = Box<dyn Fn(bool, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -31,10 +30,9 @@ impl Default for Radio {
 }
 
 impl Radio {
-    #[track_caller]
     pub fn new() -> Self {
         Self {
-            element_id: Some(ElementId::from(Location::caller())),
+            element_id: None,
             base: div().w(px(18.)).h(px(18.)),
             checked: false,
             disabled: false,
@@ -103,10 +101,11 @@ impl RenderOnce for Radio {
         let explicit_checked = self.checked;
         let on_toggle = self.on_toggle;
         let tone = self.tone;
+        let element_id = self.element_id;
 
-        let id = self
-            .element_id
-            .unwrap_or_else(|| ElementId::from(Location::caller()));
+        let id = element_id.expect(
+            "Radio requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
+        );
 
         let use_internal_state = on_toggle.is_none();
         let internal_checked = use_internal_state
