@@ -111,11 +111,11 @@ impl TextInputState {
         let this = cx.entity().downgrade();
         window
             .spawn(cx, async move |cx| {
-                use std::time::Duration;
+                use crate::constants::CURSOR_BLINK_INTERVAL;
 
                 loop {
                     cx.background_executor()
-                        .timer(Duration::from_millis(500))
+                        .timer(CURSOR_BLINK_INTERVAL)
                         .await;
 
                     let Ok(should_continue) = cx.update(|window, cx| {
@@ -684,6 +684,8 @@ pub struct TextInput {
 
     content: Option<SharedString>,
 
+    max_length: Option<usize>,
+
     on_change: Option<TextInputHandler>,
 
     on_submit: Option<TextInputHandler>,
@@ -703,6 +705,7 @@ impl TextInput {
             text_color: None,
             height: None,
             content: None,
+            max_length: None,
             on_change: None,
             on_submit: None,
         }
@@ -746,6 +749,12 @@ impl TextInput {
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
         self.on_submit = Some(Box::new(handler));
+        self
+    }
+
+    /// Set the maximum number of characters allowed in the input.
+    pub fn max_length(mut self, max_length: usize) -> Self {
+        self.max_length = Some(max_length);
         self
     }
 

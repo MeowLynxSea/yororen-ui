@@ -4,7 +4,7 @@ use gpui::{
     ParentElement, RenderOnce, Styled, div, ease_out_quint, px,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{constants::animation, theme::ActiveTheme};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PopoverPlacement {
@@ -177,7 +177,7 @@ impl RenderOnce for Popover {
 
                 let animated = menu.with_animation(
                     format!("ui:popover:menu:{}", is_open),
-                    Animation::new(std::time::Duration::from_millis(160))
+                    Animation::new(animation::MENU_OPEN)
                         .with_easing(ease_out_quint()),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );

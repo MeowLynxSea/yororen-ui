@@ -5,7 +5,7 @@ use gpui::{
 
 use gpui::InteractiveElement;
 
-use crate::theme::ActiveTheme;
+use crate::{constants::animation, theme::ActiveTheme};
 
 /// Creates a new spinner element.
 pub fn spinner() -> Spinner {
@@ -197,7 +197,7 @@ impl RenderOnce for Spinner {
 
         let animated = make_canvas(0.0).with_animation(
             (id.clone(), "spin"),
-            Animation::new(std::time::Duration::from_millis(850))
+            Animation::new(animation::PROGRESS_SPINNER)
                 .repeat()
                 .with_easing(ease_in_out),
             move |_this, delta| make_canvas(delta * std::f32::consts::TAU),
@@ -323,7 +323,7 @@ impl RenderOnce for ProgressBar {
                     .bg(fill)
                     .with_animation(
                         "ui:progress-bar:indeterminate:anim",
-                        Animation::new(std::time::Duration::from_millis(900))
+                        Animation::new(animation::PROGRESS_CIRCLE)
                             .repeat()
                             .with_easing(ease_in_out),
                         move |this, delta| {

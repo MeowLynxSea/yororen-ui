@@ -9,7 +9,7 @@ use gpui::{
     px, relative, size,
 };
 
-use crate::{component::TextEditState, theme::ActiveTheme};
+use crate::{component::TextEditState, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
 actions!(
     ui_text_area,
@@ -167,11 +167,9 @@ impl TextAreaState {
         let this = cx.entity().downgrade();
         window
             .spawn(cx, async move |cx| {
-                use std::time::Duration;
-
                 loop {
                     cx.background_executor()
-                        .timer(Duration::from_millis(500))
+                        .timer(CURSOR_BLINK_INTERVAL)
                         .await;
 
                     let Ok(should_continue) = cx.update(|window, cx| {

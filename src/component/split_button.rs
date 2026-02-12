@@ -7,6 +7,7 @@ use gpui::{
 };
 
 use crate::component::{ArrowDirection, Icon, IconName, button};
+use crate::constants::animation;
 use crate::theme::ActiveTheme;
 
 /// Creates a new split button element.
@@ -249,7 +250,7 @@ impl RenderOnce for SplitButton {
 
                 let animated_menu = menu.with_animation(
                     format!("split-button-menu-{}", is_open),
-                    Animation::new(std::time::Duration::from_millis(160))
+                    Animation::new(animation::MENU_OPEN)
                         .with_easing(ease_out_quint()),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );

@@ -10,7 +10,7 @@ use gpui::{
 };
 use unicode_segmentation::UnicodeSegmentation;
 
-use crate::theme::ActiveTheme;
+use crate::{constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
 type PasswordInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
@@ -132,11 +132,9 @@ impl PasswordInputState {
         let this = cx.entity().downgrade();
         window
             .spawn(cx, async move |cx| {
-                use std::time::Duration;
-
                 loop {
                     cx.background_executor()
-                        .timer(Duration::from_millis(500))
+                        .timer(CURSOR_BLINK_INTERVAL)
                         .await;
 
                     let Ok(should_continue) = cx.update(|window, cx| {

@@ -6,7 +6,7 @@ use gpui::{
 use gpui::InteractiveElement;
 use gpui::prelude::FluentBuilder;
 
-use crate::theme::ActiveTheme;
+use crate::{constants::animation, theme::ActiveTheme};
 
 /// Creates a new skeleton line element.
 pub fn skeleton_line() -> SkeletonLine {
@@ -92,7 +92,7 @@ impl RenderOnce for SkeletonLine {
 
         base.with_animation(
             (id, "pulse"),
-            Animation::new(std::time::Duration::from_millis(1100))
+            Animation::new(animation::SKELETON_PULSE_1)
                 .repeat()
                 .with_easing(ease_in_out),
             move |this, delta| {
@@ -196,7 +196,7 @@ impl RenderOnce for SkeletonBlock {
 
         base.with_animation(
             (id, "pulse"),
-            Animation::new(std::time::Duration::from_millis(1200))
+            Animation::new(animation::SKELETON_PULSE_2)
                 .repeat()
                 .with_easing(ease_in_out),
             move |this, delta| {

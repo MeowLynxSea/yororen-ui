@@ -1,11 +1,9 @@
-use std::time::Duration;
-
 use gpui::{
     Animation, AnimationExt, App, Decorations, Entity, FontWeight, MouseDownEvent, SharedString,
     div, ease_out_quint, prelude::*, px,
 };
 
-use crate::{component::icon, theme::ActiveTheme};
+use crate::{component::icon, constants::animation, theme::ActiveTheme};
 
 pub const DEFAULT_NAV_ITEMS: [&str; 5] = ["Home", "Explore", "Player", "Components", "Settings"];
 
@@ -105,7 +103,7 @@ impl Render for NavigatorState {
             .rounded_full()
             .with_animation(
                 format!("navigator-slider-{}", current),
-                Animation::new(Duration::from_millis(200)).with_easing(ease_out_quint()),
+                Animation::new(animation::NAVIGATOR_SLIDER).with_easing(ease_out_quint()),
                 move |this, delta| {
                     let target_left = (current * 52) as f32;
                     let current_left = (prev * 52) as f32;

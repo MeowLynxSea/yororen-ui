@@ -8,6 +8,7 @@ use gpui::{
 
 use crate::{
     component::{ArrowDirection, IconName, icon},
+    constants::animation,
     theme::ActiveTheme,
 };
 
@@ -376,7 +377,7 @@ impl RenderOnce for Select {
 
                 let animated_menu = menu.with_animation(
                     format!("select-menu-{}", is_open),
-                    Animation::new(std::time::Duration::from_millis(160))
+                    Animation::new(animation::MENU_OPEN)
                         .with_easing(ease_out_quint()),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );

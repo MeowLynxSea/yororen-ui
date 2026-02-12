@@ -4,7 +4,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{HeadingLevel, button, heading, label},
+    component::{icon, icon_button, HeadingLevel, IconName, button, heading, label},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -27,6 +27,8 @@ pub struct Modal {
     width: gpui::Pixels,
     bg: Option<Hsla>,
     border: Option<Hsla>,
+    closable: bool,
+    on_close: Option<Box<dyn Fn(&mut gpui::Window, &mut gpui::App)>>,
 }
 
 impl Default for Modal {
@@ -45,6 +47,8 @@ impl Modal {
             width: px(520.),
             bg: None,
             border: None,
+            closable: false,
+            on_close: None,
         }
     }
 
@@ -77,6 +81,21 @@ impl Modal {
         self.border = Some(color.into());
         self
     }
+
+    /// Show a close button in the modal header.
+    pub fn closable(mut self, closable: bool) -> Self {
+        self.closable = closable;
+        self
+    }
+
+    /// Callback fired when the close button is clicked.
+    pub fn on_close<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(&mut gpui::Window, &mut gpui::App),
+    {
+        self.on_close = Some(Box::new(handler));
+        self
+    }
 }
 
 impl ParentElement for Modal {
@@ -98,11 +117,32 @@ impl RenderOnce for Modal {
         let border = self.border.unwrap_or(theme.border.default);
 
         let title = self.title;
-        let has_title = title.is_some();
         let content = self
             .content
             .unwrap_or_else(|| label("Content").muted(true).into_any_element());
         let actions = self.actions;
+        let closable = self.closable;
+        let on_close = self.on_close;
+
+        let mut header_children: Vec<gpui::AnyElement> = vec![];
+
+        // Title
+        if let Some(title) = title {
+            header_children.push(heading(title).level(HeadingLevel::H3).into_any_element());
+        } else {
+            header_children.push(label("Modal").muted(true).into_any_element());
+        }
+
+        // Close button
+        if closable {
+            let close_button = icon_button(icon(IconName::Close))
+                .on_click(move |_, window, cx| {
+                    if let Some(handler) = &on_close {
+                        handler(window, cx);
+                    }
+                });
+            header_children.push(close_button.into_any_element());
+        }
 
         self.base
             .id("ui:modal")
@@ -121,16 +161,7 @@ impl RenderOnce for Modal {
                     .items_center()
                     .justify_between()
                     .gap_2()
-                    .child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .gap_1()
-                            .when_some(title, |this, title| {
-                                this.child(heading(title).level(HeadingLevel::H3))
-                            })
-                            .when(!has_title, |this| this.child(label("Modal").muted(true))),
-                    ),
+                    .children(header_children),
             )
             .child(div().h(px(1.)).w_full().bg(theme.border.divider))
             .child(div().px_4().py_4().child(content))
