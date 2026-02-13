@@ -46,6 +46,11 @@ mod text_input;
 mod toast;
 mod toggle_button;
 mod tooltip;
+mod tree;
+mod tree_data;
+mod tree_drag;
+mod tree_item;
+mod tree_node;
 mod virtual_row;
 
 pub use avatar::*;
@@ -96,6 +101,11 @@ pub use text_input::{TextInput, TextInputState, text_input};
 pub use toast::*;
 pub use toggle_button::*;
 pub use tooltip::*;
+pub use tree::*;
+pub use tree_data::*;
+pub use tree_drag::*;
+pub use tree_item::*;
+pub use tree_node::*;
 pub use virtual_row::*;
 
 pub fn init(cx: &mut gpui::App) {
