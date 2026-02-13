@@ -50,6 +50,15 @@ pub fn titlebar_with_items_and_config(
     cx.new(|cx| TitleBar::with_items_and_config(cx, items, config))
 }
 
+pub fn titlebar_with_items_and_config_and_widths(
+    cx: &mut App,
+    items: impl IntoIterator<Item = impl Into<SharedString>>,
+    config: TitleBarConfig,
+    widths: Vec<f32>,
+) -> Entity<TitleBar> {
+    cx.new(|cx| TitleBar::with_items_and_config(cx, items, config).with_nav_item_widths(widths))
+}
+
 pub fn navigator(cx: &mut App) -> Navigator {
     Navigator::new(cx)
 }
@@ -65,6 +74,8 @@ pub fn navigator_with_items(
 pub struct Navigator {
     navigator_state: Entity<NavigatorState>,
     items: Vec<SharedString>,
+    /// Custom widths for each item in pixels. If None, uses auto width.
+    item_widths: Option<Vec<f32>>,
 }
 
 impl Navigator {
@@ -85,35 +96,6 @@ impl NavigatorState {
     }
 }
 
-impl Render for NavigatorState {
-    fn render(
-        &mut self,
-        _window: &mut gpui::Window,
-        cx: &mut gpui::Context<Self>,
-    ) -> impl IntoElement {
-        let current = self.current;
-        let prev = self.prev;
-
-        div()
-            .id("slider")
-            .absolute()
-            .w_12()
-            .h_7()
-            .bg(cx.theme().action.primary.bg)
-            .rounded_full()
-            .with_animation(
-                format!("navigator-slider-{}", current),
-                Animation::new(animation::NAVIGATOR_SLIDER).with_easing(ease_out_quint()),
-                move |this, delta| {
-                    let target_left = (current * 52) as f32;
-                    let current_left = (prev * 52) as f32;
-                    let new_left = current_left + (target_left - current_left) * delta;
-                    this.left(px(new_left))
-                },
-            )
-    }
-}
-
 impl Navigator {
     pub fn new(cx: &mut App) -> Self {
         Self::with_items(cx, DEFAULT_NAV_ITEMS)
@@ -126,7 +108,15 @@ impl Navigator {
         Self {
             navigator_state: cx.new(|_cx| NavigatorState::new()),
             items: items.into_iter().map(Into::into).collect(),
+            item_widths: None,
         }
+    }
+
+    /// Set custom widths for each navigation item in pixels.
+    /// The vector length should match the number of items.
+    pub fn with_item_widths(mut self, widths: Vec<f32>) -> Self {
+        self.item_widths = Some(widths);
+        self
     }
 }
 
@@ -134,7 +124,33 @@ impl RenderOnce for Navigator {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let state = self.navigator_state.clone();
         let current = self.navigator_state.read(cx).current;
+        let prev = self.navigator_state.read(cx).prev;
         let items = self.items;
+        let item_widths = self.item_widths;
+
+        // Default width if no custom widths provided
+        let default_width: f32 = 96.0;
+        let gap: f32 = 4.0; // gap_1
+
+        // Calculate cumulative positions for slider animation
+        // positions[i] = sum of widths[0..i] + gap * i
+        let positions: Vec<f32> = if let Some(ref widths) = item_widths {
+            let mut pos = vec![0.0];
+            for (i, w) in widths.iter().enumerate() {
+                let prev_pos = pos[i];
+                pos.push(prev_pos + *w + gap);
+            }
+            pos
+        } else {
+            // Use default width for all items
+            let count = items.len();
+            (0..=count).map(|i| (i as f32) * (default_width + gap)).collect()
+        };
+
+        // Current width for slider
+        let current_width = item_widths.as_ref()
+            .and_then(|w| w.get(current).copied())
+            .unwrap_or(default_width);
 
         div()
             .id("navigator")
@@ -142,7 +158,28 @@ impl RenderOnce for Navigator {
             .flex()
             .flex_row()
             .items_center()
-            .child(self.navigator_state)
+            .relative()
+            // Slider background - renders behind the items
+            .child(
+                div()
+                    .id("slider")
+                    .absolute()
+                    .h_7()
+                    .w(px(current_width))
+                    .bg(cx.theme().action.primary.bg)
+                    .rounded_full()
+                    .with_animation(
+                        format!("navigator-slider-{}", current),
+                        Animation::new(animation::NAVIGATOR_SLIDER).with_easing(ease_out_quint()),
+                        move |this, delta| {
+                            let target_left = positions.get(current).copied().unwrap_or(0.0);
+                            let current_left = positions.get(prev).copied().unwrap_or(0.0);
+                            let new_left = current_left + (target_left - current_left) * delta;
+                            this.left(px(new_left))
+                        },
+                    )
+            )
+            // Menu items - use custom widths if provided
             .child(
                 div()
                     .id("menu-items")
@@ -152,10 +189,14 @@ impl RenderOnce for Navigator {
                     .gap_1()
                     .children(items.into_iter().enumerate().map(move |(i, t)| {
                         let state = state.clone();
+                        let width = item_widths.as_ref()
+                            .and_then(|w| w.get(i).copied())
+                            .unwrap_or(default_width);
                         div()
                             .id(format!("nav-item-{}", i))
-                            .w_12()
+                            .w(px(width))
                             .h_7()
+                            .px_0()
                             .rounded_full()
                             .text_color(if i == current {
                                 cx.theme().action.primary.fg
@@ -165,7 +206,12 @@ impl RenderOnce for Navigator {
                             .flex()
                             .justify_center()
                             .items_center()
-                            .child(t)
+                            .child(
+                                div()
+                                    .line_clamp(1)
+                                    .text_ellipsis()
+                                    .child(t)
+                            )
                             .cursor_pointer()
                             .when(current != i, |this| {
                                 this.hover(|this| this.bg(cx.theme().action.neutral.hover_bg))
@@ -213,6 +259,13 @@ impl TitleBar {
             title: config.title,
             badge: config.badge,
         }
+    }
+
+    /// Set custom widths for navigation items in pixels.
+    /// The vector length should match the number of items.
+    pub fn with_nav_item_widths(mut self, widths: Vec<f32>) -> Self {
+        self.navigator.item_widths = Some(widths);
+        self
     }
 
     pub fn current_page(&self, cx: &App) -> usize {
@@ -271,7 +324,7 @@ impl Render for TitleBar {
                     .children(self.badge.clone().map(|badge| {
                         div()
                             .h_6()
-                            .px_2()
+                            .px_0()
                             .bg(cx.theme().surface.raised)
                             .text_color(cx.theme().content.primary)
                             .text_xs()
