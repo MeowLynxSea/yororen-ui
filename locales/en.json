@@ -1,0 +1,47 @@
+{
+  "select": {
+    "placeholder": "Select…"
+  },
+  "combobox": {
+    "placeholder": "Select…",
+    "search_placeholder": "Search…"
+  },
+  "dropdown_menu": {
+    "label": "Menu"
+  },
+  "file_path_input": {
+    "placeholder": "Select a path…",
+    "select": "Select…"
+  },
+  "keybinding_input": {
+    "press_keys": "Press keys…",
+    "waiting": "Waiting for keys…"
+  },
+  "number_input": {
+    "placeholder": "0"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading…"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email address",
+    "min_length": "Minimum {min} characters required",
+    "max_length": "Maximum {max} characters allowed"
+  },
+  "items": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {total}"
+  }
+}

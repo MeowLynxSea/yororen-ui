@@ -9,6 +9,7 @@ use gpui::{
 use crate::{
     component::{ArrowDirection, IconName, icon},
     constants::animation,
+    i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
 };
 
@@ -64,6 +65,8 @@ pub struct Select {
 
     value: Option<String>,
     placeholder: SharedString,
+    /// Whether to use localized placeholder from i18n
+    localized: bool,
     disabled: bool,
 
     bg_color: Option<Hsla>,
@@ -90,6 +93,7 @@ impl Select {
             options: Vec::new(),
             value: None,
             placeholder: "Select…".into(),
+            localized: false,
             disabled: false,
             bg_color: None,
             border_color: None,
@@ -99,6 +103,13 @@ impl Select {
             menu_width: None,
             on_change: None,
         }
+    }
+
+    /// Use localized placeholder from i18n.
+    /// The placeholder text will be determined by the current locale.
+    pub fn localized(mut self) -> Self {
+        self.localized = true;
+        self
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
@@ -201,7 +212,12 @@ impl RenderOnce for Select {
         let height = self.height.unwrap_or_else(|| px(36.).into());
         let menu_width = self.menu_width;
         let options = self.options;
-        let placeholder = self.placeholder;
+        let localized = self.localized;
+        let placeholder = if localized {
+            DefaultPlaceholders::select_placeholder(cx.i18n().locale()).into()
+        } else {
+            self.placeholder
+        };
         let on_change = self.on_change;
 
         // Select requires an element ID for keyed state management.

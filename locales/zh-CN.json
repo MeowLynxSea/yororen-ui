@@ -1,0 +1,47 @@
+{
+  "select": {
+    "placeholder": "请选择…"
+  },
+  "combobox": {
+    "placeholder": "请选择…",
+    "search_placeholder": "搜索…"
+  },
+  "dropdown_menu": {
+    "label": "菜单"
+  },
+  "file_path_input": {
+    "placeholder": "请选择路径…",
+    "select": "选择…"
+  },
+  "keybinding_input": {
+    "press_keys": "请按下按键…",
+    "waiting": "等待输入…"
+  },
+  "number_input": {
+    "placeholder": "0"
+  },
+  "common": {
+    "ok": "确定",
+    "cancel": "取消",
+    "close": "关闭",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "loading": "加载中…"
+  },
+  "validation": {
+    "required": "此字段为必填项",
+    "invalid_email": "邮箱地址格式无效",
+    "min_length": "最少需要 {min} 个字符",
+    "max_length": "最多允许 {max} 个字符"
+  },
+  "items": {
+    "one": "{count} 个项目",
+    "other": "{count} 个项目"
+  },
+  "pagination": {
+    "previous": "上一页",
+    "next": "下一页",
+    "page": "第 {page} 页，共 {total} 页"
+  }
+}

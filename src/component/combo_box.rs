@@ -9,6 +9,7 @@ use gpui::{
 use crate::{
     component::{ArrowDirection, IconName, TextInputState, icon, text_input},
     constants::animation,
+    i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
 };
 
@@ -66,6 +67,8 @@ pub struct ComboBox {
     value: Option<String>,
     placeholder: SharedString,
     search_placeholder: SharedString,
+    /// Whether to use localized placeholders from i18n
+    localized: bool,
     disabled: bool,
 
     bg_color: Option<Hsla>,
@@ -94,6 +97,7 @@ impl ComboBox {
             value: None,
             placeholder: "Select…".into(),
             search_placeholder: "Search…".into(),
+            localized: false,
             disabled: false,
             bg_color: None,
             border_color: None,
@@ -104,6 +108,13 @@ impl ComboBox {
             max_results: 12,
             on_change: None,
         }
+    }
+
+    /// Use localized placeholders from i18n.
+    /// The placeholder text will be determined by the current locale.
+    pub fn localized(mut self) -> Self {
+        self.localized = true;
+        self
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
@@ -221,8 +232,17 @@ impl RenderOnce for ComboBox {
         let height = self.height.unwrap_or_else(|| px(36.).into());
         let menu_width = self.menu_width;
         let options = self.options;
-        let placeholder = self.placeholder;
-        let search_placeholder = self.search_placeholder;
+        let localized = self.localized;
+        let placeholder = if localized {
+            DefaultPlaceholders::select_placeholder(cx.i18n().locale()).into()
+        } else {
+            self.placeholder
+        };
+        let search_placeholder = if localized {
+            DefaultPlaceholders::combobox_search_placeholder(cx.i18n().locale()).into()
+        } else {
+            self.search_placeholder
+        };
         let on_change = self.on_change;
         let max_results = self.max_results;
         let element_id = self.element_id;

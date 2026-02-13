@@ -7,6 +7,7 @@ use gpui::{
 
 use crate::{
     component::{button, label, text_input},
+    i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -34,6 +35,8 @@ pub struct FilePathInput {
     placeholder: SharedString,
     button_label: SharedString,
     dialog_prompt: SharedString,
+    /// Whether to use localized placeholders from i18n
+    localized: bool,
     disabled: bool,
 
     status: Option<FilePathStatus>,
@@ -62,6 +65,7 @@ impl FilePathInput {
             placeholder: "Select a path…".into(),
             button_label: "Select…".into(),
             dialog_prompt: "Select a path".into(),
+            localized: false,
             disabled: false,
             status: None,
             bg_color: None,
@@ -71,6 +75,13 @@ impl FilePathInput {
             height: None,
             on_change: None,
         }
+    }
+
+    /// Use localized placeholders from i18n.
+    /// The placeholder text will be determined by the current locale.
+    pub fn localized(mut self) -> Self {
+        self.localized = true;
+        self
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
@@ -170,6 +181,12 @@ impl StatefulInteractiveElement for FilePathInput {}
 impl RenderOnce for FilePathInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let element_id = self.element_id;
+        let localized = self.localized;
+        let placeholder = if localized {
+            DefaultPlaceholders::file_path_placeholder(cx.i18n().locale()).into()
+        } else {
+            self.placeholder
+        };
 
         let id = element_id.expect(
             "FilePathInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
@@ -236,7 +253,7 @@ impl RenderOnce for FilePathInput {
                 div().flex_1().min_w(px(0.)).child(
                     text_input()
                         .id((id.clone(), "ui:file-path:input"))
-                        .placeholder(self.placeholder)
+                        .placeholder(placeholder)
                         .disabled(true)
                         .height(height)
                         .bg(bg)

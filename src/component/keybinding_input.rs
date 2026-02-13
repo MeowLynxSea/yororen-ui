@@ -6,6 +6,7 @@ use gpui::{
 
 use crate::{
     component::{format_keybinding_ui, shortcut_hint},
+    i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
 };
 
@@ -25,6 +26,8 @@ pub struct KeybindingInput {
     value: Option<SharedString>,
     placeholder: SharedString,
     waiting_hint: SharedString,
+    /// Whether to use localized placeholders from i18n
+    localized: bool,
     disabled: bool,
 
     bg_color: Option<Hsla>,
@@ -50,6 +53,7 @@ impl KeybindingInput {
             value: None,
             placeholder: "Press keys…".into(),
             waiting_hint: "Waiting for keys…".into(),
+            localized: false,
             disabled: false,
             bg_color: None,
             border_color: None,
@@ -58,6 +62,13 @@ impl KeybindingInput {
             height: None,
             on_change: None,
         }
+    }
+
+    /// Use localized placeholders from i18n.
+    /// The placeholder text will be determined by the current locale.
+    pub fn localized(mut self) -> Self {
+        self.localized = true;
+        self
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
@@ -147,6 +158,17 @@ impl StatefulInteractiveElement for KeybindingInput {}
 impl RenderOnce for KeybindingInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let element_id = self.element_id;
+        let localized = self.localized;
+        let placeholder = if localized {
+            DefaultPlaceholders::keybinding_press_keys(cx.i18n().locale()).into()
+        } else {
+            self.placeholder
+        };
+        let waiting_hint = if localized {
+            DefaultPlaceholders::keybinding_waiting(cx.i18n().locale()).into()
+        } else {
+            self.waiting_hint
+        };
 
         let id = element_id.expect(
             "KeybindingInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
@@ -176,8 +198,6 @@ impl RenderOnce for KeybindingInput {
         };
 
         let height = self.height.unwrap_or_else(|| px(36.).into());
-        let placeholder = self.placeholder;
-        let waiting_hint = self.waiting_hint;
 
         let on_change = self.on_change;
         let use_internal_value = on_change.is_none();

@@ -2,6 +2,8 @@ use std::sync::Arc;
 
 use gpui::{App, Global, Hsla, WindowAppearance, hsla, rgb};
 
+use crate::i18n::TextDirection;
+
 #[derive(Clone, Debug)]
 pub struct Theme {
     pub surface: SurfaceTheme,
@@ -10,6 +12,8 @@ pub struct Theme {
     pub action: ActionTheme,
     pub status: StatusTheme,
     pub shadow: ShadowTheme,
+    /// Text direction (LTR or RTL)
+    pub text_direction: TextDirection,
 }
 
 #[derive(Clone, Debug)]
@@ -157,6 +161,7 @@ impl Theme {
                 elevation_1: hsla(0.0, 0.0, 0.0, 0.3),
                 elevation_2: hsla(0.0, 0.0, 0.0, 0.45),
             },
+            text_direction: TextDirection::Ltr,
         }
     }
 
@@ -233,7 +238,18 @@ impl Theme {
                 elevation_1: hsla(0.0, 0.0, 0.0, 0.18),
                 elevation_2: hsla(0.0, 0.0, 0.0, 0.3),
             },
+            text_direction: TextDirection::Ltr,
         }
+    }
+
+    /// Check if RTL mode is enabled.
+    pub fn is_rtl(&self) -> bool {
+        self.text_direction.is_rtl()
+    }
+
+    /// Get the default text direction.
+    pub fn default_text_direction() -> TextDirection {
+        TextDirection::Ltr
     }
 
     pub fn action_variant(&self, variant: ActionVariantKind) -> &ActionVariant {
