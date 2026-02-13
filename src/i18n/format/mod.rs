@@ -125,9 +125,11 @@ fn add_grouping_separators(s: &str, lang: &str) -> String {
     let groups = (len + group_size - 1) / group_size;
 
     for i in 0..groups {
-        let start = len - (i + 1) * group_size;
+        let mut start = len - (i + 1) * group_size;
         let end = if i == 0 { len } else { len - i * group_size };
-        let start = if start < 0 { 0 } else { start };
+        if start > end {
+            start = end;
+        }
 
         let group: String = chars[start..end].iter().collect();
 
