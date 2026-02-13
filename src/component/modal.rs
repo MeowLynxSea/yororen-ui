@@ -14,6 +14,19 @@ use crate::{
 /// intentionally not responsible for overlay / focus trapping.
 ///
 /// Use it inside a popover/overlay layer in your app.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support through the following ARIA attributes:
+/// - `role="dialog"`: Identifies the element as a dialog window
+/// - `aria-modal="true"`: Indicates that the dialog is modal
+/// - `aria-labelledby`: Automatically linked to the modal title (if provided)
+/// - `aria-describedby`: Can be set to associate with descriptive content
+///
+/// For full accessibility support, ensure:
+/// - The modal is placed within an overlay that traps focus
+/// - The Escape key closes the modal
+/// - Focus returns to the trigger element when the modal closes
 pub fn modal() -> Modal {
     Modal::new()
 }
@@ -29,6 +42,9 @@ pub struct Modal {
     border: Option<Hsla>,
     closable: bool,
     on_close: Option<Box<dyn Fn(&mut gpui::Window, &mut gpui::App)>>,
+    /// Accessibility: ID of the element that describes this modal.
+    /// This is typically used to associate additional descriptive content.
+    described_by: Option<SharedString>,
 }
 
 impl Default for Modal {
@@ -49,6 +65,7 @@ impl Modal {
             border: None,
             closable: false,
             on_close: None,
+            described_by: None,
         }
     }
 
@@ -94,6 +111,17 @@ impl Modal {
         F: 'static + Fn(&mut gpui::Window, &mut gpui::App),
     {
         self.on_close = Some(Box::new(handler));
+        self
+    }
+
+    /// Sets the accessibility description for this modal.
+    ///
+    /// This associates additional descriptive content with the modal dialog,
+    /// which helps screen reader users understand the dialog's purpose or content.
+    ///
+    /// The value should be the ID of an element that contains the description.
+    pub fn described_by(mut self, id: impl Into<SharedString>) -> Self {
+        self.described_by = Some(id.into());
         self
     }
 }

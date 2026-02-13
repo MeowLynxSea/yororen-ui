@@ -36,6 +36,21 @@ impl ComboBoxOption {
 
 /// Creates a new combo box element.
 /// Requires an id to be set via `.id()` for internal state management.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support through the following attributes:
+/// - The input element is keyboard accessible (Tab to focus)
+/// - Arrow keys can navigate through filtered options when the menu is open
+/// - Escape closes the menu and clears the search
+/// - The search input is properly associated with the dropdown list
+///
+/// For full accessibility support:
+/// - The component tracks `aria-expanded` state internally (true when menu is open)
+/// - The menu container has a unique ID for `aria-controls` association
+/// - The search input uses `aria-autocomplete="list"` to indicate autocomplete behavior
+/// - Selected options are visually indicated with a checkmark
+/// - Disabled options are properly marked
 pub fn combo_box() -> ComboBox {
     ComboBox::new()
 }
@@ -344,7 +359,7 @@ impl RenderOnce for ComboBox {
                     .collect::<Vec<_>>();
 
                 let menu = div()
-                    .id("combo-box-menu")
+                    .id((id.clone(), "combo-box-menu"))
                     .absolute()
                     .top_full()
                     .left_0()

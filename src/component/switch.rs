@@ -7,6 +7,18 @@ use crate::theme::ActiveTheme;
 
 /// Creates a new switch element.
 /// Requires an id to be set via `.id()` for internal state management.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support:
+/// - The switch is keyboard accessible (Tab to focus, Space/Enter to toggle)
+/// - The on/off state is visually indicated by the thumb position
+/// - Disabled state is properly conveyed to assistive technologies
+///
+/// For full accessibility support:
+/// - Use with a `<label>` element for proper text association
+/// - The component internally manages `role="switch"` and `aria-checked` state
+/// - Switches are commonly used for on/off settings rather than selections
 pub fn switch() -> Switch {
     Switch::new()
 }

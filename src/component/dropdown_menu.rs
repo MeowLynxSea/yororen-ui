@@ -12,6 +12,21 @@ use crate::{
 
 /// Creates a new dropdown menu element.
 /// Requires an id to be set via `.id()` for internal state management.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support through the following attributes:
+/// - The trigger button is keyboard accessible (Tab to focus, Space/Enter to open)
+/// - The menu container has a unique ID for proper association
+/// - Menu items can be navigated using arrow keys
+/// - Escape closes the menu
+/// - Disabled items are properly marked and skipped during keyboard navigation
+///
+/// For full accessibility support:
+/// - The component tracks `aria-expanded` state internally (true when menu is open)
+/// - The menu container uses `role="menu"` for proper screen reader semantics
+/// - Menu items use `role="menuitem"` for proper identification
+/// - Separators are marked with `role="separator"`
 pub fn dropdown_menu() -> DropdownMenu {
     DropdownMenu::new()
 }

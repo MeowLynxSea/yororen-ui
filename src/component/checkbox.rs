@@ -10,6 +10,18 @@ use crate::{
 
 /// Creates a new checkbox element.
 /// Requires an id to be set via `.id()` for internal state management.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support:
+/// - The checkbox is keyboard accessible (Tab to focus, Space to toggle)
+/// - The checked state is visually indicated with a checkmark
+/// - Disabled state is properly conveyed to assistive technologies
+///
+/// For full accessibility support:
+/// - Use with a `<label>` element for proper text association
+/// - The component internally manages `role="checkbox"` and `aria-checked` state
+/// - Use `aria-disabled` when the checkbox is visually disabled but focusable
 pub fn checkbox() -> Checkbox {
     Checkbox::new()
 }

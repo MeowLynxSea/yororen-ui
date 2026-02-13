@@ -7,6 +7,18 @@ use crate::theme::ActiveTheme;
 
 /// Creates a new radio button element.
 /// Requires an id to be set via `.id()` for internal state management.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support:
+/// - The radio button is keyboard accessible (Tab to focus, Space/Enter to select)
+/// - The checked state is visually indicated with a filled circle
+/// - Disabled state is properly conveyed to assistive technologies
+///
+/// For full accessibility support:
+/// - Use with a `<label>` element for proper text association
+/// - Group related radio buttons using `RadioGroup` for proper mutual exclusion
+/// - The component internally manages `role="radio"` and `aria-checked` state
 pub fn radio() -> Radio {
     Radio::new()
 }

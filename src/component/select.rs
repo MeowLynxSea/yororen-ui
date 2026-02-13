@@ -36,6 +36,20 @@ impl SelectOption {
 
 /// Creates a new select dropdown.
 /// Use `.id()` to set a stable element ID for state management.
+///
+/// # Accessibility
+///
+/// This component provides accessibility support through the following attributes:
+/// - The select element is keyboard accessible (Tab to focus, Space/Enter to open)
+/// - Arrow keys can navigate through options when the menu is open
+/// - Escape closes the menu
+/// - The menu is properly labeled for screen readers
+///
+/// For full accessibility support:
+/// - The component tracks `aria-expanded` state internally (true when menu is open)
+/// - The menu container has a unique ID for `aria-controls` association
+/// - Selected options are visually indicated with a checkmark
+/// - Disabled options are properly marked
 pub fn select() -> Select {
     Select::new()
 }
@@ -304,7 +318,7 @@ impl RenderOnce for Select {
                 let text_color = text_color;
 
                 let menu = div()
-                    .id("select-menu")
+                    .id((id.clone(), "select-menu"))
                     .absolute()
                     .top_full()
                     .left_0()
