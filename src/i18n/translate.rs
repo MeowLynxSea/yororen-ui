@@ -289,8 +289,12 @@ mod tests {
 
     #[test]
     fn test_translated_string_args() {
+        let mut args: HashMap<&str, Box<dyn fmt::Display>> = HashMap::new();
+        args.insert("name", Box::new("World"));
+        args.insert("count", Box::new(5));
+
         let s = TranslatedString::new("Hello {name}, you have {count} items")
-            .with_args(&[("name", "World"), ("count", 5)]);
+            .with_args(&args);
 
         assert_eq!(s.into_shared().to_string(), "Hello World, you have 5 items");
     }
