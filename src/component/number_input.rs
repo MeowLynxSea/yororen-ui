@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{button, generate_element_id, text_input},
+    component::{button, compute_input_style, generate_element_id, text_input},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -193,6 +193,15 @@ impl RenderOnce for NumberInput {
         let theme = cx.theme().clone();
         let height = self.height.unwrap_or_else(|| px(36.).into());
 
+        let input_style = compute_input_style(
+            &theme,
+            disabled,
+            self.bg,
+            self.border,
+            self.focus_border,
+            self.text_color,
+        );
+
         let use_internal_value = on_change.is_none();
         let initial_value = self.value.unwrap_or(0.0);
         let internal_value = if use_internal_value {
@@ -262,10 +271,10 @@ impl RenderOnce for NumberInput {
                         .placeholder(self.placeholder)
                         .disabled(disabled)
                         .height(height)
-                        .bg(self.bg.unwrap_or(theme.surface.base))
-                        .border(self.border.unwrap_or(theme.border.default))
-                        .focus_border(self.focus_border.unwrap_or(theme.border.focus))
-                        .text_color(self.text_color.unwrap_or(theme.content.primary))
+                        .bg(input_style.bg)
+                        .border(input_style.border)
+                        .focus_border(input_style.focus_border)
+                        .text_color(input_style.text_color)
                         .content(controlled_text)
                         .on_change({
                             let set_value = set_value.clone();

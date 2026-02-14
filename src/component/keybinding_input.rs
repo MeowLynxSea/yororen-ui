@@ -5,7 +5,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{format_keybinding_ui, generate_element_id, shortcut_hint},
+    component::{compute_input_style, format_keybinding_ui, generate_element_id, shortcut_hint},
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
 };
@@ -177,25 +177,14 @@ impl RenderOnce for KeybindingInput {
         let disabled = self.disabled;
         let theme = cx.theme().clone();
 
-        let bg = if disabled {
-            theme.surface.sunken
-        } else {
-            self.bg.unwrap_or(theme.surface.base)
-        };
-
-        let border_color = if disabled {
-            theme.border.muted
-        } else {
-            self.border.unwrap_or(theme.border.default)
-        };
-
-        let focus_border_color = self.focus_border.unwrap_or(theme.border.focus);
-
-        let text_color = if disabled {
-            theme.content.disabled
-        } else {
-            self.text_color.unwrap_or(theme.content.primary)
-        };
+        let input_style = compute_input_style(
+            &theme,
+            disabled,
+            self.bg,
+            self.border,
+            self.focus_border,
+            self.text_color,
+        );
 
         let height = self.height.unwrap_or_else(|| px(36.).into());
 
@@ -328,11 +317,11 @@ impl RenderOnce for KeybindingInput {
             .gap_2()
             .px_3()
             .rounded_md()
-            .bg(bg)
+            .bg(input_style.bg)
             .border_1()
-            .border_color(border_color)
+            .border_color(input_style.border)
             .focusable()
-            .focus_visible(|style| style.border_2().border_color(focus_border_color))
+            .focus_visible(|style| style.border_2().border_color(input_style.focus_border))
             .track_focus(focus_handle.read(cx))
             .when(disabled, |this| this.opacity(0.6).cursor_not_allowed())
             .when(!disabled, |this| this.cursor_pointer())
@@ -424,7 +413,7 @@ impl RenderOnce for KeybindingInput {
                     } else {
                         div()
                             .font_family("monospace")
-                            .text_color(text_color)
+                            .text_color(input_style.text_color)
                             .child(value)
                             .into_any_element()
                     })

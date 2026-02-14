@@ -7,7 +7,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, ArrowDirection, IconName, TextInputState, icon, text_input},
+    component::{compute_input_style, generate_element_id, ArrowDirection, IconName, TextInputState, icon, text_input},
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -289,25 +289,14 @@ impl RenderOnce for ComboBox {
         let theme = cx.theme().clone();
         let hint = theme.content.tertiary;
 
-        let bg = if disabled {
-            theme.surface.sunken
-        } else {
-            self.bg.unwrap_or(theme.surface.base)
-        };
-
-        let border_color = if disabled {
-            theme.border.muted
-        } else {
-            self.border.unwrap_or(theme.border.default)
-        };
-
-        let focus_border_color = self.focus_border.unwrap_or(theme.border.focus);
-
-        let text_color = if disabled {
-            theme.content.disabled
-        } else {
-            self.text_color.unwrap_or(theme.content.primary)
-        };
+        let input_style = compute_input_style(
+            &theme,
+            disabled,
+            self.bg,
+            self.border,
+            self.focus_border,
+            self.text_color,
+        );
 
         let menu_open_for_button = menu_open.clone();
         let menu_open_for_outside = menu_open.clone();
@@ -326,12 +315,12 @@ impl RenderOnce for ComboBox {
             .h(height)
             .px_3()
             .rounded_md()
-            .bg(bg)
+            .bg(input_style.bg)
             .border_1()
-            .border_color(border_color)
-            .text_color(text_color)
+            .border_color(input_style.border)
+            .text_color(input_style.text_color)
             .focusable()
-            .focus_visible(|style| style.border_2().border_color(focus_border_color))
+            .focus_visible(|style| style.border_2().border_color(input_style.focus_border))
             .when(disabled, |this| this.opacity(0.6).cursor_not_allowed())
             .when(!disabled, |this| this.cursor_pointer())
             .when(is_open, |this| this.bg(theme.surface.hover))
@@ -346,7 +335,7 @@ impl RenderOnce for ComboBox {
                     .flex_1()
                     .min_w(px(0.))
                     .truncate()
-                    .text_color(selected_label.as_ref().map(|_| text_color).unwrap_or(hint))
+                    .text_color(selected_label.as_ref().map(|_| input_style.text_color).unwrap_or(hint))
                     .child(selected_label.unwrap_or(placeholder)),
             )
             .child(
@@ -355,7 +344,7 @@ impl RenderOnce for ComboBox {
                     .color(hint),
             )
             .when(is_open, move |this| {
-                let text_color = text_color;
+                let text_color = input_style.text_color;
                 let value = value.clone();
                 let options = options.clone();
                 let on_change = on_change_for_select.clone();

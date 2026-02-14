@@ -2,7 +2,7 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use super::TextEditState;
-use crate::component::{generate_element_id, ChangeCallback};
+use crate::component::{compute_input_style, generate_element_id, ChangeCallback};
 use crate::theme::ActiveTheme;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -860,25 +860,15 @@ impl RenderOnce for TextInput {
 
         let theme = cx.theme();
 
-        let bg = if disabled {
-            theme.surface.sunken
-        } else {
-            self.bg.unwrap_or_else(|| theme.surface.base)
-        };
+        let input_style = compute_input_style(
+            theme,
+            disabled,
+            self.bg,
+            self.border,
+            self.focus_border,
+            self.text_color,
+        );
 
-        let border_color = if disabled {
-            theme.border.muted
-        } else {
-            self.border.unwrap_or_else(|| theme.border.default)
-        };
-        let focus_border_color = self
-            .focus_border
-            .unwrap_or_else(|| theme.border.focus);
-        let text_color = if disabled {
-            theme.content.disabled
-        } else {
-            self.text_color.unwrap_or_else(|| theme.content.primary)
-        };
         let height = self.height.unwrap_or_else(|| px(36.).into());
         let inset = if disabled { px(6.) } else { px(5.) };
 
@@ -891,11 +881,11 @@ impl RenderOnce for TextInput {
             .w_full()
             .h(height)
             .rounded_md()
-            .bg(bg)
+            .bg(input_style.bg)
             .border_1()
-            .border_color(border_color)
+            .border_color(input_style.border)
             .when(!disabled && focus_handle.is_focused(window), |this| {
-                this.border_2().border_color(focus_border_color)
+                this.border_2().border_color(input_style.focus_border)
             })
             .when(!disabled, |this| this.track_focus(&focus_handle))
             .when(!disabled, |this| this.cursor(CursorStyle::IBeam))
@@ -1075,7 +1065,7 @@ impl RenderOnce for TextInput {
             });
 
         base =
-            base.text_color(text_color)
+            base.text_color(input_style.text_color)
                 .child(
                     div()
                         .w_full()
