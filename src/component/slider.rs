@@ -95,10 +95,10 @@ pub struct Slider {
     disabled: bool,
 
     height: Option<gpui::AbsoluteLength>,
-    bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
     fill_color: Option<Hsla>,
-    border_color: Option<Hsla>,
-    focus_border_color: Option<Hsla>,
+    border: Option<Hsla>,
+    focus_border: Option<Hsla>,
 
     on_change: Option<ChangeFn>,
 }
@@ -123,10 +123,10 @@ impl Slider {
             disabled: false,
 
             height: None,
-            bg_color: None,
+            bg: None,
             fill_color: None,
-            border_color: None,
-            focus_border_color: None,
+            border: None,
+            focus_border: None,
 
             on_change: None,
         }
@@ -173,7 +173,7 @@ impl Slider {
     }
 
     pub fn bg(mut self, color: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(color.into());
+        self.bg = Some(color.into());
         self
     }
 
@@ -183,12 +183,12 @@ impl Slider {
     }
 
     pub fn border(mut self, color: impl Into<Hsla>) -> Self {
-        self.border_color = Some(color.into());
+        self.border = Some(color.into());
         self
     }
 
     pub fn focus_border(mut self, color: impl Into<Hsla>) -> Self {
-        self.focus_border_color = Some(color.into());
+        self.focus_border = Some(color.into());
         self
     }
 
@@ -237,7 +237,7 @@ impl RenderOnce for Slider {
         let track_bg = if disabled {
             theme.surface.sunken
         } else {
-            self.bg_color.unwrap_or(theme.surface.sunken)
+            self.bg.unwrap_or(theme.surface.sunken)
         };
 
         let fill = if disabled {

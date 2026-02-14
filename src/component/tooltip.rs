@@ -20,13 +20,13 @@ pub fn tooltip(content: impl Into<String>) -> Tooltip {
 pub struct Tooltip {
     content: String,
     placement: TooltipPlacement,
-    bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
     text_color: Option<Hsla>,
 }
 
 struct TooltipView {
     content: String,
-    bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
     text_color: Option<Hsla>,
 }
 
@@ -35,7 +35,7 @@ impl Tooltip {
         Self {
             content: content.into(),
             placement: TooltipPlacement::Auto,
-            bg_color: None,
+            bg: None,
             text_color: None,
         }
     }
@@ -46,7 +46,7 @@ impl Tooltip {
     }
 
     pub fn bg(mut self, color: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(color.into());
+        self.bg = Some(color.into());
         self
     }
 
@@ -58,12 +58,12 @@ impl Tooltip {
     pub fn build(self) -> impl Fn(&mut gpui::Window, &mut gpui::App) -> AnyView {
         let content = self.content;
         let _placement = self.placement;
-        let bg_color = self.bg_color;
+        let bg = self.bg;
         let text_color = self.text_color;
         move |_, cx| {
             cx.new(|_| TooltipView {
                 content: content.clone(),
-                bg_color,
+                bg,
                 text_color,
             })
             .into()
@@ -83,7 +83,7 @@ impl Render for TooltipView {
             .py_2()
             .rounded_sm()
             .text_sm()
-            .bg(self.bg_color.unwrap_or_else(|| theme.action.neutral.bg))
+            .bg(self.bg.unwrap_or_else(|| theme.action.neutral.bg))
             .text_color(self.text_color.unwrap_or_else(|| theme.action.neutral.fg))
             .child(self.content.clone())
     }

@@ -27,9 +27,9 @@ pub struct SearchInput {
 
     disabled: bool,
 
-    bg_color: Option<Hsla>,
-    border_color: Option<Hsla>,
-    focus_border_color: Option<Hsla>,
+    bg: Option<Hsla>,
+    border: Option<Hsla>,
+    focus_border: Option<Hsla>,
     text_color: Option<Hsla>,
     height: Option<gpui::AbsoluteLength>,
 
@@ -52,9 +52,9 @@ impl SearchInput {
 
             disabled: false,
 
-            bg_color: None,
-            border_color: None,
-            focus_border_color: None,
+            bg: None,
+            border: None,
+            focus_border: None,
             text_color: None,
             height: None,
 
@@ -100,17 +100,17 @@ impl SearchInput {
     }
 
     pub fn bg(mut self, color: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(color.into());
+        self.bg = Some(color.into());
         self
     }
 
     pub fn border(mut self, color: impl Into<Hsla>) -> Self {
-        self.border_color = Some(color.into());
+        self.border = Some(color.into());
         self
     }
 
     pub fn focus_border(mut self, color: impl Into<Hsla>) -> Self {
-        self.focus_border_color = Some(color.into());
+        self.focus_border = Some(color.into());
         self
     }
 
@@ -179,11 +179,11 @@ impl RenderOnce for SearchInput {
             .gap_2()
             .h(height)
             .px_3()
-            .bg(self.bg_color.unwrap_or(theme.surface.base))
+            .bg(self.bg.unwrap_or(theme.surface.base))
             .border_1()
-            .border_color(self.border_color.unwrap_or(theme.border.default))
+            .border_color(self.border.unwrap_or(theme.border.default))
             .rounded_md()
-            .when_some(self.focus_border_color, |this, focus_border| {
+            .when_some(self.focus_border, |this, focus_border| {
                 this.focus_visible(|style| style.border_2().border_color(focus_border))
             })
             .when(disabled, |this| this.opacity(0.6).cursor_not_allowed())

@@ -24,7 +24,7 @@ pub struct Avatar {
     base: Div,
     image: Option<Arc<Image>>,
     shape: AvatarShape,
-    bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
     status: Option<Hsla>,
 }
 
@@ -35,7 +35,7 @@ impl Avatar {
             base: div(),
             image,
             shape: AvatarShape::Circle,
-            bg_color: None,
+            bg: None,
             status: None,
         }
     }
@@ -56,7 +56,7 @@ impl Avatar {
     }
 
     pub fn bg(mut self, color: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(color.into());
+        self.bg = Some(color.into());
         self
     }
 
@@ -85,7 +85,7 @@ impl RenderOnce for Avatar {
 
         let mut base = self.base.id(element_id.unwrap_or_else(|| "".into()));
 
-        if let Some(bg) = self.bg_color {
+        if let Some(bg) = self.bg {
             base = base.bg(bg);
         }
 

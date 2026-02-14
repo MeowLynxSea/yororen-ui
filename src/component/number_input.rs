@@ -31,9 +31,9 @@ pub struct NumberInput {
     placeholder: SharedString,
     disabled: bool,
 
-    bg_color: Option<Hsla>,
-    border_color: Option<Hsla>,
-    focus_border_color: Option<Hsla>,
+    bg: Option<Hsla>,
+    border: Option<Hsla>,
+    focus_border: Option<Hsla>,
     text_color: Option<Hsla>,
     height: Option<gpui::AbsoluteLength>,
 
@@ -57,9 +57,9 @@ impl NumberInput {
             step: 1.0,
             placeholder: "0".into(),
             disabled: false,
-            bg_color: None,
-            border_color: None,
-            focus_border_color: None,
+            bg: None,
+            border: None,
+            focus_border: None,
             text_color: None,
             height: None,
             on_change: None,
@@ -116,17 +116,17 @@ impl NumberInput {
     }
 
     pub fn bg(mut self, color: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(color.into());
+        self.bg = Some(color.into());
         self
     }
 
     pub fn border(mut self, color: impl Into<Hsla>) -> Self {
-        self.border_color = Some(color.into());
+        self.border = Some(color.into());
         self
     }
 
     pub fn focus_border(mut self, color: impl Into<Hsla>) -> Self {
-        self.focus_border_color = Some(color.into());
+        self.focus_border = Some(color.into());
         self
     }
 
@@ -256,9 +256,9 @@ impl RenderOnce for NumberInput {
                         .placeholder(self.placeholder)
                         .disabled(disabled)
                         .height(height)
-                        .bg(self.bg_color.unwrap_or(theme.surface.base))
-                        .border(self.border_color.unwrap_or(theme.border.default))
-                        .focus_border(self.focus_border_color.unwrap_or(theme.border.focus))
+                        .bg(self.bg.unwrap_or(theme.surface.base))
+                        .border(self.border.unwrap_or(theme.border.default))
+                        .focus_border(self.focus_border.unwrap_or(theme.border.focus))
                         .text_color(self.text_color.unwrap_or(theme.content.primary))
                         .content(controlled_text)
                         .on_change({

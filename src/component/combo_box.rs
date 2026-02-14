@@ -71,9 +71,9 @@ pub struct ComboBox {
     localized: bool,
     disabled: bool,
 
-    bg_color: Option<Hsla>,
-    border_color: Option<Hsla>,
-    focus_border_color: Option<Hsla>,
+    bg: Option<Hsla>,
+    border: Option<Hsla>,
+    focus_border: Option<Hsla>,
     text_color: Option<Hsla>,
     height: Option<gpui::AbsoluteLength>,
 
@@ -99,9 +99,9 @@ impl ComboBox {
             search_placeholder: "Search…".into(),
             localized: false,
             disabled: false,
-            bg_color: None,
-            border_color: None,
-            focus_border_color: None,
+            bg: None,
+            border: None,
+            focus_border: None,
             text_color: None,
             height: None,
             menu_width: None,
@@ -171,17 +171,17 @@ impl ComboBox {
     }
 
     pub fn bg(mut self, color: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(color.into());
+        self.bg = Some(color.into());
         self
     }
 
     pub fn border(mut self, color: impl Into<Hsla>) -> Self {
-        self.border_color = Some(color.into());
+        self.border = Some(color.into());
         self
     }
 
     pub fn focus_border(mut self, color: impl Into<Hsla>) -> Self {
-        self.focus_border_color = Some(color.into());
+        self.focus_border = Some(color.into());
         self
     }
 
@@ -292,16 +292,16 @@ impl RenderOnce for ComboBox {
         let bg = if disabled {
             theme.surface.sunken
         } else {
-            self.bg_color.unwrap_or(theme.surface.base)
+            self.bg.unwrap_or(theme.surface.base)
         };
 
         let border_color = if disabled {
             theme.border.muted
         } else {
-            self.border_color.unwrap_or(theme.border.default)
+            self.border.unwrap_or(theme.border.default)
         };
 
-        let focus_border_color = self.focus_border_color.unwrap_or(theme.border.focus);
+        let focus_border_color = self.focus_border.unwrap_or(theme.border.focus);
 
         let text_color = if disabled {
             theme.content.disabled

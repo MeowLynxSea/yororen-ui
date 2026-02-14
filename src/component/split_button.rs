@@ -49,7 +49,7 @@ pub struct SplitButton {
     on_action: Option<ActionFn>,
     options: Vec<SplitButtonOption>,
     disabled: bool,
-    bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
     hover_bg: Option<Hsla>,
     menu_width: Option<Pixels>,
 }
@@ -70,7 +70,7 @@ impl SplitButton {
             on_action: None,
             options: Vec::new(),
             disabled: false,
-            bg_color: None,
+            bg: None,
             hover_bg: None,
             menu_width: None,
         }
@@ -123,7 +123,7 @@ impl SplitButton {
     }
 
     pub fn bg(mut self, fill: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(fill.into());
+        self.bg = Some(fill.into());
         self
     }
 
@@ -165,7 +165,7 @@ impl RenderOnce for SplitButton {
         let on_action = self.on_action;
         let options = self.options;
         let action_variant = cx.theme().action.neutral.clone();
-        let bg = self.bg_color.unwrap_or(action_variant.bg);
+        let bg = self.bg.unwrap_or(action_variant.bg);
         let hover_bg = self.hover_bg.unwrap_or(action_variant.hover_bg);
         let menu_width = self.menu_width;
         let neutral_bg = cx.theme().action.neutral.bg.alpha(0.0);

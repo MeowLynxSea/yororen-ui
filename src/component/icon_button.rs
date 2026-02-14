@@ -27,8 +27,8 @@ pub struct IconButton {
     disabled: bool,
     variant: ActionVariantKind,
 
-    bg_color: Option<Hsla>,
-    hover_bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
+    hover_bg: Option<Hsla>,
     icon_size: Option<Pixels>,
 }
 
@@ -45,8 +45,8 @@ impl IconButton {
             disabled: false,
             variant: ActionVariantKind::Neutral,
 
-            bg_color: None,
-            hover_bg_color: None,
+            bg: None,
+            hover_bg: None,
             icon_size: None,
         }
     }
@@ -93,12 +93,12 @@ impl IconButton {
     }
 
     pub fn bg(mut self, fill: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(fill.into());
+        self.bg = Some(fill.into());
         self
     }
 
     pub fn hover_bg(mut self, fill: impl Into<Hsla>) -> Self {
-        self.hover_bg_color = Some(fill.into());
+        self.hover_bg = Some(fill.into());
         self
     }
 
@@ -133,8 +133,8 @@ impl RenderOnce for IconButton {
         let clickable = self.clickable;
         let click_fn = self.click_fn;
         let hover_fn = self.hover_fn;
-        let bg = self.bg_color;
-        let hover_bg = self.hover_bg_color;
+        let bg = self.bg;
+        let hover_bg = self.hover_bg;
         let disabled = self.disabled;
         let variant = self.variant;
         let icon_size = self.icon_size;

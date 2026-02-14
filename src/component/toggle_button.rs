@@ -23,7 +23,7 @@ pub struct ToggleButton {
     on_toggle: Option<ToggleFn>,
     variant: ActionVariantKind,
     default_selected: bool,
-    bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
     selected_bg: Option<Hsla>,
     hover_bg: Option<Hsla>,
 
@@ -41,7 +41,7 @@ impl ToggleButton {
             on_toggle: None,
             variant: ActionVariantKind::Neutral,
             default_selected: false,
-            bg_color: None,
+            bg: None,
             selected_bg: None,
             hover_bg: None,
             group: None,
@@ -87,7 +87,7 @@ impl ToggleButton {
     }
 
     pub fn bg(mut self, fill: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(fill.into());
+        self.bg = Some(fill.into());
         self
     }
 
@@ -132,7 +132,7 @@ impl RenderOnce for ToggleButton {
         let selected = self.selected;
         let disabled = self.disabled;
         let on_toggle = self.on_toggle;
-        let bg = self.bg_color;
+        let bg = self.bg;
         let selected_bg = self.selected_bg;
         let hover_bg = self.hover_bg;
         let variant = self.variant;

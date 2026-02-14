@@ -22,8 +22,8 @@ pub struct ContextMenuTrigger {
     enabled: bool,
     variant: ActionVariantKind,
 
-    bg_color: Option<Hsla>,
-    hover_bg_color: Option<Hsla>,
+    bg: Option<Hsla>,
+    hover_bg: Option<Hsla>,
 }
 
 impl Default for ContextMenuTrigger {
@@ -43,8 +43,8 @@ impl ContextMenuTrigger {
             enabled: true,
             variant: ActionVariantKind::Neutral,
 
-            bg_color: None,
-            hover_bg_color: None,
+            bg: None,
+            hover_bg: None,
         }
     }
 
@@ -82,12 +82,12 @@ impl ContextMenuTrigger {
     }
 
     pub fn bg(mut self, fill: impl Into<Hsla>) -> Self {
-        self.bg_color = Some(fill.into());
+        self.bg = Some(fill.into());
         self
     }
 
     pub fn hover_bg(mut self, fill: impl Into<Hsla>) -> Self {
-        self.hover_bg_color = Some(fill.into());
+        self.hover_bg = Some(fill.into());
         self
     }
 }
@@ -115,8 +115,8 @@ impl RenderOnce for ContextMenuTrigger {
         let enabled = self.enabled;
         let consume = self.consume;
         let on_open = self.on_open;
-        let bg = self.bg_color;
-        let hover_bg = self.hover_bg_color;
+        let bg = self.bg;
+        let hover_bg = self.hover_bg;
         let variant = self.variant;
         let element_id = self.element_id;
 
