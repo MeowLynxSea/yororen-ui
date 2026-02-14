@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{button, text_input},
+    component::{button, generate_element_id, text_input},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -165,9 +165,9 @@ impl RenderOnce for NumberInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "NumberInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // NumberInput requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:number-input"));
 
         let disabled = self.disabled;
         let step = self.step;

@@ -3,7 +3,7 @@ use gpui::{
     ParentElement, RenderOnce, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::theme::{ActionVariantKind, ActiveTheme};
+use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
 
 /// Creates a new context menu trigger element.
 pub fn context_menu_trigger() -> ContextMenuTrigger {
@@ -128,7 +128,7 @@ impl RenderOnce for ContextMenuTrigger {
             resolved_bg = action_variant.disabled_bg;
         }
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:context-menu-trigger")))
             .when(enabled, |this| this.cursor_context_menu())
             .on_mouse_down(MouseButton::Right, move |ev, window, cx| {
                 if !enabled {

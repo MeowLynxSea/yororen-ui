@@ -2,7 +2,7 @@ use gpui::{
     Div, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div, px,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// Creates a new divider element.
 pub fn divider() -> Divider {
@@ -63,7 +63,7 @@ impl RenderOnce for Divider {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let element_id = self.element_id;
 
-        let base = self.base.id(element_id.unwrap_or_else(|| "".into()));
+        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:divider")));
 
         if self.vertical {
             base.w(px(1.)).h_full().bg(cx.theme().border.divider)

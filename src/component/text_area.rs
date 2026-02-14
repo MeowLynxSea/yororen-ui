@@ -9,7 +9,7 @@ use gpui::{
     px, relative, size,
 };
 
-use crate::{component::TextEditState, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
+use crate::{component::{generate_element_id, TextEditState}, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
 actions!(
     ui_text_area,
@@ -1186,9 +1186,9 @@ impl RenderOnce for TextArea {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "TextArea requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // TextArea requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:text-area"));
 
         let disabled = self.disabled;
         let state = window.use_keyed_state(id.clone(), cx, |_, cx| TextAreaState::new(cx));

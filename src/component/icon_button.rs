@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{ClickCallback, HoverCallback, Icon},
+    component::{generate_element_id, ClickCallback, HoverCallback, Icon},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -151,7 +151,7 @@ impl RenderOnce for IconButton {
             resolved_text_color = action_variant.disabled_fg;
         }
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:icon-button")))
             .rounded_md()
             .flex()
             .items_center()

@@ -10,7 +10,7 @@ use gpui::{
 };
 use unicode_segmentation::UnicodeSegmentation;
 
-use crate::{constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
+use crate::{component::generate_element_id, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
 type PasswordInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
@@ -959,9 +959,9 @@ impl RenderOnce for PasswordInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "PasswordInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // PasswordInput requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:password-input"));
 
         let disabled = self.disabled;
         let allow_copy = self.allow_copy;

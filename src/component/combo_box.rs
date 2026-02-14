@@ -7,7 +7,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{ArrowDirection, IconName, TextInputState, icon, text_input},
+    component::{generate_element_id, ArrowDirection, IconName, TextInputState, icon, text_input},
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -247,9 +247,9 @@ impl RenderOnce for ComboBox {
         let max_results = self.max_results;
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "ComboBox requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // ComboBox requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:combo-box"));
 
         let menu_open = window.use_keyed_state((id.clone(), "ui:combo-box:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);

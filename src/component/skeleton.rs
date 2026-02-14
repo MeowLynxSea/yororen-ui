@@ -6,7 +6,7 @@ use gpui::{
 use gpui::InteractiveElement;
 use gpui::prelude::FluentBuilder;
 
-use crate::{constants::animation, theme::ActiveTheme};
+use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
 
 /// Creates a new skeleton line element.
 pub fn skeleton_line() -> SkeletonLine {
@@ -83,7 +83,7 @@ impl RenderOnce for SkeletonLine {
         let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:skeleton-line"));
         let theme = cx.theme();
 
-        let base = self.base.id(element_id.unwrap_or_else(|| "".into()))
+        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:skeleton-line")))
             .h(self.height)
             .rounded_full()
             .bg(self.tone.unwrap_or(theme.surface.hover))
@@ -186,7 +186,7 @@ impl RenderOnce for SkeletonBlock {
         let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:skeleton-block"));
         let theme = cx.theme();
 
-        let base = self.base.id(element_id.unwrap_or_else(|| "".into()))
+        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:skeleton-block")))
             .h(self.height)
             .when(self.rounded, |this| this.rounded_md())
             .when(!self.rounded, |this| this.rounded_none())

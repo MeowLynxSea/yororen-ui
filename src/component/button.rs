@@ -5,7 +5,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::component::{ClickCallback, HoverCallback};
+use crate::component::{generate_element_id, ClickCallback, HoverCallback};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new button.
@@ -146,7 +146,7 @@ impl RenderOnce for Button {
             resolved_text_color = action_variant.disabled_fg;
         }
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:button")))
             .rounded_md()
             .flex()
             .items_center()

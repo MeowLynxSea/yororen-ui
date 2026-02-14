@@ -3,7 +3,7 @@ use gpui::{
     RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::theme::{ActionVariantKind, ActiveTheme};
+use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
 
 /// Creates a new toggle button element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -140,9 +140,9 @@ impl RenderOnce for ToggleButton {
         let default_selected = self.default_selected;
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "ToggleButton requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // ToggleButton requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:toggle-button"));
 
         let use_internal_state = on_toggle.is_none();
         let internal_selected = use_internal_state

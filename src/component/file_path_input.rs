@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{button, label, text_input},
+    component::{button, generate_element_id, label, text_input},
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::{ActionVariantKind, ActiveTheme},
 };
@@ -188,9 +188,9 @@ impl RenderOnce for FilePathInput {
             self.placeholder
         };
 
-        let id = element_id.expect(
-            "FilePathInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // FilePathInput requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:file-path-input"));
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();

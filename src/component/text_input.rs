@@ -2,7 +2,7 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use super::TextEditState;
-use crate::component::ChangeCallback;
+use crate::component::{generate_element_id, ChangeCallback};
 use crate::theme::ActiveTheme;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -813,10 +813,8 @@ impl StatefulInteractiveElement for TextInput {}
 impl RenderOnce for TextInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
         // TextInput requires an element ID for keyed state management.
-        // Use `.id()` to provide a stable ID.
-        let id = self.element_id.unwrap_or_else(|| {
-            panic!("TextInput requires an element ID. Use `.id()` to set a stable ID.")
-        });
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = self.element_id.unwrap_or_else(|| generate_element_id("ui:text-input"));
 
         let disabled = self.disabled;
 

@@ -3,7 +3,7 @@ use gpui::{
     MouseMoveEvent, ParentElement, RenderOnce, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::theme::{ActionVariantKind, ActiveTheme};
+use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
 
 /// Creates a new drag handle element.
 pub fn drag_handle() -> DragHandle {
@@ -152,7 +152,7 @@ impl RenderOnce for DragHandle {
             resolved_hover_bg = action_variant.disabled_bg;
         }
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:drag-handle")))
             .when(enabled, |this| this.cursor_grab())
             .when(dragging, |this| this.cursor_grabbing())
             .bg(resolved_bg)

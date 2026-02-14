@@ -3,7 +3,7 @@ use gpui::{
     SharedString, Styled, div,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// Creates a new badge element.
 pub fn badge(text: impl Into<SharedString>) -> Badge {
@@ -68,7 +68,7 @@ impl RenderOnce for Badge {
             cx.theme().status.info.fg
         };
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:badge")))
             .px_2()
             .h_5()
             .rounded_full()

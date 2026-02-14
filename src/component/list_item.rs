@@ -3,7 +3,7 @@ use gpui::{
     prelude::FluentBuilder, px,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// A row content container for list-style UIs.
 ///
@@ -131,7 +131,7 @@ impl RenderOnce for ListItem {
         let secondary = self.secondary;
         let trailing = self.trailing;
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:list-item")))
             .w_full()
             .min_h(px(32.))
             .px_3()

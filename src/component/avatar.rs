@@ -5,7 +5,7 @@ use gpui::{
     RenderOnce, Styled, StyledImage, div, img, prelude::FluentBuilder, px,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// Creates a new avatar element.
 pub fn avatar(image: Option<Arc<Image>>) -> Avatar {
@@ -83,7 +83,7 @@ impl RenderOnce for Avatar {
         let element_id = self.element_id;
         let is_circle = matches!(self.shape, AvatarShape::Circle);
 
-        let mut base = self.base.id(element_id.unwrap_or_else(|| "".into()));
+        let mut base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:avatar")));
 
         if let Some(bg) = self.bg {
             base = base.bg(bg);

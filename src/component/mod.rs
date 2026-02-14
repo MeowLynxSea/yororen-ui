@@ -53,6 +53,8 @@ mod tree_item;
 mod tree_node;
 mod virtual_row;
 
+use gpui::ElementId;
+
 pub mod callback;
 pub use callback::*;
 
@@ -115,4 +117,11 @@ pub fn init(cx: &mut gpui::App) {
     text_input::init(cx);
     text_area::init(cx);
     password_input::init(cx);
+}
+
+/// Generate a unique element ID when none is provided.
+/// This is used by components that require an ID for keyed state management.
+pub fn generate_element_id(prefix: &str) -> ElementId {
+    let uuid = uuid::Uuid::new_v4();
+    ElementId::from(format!("{}:{}", prefix, uuid))
 }

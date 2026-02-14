@@ -6,7 +6,7 @@ use gpui::{
     prelude::FluentBuilder, px,
 };
 
-use crate::component::{ArrowDirection, Icon, IconName, button};
+use crate::component::{generate_element_id, ArrowDirection, Icon, IconName, button};
 use crate::constants::animation;
 use crate::theme::ActiveTheme;
 
@@ -175,9 +175,9 @@ impl RenderOnce for SplitButton {
         let border_divider = cx.theme().border.divider;
         let surface_raised = cx.theme().surface.raised;
 
-        let id = self.element_id.expect(
-            "SplitButton requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // SplitButton requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = self.element_id.unwrap_or_else(|| generate_element_id("ui:split-button"));
 
         let menu_open = window.use_keyed_state(id.clone(), cx, |_window, _cx| false);
         let is_open = *menu_open.read(cx);

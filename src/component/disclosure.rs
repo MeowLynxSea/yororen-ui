@@ -2,7 +2,7 @@ use gpui::{
     ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div, px,
 };
 
-use crate::component::{ArrowDirection, IconName, icon};
+use crate::component::{generate_element_id, ArrowDirection, IconName, icon};
 use crate::theme::ActiveTheme;
 
 /// A disclosure arrow with expanded/collapsed state.
@@ -81,7 +81,7 @@ impl RenderOnce for Disclosure {
         let expanded = self.expanded;
         let size = self.size;
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:disclosure")))
             .w(size)
             .h(size)
             .flex()

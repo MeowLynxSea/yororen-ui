@@ -4,7 +4,7 @@ use gpui::{
     ParentElement, RenderOnce, Styled, div, ease_out_quint, px,
 };
 
-use crate::{constants::animation, theme::ActiveTheme};
+use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PopoverPlacement {
@@ -145,7 +145,7 @@ impl RenderOnce for Popover {
 
         // Like Select/ComboBox, Popover is a relative container and the menu is an absolute child
         // rendered via `gpui::deferred(...)` so it is painted above.
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:popover")))
             .relative()
             .child(trigger)
             .when(is_open, move |this| {

@@ -7,7 +7,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon},
+    component::{generate_element_id, ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon},
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -266,10 +266,8 @@ impl RenderOnce for Select {
         let on_change_with_event = self.on_change_with_event;
 
         // Select requires an element ID for keyed state management.
-        // Use `.id()` to provide a stable ID.
-        let id = self.element_id.unwrap_or_else(|| {
-            panic!("Select requires an element ID. Use `.id()` to set a stable ID.")
-        });
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = self.element_id.unwrap_or_else(|| generate_element_id("ui:select"));
 
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);

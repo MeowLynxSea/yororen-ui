@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{IconName, TextInputState, icon, icon_button, text_input},
+    component::{generate_element_id, IconName, TextInputState, icon, icon_button, text_input},
     theme::ActiveTheme,
 };
 
@@ -149,9 +149,9 @@ impl RenderOnce for SearchInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "SearchInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // SearchInput requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:search-input"));
         let placeholder = self.placeholder;
         let disabled = self.disabled;
         let height = self.height.unwrap_or_else(|| px(36.).into());

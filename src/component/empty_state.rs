@@ -4,7 +4,7 @@ use gpui::{
     div, px,
 };
 
-use crate::component::{Heading, HeadingLevel, Icon, IconName, Label, button, heading, label};
+use crate::component::{generate_element_id, Heading, HeadingLevel, Icon, IconName, Label, button, heading, label};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new empty state element.
@@ -99,7 +99,7 @@ impl RenderOnce for EmptyState {
             .icon
             .unwrap_or_else(|| crate::component::icon(IconName::Info));
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:empty-state")))
             .flex()
             .flex_col()
             .items_center()

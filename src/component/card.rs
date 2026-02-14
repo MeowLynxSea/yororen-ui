@@ -3,7 +3,7 @@ use gpui::{
     ParentElement, RenderOnce, Styled, div,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// A padded container card.
 ///
@@ -133,7 +133,7 @@ impl RenderOnce for Card {
             (None, None) => theme.border.default,
         };
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:card")))
             .bg(bg)
             .border_color(border)
     }

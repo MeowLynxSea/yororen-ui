@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{ArrowDirection, IconName, PopoverPlacement, button, divider, icon, popover},
+    component::{generate_element_id, ArrowDirection, IconName, PopoverPlacement, button, divider, icon, popover},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -145,9 +145,9 @@ impl RenderOnce for DropdownMenu {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "DropdownMenu requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // DropdownMenu requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:dropdown-menu"));
 
         let open_state =
             window.use_keyed_state((id.clone(), "ui:dropdown-menu:open"), cx, |_, _| self.open);

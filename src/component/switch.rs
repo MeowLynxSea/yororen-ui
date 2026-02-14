@@ -3,7 +3,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// Creates a new switch element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -115,9 +115,9 @@ impl RenderOnce for Switch {
         let tone = self.tone;
         let element_id = self.element_id;
 
-        let id = element_id.expect(
-            "Switch requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // Switch requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:switch"));
 
         let use_internal_state = on_toggle.is_none();
         let internal_checked = use_internal_state

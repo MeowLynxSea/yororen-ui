@@ -5,7 +5,7 @@ use gpui::{
 
 use gpui::InteractiveElement;
 
-use crate::{constants::animation, theme::ActiveTheme};
+use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
 
 /// Creates a new spinner element.
 pub fn spinner() -> Spinner {
@@ -203,7 +203,7 @@ impl RenderOnce for Spinner {
             move |_this, delta| make_canvas(delta * std::f32::consts::TAU),
         );
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:spinner")))
             .relative()
             .w(diameter)
             .h(diameter)
@@ -303,7 +303,7 @@ impl RenderOnce for ProgressBar {
         let height = self.height;
         let t = self.value.clamp(0.0, 1.0);
 
-        let base = self.base.id(element_id.unwrap_or_else(|| "".into()))
+        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:progress")))
             .relative()
             .h(height)
             .rounded_full()
@@ -484,7 +484,7 @@ impl RenderOnce for ProgressCircle {
             .max(px(1.));
         let t = self.value.clamp(0.0, 1.0);
 
-        self.base.id(element_id.unwrap_or_else(|| "".into())).relative().w(diameter).h(diameter).child(
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:spinner"))).relative().w(diameter).h(diameter).child(
             gpui::canvas(
                 move |_bounds, _window, _cx| (),
                 move |bounds, _, window, _cx| {

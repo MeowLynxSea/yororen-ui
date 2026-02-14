@@ -3,7 +3,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::theme::{ActionVariantKind, ActiveTheme};
+use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
 
 /// Creates a new clickable surface element.
 pub fn clickable_surface() -> ClickableSurface {
@@ -149,7 +149,7 @@ impl RenderOnce for ClickableSurface {
         let hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
         let focus_ring = focus_ring.unwrap_or(_cx.theme().border.focus);
 
-        self.base.id(element_id.unwrap_or_else(|| "".into()))
+        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:clickable-surface")))
             .when(focusable, |this| this.focusable())
             .when(clickable, |this| this.cursor_pointer())
             .on_click(move |ev, window, cx| {

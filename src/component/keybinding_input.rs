@@ -5,7 +5,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{format_keybinding_ui, shortcut_hint},
+    component::{format_keybinding_ui, generate_element_id, shortcut_hint},
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
 };
@@ -170,9 +170,9 @@ impl RenderOnce for KeybindingInput {
             self.waiting_hint
         };
 
-        let id = element_id.expect(
-            "KeybindingInput requires an id for internal state management. Use `.id()` or `.key()` to set an id.",
-        );
+        // KeybindingInput requires an element ID for keyed state management.
+        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
+        let id = element_id.unwrap_or_else(|| generate_element_id("ui:keybinding-input"));
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();
