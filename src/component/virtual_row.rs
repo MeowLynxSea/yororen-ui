@@ -39,8 +39,13 @@ impl VirtualRow {
     }
 
     /// Provide a stable per-item key.
-    pub fn key(mut self, key: impl Into<ElementId>) -> Self {
-        self.key = Some(key.into());
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
+    }
+
+    /// Set the element id (internal use).
+    fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.key = Some(id.into());
         self
     }
 
