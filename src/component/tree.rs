@@ -1,4 +1,21 @@
 //! Tree component for rendering hierarchical data.
+//!
+//! # Design Rationale
+//!
+//! The Tree component uses a different construction pattern from other components:
+//! `tree(state, nodes)` requires both `TreeState` and `&[TreeNode]` as constructor parameters.
+//!
+//! This design choice was made because:
+//! - **State and data are fundamental**: Unlike styling properties that can be added later,
+//!   the tree's data structure (`TreeNode`) and state management (`TreeState`) are core to its
+//!   functionality and must exist at creation time
+//! - **Consistency with data-driven components**: Tree represents hierarchical data, similar to
+//!   how a data table or list view requires data at initialization
+//! - **Avoiding partial states**: Allowing creation without data could lead to inconsistent states
+//!   where the component exists but has no content
+//!
+//! If you need to create a tree dynamically, consider passing an empty slice initially and
+//! populating it later through the state management.
 
 use gpui::{
     div, ClickEvent, Div, ElementId,
@@ -12,6 +29,19 @@ use super::tree_data::{
 };
 
 /// Creates a new tree component.
+///
+/// # Example
+///
+/// ```rust
+/// let state = TreeState::new();
+/// let nodes = vec![
+///     TreeNode::new("root")
+///         .children(vec![TreeNode::new("child")])
+/// ];
+///
+/// tree(state, &nodes)
+///     .selection_mode(SelectionMode::Single)
+/// ```
 pub fn tree(state: TreeState, nodes: &[TreeNode]) -> Tree {
     Tree::new(state, nodes)
 }

@@ -9,11 +9,18 @@ use crate::{
     theme::ActiveTheme,
 };
 
-/// Single toast primitive.
+/// Creates a new toast component.
+/// Use `.message()` to set the toast message.
 ///
-/// This is just the visual row. List/queue/placement is expected to live in a widget layer.
-pub fn toast(message: impl Into<SharedString>) -> Toast {
-    Toast::new(message)
+/// # Example
+///
+/// ```rust
+/// toast()
+///     .message("Operation completed")
+///     .kind(ToastKind::Success)
+/// ```
+pub fn toast() -> Toast {
+    Toast::new()
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -28,7 +35,7 @@ pub enum ToastKind {
 #[derive(IntoElement)]
 pub struct Toast {
     base: gpui::Div,
-    message: SharedString,
+    message: Option<SharedString>,
     kind: ToastKind,
     icon: bool,
     wrap: bool,
@@ -40,15 +47,15 @@ pub struct Toast {
 
 impl Default for Toast {
     fn default() -> Self {
-        Self::new("")
+        Self::new()
     }
 }
 
 impl Toast {
-    pub fn new(message: impl Into<SharedString>) -> Self {
+    pub fn new() -> Self {
         Self {
             base: div(),
-            message: message.into(),
+            message: None,
             kind: ToastKind::Neutral,
             icon: true,
             wrap: false,
@@ -57,6 +64,12 @@ impl Toast {
             width: None,
             max_width: None,
         }
+    }
+
+    /// Set the toast message.
+    pub fn message(mut self, message: impl Into<SharedString>) -> Self {
+        self.message = Some(message.into());
+        self
     }
 
     pub fn kind(mut self, kind: ToastKind) -> Self {
@@ -171,10 +184,12 @@ impl RenderOnce for Toast {
                 this.child(Icon::new(icon).size(px(14.)).color(fg))
             })
             // Ensure the message uses the same color as the container.
-            .child(
-                div()
-                    .when(constrain_width, |this| this.flex_1().min_w(px(0.)))
-                    .child(label(self.message).inherit_color(true).ellipsis(!self.wrap)),
-            )
+            .when_some(self.message, |this, message| {
+                this.child(
+                    div()
+                        .when(constrain_width, |this| this.flex_1().min_w(px(0.)))
+                        .child(label(message).inherit_color(true).ellipsis(!self.wrap)),
+                )
+            })
     }
 }

@@ -13,20 +13,52 @@ use crate::{
     theme::ActiveTheme,
 };
 
+/// Creates a new select option.
+///
+/// # Example
+///
+/// ```rust
+/// select_option()
+///     .value("option1")
+///     .label("Option 1")
+///     .disabled(true)
+/// ```
+pub fn select_option() -> SelectOption {
+    SelectOption::new()
+}
+
 #[derive(Clone, Debug)]
 pub struct SelectOption {
-    pub value: String,
-    pub label: SharedString,
+    pub value: Option<String>,
+    pub label: Option<SharedString>,
     pub disabled: bool,
 }
 
+impl Default for SelectOption {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SelectOption {
-    pub fn new(value: impl Into<String>, label: impl Into<SharedString>) -> Self {
+    pub fn new() -> Self {
         Self {
-            value: value.into(),
-            label: label.into(),
+            value: None,
+            label: None,
             disabled: false,
         }
+    }
+
+    /// Set the option value (used as the underlying value when selected).
+    pub fn value(mut self, value: impl Into<String>) -> Self {
+        self.value = Some(value.into());
+        self
+    }
+
+    /// Set the option label (displayed in the UI).
+    pub fn label(mut self, label: impl Into<SharedString>) -> Self {
+        self.label = Some(label.into());
+        self
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
@@ -234,7 +266,7 @@ impl RenderOnce for Select {
             window.use_keyed_state((id.clone(), "ui:select:value"), cx, |_, _| {
                 options
                     .first()
-                    .map(|opt| opt.value.clone())
+                    .and_then(|opt| opt.value.clone())
                     .unwrap_or_default()
             })
         });
@@ -248,14 +280,14 @@ impl RenderOnce for Select {
         } else {
             self.value
                 .clone()
-                .or_else(|| options.first().map(|opt| opt.value.clone()))
+                .or_else(|| options.first().and_then(|opt| opt.value.clone()))
                 .unwrap_or_default()
         };
 
         let selected_label = options
             .iter()
-            .find(|opt| opt.value == value)
-            .map(|opt| opt.label.clone());
+            .find(|opt| opt.value.as_ref() == Some(&value))
+            .and_then(|opt| opt.label.clone());
 
         let theme = cx.theme().clone();
 
@@ -351,9 +383,9 @@ impl RenderOnce for Select {
                         menu_open_for_outside.update(cx, |open, _cx| *open = false);
                     })
                     .children(options.into_iter().map(move |opt| {
-                        let is_selected = opt.value == value;
+                        let is_selected = opt.value.as_ref() == Some(&value);
                         let is_disabled = disabled || opt.disabled;
-                        let option_value = opt.value.clone();
+                        let option_value = opt.value.clone().expect("SelectOption value is required");
                         let menu_open_for_select = menu_open_for_select.clone();
                         let on_change = on_change.clone();
                         let internal_value = internal_value.clone();
@@ -378,7 +410,7 @@ impl RenderOnce for Select {
                                     .hover(|this| this.bg(theme.surface.hover))
                             })
                             .when(is_disabled, |this| this.cursor_not_allowed().opacity(0.6))
-                            .child(opt.label)
+                            .child(opt.label.expect("SelectOption label is required"))
                             .when(is_selected, |this| {
                                 this.child(
                                     icon(IconName::Check)
