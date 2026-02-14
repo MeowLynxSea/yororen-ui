@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use gpui::prelude::FluentBuilder;
 use gpui::{
@@ -31,7 +31,7 @@ pub fn dropdown_menu() -> DropdownMenu {
     DropdownMenu::new()
 }
 
-type SelectFn = Rc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
+type SelectFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(Clone, Debug)]
 pub enum DropdownItem {
@@ -129,7 +129,7 @@ impl DropdownMenu {
     where
         F: 'static + Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
-        self.on_select = Some(Rc::new(f));
+        self.on_select = Some(Arc::new(f));
         self
     }
 }

@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{ops::Range, sync::Arc};
 
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -35,7 +35,7 @@ actions!(
     ]
 );
 
-type TextAreaHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
+type TextAreaHandler = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
 /// Creates a new text area element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -1126,7 +1126,7 @@ impl TextArea {
     where
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
-        self.on_change = Some(Box::new(handler));
+        self.on_change = Some(Arc::new(handler));
         self
     }
 

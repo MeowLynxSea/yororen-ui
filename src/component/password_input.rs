@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{ops::Range, sync::Arc};
 
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -12,7 +12,7 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use crate::{component::generate_element_id, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
-type PasswordInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
+type PasswordInputHandler = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
 const MASK_CHAR: char = '•';
 
@@ -899,7 +899,7 @@ impl PasswordInput {
     where
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
-        self.on_change = Some(Box::new(handler));
+        self.on_change = Some(Arc::new(handler));
         self
     }
 
