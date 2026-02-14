@@ -2,6 +2,8 @@
 //!
 //! This module provides the core data types for building tree views,
 //! including node types, selection modes, and tree state management.
+//!
+//! See the [Tree component documentation](https://github.com/MeowLynxSea/yororen-ui/wiki/Component-Tree) for usage examples.
 
 use gpui::ElementId;
 use std::collections::HashMap;
@@ -19,6 +21,22 @@ pub enum SelectionMode {
 }
 
 /// Represents a single node in a tree structure.
+///
+/// # Type Parameters
+///
+/// - `T`: The data type for this node. Defaults to [`ArcTreeNode`] for simple use cases.
+///
+/// # Example
+///
+/// ```rust
+/// use crate::component::tree_data::{TreeNode, ArcTreeNode, TreeNodeBuilder};
+///
+/// // Using default ArcTreeNode
+/// let node = TreeNodeBuilder::new("node-1", ArcTreeNode::new("My Node"))
+///     .expanded(true)
+///     .selected(true)
+///     .build();
+/// ```
 #[derive(Debug, Clone)]
 pub struct TreeNode<T: TreeNodeData = ArcTreeNode> {
     /// Unique identifier for this node.
@@ -38,6 +56,11 @@ pub struct TreeNode<T: TreeNodeData = ArcTreeNode> {
     /// Whether this node has children.
     pub has_children: bool,
 }
+
+/// Type alias for a tree node with default [`ArcTreeNode`] data.
+///
+/// This is the most common use case for tree nodes.
+pub type SimpleTreeNode = TreeNode<ArcTreeNode>;
 
 /// Trait for tree node data that must be implemented by user data.
 pub trait TreeNodeData: 'static + Sized + Clone {
@@ -266,6 +289,8 @@ pub trait TreeNodeRenderer<T: TreeNodeData>: 'static + Sized {
 }
 
 /// Flattened tree node for virtualized rendering.
+///
+/// This is used internally by the Tree component to render only visible nodes.
 #[derive(Debug, Clone)]
 pub struct FlatTreeNode<T: TreeNodeData = ArcTreeNode> {
     /// The original node ID.
@@ -285,6 +310,9 @@ pub struct FlatTreeNode<T: TreeNodeData = ArcTreeNode> {
     /// Index in the flattened list.
     pub index: usize,
 }
+
+/// Type alias for a flattened tree node with default [`ArcTreeNode`] data.
+pub type SimpleFlatTreeNode = FlatTreeNode<ArcTreeNode>;
 
 /// Flattens a tree structure into a list for virtualized rendering.
 pub fn flatten_tree<T: TreeNodeData>(
