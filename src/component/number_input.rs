@@ -17,6 +17,7 @@ pub fn number_input() -> NumberInput {
 }
 
 type ChangeFn = Arc<dyn Fn(f64, &mut gpui::Window, &mut gpui::App)>;
+type ValidateFn = Arc<dyn Fn(&str) -> bool>;
 
 #[derive(IntoElement)]
 pub struct NumberInput {
@@ -38,6 +39,7 @@ pub struct NumberInput {
     height: Option<gpui::AbsoluteLength>,
 
     on_change: Option<ChangeFn>,
+    validate: Option<ValidateFn>,
 }
 
 impl Default for NumberInput {
@@ -63,6 +65,7 @@ impl NumberInput {
             text_color: None,
             height: None,
             on_change: None,
+            validate: None,
         }
     }
 
@@ -112,6 +115,17 @@ impl NumberInput {
         F: 'static + Fn(f64, &mut gpui::Window, &mut gpui::App),
     {
         self.on_change = Some(Arc::new(handler));
+        self
+    }
+
+    /// Sets a custom validation function.
+    /// The function receives the raw input string and returns true if valid.
+    /// Example: `.validate(|s| !s.contains('-'))` to disallow negative numbers.
+    pub fn validate<F>(mut self, validator: F) -> Self
+    where
+        F: 'static + Fn(&str) -> bool,
+    {
+        self.validate = Some(Arc::new(validator));
         self
     }
 
@@ -174,6 +188,7 @@ impl RenderOnce for NumberInput {
         let min = self.min;
         let max = self.max;
         let on_change = self.on_change;
+        let validate = self.validate;
 
         let theme = cx.theme().clone();
         let height = self.height.unwrap_or_else(|| px(36.).into());
@@ -219,23 +234,14 @@ impl RenderOnce for NumberInput {
             }
         };
 
-        let sanitize = |raw: &str| -> Option<f64> {
-            let mut normalized = String::with_capacity(raw.len());
-            let mut seen_dot = false;
-            for ch in raw.chars() {
-                if ch.is_ascii_digit() {
-                    normalized.push(ch);
-                } else if ch == '.' && !seen_dot {
-                    normalized.push(ch);
-                    seen_dot = true;
+        let sanitize = move |raw: &str| -> Option<f64> {
+            // If custom validator is set, check it first
+            if let Some(ref validator) = validate {
+                if !validator(raw) {
+                    return None;
                 }
             }
-
-            if normalized.is_empty() || normalized == "." {
-                return None;
-            }
-
-            normalized.parse::<f64>().ok()
+            raw.parse::<f64>().ok()
         };
 
         // Keep the input "controlled": always reflect the current numeric value.
