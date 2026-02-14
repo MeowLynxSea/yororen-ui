@@ -1,9 +1,14 @@
+use std::sync::Arc;
+
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::{component::generate_element_id, theme::ActiveTheme};
+use crate::{
+    component::{generate_element_id, ToggleCallback},
+    theme::ActiveTheme,
+};
 
 /// Creates a new switch element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -23,15 +28,13 @@ pub fn switch() -> Switch {
     Switch::new()
 }
 
-type ToggleFn = Box<dyn Fn(bool, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
-
 #[derive(IntoElement)]
 pub struct Switch {
     element_id: Option<ElementId>,
     base: Div,
     checked: bool,
     disabled: bool,
-    on_toggle: Option<ToggleFn>,
+    on_toggle: Option<ToggleCallback>,
     tone: Option<Hsla>,
 }
 
@@ -80,9 +83,9 @@ impl Switch {
 
     pub fn on_toggle<F>(mut self, handler: F) -> Self
     where
-        F: 'static + Fn(bool, &ClickEvent, &mut gpui::Window, &mut gpui::App),
+        F: 'static + Fn(bool, Option<&ClickEvent>, &mut gpui::Window, &mut gpui::App),
     {
-        self.on_toggle = Some(Box::new(handler));
+        self.on_toggle = Some(Arc::new(handler));
         self
     }
 }
@@ -197,7 +200,7 @@ impl RenderOnce for Switch {
                         internal_checked.update(cx, |value, _cx| *value = !*value);
                     }
                 } else if let Some(handler) = &on_toggle {
-                    handler(!explicit_checked, ev, window, cx);
+                    handler(!explicit_checked, Some(ev), window, cx);
                 }
             })
     }
