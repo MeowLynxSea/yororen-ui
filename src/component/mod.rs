@@ -56,7 +56,9 @@ mod virtual_row;
 use gpui::ElementId;
 
 pub mod callback;
+pub mod helpers;
 pub use callback::*;
+pub use helpers::*;
 
 pub use avatar::*;
 pub use badge::*;
