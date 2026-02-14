@@ -1,8 +1,11 @@
+use std::sync::Arc;
+
 use gpui::{
     ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
+use crate::component::{ClickCallback, HoverCallback};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new button.
@@ -11,17 +14,13 @@ pub fn button() -> Button {
     Button::new()
 }
 
-type ClickFn = Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App)>;
-
-type HoverFn = Box<dyn Fn(bool, &mut gpui::Window, &mut gpui::App)>;
-
 #[derive(IntoElement)]
 pub struct Button {
     element_id: Option<ElementId>,
     base: Div,
 
-    click_fn: Option<ClickFn>,
-    hover_fn: Option<HoverFn>,
+    click_fn: Option<ClickCallback>,
+    hover_fn: Option<HoverCallback>,
     clickable: bool,
     disabled: bool,
     variant: ActionVariantKind,
@@ -82,7 +81,7 @@ impl Button {
     where
         F: 'static + Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
-        self.click_fn = Some(Box::new(listener));
+        self.click_fn = Some(Arc::new(listener));
         self
     }
 
@@ -90,7 +89,7 @@ impl Button {
     where
         F: 'static + Fn(bool, &mut gpui::Window, &mut gpui::App),
     {
-        self.hover_fn = Some(Box::new(listener));
+        self.hover_fn = Some(Arc::new(listener));
         self
     }
 

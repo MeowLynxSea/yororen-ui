@@ -53,6 +53,9 @@ mod tree_item;
 mod tree_node;
 mod virtual_row;
 
+pub mod callback;
+pub use callback::*;
+
 pub use avatar::*;
 pub use badge::*;
 pub use button::*;

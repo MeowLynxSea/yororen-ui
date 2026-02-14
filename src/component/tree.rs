@@ -17,11 +17,15 @@
 //! If you need to create a tree dynamically, consider passing an empty slice initially and
 //! populating it later through the state management.
 
+use std::sync::Arc;
+
 use gpui::{
     div, ClickEvent, Div, ElementId,
     IntoElement, ParentElement, Pixels,
     RenderOnce, Styled, px,
 };
+
+use crate::component::{ClickCallback, ElementCallback, ElementClickCallback};
 
 use super::tree_data::{
     FlatTreeNode, SelectionMode, TreeCheckedState, TreeNode,
@@ -58,10 +62,11 @@ pub struct Tree {
     draggable: bool,
     indent: Pixels,
     row_height: Pixels,
-    on_click: Option<Box<dyn Fn(&ElementId, &ClickEvent, &mut gpui::Window, &mut gpui::App)>>,
-    on_toggle_expand: Option<Box<dyn Fn(&ElementId)>>,
-    on_select: Option<Box<dyn Fn(&ElementId)>>,
-    on_check: Option<Box<dyn Fn(&ElementId, TreeCheckedState)>>,
+    on_click: Option<ClickCallback>,
+    on_item_click: Option<ElementClickCallback>,
+    on_toggle_expand: Option<ElementCallback>,
+    on_select: Option<ElementCallback>,
+    on_check: Option<Arc<dyn Fn(&ElementId, TreeCheckedState)>>,
 }
 
 impl Default for Tree {
@@ -83,6 +88,7 @@ impl Tree {
             indent: px(20.),
             row_height: px(32.),
             on_click: None,
+            on_item_click: None,
             on_toggle_expand: None,
             on_select: None,
             on_check: None,
@@ -138,11 +144,23 @@ impl Tree {
         self
     }
 
+    /// Set a click handler for the tree.
+    /// The handler receives only the click event (without element ID).
     pub fn on_click<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App),
+    {
+        self.on_click = Some(Arc::new(handler));
+        self
+    }
+
+    /// Set a click handler that receives the clicked item's element ID.
+    /// Use this when you need to know which specific item was clicked.
+    pub fn on_item_click<F>(mut self, handler: F) -> Self
     where
         F: 'static + Fn(&ElementId, &ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
-        self.on_click = Some(Box::new(handler));
+        self.on_item_click = Some(Arc::new(handler));
         self
     }
 
@@ -150,7 +168,7 @@ impl Tree {
     where
         F: 'static + Fn(&ElementId),
     {
-        self.on_toggle_expand = Some(Box::new(handler));
+        self.on_toggle_expand = Some(Arc::new(handler));
         self
     }
 
@@ -158,7 +176,7 @@ impl Tree {
     where
         F: 'static + Fn(&ElementId),
     {
-        self.on_select = Some(Box::new(handler));
+        self.on_select = Some(Arc::new(handler));
         self
     }
 
@@ -166,7 +184,7 @@ impl Tree {
     where
         F: 'static + Fn(&ElementId, TreeCheckedState),
     {
-        self.on_check = Some(Box::new(handler));
+        self.on_check = Some(Arc::new(handler));
         self
     }
 

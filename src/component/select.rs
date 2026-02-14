@@ -7,7 +7,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{ArrowDirection, IconName, icon},
+    component::{ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon},
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -87,8 +87,6 @@ pub fn select() -> Select {
     Select::new()
 }
 
-type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
-
 #[derive(IntoElement)]
 pub struct Select {
     element_id: Option<ElementId>,
@@ -108,7 +106,8 @@ pub struct Select {
     height: Option<gpui::AbsoluteLength>,
 
     menu_width: Option<gpui::Pixels>,
-    on_change: Option<ChangeFn>,
+    on_change: Option<ChangeCallback<String>>,
+    on_change_with_event: Option<ChangeWithEventCallback<String>>,
 }
 
 impl Default for Select {
@@ -134,6 +133,7 @@ impl Select {
             height: None,
             menu_width: None,
             on_change: None,
+            on_change_with_event: None,
         }
     }
 
@@ -179,11 +179,23 @@ impl Select {
         self
     }
 
+    /// Set a change handler for the select.
+    /// The handler receives the selected value without event information.
     pub fn on_change<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(String, &mut gpui::Window, &mut gpui::App),
+    {
+        self.on_change = Some(Arc::new(handler));
+        self
+    }
+
+    /// Set a change handler that receives the selected value and click event.
+    /// Use this when you need access to the event information (e.g., mouse position).
+    pub fn on_change_with_event<F>(mut self, handler: F) -> Self
     where
         F: 'static + Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
-        self.on_change = Some(Arc::new(handler));
+        self.on_change_with_event = Some(Arc::new(handler));
         self
     }
 
@@ -251,6 +263,7 @@ impl RenderOnce for Select {
             self.placeholder
         };
         let on_change = self.on_change;
+        let on_change_with_event = self.on_change_with_event;
 
         // Select requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID.
@@ -261,7 +274,9 @@ impl RenderOnce for Select {
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
-        let use_internal_value = on_change.is_none() && self.value.is_none();
+        let use_internal_value = on_change.is_none()
+            && on_change_with_event.is_none()
+            && self.value.is_none();
         let internal_value = use_internal_value.then(|| {
             window.use_keyed_state((id.clone(), "ui:select:value"), cx, |_, _| {
                 options
@@ -319,6 +334,7 @@ impl RenderOnce for Select {
 
         let internal_value_for_select = internal_value.clone();
         let on_change_for_select = on_change.clone();
+        let on_change_with_event_for_select = on_change_with_event.clone();
 
         self.base
             .id(id.clone())
@@ -362,6 +378,7 @@ impl RenderOnce for Select {
                 let options = options.clone();
                 let value = value.clone();
                 let on_change = on_change_for_select.clone();
+                let on_change_with_event = on_change_with_event_for_select.clone();
                 let internal_value = internal_value_for_select.clone();
                 let text_color = text_color;
 
@@ -388,6 +405,7 @@ impl RenderOnce for Select {
                         let option_value = opt.value.clone().expect("SelectOption value is required");
                         let menu_open_for_select = menu_open_for_select.clone();
                         let on_change = on_change.clone();
+                        let on_change_with_event = on_change_with_event.clone();
                         let internal_value = internal_value.clone();
 
                         let row_fg = if is_disabled {
@@ -429,8 +447,11 @@ impl RenderOnce for Select {
                                     });
                                 }
 
-                                if let Some(handler) = &on_change {
+                                // Prefer on_change_with_event if provided, otherwise use on_change
+                                if let Some(handler) = &on_change_with_event {
                                     handler(option_value.clone(), ev, window, cx);
+                                } else if let Some(handler) = &on_change {
+                                    handler(option_value.clone(), window, cx);
                                 }
 
                                 menu_open_for_select.update(cx, |open, _| *open = false);

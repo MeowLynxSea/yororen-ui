@@ -1,6 +1,8 @@
 use std::ops::Range;
+use std::sync::Arc;
 
 use super::TextEditState;
+use crate::component::ChangeCallback;
 use crate::theme::ActiveTheme;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -30,8 +32,6 @@ actions!(
         Copy,
     ]
 );
-
-type TextInputHandler = Box<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
 /// Creates a new text input.
 /// Use `.id()` to set a stable element ID for state management.
@@ -686,9 +686,9 @@ pub struct TextInput {
 
     max_length: Option<usize>,
 
-    on_change: Option<TextInputHandler>,
+    on_change: Option<ChangeCallback<SharedString>>,
 
-    on_submit: Option<TextInputHandler>,
+    on_submit: Option<ChangeCallback<SharedString>>,
 }
 
 impl TextInput {
@@ -740,7 +740,7 @@ impl TextInput {
     where
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
-        self.on_change = Some(Box::new(handler));
+        self.on_change = Some(Arc::new(handler));
         self
     }
 
@@ -748,7 +748,7 @@ impl TextInput {
     where
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
-        self.on_submit = Some(Box::new(handler));
+        self.on_submit = Some(Arc::new(handler));
         self
     }
 
