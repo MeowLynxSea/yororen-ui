@@ -57,6 +57,7 @@ pub fn combo_box() -> ComboBox {
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
+type SimpleChangeFn = Arc<dyn Fn(String)>;
 
 #[derive(IntoElement)]
 pub struct ComboBox {
@@ -80,6 +81,7 @@ pub struct ComboBox {
     menu_width: Option<gpui::Pixels>,
     max_results: usize,
     on_change: Option<ChangeFn>,
+    on_change_simple: Option<SimpleChangeFn>,
 }
 
 impl Default for ComboBox {
@@ -107,6 +109,7 @@ impl ComboBox {
             menu_width: None,
             max_results: 12,
             on_change: None,
+            on_change_simple: None,
         }
     }
 
@@ -167,6 +170,25 @@ impl ComboBox {
         F: 'static + Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
         self.on_change = Some(Arc::new(handler));
+        self
+    }
+
+    /// Set a simplified change handler that only receives the selected value.
+    /// Use this when you don't need access to event, window or app context.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// combo_box()
+    ///     .on_change_simple(|value| {
+    ///         println!("Selected: {}", value);
+    ///     })
+    /// ```
+    pub fn on_change_simple<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(String),
+    {
+        self.on_change_simple = Some(Arc::new(handler));
         self
     }
 
@@ -244,6 +266,7 @@ impl RenderOnce for ComboBox {
             self.search_placeholder
         };
         let on_change = self.on_change;
+        let on_change_simple = self.on_change_simple;
         let max_results = self.max_results;
         let element_id = self.element_id;
 
@@ -258,7 +281,7 @@ impl RenderOnce for ComboBox {
         let query_state =
             window.use_keyed_state(query_id.clone(), cx, |_, cx| TextInputState::new(cx));
 
-        let use_internal_value = on_change.is_none() && self.value.is_none();
+        let use_internal_value = on_change.is_none() && on_change_simple.is_none() && self.value.is_none();
         let internal_value = use_internal_value.then(|| {
             window.use_keyed_state((id.clone(), "ui:combo-box:value"), cx, |_, _| {
                 options
@@ -304,6 +327,7 @@ impl RenderOnce for ComboBox {
 
         let internal_value_for_select = internal_value.clone();
         let on_change_for_select = on_change.clone();
+        let on_change_simple_for_select = on_change_simple.clone();
 
         self.base
             .id(id.clone())
@@ -348,6 +372,7 @@ impl RenderOnce for ComboBox {
                 let value = value.clone();
                 let options = options.clone();
                 let on_change = on_change_for_select.clone();
+                let on_change_simple = on_change_simple_for_select.clone();
                 let internal_value = internal_value_for_select.clone();
                 let query_state = query_state.clone();
                 let max_results = max_results;
@@ -415,6 +440,7 @@ impl RenderOnce for ComboBox {
                         let option_value = opt.value.clone();
                         let menu_open_for_select = menu_open_for_select.clone();
                         let on_change = on_change.clone();
+                        let on_change_simple = on_change_simple.clone();
                         let internal_value = internal_value.clone();
 
                         let row_fg = if is_disabled {
@@ -456,8 +482,11 @@ impl RenderOnce for ComboBox {
                                     });
                                 }
 
+                                // Prefer on_change if provided, otherwise use on_change_simple
                                 if let Some(handler) = &on_change {
                                     handler(option_value.clone(), ev, window, cx);
+                                } else if let Some(handler) = &on_change_simple {
+                                    handler(option_value.clone());
                                 }
 
                                 menu_open_for_select.update(cx, |open, _| *open = false);

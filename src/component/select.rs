@@ -107,6 +107,7 @@ pub struct Select {
 
     menu_width: Option<gpui::Pixels>,
     on_change: Option<ChangeCallback<String>>,
+    on_change_simple: Option<Arc<dyn Fn(String)>>,
     on_change_with_event: Option<ChangeWithEventCallback<String>>,
 }
 
@@ -133,6 +134,7 @@ impl Select {
             height: None,
             menu_width: None,
             on_change: None,
+            on_change_simple: None,
             on_change_with_event: None,
         }
     }
@@ -186,6 +188,25 @@ impl Select {
         F: 'static + Fn(String, &mut gpui::Window, &mut gpui::App),
     {
         self.on_change = Some(Arc::new(handler));
+        self
+    }
+
+    /// Set a simplified change handler that only receives the selected value.
+    /// Use this when you don't need access to window or app context.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// select()
+    ///     .on_change_simple(|value| {
+    ///         println!("Selected: {}", value);
+    ///     })
+    /// ```
+    pub fn on_change_simple<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(String),
+    {
+        self.on_change_simple = Some(Arc::new(handler));
         self
     }
 
@@ -263,6 +284,7 @@ impl RenderOnce for Select {
             self.placeholder
         };
         let on_change = self.on_change;
+        let on_change_simple = self.on_change_simple;
         let on_change_with_event = self.on_change_with_event;
 
         // Select requires an element ID for keyed state management.
@@ -273,6 +295,7 @@ impl RenderOnce for Select {
         let is_open = *menu_open.read(cx);
 
         let use_internal_value = on_change.is_none()
+            && on_change_simple.is_none()
             && on_change_with_event.is_none()
             && self.value.is_none();
         let internal_value = use_internal_value.then(|| {
@@ -321,6 +344,7 @@ impl RenderOnce for Select {
 
         let internal_value_for_select = internal_value.clone();
         let on_change_for_select = on_change.clone();
+        let on_change_simple_for_select = on_change_simple.clone();
         let on_change_with_event_for_select = on_change_with_event.clone();
 
         self.base
@@ -365,6 +389,7 @@ impl RenderOnce for Select {
                 let options = options.clone();
                 let value = value.clone();
                 let on_change = on_change_for_select.clone();
+                let on_change_simple = on_change_simple_for_select.clone();
                 let on_change_with_event = on_change_with_event_for_select.clone();
                 let internal_value = internal_value_for_select.clone();
                 let text_color = input_style.text_color;
@@ -392,6 +417,7 @@ impl RenderOnce for Select {
                         let option_value = opt.value.clone().expect("SelectOption value is required");
                         let menu_open_for_select = menu_open_for_select.clone();
                         let on_change = on_change.clone();
+                        let on_change_simple = on_change_simple.clone();
                         let on_change_with_event = on_change_with_event.clone();
                         let internal_value = internal_value.clone();
 
@@ -434,11 +460,13 @@ impl RenderOnce for Select {
                                     });
                                 }
 
-                                // Prefer on_change_with_event if provided, otherwise use on_change
+                                // Prefer on_change_with_event if provided, otherwise use on_change or on_change_simple
                                 if let Some(handler) = &on_change_with_event {
                                     handler(option_value.clone(), ev, window, cx);
                                 } else if let Some(handler) = &on_change {
                                     handler(option_value.clone(), window, cx);
+                                } else if let Some(handler) = &on_change_simple {
+                                    handler(option_value.clone());
                                 }
 
                                 menu_open_for_select.update(cx, |open, _| *open = false);
