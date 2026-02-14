@@ -25,15 +25,15 @@ use crate::{
 ///         // handle click
 ///     });
 /// ```
-pub fn icon_button(icon: impl Into<Icon>) -> IconButton {
-    IconButton::new(icon)
+pub fn icon_button() -> IconButton {
+    IconButton::new()
 }
 
 #[derive(IntoElement)]
 pub struct IconButton {
     element_id: Option<ElementId>,
     base: Div,
-    icon: Icon,
+    icon: Option<Icon>,
 
     click_fn: Option<ClickCallback>,
     hover_fn: Option<HoverCallback>,
@@ -47,11 +47,11 @@ pub struct IconButton {
 }
 
 impl IconButton {
-    pub fn new(icon: impl Into<Icon>) -> Self {
+    pub fn new() -> Self {
         Self {
             element_id: None,
             base: div().w(px(36.)).h(px(36.)),
-            icon: icon.into(),
+            icon: None,
 
             click_fn: None,
             hover_fn: None,
@@ -63,6 +63,11 @@ impl IconButton {
             hover_bg: None,
             icon_size: None,
         }
+    }
+
+    pub fn icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.icon = Some(icon.into());
+        self
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
@@ -193,10 +198,13 @@ impl RenderOnce for IconButton {
             })
             .bg(resolved_bg)
             .hover(move |this| this.bg(resolved_hover_bg))
-            .child(
-                self.icon
-                    .size(icon_size.unwrap_or(px(14.)))
-                    .color(resolved_text_color),
-            )
+            .when(self.icon.is_some(), |this| {
+                this.child(
+                    self.icon
+                        .unwrap()
+                        .size(icon_size.unwrap_or(px(14.)))
+                        .color(resolved_text_color),
+                )
+            })
     }
 }

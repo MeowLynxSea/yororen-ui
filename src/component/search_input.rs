@@ -226,7 +226,8 @@ impl RenderOnce for SearchInput {
                     .justify_center()
                     .when(clear_visible && !disabled, |this| {
                         this.child(
-                            icon_button(icon(IconName::Close))
+                            icon_button()
+                                .icon(icon(IconName::Close))
                                 .icon_size(px(12.))
                                 .bg(action_variant.bg.alpha(0.0))
                                 .hover_bg(action_variant.hover_bg)

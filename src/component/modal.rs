@@ -163,7 +163,8 @@ impl RenderOnce for Modal {
 
         // Close button
         if closable {
-            let close_button = icon_button(icon(IconName::Close))
+            let close_button = icon_button()
+                .icon(icon(IconName::Close))
                 .on_click(move |_, window, cx| {
                     if let Some(handler) = &on_close {
                         handler(window, cx);
