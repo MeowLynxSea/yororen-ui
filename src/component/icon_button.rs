@@ -11,6 +11,20 @@ use crate::{
 };
 
 /// Creates a new icon button element.
+///
+/// Icon buttons display an icon in a compact, clickable container. They are commonly used for
+/// actions like close, settings, or navigation. Use `.variant()` to change visual style.
+///
+/// # Example
+/// ```rust
+/// use yororen_ui::component::{icon_button, IconName};
+///
+/// let btn = icon_button(IconName::Close)
+///     .variant(ActionVariantKind::Danger)
+///     .on_click(|_ev, _window, _cx| {
+///         // handle click
+///     });
+/// ```
 pub fn icon_button(icon: impl Into<Icon>) -> IconButton {
     IconButton::new(icon)
 }

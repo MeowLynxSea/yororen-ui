@@ -11,7 +11,21 @@ use gpui::prelude::FluentBuilder;
 use crate::{component::generate_element_id, theme::ActiveTheme};
 
 /// Creates a new slider element.
-/// Requires an id to be set via `.id()` for internal state management.
+///
+/// Sliders allow users to select a value from a range by dragging a thumb.
+/// Use `.range(min, max)` to set the value range, and `.on_change()` to receive value updates.
+///
+/// # Example
+/// ```rust
+/// use yororen_ui::component::slider;
+///
+/// let s = slider()
+///     .range(0.0, 100.0)
+///     .value(50.0)
+///     .on_change(|value, _window, _cx| {
+///         println!("Slider value: {}", value);
+///     });
+/// ```
 pub fn slider() -> Slider {
     Slider::new()
 }

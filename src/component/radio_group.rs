@@ -224,7 +224,11 @@ impl RenderOnce for RadioGroup {
 
                 let radio = radio.on_toggle({
                     let select = select.clone();
-                    move |_checked, ev, window, cx| select(ev, window, cx)
+                    move |_checked, ev, window, cx| {
+                        if let Some(ev) = ev {
+                            select(ev, window, cx);
+                        }
+                    }
                 });
 
                 if let Some(render_option) = &render_option {

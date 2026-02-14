@@ -6,13 +6,30 @@ use gpui::{
 
 use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
 
+/// Defines the placement position of a popover relative to its trigger element.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PopoverPlacement {
+    /// Positions the popover below the trigger, aligned to the start (left in LTR).
     BottomStart,
+    /// Positions the popover below the trigger, aligned to the end (right in LTR).
     BottomEnd,
 }
 
 /// Creates a new popover element.
+///
+/// Popovers display floating content relative to a trigger element. Use `.trigger()` to set
+/// the clickable element and `.content()` to set the popover body.
+///
+/// # Example
+/// ```rust
+/// use gpui::px;
+/// use yororen_ui::component::{button, popover};
+///
+/// let p = popover()
+///     .trigger(button().child("Open"))
+///     .content(div().p_4().child("Popover content"))
+///     .width(px(200.));
+/// ```
 pub fn popover() -> Popover {
     Popover::new()
 }

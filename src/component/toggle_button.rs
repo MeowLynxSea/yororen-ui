@@ -1,17 +1,20 @@
+use std::sync::Arc;
+
 use gpui::{
     ClickEvent, Div, ElementId, FontWeight, Hsla, InteractiveElement, IntoElement, ParentElement,
     RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
+use crate::{
+    component::{generate_element_id, ToggleCallback},
+    theme::{ActionVariantKind, ActiveTheme},
+};
 
 /// Creates a new toggle button element.
 /// Requires an id to be set via `.id()` for internal state management.
 pub fn toggle_button(label: impl Into<String>) -> ToggleButton {
     ToggleButton::new(label)
 }
-
-type ToggleFn = Box<dyn Fn(bool, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct ToggleButton {
@@ -20,7 +23,7 @@ pub struct ToggleButton {
     label: String,
     selected: bool,
     disabled: bool,
-    on_toggle: Option<ToggleFn>,
+    on_toggle: Option<ToggleCallback>,
     variant: ActionVariantKind,
     default_selected: bool,
     bg: Option<Hsla>,
@@ -80,9 +83,9 @@ impl ToggleButton {
 
     pub fn on_toggle<F>(mut self, handler: F) -> Self
     where
-        F: 'static + Fn(bool, &ClickEvent, &mut gpui::Window, &mut gpui::App),
+        F: 'static + Fn(bool, Option<&ClickEvent>, &mut gpui::Window, &mut gpui::App),
     {
-        self.on_toggle = Some(Box::new(handler));
+        self.on_toggle = Some(Arc::new(handler));
         self
     }
 
@@ -263,7 +266,7 @@ impl RenderOnce for ToggleButton {
                     internal_selected.update(cx, |value, _cx| *value = !*value);
                 }
             } else if let Some(handler) = &on_toggle {
-                handler(!selected, ev, window, cx);
+                handler(!selected, Some(ev), window, cx);
             }
         })
     }

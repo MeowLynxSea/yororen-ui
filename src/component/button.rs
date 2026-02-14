@@ -8,8 +8,22 @@ use gpui::{
 use crate::component::{generate_element_id, ClickCallback, HoverCallback};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
-/// Creates a new button.
-/// Use `.id()` to set a stable element ID for state management.
+/// Creates a new button element.
+///
+/// Buttons trigger actions or navigation. Use `.variant()` to change visual style
+/// (e.g., `ActionVariantKind::Primary`, `ActionVariantKind::Danger`).
+///
+/// # Example
+/// ```rust
+/// use yororen_ui::component::{button, ActionVariantKind};
+///
+/// let btn = button()
+///     .variant(ActionVariantKind::Primary)
+///     .child("Click me")
+///     .on_click(|_ev, _window, _cx| {
+///         // handle click
+///     });
+/// ```
 pub fn button() -> Button {
     Button::new()
 }
@@ -37,7 +51,9 @@ impl Default for Button {
 
 impl Button {
     /// Creates a new button with default styles.
-    /// Use `.id()` to set a stable element ID for state management.
+    ///
+    /// Default height is 36px with horizontal and vertical padding.
+    /// Default variant is `ActionVariantKind::Neutral`.
     pub fn new() -> Self {
         Self {
             element_id: None,
