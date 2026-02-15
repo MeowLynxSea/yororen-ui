@@ -6,7 +6,9 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, ToggleCallback},
+    component::{
+        create_internal_state, generate_element_id, use_internal_state_simple, ToggleCallback,
+    },
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -147,9 +149,15 @@ impl RenderOnce for ToggleButton {
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
         let id = element_id.unwrap_or_else(|| generate_element_id("ui:toggle-button"));
 
-        let use_internal_state = on_toggle.is_none();
-        let internal_selected = use_internal_state
-            .then(|| window.use_keyed_state(id.clone(), cx, |_window, _cx| selected));
+        let use_internal = use_internal_state_simple(on_toggle.is_some());
+        let internal_selected = create_internal_state(
+            window,
+            cx,
+            &id,
+            "ui:toggle-button:selected".to_string(),
+            selected,
+            use_internal,
+        );
 
         let group_selected = group.as_ref().map(|group| {
             let group_id = format!("toggle-group:{}", group);
@@ -173,7 +181,7 @@ impl RenderOnce for ToggleButton {
             }
         }
 
-        let resolved_selected = if use_internal_state {
+        let resolved_selected = if use_internal {
             if let Some(group_selected) = &group_selected {
                 group_selected.read(cx).as_ref() == Some(&id)
             } else {
@@ -252,7 +260,7 @@ impl RenderOnce for ToggleButton {
                 return;
             }
 
-            if use_internal_state {
+            if use_internal {
                 if let Some(group_selected) = &group_selected {
                     group_selected.update(cx, |value, _cx| {
                         if value.as_ref() != Some(&id) {

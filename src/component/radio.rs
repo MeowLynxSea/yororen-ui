@@ -6,7 +6,10 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, ToggleCallback},
+    component::{
+        compute_toggle_style, create_internal_state, generate_element_id,
+        resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
+    },
     theme::ActiveTheme,
 };
 
@@ -122,45 +125,28 @@ impl RenderOnce for Radio {
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
         let id = element_id.unwrap_or_else(|| generate_element_id("ui:radio"));
 
-        let use_internal_state = on_toggle.is_none();
-        let internal_checked = use_internal_state
-            .then(|| window.use_keyed_state(id.clone(), cx, |_window, _cx| explicit_checked));
+        let use_internal = use_internal_state_simple(on_toggle.is_some());
+        let internal_checked = create_internal_state(
+            window,
+            cx,
+            &id,
+            "ui:radio:checked".to_string(),
+            explicit_checked,
+            use_internal,
+        );
 
-        let checked = if use_internal_state {
-            *internal_checked
-                .as_ref()
-                .expect("internal state should exist")
-                .read(cx)
-        } else {
-            explicit_checked
-        };
+        let checked = resolve_state_value_simple(explicit_checked, &internal_checked, cx, use_internal);
 
         let theme = cx.theme();
-        let accent = tone.unwrap_or_else(|| theme.action.primary.bg);
-
-        let bg = if checked { accent } else { theme.surface.base };
-
-        let border = if checked {
-            accent
-        } else {
-            theme.border.default
-        };
-
-        let fg = if checked {
-            theme.action.primary.fg
-        } else {
-            theme.content.primary
-        };
-
-        let hover_bg = theme.surface.hover;
+        let toggle_style = compute_toggle_style(theme, checked, disabled, tone);
 
         let mut base = self
             .base
             .id(id.clone())
             .rounded_full()
             .border_1()
-            .border_color(border)
-            .bg(bg)
+            .border_color(toggle_style.border)
+            .bg(toggle_style.bg)
             .flex()
             .items_center()
             .justify_center()
@@ -168,19 +154,19 @@ impl RenderOnce for Radio {
             .focus_visible(|style| style.border_2().border_color(theme.border.focus));
 
         if disabled {
-            base = base.opacity(0.5).cursor_not_allowed();
+            base = base.opacity(toggle_style.disabled_opacity).cursor_not_allowed();
         } else {
-            base = base.cursor_pointer().hover(move |this| this.bg(hover_bg));
+            base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
-        base = base.when(checked, |this| this.border_color(accent).text_color(fg));
+        base = base.when(checked, |this| this.border_color(toggle_style.border).text_color(toggle_style.fg));
 
         base.on_click(move |ev, window, cx| {
             if disabled {
                 return;
             }
 
-            if use_internal_state {
+            if use_internal {
                 if let Some(internal_checked) = &internal_checked {
                     internal_checked.update(cx, |value, _cx| *value = !*value);
                 }

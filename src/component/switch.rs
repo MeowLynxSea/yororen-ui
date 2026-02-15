@@ -6,7 +6,10 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, ToggleCallback},
+    component::{
+        compute_toggle_style, create_internal_state, generate_element_id,
+        resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
+    },
     theme::ActiveTheme,
 };
 
@@ -122,44 +125,22 @@ impl RenderOnce for Switch {
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
         let id = element_id.unwrap_or_else(|| generate_element_id("ui:switch"));
 
-        let use_internal_state = on_toggle.is_none();
-        let internal_checked = use_internal_state
-            .then(|| window.use_keyed_state(id.clone(), cx, |_window, _cx| explicit_checked));
+        let use_internal = use_internal_state_simple(on_toggle.is_some());
+        let internal_checked = create_internal_state(
+            window,
+            cx,
+            &id,
+            "ui:switch:checked".to_string(),
+            explicit_checked,
+            use_internal,
+        );
 
-        let checked = if use_internal_state {
-            *internal_checked
-                .as_ref()
-                .expect("internal state should exist")
-                .read(cx)
-        } else {
-            explicit_checked
-        };
+        let checked = resolve_state_value_simple(explicit_checked, &internal_checked, cx, use_internal);
 
         let theme = cx.theme();
-        let accent = tone.unwrap_or_else(|| theme.action.primary.bg);
+        let toggle_style = compute_toggle_style(theme, checked, disabled, tone);
 
-        let track_bg = if disabled {
-            theme.surface.sunken
-        } else if checked {
-            accent
-        } else {
-            theme.surface.base
-        };
-
-        let track_border = if disabled {
-            theme.border.muted
-        } else if checked {
-            accent
-        } else {
-            theme.border.default
-        };
-
-        let hover_bg = if checked {
-            theme.action.primary.hover_bg
-        } else {
-            theme.surface.hover
-        };
-
+        // Switch has a more complex structure with track and knob
         let knob_bg = if disabled {
             theme.content.disabled
         } else if checked {
@@ -173,8 +154,8 @@ impl RenderOnce for Switch {
             .id(id.clone())
             .rounded_full()
             .border_1()
-            .border_color(track_border)
-            .bg(track_bg)
+            .border_color(toggle_style.border)
+            .bg(toggle_style.bg)
             .p(px(2.))
             .flex()
             .items_center()
@@ -184,9 +165,9 @@ impl RenderOnce for Switch {
             .focus_visible(|style| style.border_2().border_color(theme.border.focus));
 
         if disabled {
-            base = base.opacity(0.6).cursor_not_allowed();
+            base = base.opacity(toggle_style.disabled_opacity).cursor_not_allowed();
         } else {
-            base = base.cursor_pointer().hover(move |this| this.bg(hover_bg));
+            base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
         base.child(div().w(px(14.)).h(px(14.)).rounded_full().bg(knob_bg))
@@ -195,7 +176,7 @@ impl RenderOnce for Switch {
                     return;
                 }
 
-                if use_internal_state {
+                if use_internal {
                     if let Some(internal_checked) = &internal_checked {
                         internal_checked.update(cx, |value, _cx| *value = !*value);
                     }

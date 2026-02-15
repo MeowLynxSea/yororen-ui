@@ -7,7 +7,10 @@ use gpui::{
 };
 
 use crate::{
-    component::{compute_input_style, generate_element_id, ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon},
+    component::{
+        compute_input_style, create_internal_state, generate_element_id, use_internal_state,
+        ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon,
+    },
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -294,20 +297,22 @@ impl RenderOnce for Select {
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
-        let use_internal_value = on_change.is_none()
-            && on_change_simple.is_none()
-            && on_change_with_event.is_none()
-            && self.value.is_none();
-        let internal_value = use_internal_value.then(|| {
-            window.use_keyed_state((id.clone(), "ui:select:value"), cx, |_, _| {
-                options
-                    .first()
-                    .and_then(|opt| opt.value.clone())
-                    .unwrap_or_default()
-            })
-        });
+        let has_on_change = on_change.is_some() || on_change_simple.is_some() || on_change_with_event.is_some();
+        let use_internal = use_internal_state(self.value.is_some(), has_on_change);
+        let default_value = options
+            .first()
+            .and_then(|opt| opt.value.clone())
+            .unwrap_or_default();
+        let internal_value = create_internal_state(
+            window,
+            cx,
+            &id,
+            "ui:select:value".to_string(),
+            default_value,
+            use_internal,
+        );
 
-        let value = if use_internal_value {
+        let value = if use_internal {
             internal_value
                 .as_ref()
                 .expect("internal state should exist")

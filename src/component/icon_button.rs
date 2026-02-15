@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, ClickCallback, HoverCallback, Icon},
+    component::{compute_action_style, generate_element_id, ClickCallback, HoverCallback, Icon},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -159,23 +159,14 @@ impl RenderOnce for IconButton {
         let icon_size = self.icon_size;
         let element_id = self.element_id;
 
-        let action_variant = cx.theme().action_variant(variant);
-        let mut resolved_bg = bg.unwrap_or(action_variant.bg);
-        let mut resolved_hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
-        let mut resolved_text_color = action_variant.fg;
-
-        if disabled {
-            resolved_bg = action_variant.disabled_bg;
-            resolved_hover_bg = resolved_bg;
-            resolved_text_color = action_variant.disabled_fg;
-        }
+        let action_style = compute_action_style(cx.theme(), variant, disabled, bg, hover_bg);
 
         self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:icon-button")))
             .rounded_md()
             .flex()
             .items_center()
             .justify_center()
-            .text_color(resolved_text_color)
+            .text_color(action_style.fg)
             .focusable()
             .focus_visible(|style| style.border_2().border_color(cx.theme().border.focus))
             .when(clickable && !disabled, |this| this.cursor_pointer())
@@ -196,14 +187,14 @@ impl RenderOnce for IconButton {
                     }
                 })
             })
-            .bg(resolved_bg)
-            .hover(move |this| this.bg(resolved_hover_bg))
+            .bg(action_style.bg)
+            .hover(move |this| this.bg(action_style.hover_bg))
             .when(self.icon.is_some(), |this| {
                 this.child(
                     self.icon
                         .unwrap()
                         .size(icon_size.unwrap_or(px(14.)))
-                        .color(resolved_text_color),
+                        .color(action_style.fg),
                 )
             })
     }

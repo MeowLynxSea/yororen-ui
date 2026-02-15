@@ -5,7 +5,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::component::{generate_element_id, ClickCallback, HoverCallback};
+use crate::component::{compute_action_style, generate_element_id, ClickCallback, HoverCallback};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new button element.
@@ -151,24 +151,15 @@ impl RenderOnce for Button {
         let variant = self.variant;
         let element_id = self.element_id;
 
-        let action_variant = cx.theme().action_variant(variant);
-        let mut resolved_bg = bg.unwrap_or(action_variant.bg);
-        let mut resolved_hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
-        let mut resolved_text_color = action_variant.fg;
-
-        if disabled {
-            resolved_bg = action_variant.disabled_bg;
-            resolved_hover_bg = action_variant.disabled_bg;
-            resolved_text_color = action_variant.disabled_fg;
-        }
+        let action_style = compute_action_style(cx.theme(), variant, disabled, bg, hover_bg);
 
         self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:button")))
             .rounded_md()
             .flex()
             .items_center()
             .justify_center()
-            .bg(resolved_bg)
-            .text_color(resolved_text_color)
+            .bg(action_style.bg)
+            .text_color(action_style.fg)
             .when(clickable && !disabled, |this| this.cursor_pointer())
             .when(disabled, |this| this.cursor_not_allowed())
             .on_click(move |ev, window, cx| {
@@ -187,6 +178,6 @@ impl RenderOnce for Button {
                     }
                 })
             })
-            .hover(move |this| this.bg(resolved_hover_bg))
+            .hover(move |this| this.bg(action_style.hover_bg))
     }
 }

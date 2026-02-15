@@ -8,7 +8,10 @@ use gpui::{
 
 use gpui::prelude::FluentBuilder;
 
-use crate::{component::generate_element_id, theme::ActiveTheme};
+use crate::{
+    component::{create_internal_state, generate_element_id, resolve_state_value, use_internal_state},
+    theme::ActiveTheme,
+};
 
 /// Creates a new slider element.
 ///
@@ -265,22 +268,18 @@ impl RenderOnce for Slider {
         let step = self.step;
 
         let on_change = self.on_change;
-        let use_internal_value = on_change.is_none();
+        let use_internal = use_internal_state(self.value.is_some(), on_change.is_some());
         let initial_value = self.value.unwrap_or(min);
-        let internal_value = if use_internal_value {
-            Some(window.use_keyed_state((id.clone(), "ui:slider:value"), cx, |_, _| initial_value))
-        } else {
-            None
-        };
+        let internal_value = create_internal_state(
+            window,
+            cx,
+            &id,
+            "ui:slider:value".to_string(),
+            initial_value,
+            use_internal,
+        );
 
-        let mut value = if use_internal_value {
-            *internal_value
-                .as_ref()
-                .expect("internal value should exist")
-                .read(cx)
-        } else {
-            self.value.unwrap_or(min)
-        };
+        let mut value = resolve_state_value(self.value.as_ref(), &internal_value, cx);
 
         value = clamp(value, min.min(max), max.max(min));
         let t = if (max - min).abs() <= f32::EPSILON {
