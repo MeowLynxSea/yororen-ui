@@ -6,14 +6,14 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, IconName, TextInputState, icon, icon_button, text_input},
+    component::{IconName, TextInputState, icon, icon_button, text_input},
     theme::ActiveTheme,
 };
 
 /// Creates a new search input element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn search_input() -> SearchInput {
-    SearchInput::new()
+pub fn search_input(id: impl Into<ElementId>) -> SearchInput {
+    SearchInput::new().id(id)
 }
 
 type ChangeFn = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
@@ -21,7 +21,7 @@ type SubmitFn = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
 #[derive(IntoElement)]
 pub struct SearchInput {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     placeholder: SharedString,
 
@@ -46,7 +46,7 @@ impl Default for SearchInput {
 impl SearchInput {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:search-input".into(),
             base: div(),
             placeholder: "".into(),
 
@@ -64,7 +64,7 @@ impl SearchInput {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -123,6 +123,11 @@ impl SearchInput {
         self.height = Some(height);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for SearchInput {
@@ -147,29 +152,33 @@ impl StatefulInteractiveElement for SearchInput {}
 
 impl RenderOnce for SearchInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let element_id = self.element_id;
-
         // SearchInput requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:search-input"));
+        let id = self.element_id.clone();
         let placeholder = self.placeholder;
         let disabled = self.disabled;
         let height = self.height.unwrap_or_else(|| px(36.).into());
+        let bg = self.bg;
+        let border = self.border;
+        let focus_border = self.focus_border;
+        let text_color = self.text_color;
+        let on_change = self.on_change;
+        let on_submit = self.on_submit;
+
+        let input_id: ElementId = (id.clone(), "ui:search-input:input").into();
+        let clear_id: ElementId = (id.clone(), "ui:search-input:clear").into();
 
         let theme = cx.theme().clone();
         let hint = theme.content.tertiary;
         let action_variant = theme.action.neutral.clone();
 
-        let input_id = (id.clone(), "ui:search-input:input");
         let input_state =
             window.use_keyed_state(input_id.clone(), cx, |_, cx| TextInputState::new(cx));
         let clear_visible = !input_state.read(cx).content().is_empty();
 
-        let on_change = self.on_change;
         let on_change_for_input = on_change.clone();
         let on_change_for_clear = on_change;
 
-        let on_submit = self.on_submit;
         let on_submit_for_input = on_submit.clone();
 
         self.base
@@ -179,26 +188,25 @@ impl RenderOnce for SearchInput {
             .gap_2()
             .h(height)
             .px_3()
-            .bg(self.bg.unwrap_or(theme.surface.base))
+            .bg(bg.unwrap_or(theme.surface.base))
             .border_1()
-            .border_color(self.border.unwrap_or(theme.border.default))
+            .border_color(border.unwrap_or(theme.border.default))
             .rounded_md()
-            .when_some(self.focus_border, |this, focus_border| {
+            .when_some(focus_border, |this, focus_border| {
                 this.focus_visible(|style| style.border_2().border_color(focus_border))
             })
             .when(disabled, |this| this.opacity(0.6).cursor_not_allowed())
             .child(icon(IconName::Search).size(px(14.)).color(hint))
             .child(
                 div().flex_1().child(
-                    text_input()
-                        .id(input_id)
+                    text_input(input_id)
                         .placeholder(placeholder)
                         .disabled(disabled)
                         .height(height)
                         .bg(theme.surface.base.alpha(0.0))
                         .border(theme.border.default.alpha(0.0))
                         .focus_border(theme.border.default.alpha(0.0))
-                        .text_color(self.text_color.unwrap_or(theme.content.primary))
+                        .text_color(text_color.unwrap_or(theme.content.primary))
                         .on_change({
                             let on_change = on_change_for_input;
                             move |value, window, cx| {
@@ -226,7 +234,7 @@ impl RenderOnce for SearchInput {
                     .justify_center()
                     .when(clear_visible && !disabled, |this| {
                         this.child(
-                            icon_button()
+                            icon_button(clear_id)
                                 .icon(icon(IconName::Close))
                                 .icon_size(px(12.))
                                 .bg(action_variant.bg.alpha(0.0))

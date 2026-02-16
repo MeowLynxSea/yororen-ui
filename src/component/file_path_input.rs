@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{button, generate_element_id, label, text_input},
+    component::{button, label, text_input},
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::{ActionVariantKind, ActiveTheme},
 };
@@ -20,15 +20,15 @@ pub enum FilePathStatus {
 
 /// Creates a new file path input element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn file_path_input() -> FilePathInput {
-    FilePathInput::new()
+pub fn file_path_input(id: impl Into<ElementId>) -> FilePathInput {
+    FilePathInput::new().id(id)
 }
 
 type ChangeFn = Arc<dyn Fn(PathBuf, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct FilePathInput {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     value: Option<PathBuf>,
@@ -59,7 +59,7 @@ impl Default for FilePathInput {
 impl FilePathInput {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:file-path-input".into(),
             base: div(),
             value: None,
             placeholder: "Select a path…".into(),
@@ -85,7 +85,7 @@ impl FilePathInput {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -156,6 +156,11 @@ impl FilePathInput {
         self.height = Some(height);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for FilePathInput {
@@ -180,7 +185,8 @@ impl StatefulInteractiveElement for FilePathInput {}
 
 impl RenderOnce for FilePathInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
+        // Extract all values from self
+        let id = self.element_id.clone();
         let localized = self.localized;
         let placeholder = if localized {
             DefaultPlaceholders::file_path_placeholder(cx.i18n().locale()).into()
@@ -190,11 +196,15 @@ impl RenderOnce for FilePathInput {
 
         // FilePathInput requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:file-path-input"));
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();
         let height = self.height.unwrap_or_else(|| px(36.).into());
+        let border = self.border;
+        let focus_border = self.focus_border;
+        let bg = self.bg;
+        let text_color = self.text_color;
+        let status = self.status;
 
         // Always use internal state so selecting a file updates the UI without requiring external wiring.
         let initial_value = self.value.clone().unwrap_or_default();
@@ -209,11 +219,11 @@ impl RenderOnce for FilePathInput {
         let base_border = if disabled {
             theme.border.muted
         } else {
-            self.border.unwrap_or(theme.border.default)
+            border.unwrap_or(theme.border.default)
         };
 
-        let derived_status = if self.status.is_some() {
-            self.status
+        let derived_status = if status.is_some() {
+            status
         } else if showing_placeholder {
             None
         } else {
@@ -228,21 +238,24 @@ impl RenderOnce for FilePathInput {
         };
 
         let border_color = status_color.unwrap_or(base_border);
-        let focus_border_color = self.focus_border.unwrap_or(theme.border.focus);
+        let focus_border_color = focus_border.unwrap_or(theme.border.focus);
 
-        let bg = if disabled {
+        let bg_color = if disabled {
             theme.surface.sunken
         } else {
-            self.bg.unwrap_or(theme.surface.base)
+            bg.unwrap_or(theme.surface.base)
         };
 
-        let text_color = if disabled {
+        let text_color_value = if disabled {
             theme.content.disabled
         } else {
-            self.text_color.unwrap_or(theme.content.primary)
+            text_color.unwrap_or(theme.content.primary)
         };
 
         let on_change = self.on_change;
+
+        let input_id: ElementId = (id.clone(), "ui:file-path:input").into();
+        let button_id: ElementId = (id.clone(), "ui:file-path:button").into();
 
         self.base
             .id(id.clone())
@@ -251,21 +264,20 @@ impl RenderOnce for FilePathInput {
             .gap_2()
             .child(
                 div().flex_1().min_w(px(0.)).child(
-                    text_input()
-                        .id((id.clone(), "ui:file-path:input"))
+                    text_input(input_id)
                         .placeholder(placeholder)
                         .disabled(true)
                         .height(height)
-                        .bg(bg)
+                        .bg(bg_color)
                         .border(border_color)
                         .focus_border(focus_border_color)
-                        .text_color(text_color)
+                        .text_color(text_color_value)
                         .content(text)
                         .on_change(|_, _window, _cx| {}),
                 ),
             )
             .child(
-                button()
+                button(button_id)
                     .h(px(36.))
                     .px_3()
                     .rounded_md()

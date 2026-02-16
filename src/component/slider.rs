@@ -9,7 +9,7 @@ use gpui::{
 use gpui::prelude::FluentBuilder;
 
 use crate::{
-    component::{create_internal_state, generate_element_id, resolve_state_value, use_internal_state},
+    component::{create_internal_state, resolve_state_value, use_internal_state},
     theme::ActiveTheme,
 };
 
@@ -29,8 +29,8 @@ use crate::{
 ///         println!("Slider value: {}", value);
 ///     });
 /// ```
-pub fn slider() -> Slider {
-    Slider::new()
+pub fn slider(id: impl Into<ElementId>) -> Slider {
+    Slider::new().id(id)
 }
 
 type ChangeFn = Arc<dyn Fn(f32, &mut gpui::Window, &mut gpui::App)>;
@@ -101,7 +101,7 @@ impl Element for TrackBoundsElement {
 
 #[derive(IntoElement)]
 pub struct Slider {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     min: f32,
@@ -129,7 +129,7 @@ impl Default for Slider {
 impl Slider {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:slider".into(),
             base: gpui::div(),
 
             min: 0.0,
@@ -150,7 +150,7 @@ impl Slider {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -240,11 +240,9 @@ impl StatefulInteractiveElement for Slider {}
 
 impl RenderOnce for Slider {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-
         // Slider requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:slider"));
+        let id = self.element_id;
 
         let disabled = self.disabled;
         let theme = cx.theme().clone();

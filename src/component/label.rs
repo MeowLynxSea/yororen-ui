@@ -11,7 +11,7 @@ pub fn label(text: impl Into<SharedString>) -> Label {
 
 #[derive(IntoElement)]
 pub struct Label {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     text: SharedString,
 
@@ -29,7 +29,7 @@ pub struct Label {
 impl Label {
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:label".into(),
             base: div(),
             text: text.into(),
 
@@ -46,7 +46,7 @@ impl Label {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -120,15 +120,9 @@ impl Styled for Label {
 
 impl RenderOnce for Label {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = if let Some(id) = self.element_id {
-            id
-        } else {
-            self.text.clone().into()
-        };
-
         let mut base = self
             .base
-            .id(id)
+            .id(self.element_id)
             .when(self.strong, |this| this.font_weight(FontWeight::SEMIBOLD))
             .when(self.mono, |this| this.font_family("monospace"))
             .when(self.ellipsis, |this| this.truncate())

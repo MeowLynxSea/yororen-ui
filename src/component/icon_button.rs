@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{compute_action_style, generate_element_id, ClickCallback, HoverCallback, Icon},
+    component::{compute_action_style, ClickCallback, HoverCallback, Icon},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -19,19 +19,19 @@ use crate::{
 /// ```rust
 /// use yororen_ui::component::{icon_button, IconName};
 ///
-/// let btn = icon_button(IconName::Close)
+/// let btn = icon_button("my-icon-button", IconName::Close)
 ///     .variant(ActionVariantKind::Danger)
 ///     .on_click(|_ev, _window, _cx| {
 ///         // handle click
 ///     });
 /// ```
-pub fn icon_button() -> IconButton {
-    IconButton::new()
+pub fn icon_button(id: impl Into<ElementId>) -> IconButton {
+    IconButton::new().id(id)
 }
 
 #[derive(IntoElement)]
 pub struct IconButton {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     icon: Option<Icon>,
 
@@ -49,7 +49,7 @@ pub struct IconButton {
 impl IconButton {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:icon-button".into(),
             base: div().w(px(36.)).h(px(36.)),
             icon: None,
 
@@ -71,7 +71,7 @@ impl IconButton {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -157,11 +157,10 @@ impl RenderOnce for IconButton {
         let disabled = self.disabled;
         let variant = self.variant;
         let icon_size = self.icon_size;
-        let element_id = self.element_id;
 
         let action_style = compute_action_style(cx.theme(), variant, disabled, bg, hover_bg);
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:icon-button")))
+        self.base.id(self.element_id)
             .rounded_md()
             .flex()
             .items_center()

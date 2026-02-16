@@ -5,7 +5,7 @@ use gpui::{
     RenderOnce, Styled, StyledImage, div, img, prelude::FluentBuilder, px,
 };
 
-use crate::{component::generate_element_id, theme::ActiveTheme};
+use crate::theme::ActiveTheme;
 
 /// Creates a new avatar element.
 pub fn avatar(image: Option<Arc<Image>>) -> Avatar {
@@ -20,7 +20,7 @@ pub enum AvatarShape {
 
 #[derive(IntoElement)]
 pub struct Avatar {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     image: Option<Arc<Image>>,
     shape: AvatarShape,
@@ -31,7 +31,7 @@ pub struct Avatar {
 impl Avatar {
     pub fn new(image: Option<Arc<Image>>) -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:avatar".into(),
             base: div(),
             image,
             shape: AvatarShape::Circle,
@@ -41,7 +41,7 @@ impl Avatar {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -80,10 +80,9 @@ impl Styled for Avatar {
 
 impl RenderOnce for Avatar {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
         let is_circle = matches!(self.shape, AvatarShape::Circle);
 
-        let mut base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:avatar")));
+        let mut base = self.base.id(self.element_id);
 
         if let Some(bg) = self.bg {
             base = base.bg(bg);

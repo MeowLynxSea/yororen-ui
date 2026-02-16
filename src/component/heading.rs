@@ -18,7 +18,7 @@ pub enum HeadingLevel {
 
 #[derive(IntoElement)]
 pub struct Heading {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     text: SharedString,
     level: HeadingLevel,
@@ -27,7 +27,7 @@ pub struct Heading {
 impl Heading {
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:heading".into(),
             base: div(),
             text: text.into(),
             level: HeadingLevel::H2,
@@ -35,7 +35,7 @@ impl Heading {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -64,12 +64,6 @@ impl Styled for Heading {
 
 impl RenderOnce for Heading {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let id = if let Some(id) = self.element_id {
-            id
-        } else {
-            self.text.clone().into()
-        };
-
         let (size, weight) = match self.level {
             HeadingLevel::H1 => (32., FontWeight::BOLD),
             HeadingLevel::H2 => (24., FontWeight::SEMIBOLD),
@@ -77,7 +71,7 @@ impl RenderOnce for Heading {
         };
 
         self.base
-            .id(id)
+            .id(self.element_id)
             .text_size(px(size))
             .font_weight(weight)
             .text_color(cx.theme().content.primary)

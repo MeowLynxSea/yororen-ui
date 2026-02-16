@@ -6,7 +6,7 @@ use gpui::{
 use gpui::InteractiveElement;
 use gpui::prelude::FluentBuilder;
 
-use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
+use crate::{constants::animation, theme::ActiveTheme};
 
 /// Creates a new skeleton line element.
 pub fn skeleton_line() -> SkeletonLine {
@@ -15,7 +15,7 @@ pub fn skeleton_line() -> SkeletonLine {
 
 #[derive(IntoElement)]
 pub struct SkeletonLine {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     width: Option<Pixels>,
     height: Pixels,
@@ -31,7 +31,7 @@ impl Default for SkeletonLine {
 impl SkeletonLine {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:skeleton-line".into(),
             base: div(),
             width: None,
             height: px(12.),
@@ -40,7 +40,7 @@ impl SkeletonLine {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -79,11 +79,10 @@ impl Styled for SkeletonLine {
 
 impl RenderOnce for SkeletonLine {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-        let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:skeleton-line"));
+        let id = self.element_id.clone();
         let theme = cx.theme();
 
-        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:skeleton-line")))
+        let base = self.base.id(self.element_id)
             .h(self.height)
             .rounded_full()
             .bg(self.tone.unwrap_or(theme.surface.hover))
@@ -111,7 +110,7 @@ pub fn skeleton_block() -> SkeletonBlock {
 
 #[derive(IntoElement)]
 pub struct SkeletonBlock {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     width: Option<Pixels>,
     height: Pixels,
@@ -128,7 +127,7 @@ impl Default for SkeletonBlock {
 impl SkeletonBlock {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:skeleton-block".into(),
             base: div(),
             width: None,
             height: px(80.),
@@ -138,7 +137,7 @@ impl SkeletonBlock {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -182,11 +181,10 @@ impl Styled for SkeletonBlock {
 
 impl RenderOnce for SkeletonBlock {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-        let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:skeleton-block"));
+        let id = self.element_id.clone();
         let theme = cx.theme();
 
-        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:skeleton-block")))
+        let base = self.base.id(self.element_id)
             .h(self.height)
             .when(self.rounded, |this| this.rounded_md())
             .when(!self.rounded, |this| this.rounded_none())

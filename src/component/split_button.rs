@@ -6,14 +6,14 @@ use gpui::{
     prelude::FluentBuilder, px,
 };
 
-use crate::component::{generate_element_id, ArrowDirection, Icon, IconName, button};
+use crate::component::{ArrowDirection, Icon, IconName, button};
 use crate::constants::animation;
 use crate::theme::ActiveTheme;
 
 /// Creates a new split button element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn split_button() -> SplitButton {
-    SplitButton::new()
+pub fn split_button(id: impl Into<ElementId>) -> SplitButton {
+    SplitButton::new().id(id)
 }
 
 type ClickFn = Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -42,7 +42,7 @@ pub enum SplitButtonAction {
 
 #[derive(IntoElement)]
 pub struct SplitButton {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     label: String,
     on_primary: Option<ClickFn>,
@@ -63,7 +63,7 @@ impl Default for SplitButton {
 impl SplitButton {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:split-button".into(),
             base: div(),
             label: "Action".to_string(),
             on_primary: None,
@@ -77,7 +77,7 @@ impl SplitButton {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -136,6 +136,11 @@ impl SplitButton {
         self.menu_width = Some(width);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for SplitButton {
@@ -160,10 +165,14 @@ impl StatefulInteractiveElement for SplitButton {}
 
 impl RenderOnce for SplitButton {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
+        // Extract element_id
+        let id = self.element_id.clone();
+
         let disabled = self.disabled;
         let on_primary = self.on_primary;
         let on_action = self.on_action;
         let options = self.options;
+        let label = self.label;
         let action_variant = cx.theme().action.neutral.clone();
         let bg = self.bg.unwrap_or(action_variant.bg);
         let hover_bg = self.hover_bg.unwrap_or(action_variant.hover_bg);
@@ -177,7 +186,9 @@ impl RenderOnce for SplitButton {
 
         // SplitButton requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = self.element_id.unwrap_or_else(|| generate_element_id("ui:split-button"));
+
+        let primary_id: ElementId = (id.clone(), "primary").into();
+        let toggle_id: ElementId = (id.clone(), "toggle").into();
 
         let menu_open = window.use_keyed_state(id.clone(), cx, |_window, _cx| false);
         let is_open = *menu_open.read(cx);
@@ -193,7 +204,7 @@ impl RenderOnce for SplitButton {
         let text_color = action_variant.fg;
 
         self.base
-            .id(id)
+            .id(id.clone())
             .relative()
             .flex()
             .items_center()
@@ -204,6 +215,7 @@ impl RenderOnce for SplitButton {
             .text_color(text_color)
             .when(is_open, |this| this.bg(hover_bg))
             .when(is_open && has_options, |this| {
+                let id = id.clone();
                 let on_action = on_action_for_menu.clone();
                 let menu = div()
                     .id("split-button-menu")
@@ -227,7 +239,8 @@ impl RenderOnce for SplitButton {
                         let option_label = option.label.clone();
                         let on_action = on_action.clone();
                         let menu_open_for_option = menu_open_for_options.clone();
-                        button()
+                        let element_id = id.clone();
+                        button((element_id, format!("option-{}", option_id)))
                             .w_full()
                             .px_3()
                             .py_2()
@@ -258,7 +271,7 @@ impl RenderOnce for SplitButton {
                 this.child(gpui::deferred(animated_menu).with_priority(100))
             })
             .child(
-                button()
+                button(primary_id)
                     .h(px(36.))
                     .px_4()
                     .py_2()
@@ -281,12 +294,12 @@ impl RenderOnce for SplitButton {
                             menu_open_for_primary.update(cx, |open, _cx| *open = false);
                         }
                     })
-                    .child(self.label),
+                    .child(label),
             )
             .when(has_options, |this| {
                 this.child(div().w(px(1.)).h_full().bg(border_divider))
                     .child(
-                        button()
+                        button(toggle_id)
                             .w(px(40.))
                             .h(px(36.))
                             .rounded_lg()

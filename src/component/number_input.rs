@@ -6,14 +6,14 @@ use gpui::{
 };
 
 use crate::{
-    component::{button, compute_input_style, generate_element_id, text_input},
+    component::{button, compute_input_style, text_input},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
 /// Creates a new number input element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn number_input() -> NumberInput {
-    NumberInput::new()
+pub fn number_input(id: impl Into<ElementId>) -> NumberInput {
+    NumberInput::new().id(id)
 }
 
 type ChangeFn = Arc<dyn Fn(f64, &mut gpui::Window, &mut gpui::App)>;
@@ -21,7 +21,7 @@ type ValidateFn = Arc<dyn Fn(&str) -> bool>;
 
 #[derive(IntoElement)]
 pub struct NumberInput {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     value: Option<f64>,
@@ -51,7 +51,7 @@ impl Default for NumberInput {
 impl NumberInput {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:number-input".into(),
             base: div(),
             value: None,
             min: None,
@@ -70,7 +70,7 @@ impl NumberInput {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -153,6 +153,11 @@ impl NumberInput {
         self.height = Some(height);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for NumberInput {
@@ -177,11 +182,7 @@ impl StatefulInteractiveElement for NumberInput {}
 
 impl RenderOnce for NumberInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-
-        // NumberInput requires an element ID for keyed state management.
-        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:number-input"));
+        let id = self.element_id;
 
         let disabled = self.disabled;
         let step = self.step;
@@ -206,7 +207,7 @@ impl RenderOnce for NumberInput {
         let initial_value = self.value.unwrap_or(0.0);
         let internal_value = if use_internal_value {
             Some(
-                window.use_keyed_state((id.clone(), "ui:number-input:value"), cx, |_, _| {
+                window.use_keyed_state((id.clone(), format!("{}:value", id)), cx, |_, _| {
                     initial_value
                 }),
             )
@@ -266,8 +267,7 @@ impl RenderOnce for NumberInput {
             .gap_2()
             .child(
                 div().flex_1().min_w(px(0.)).child(
-                    text_input()
-                        .id((id.clone(), "ui:number-input:input"))
+                    text_input(format!("{}:input", id))
                         .placeholder(self.placeholder)
                         .disabled(disabled)
                         .height(height)
@@ -292,7 +292,7 @@ impl RenderOnce for NumberInput {
                     .items_center()
                     .gap_1()
                     .child(
-                        button()
+                        button(format!("{}:decrement", id))
                             .h(px(36.))
                             .px_3()
                             .rounded_md()
@@ -327,7 +327,7 @@ impl RenderOnce for NumberInput {
                             }),
                     )
                     .child(
-                        button()
+                        button(format!("{}:increment", id))
                             .h(px(36.))
                             .px_3()
                             .rounded_md()

@@ -3,11 +3,11 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
+use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new clickable surface element.
-pub fn clickable_surface() -> ClickableSurface {
-    ClickableSurface::new()
+pub fn clickable_surface(id: impl Into<ElementId>) -> ClickableSurface {
+    ClickableSurface::new().id(id)
 }
 
 type ClickFn = Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -16,7 +16,7 @@ type HoverFn = Box<dyn Fn(bool, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct ClickableSurface {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     click_fn: Option<ClickFn>,
@@ -40,7 +40,7 @@ impl Default for ClickableSurface {
 impl ClickableSurface {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:clickable-surface".into(),
             base: div(),
 
             click_fn: None,
@@ -57,7 +57,7 @@ impl ClickableSurface {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -149,7 +149,7 @@ impl RenderOnce for ClickableSurface {
         let hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
         let focus_ring = focus_ring.unwrap_or(_cx.theme().border.focus);
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:clickable-surface")))
+        self.base.id(element_id)
             .when(focusable, |this| this.focusable())
             .when(clickable, |this| this.cursor_pointer())
             .on_click(move |ev, window, cx| {

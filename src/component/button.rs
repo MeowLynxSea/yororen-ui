@@ -5,7 +5,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::component::{compute_action_style, generate_element_id, ClickCallback, HoverCallback};
+use crate::component::{compute_action_style, ClickCallback, HoverCallback};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new button element.
@@ -17,20 +17,22 @@ use crate::theme::{ActionVariantKind, ActiveTheme};
 /// ```rust
 /// use yororen_ui::component::{button, ActionVariantKind};
 ///
-/// let btn = button()
+/// let btn = button("my-button")
 ///     .variant(ActionVariantKind::Primary)
 ///     .child("Click me")
 ///     .on_click(|_ev, _window, _cx| {
 ///         // handle click
 ///     });
 /// ```
-pub fn button() -> Button {
-    Button::new()
+///
+/// Note: The first argument must be a unique, stable element ID.
+pub fn button(id: impl Into<ElementId>) -> Button {
+    Button::new().id(id)
 }
 
 #[derive(IntoElement)]
 pub struct Button {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     click_fn: Option<ClickCallback>,
@@ -54,9 +56,18 @@ impl Button {
     ///
     /// Default height is 36px with horizontal and vertical padding.
     /// Default variant is `ActionVariantKind::Neutral`.
+    ///
+    /// # Example
+    /// ```rust
+    /// button()
+    ///     .id("my-button")
+    ///     .on_click(|_ev, _window, _cx| { /* ... */ })
+    /// ```
+    ///
+    /// Note: Always provide a unique, stable ID via `.id()` for interactive components.
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "button".into(),
             base: div().h(px(36.)).px_4().py_2(),
             click_fn: None,
             hover_fn: None,
@@ -69,7 +80,7 @@ impl Button {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -149,11 +160,10 @@ impl RenderOnce for Button {
         let bg = self.bg;
         let hover_bg = self.hover_bg;
         let variant = self.variant;
-        let element_id = self.element_id;
 
         let action_style = compute_action_style(cx.theme(), variant, disabled, bg, hover_bg);
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:button")))
+        self.base.id(self.element_id)
             .rounded_md()
             .flex()
             .items_center()

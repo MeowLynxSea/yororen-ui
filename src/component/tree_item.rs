@@ -15,14 +15,14 @@ use crate::theme::ActiveTheme;
 use super::tree_data::TreeCheckedState;
 
 /// Creates a new tree item element.
-pub fn tree_item() -> TreeItem {
-    TreeItem::new()
+pub fn tree_item(id: impl Into<ElementId>) -> TreeItem {
+    TreeItem::new().id(id)
 }
 
 /// A row in a tree view, representing a single node.
 #[derive(IntoElement)]
 pub struct TreeItem {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     depth: usize,
     expanded: bool,
@@ -49,7 +49,7 @@ impl Default for TreeItem {
 impl TreeItem {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:tree-item".into(),
             base: div(),
             depth: 0,
             expanded: false,
@@ -69,7 +69,7 @@ impl TreeItem {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -146,6 +146,11 @@ impl TreeItem {
         self.selected_bg = Some(bg.into());
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for TreeItem {
@@ -170,6 +175,9 @@ impl StatefulInteractiveElement for TreeItem {}
 
 impl RenderOnce for TreeItem {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
+        // Extract element_id
+        let element_id = self.element_id.clone();
+
         let theme = cx.theme();
         let depth = self.depth;
         let expanded = self.expanded;
@@ -189,10 +197,11 @@ impl RenderOnce for TreeItem {
         let indent_width = indent * depth as f32;
         let is_checked = checked == TreeCheckedState::Checked;
 
-        let id = self.element_id.map(|id| id.to_string()).unwrap_or_default();
+        let disclosure_id: ElementId = (element_id.clone(), "ui:tree-item:disclosure").into();
+        let checkbox_id: ElementId = (element_id.clone(), "ui:tree-item:checkbox").into();
 
         self.base
-            .id(id)
+            .id(element_id.to_string())
             .w_full()
             .min_h(px(32.))
             .px_3()
@@ -211,11 +220,11 @@ impl RenderOnce for TreeItem {
                     .items_center()
                     .justify_center()
                     .when(has_children, |this| {
-                        this.child(disclosure().expanded(expanded))
+                        this.child(disclosure(disclosure_id).expanded(expanded))
                     }),
             )
             .when(show_checkbox, |this| {
-                this.child(checkbox().checked(is_checked))
+                this.child(checkbox(checkbox_id).checked(is_checked))
             })
             .children(icon_element)
             .child(

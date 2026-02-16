@@ -274,7 +274,7 @@ impl RenderOnce for Tree {
                 let node_id = node.id.clone();
                 let is_selected = state.is_selected(&node_id);
 
-                super::tree_node::tree_node()
+                super::tree_node::tree_node(node_id.clone())
                     .node(node)
                     .show_checkbox(show_checkbox)
                     .indent(indent)

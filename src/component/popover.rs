@@ -4,7 +4,7 @@ use gpui::{
     ParentElement, RenderOnce, Styled, div, ease_out_quint, px,
 };
 
-use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
+use crate::{constants::animation, theme::ActiveTheme};
 
 /// Defines the placement position of a popover relative to its trigger element.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -30,15 +30,15 @@ pub enum PopoverPlacement {
 ///     .content(div().p_4().child("Popover content"))
 ///     .width(px(200.));
 /// ```
-pub fn popover() -> Popover {
-    Popover::new()
+pub fn popover(id: impl Into<ElementId>) -> Popover {
+    Popover::new(id)
 }
 
 type CloseFn = Box<dyn Fn(&mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct Popover {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: gpui::Div,
 
     open: bool,
@@ -55,14 +55,14 @@ pub struct Popover {
 
 impl Default for Popover {
     fn default() -> Self {
-        Self::new()
+        Self::new("ui:popover")
     }
 }
 
 impl Popover {
-    pub fn new() -> Self {
+    pub fn new(id: impl Into<ElementId>) -> Self {
         Self {
-            element_id: None,
+            element_id: id.into(),
             base: div(),
 
             open: false,
@@ -79,8 +79,28 @@ impl Popover {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
+    }
+
+    /// Returns the element's ID.
+    pub fn element_id(&self) -> &ElementId {
+        &self.element_id
+    }
+
+    /// Generates a child element ID by combining the base element ID with a suffix.
+    ///
+    /// This is useful for creating unique IDs for child elements while maintaining
+    /// a clear relationship to the parent component's ID.
+    ///
+    /// # Example
+    /// ```rust
+    /// let popover = popover("my-popover");
+    /// let trigger_id = popover.child_id("trigger"); // "my-popover-trigger"
+    /// let content_id = popover.child_id("content"); // "my-popover-content"
+    /// ```
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
     }
 
     pub fn key(self, key: impl Into<ElementId>) -> Self {
@@ -146,7 +166,7 @@ impl Styled for Popover {
 impl RenderOnce for Popover {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let element_id = self.element_id;
-        let id = element_id.clone().unwrap_or_else(|| "ui:popover".into());
+        let id = element_id.clone();
 
         let theme = cx.theme();
         let bg = self.bg.unwrap_or(theme.surface.raised);
@@ -162,7 +182,7 @@ impl RenderOnce for Popover {
 
         // Like Select/ComboBox, Popover is a relative container and the menu is an absolute child
         // rendered via `gpui::deferred(...)` so it is painted above.
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:popover")))
+        self.base.id(element_id)
             .relative()
             .child(trigger)
             .when(is_open, move |this| {

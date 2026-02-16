@@ -5,7 +5,7 @@ use gpui::{
 
 use gpui::InteractiveElement;
 
-use crate::{component::generate_element_id, constants::animation, theme::ActiveTheme};
+use crate::{constants::animation, theme::ActiveTheme};
 
 /// Creates a new spinner element.
 pub fn spinner() -> Spinner {
@@ -39,7 +39,7 @@ impl SpinnerSize {
 
 #[derive(IntoElement)]
 pub struct Spinner {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     size: SpinnerSize,
     diameter: Option<Pixels>,
@@ -56,7 +56,7 @@ impl Default for Spinner {
 impl Spinner {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:spinner".into(),
             base: div(),
             size: SpinnerSize::Md,
             diameter: None,
@@ -66,7 +66,7 @@ impl Spinner {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -100,6 +100,11 @@ impl Spinner {
         self.color = Some(color.into());
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for Spinner {
@@ -116,8 +121,7 @@ impl Styled for Spinner {
 
 impl RenderOnce for Spinner {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-        let id = element_id.clone().unwrap_or_else(|| "ui:spinner".into());
+        let id = self.element_id.clone();
         let diameter = self.diameter.unwrap_or_else(|| self.size.pixels());
         let stroke = self
             .stroke
@@ -203,7 +207,7 @@ impl RenderOnce for Spinner {
             move |_this, delta| make_canvas(delta * std::f32::consts::TAU),
         );
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:spinner")))
+        self.base.id(self.element_id.clone())
             .relative()
             .w(diameter)
             .h(diameter)
@@ -218,7 +222,7 @@ pub fn progress_bar() -> ProgressBar {
 
 #[derive(IntoElement)]
 pub struct ProgressBar {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     value: f32,
     indeterminate: bool,
@@ -236,7 +240,7 @@ impl Default for ProgressBar {
 impl ProgressBar {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:progress".into(),
             base: div().w_full(),
             value: 0.0,
             indeterminate: false,
@@ -247,7 +251,7 @@ impl ProgressBar {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -277,6 +281,11 @@ impl ProgressBar {
         self.fill_color = Some(color.into());
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for ProgressBar {
@@ -293,8 +302,8 @@ impl Styled for ProgressBar {
 
 impl RenderOnce for ProgressBar {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-        let id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:progress-bar"));
+        // Extract element_id
+        let element_id = self.element_id.clone();
 
         let theme = cx.theme();
         let track = self.track_color.unwrap_or(theme.surface.hover);
@@ -302,8 +311,12 @@ impl RenderOnce for ProgressBar {
 
         let height = self.height;
         let t = self.value.clamp(0.0, 1.0);
+        let indeterminate = self.indeterminate;
 
-        let base = self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:progress")))
+        let indeterminate_id: ElementId = (element_id.clone(), "ui:progress-bar:indeterminate").into();
+        let fill_id: ElementId = (element_id.clone(), "ui:progress-bar:fill").into();
+
+        let base = self.base.id(element_id)
             .relative()
             .h(height)
             .rounded_full()
@@ -312,10 +325,10 @@ impl RenderOnce for ProgressBar {
             .border_color(theme.border.muted)
             .overflow_hidden();
 
-        if self.indeterminate {
+        if indeterminate {
             base.child(
                 div()
-                    .id((id, "ui:progress-bar:indeterminate"))
+                    .id(indeterminate_id)
                     .absolute()
                     .top_0()
                     .h(height)
@@ -338,7 +351,7 @@ impl RenderOnce for ProgressBar {
         } else {
             base.child(
                 div()
-                    .id((id, "ui:progress-bar:fill"))
+                    .id(fill_id)
                     .absolute()
                     .top_0()
                     .left_0()
@@ -383,7 +396,7 @@ impl ProgressCircleSize {
 
 #[derive(IntoElement)]
 pub struct ProgressCircle {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     value: f32,
     size: ProgressCircleSize,
@@ -402,7 +415,7 @@ impl Default for ProgressCircle {
 impl ProgressCircle {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:progress-circle".into(),
             base: div(),
             value: 0.0,
             size: ProgressCircleSize::Md,
@@ -414,7 +427,7 @@ impl ProgressCircle {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -454,6 +467,11 @@ impl ProgressCircle {
         self.indicator_color = Some(color.into());
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for ProgressCircle {
@@ -470,8 +488,7 @@ impl Styled for ProgressCircle {
 
 impl RenderOnce for ProgressCircle {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
-        let _id = element_id.clone().unwrap_or_else(|| ElementId::from("ui:progress-circle"));
+        let _id = self.element_id.clone();
 
         let theme = cx.theme();
         let track = self.track_color.unwrap_or(theme.border.muted);
@@ -484,7 +501,7 @@ impl RenderOnce for ProgressCircle {
             .max(px(1.));
         let t = self.value.clamp(0.0, 1.0);
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:spinner"))).relative().w(diameter).h(diameter).child(
+        self.base.id(self.element_id.clone()).relative().w(diameter).h(diameter).child(
             gpui::canvas(
                 move |_bounds, _window, _cx| (),
                 move |bounds, _, window, _cx| {

@@ -3,7 +3,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::component::Icon;
+use crate::component::{Icon};
 
 pub fn text(text: impl Into<SharedString>) -> Text {
     Text::new(text)
@@ -11,7 +11,7 @@ pub fn text(text: impl Into<SharedString>) -> Text {
 
 #[derive(IntoElement)]
 pub struct Text {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     text: SharedString,
     icon: Option<Icon>,
@@ -20,7 +20,7 @@ pub struct Text {
 impl Text {
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:text".into(),
             base: div(),
             text: text.into(),
             icon: None,
@@ -28,7 +28,7 @@ impl Text {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -66,11 +66,7 @@ impl StatefulInteractiveElement for Text {}
 impl RenderOnce for Text {
     fn render(self, _window: &mut gpui::Window, _cx: &mut gpui::App) -> impl gpui::IntoElement {
         self.base
-            .id(if let Some(id) = self.element_id {
-                id
-            } else {
-                self.text.clone().into()
-            })
+            .id(self.element_id)
             .flex()
             .items_center()
             .gap_2()

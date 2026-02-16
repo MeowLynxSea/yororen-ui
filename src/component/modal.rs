@@ -1,6 +1,7 @@
 use gpui::prelude::FluentBuilder;
 use gpui::{
-    Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString, Styled, div, px,
+    ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString, Styled,
+    div, px,
 };
 
 use crate::{
@@ -33,6 +34,7 @@ pub fn modal() -> Modal {
 
 #[derive(IntoElement)]
 pub struct Modal {
+    element_id: ElementId,
     base: gpui::Div,
     title: Option<SharedString>,
     content: Option<gpui::AnyElement>,
@@ -56,6 +58,7 @@ impl Default for Modal {
 impl Modal {
     pub fn new() -> Self {
         Self {
+            element_id: "modal".into(),
             base: div(),
             title: None,
             content: None,
@@ -67,6 +70,20 @@ impl Modal {
             on_close: None,
             described_by: None,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Combines the current element ID with a suffix to create a child element ID.
+    ///
+    /// This enables automatic ID composition for nested components, producing
+    /// tuple-based IDs like `("parent-id", "child-id")` to avoid ID collisions
+    /// when multiple instances of the same component type exist.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
     }
 
     pub fn title(mut self, title: impl Into<SharedString>) -> Self {
@@ -144,6 +161,10 @@ impl RenderOnce for Modal {
         let bg = self.bg.unwrap_or(theme.surface.raised);
         let border = self.border.unwrap_or(theme.border.default);
 
+        // Get child component IDs before moving other fields
+        let close_button_id = self.child_id("close-button");
+
+        let element_id_for_base = self.element_id;
         let title = self.title;
         let content = self
             .content
@@ -163,7 +184,7 @@ impl RenderOnce for Modal {
 
         // Close button
         if closable {
-            let close_button = icon_button()
+            let close_button = icon_button(close_button_id)
                 .icon(icon(IconName::Close))
                 .on_click(move |_, window, cx| {
                     if let Some(handler) = &on_close {
@@ -174,7 +195,7 @@ impl RenderOnce for Modal {
         }
 
         self.base
-            .id("ui:modal")
+            .id(element_id_for_base)
             .w(self.width)
             .rounded_lg()
             .border_1()
@@ -211,7 +232,7 @@ pub fn modal_actions_row(children: impl IntoIterator<Item = gpui::AnyElement>) -
 }
 
 pub fn modal_primary_action(label_text: impl Into<SharedString>) -> impl IntoElement {
-    button()
+    button("ui:modal:primary-action")
         .variant(ActionVariantKind::Primary)
         .child(label_text.into())
 }

@@ -5,22 +5,22 @@ use gpui::{
 };
 
 use crate::{
-    component::{compute_input_style, format_keybinding_ui, generate_element_id, shortcut_hint},
+    component::{compute_input_style, format_keybinding_ui, shortcut_hint},
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
 };
 
 /// Creates a new keybinding input element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn keybinding_input() -> KeybindingInput {
-    KeybindingInput::new()
+pub fn keybinding_input(id: impl Into<ElementId>) -> KeybindingInput {
+    KeybindingInput::new().id(id)
 }
 
 type ChangeFn = std::sync::Arc<dyn Fn(SharedString, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct KeybindingInput {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     value: Option<SharedString>,
@@ -48,7 +48,7 @@ impl Default for KeybindingInput {
 impl KeybindingInput {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:keybinding-input".into(),
             base: div(),
             value: None,
             placeholder: "Press keys…".into(),
@@ -72,7 +72,7 @@ impl KeybindingInput {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -133,6 +133,11 @@ impl KeybindingInput {
         self.on_change = Some(std::sync::Arc::new(handler));
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for KeybindingInput {
@@ -157,7 +162,8 @@ impl StatefulInteractiveElement for KeybindingInput {}
 
 impl RenderOnce for KeybindingInput {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
+        // Extract element_id
+        let id = self.element_id.clone();
         let localized = self.localized;
         let placeholder = if localized {
             DefaultPlaceholders::keybinding_press_keys(cx.i18n().locale()).into()
@@ -170,20 +176,20 @@ impl RenderOnce for KeybindingInput {
             self.waiting_hint
         };
 
-        // KeybindingInput requires an element ID for keyed state management.
-        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:keybinding-input"));
-
         let disabled = self.disabled;
         let theme = cx.theme().clone();
+        let bg = self.bg;
+        let border = self.border;
+        let focus_border = self.focus_border;
+        let text_color = self.text_color;
 
         let input_style = compute_input_style(
             &theme,
             disabled,
-            self.bg,
-            self.border,
-            self.focus_border,
-            self.text_color,
+            bg,
+            border,
+            focus_border,
+            text_color,
         );
 
         let height = self.height.unwrap_or_else(|| px(36.).into());
@@ -420,6 +426,6 @@ impl RenderOnce for KeybindingInput {
                     .into_any_element(),
                 ),
             )
-            .child(shortcut_hint("Press keys"))
+            .child(div().id((id.clone(), "hint")).child(shortcut_hint("Press keys")))
     }
 }

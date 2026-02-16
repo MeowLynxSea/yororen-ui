@@ -7,20 +7,20 @@ use gpui::{
 
 use crate::{
     component::{
-        create_internal_state, generate_element_id, use_internal_state_simple, ToggleCallback,
+        create_internal_state, use_internal_state_simple, ToggleCallback,
     },
     theme::{ActionVariantKind, ActiveTheme},
 };
 
 /// Creates a new toggle button element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn toggle_button(label: impl Into<String>) -> ToggleButton {
-    ToggleButton::new(label)
+pub fn toggle_button(id: impl Into<ElementId>, label: impl Into<String>) -> ToggleButton {
+    ToggleButton::new(label).id(id)
 }
 
 #[derive(IntoElement)]
 pub struct ToggleButton {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     label: String,
     selected: bool,
@@ -38,7 +38,7 @@ pub struct ToggleButton {
 impl ToggleButton {
     pub fn new(label: impl Into<String>) -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:toggle-button".into(),
             base: div().h(px(36.)).px_4().py_2(),
             label: label.into(),
             selected: false,
@@ -54,7 +54,7 @@ impl ToggleButton {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -133,7 +133,10 @@ impl InteractiveElement for ToggleButton {
 impl StatefulInteractiveElement for ToggleButton {}
 
 impl RenderOnce for ToggleButton {
-    fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
+    fn render(mut self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
+        // IMPORTANT: Initialize interactivity to ensure proper event handling
+        let _interactivity = self.interactivity();
+
         let selected = self.selected;
         let disabled = self.disabled;
         let on_toggle = self.on_toggle;
@@ -147,7 +150,7 @@ impl RenderOnce for ToggleButton {
 
         // ToggleButton requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:toggle-button"));
+        let id = element_id;
 
         let use_internal = use_internal_state_simple(on_toggle.is_some());
         let internal_selected = create_internal_state(

@@ -11,7 +11,7 @@ pub fn focus_ring() -> FocusRing {
 
 #[derive(IntoElement)]
 pub struct FocusRing {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     color: Option<Hsla>,
     radius: Option<AbsoluteLength>,
@@ -26,7 +26,7 @@ impl Default for FocusRing {
 impl FocusRing {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:focus-ring".into(),
             base: div(),
             color: None,
             radius: None,
@@ -34,7 +34,7 @@ impl FocusRing {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -79,11 +79,7 @@ impl RenderOnce for FocusRing {
         let color = self.color;
         let radius = self.radius;
 
-        let id = if let Some(id) = self.element_id.clone() {
-            id
-        } else {
-            "focus-ring".into()
-        };
+        let id = self.element_id.clone();
 
         let ring_color = color.unwrap_or_else(|| _cx.theme().border.focus);
 

@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{generate_element_id, ArrowDirection, IconName, PopoverPlacement, button, divider, icon, popover},
+    component::{ArrowDirection, IconName, PopoverPlacement, button, divider, icon, popover},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -27,8 +27,8 @@ use crate::{
 /// - The menu container uses `role="menu"` for proper screen reader semantics
 /// - Menu items use `role="menuitem"` for proper identification
 /// - Separators are marked with `role="separator"`
-pub fn dropdown_menu() -> DropdownMenu {
-    DropdownMenu::new()
+pub fn dropdown_menu(id: impl Into<ElementId>) -> DropdownMenu {
+    DropdownMenu::new(id)
 }
 
 type SelectFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -63,7 +63,7 @@ impl DropdownMenuItem {
 
 #[derive(IntoElement)]
 pub struct DropdownMenu {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     label: SharedString,
     items: Vec<DropdownItem>,
     open: bool,
@@ -74,14 +74,14 @@ pub struct DropdownMenu {
 
 impl Default for DropdownMenu {
     fn default() -> Self {
-        Self::new()
+        Self::new("ui:dropdown-menu")
     }
 }
 
 impl DropdownMenu {
-    pub fn new() -> Self {
+    pub fn new(id: impl Into<ElementId>) -> Self {
         Self {
-            element_id: None,
+            element_id: id.into(),
             label: "Menu".into(),
             items: Vec::new(),
             open: false,
@@ -92,8 +92,28 @@ impl DropdownMenu {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
+    }
+
+    /// Returns the element's ID.
+    pub fn element_id(&self) -> &ElementId {
+        &self.element_id
+    }
+
+    /// Generates a child element ID by combining the base element ID with a suffix.
+    ///
+    /// This is useful for creating unique IDs for child elements while maintaining
+    /// a clear relationship to the parent component's ID.
+    ///
+    /// # Example
+    /// ```rust
+    /// let menu = dropdown_menu("my-menu");
+    /// let trigger_id = menu.child_id("trigger"); // "my-menu-trigger"
+    /// let item_id = menu.child_id("item-0"); // "my-menu-item-0"
+    /// ```
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
     }
 
     pub fn key(self, key: impl Into<ElementId>) -> Self {
@@ -147,7 +167,7 @@ impl RenderOnce for DropdownMenu {
 
         // DropdownMenu requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:dropdown-menu"));
+        let id = element_id.clone();
 
         let open_state =
             window.use_keyed_state((id.clone(), "ui:dropdown-menu:open"), cx, |_, _| self.open);
@@ -175,8 +195,7 @@ impl RenderOnce for DropdownMenu {
                             let item_id = item.id.clone();
                             let open_for_select = open_for_select.clone();
                             let on_select = on_select.clone();
-                            button()
-                                .id((id_for_menu.clone(), format!("ui:dropdown-menu:item-{ix}")))
+                            button((id_for_menu.clone(), format!("ui:dropdown-menu:item-{ix}")))
                                 .w_full()
                                 .px_3()
                                 .py_2()
@@ -205,8 +224,7 @@ impl RenderOnce for DropdownMenu {
                     }),
             );
 
-        popover()
-            .id((id.clone(), "ui:dropdown-menu:popover"))
+        popover((id.clone(), "ui:dropdown-menu:popover"))
             .open(is_open)
             .placement(self.placement)
             .when_some(self.width, |this, width| this.width(width))
@@ -215,8 +233,7 @@ impl RenderOnce for DropdownMenu {
                 window.refresh();
             })
             .trigger(
-                button()
-                    .id((id.clone(), "ui:dropdown-menu:trigger"))
+                button((id.clone(), "ui:dropdown-menu:trigger"))
                     .variant(ActionVariantKind::Neutral)
                     .flex()
                     .items_center()

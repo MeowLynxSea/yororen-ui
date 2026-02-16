@@ -2,19 +2,19 @@ use gpui::{
     ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Styled, div, px,
 };
 
-use crate::component::{generate_element_id, ArrowDirection, IconName, icon};
+use crate::component::{ArrowDirection, IconName, icon};
 use crate::theme::ActiveTheme;
 
 /// A disclosure arrow with expanded/collapsed state.
 ///
 /// This is a visual primitive only. It does not manage state by itself.
-pub fn disclosure() -> Disclosure {
-    Disclosure::new()
+pub fn disclosure(id: impl Into<ElementId>) -> Disclosure {
+    Disclosure::new().id(id)
 }
 
 #[derive(IntoElement)]
 pub struct Disclosure {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: gpui::Div,
     expanded: bool,
     size: gpui::Pixels,
@@ -29,7 +29,7 @@ impl Default for Disclosure {
 impl Disclosure {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:disclosure".into(),
             base: div(),
             expanded: false,
             size: px(14.),
@@ -37,7 +37,7 @@ impl Disclosure {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -81,7 +81,7 @@ impl RenderOnce for Disclosure {
         let expanded = self.expanded;
         let size = self.size;
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:disclosure")))
+        self.base.id(element_id)
             .w(size)
             .h(size)
             .flex()

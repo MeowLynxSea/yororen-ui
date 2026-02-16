@@ -10,7 +10,7 @@ use gpui::{
 };
 use unicode_segmentation::UnicodeSegmentation;
 
-use crate::{component::generate_element_id, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
+use crate::{constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
 type PasswordInputHandler = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
@@ -37,8 +37,8 @@ actions!(
 
 /// Creates a new password input element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn password_input() -> PasswordInput {
-    PasswordInput::new()
+pub fn password_input(id: impl Into<ElementId>) -> PasswordInput {
+    PasswordInput::new().id(id)
 }
 
 pub(crate) fn init(cx: &mut App) {
@@ -820,7 +820,7 @@ impl Element for PasswordLineElement {
 
 #[derive(IntoElement)]
 pub struct PasswordInput {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     placeholder: SharedString,
 
@@ -841,7 +841,7 @@ pub struct PasswordInput {
 impl PasswordInput {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:password-input".into(),
             base: div().h(px(36.)).px_3(),
             placeholder: "".into(),
 
@@ -860,7 +860,7 @@ impl PasswordInput {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -927,6 +927,11 @@ impl PasswordInput {
         self.height = Some(height);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl Default for PasswordInput {
@@ -957,11 +962,9 @@ impl StatefulInteractiveElement for PasswordInput {}
 
 impl RenderOnce for PasswordInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let element_id = self.element_id;
-
         // PasswordInput requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:password-input"));
+        let id = self.element_id;
 
         let disabled = self.disabled;
         let allow_copy = self.allow_copy;
@@ -976,7 +979,7 @@ impl RenderOnce for PasswordInput {
 
         let on_change = self.on_change;
         let last_content = window.use_keyed_state(
-            (id.clone(), "ui:password-input:last-content"),
+            (id.clone(), format!("{}:last-content", id)),
             cx,
             |_, _cx| SharedString::new_static(""),
         );

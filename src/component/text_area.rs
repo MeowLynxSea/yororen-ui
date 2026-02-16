@@ -9,7 +9,7 @@ use gpui::{
     px, relative, size,
 };
 
-use crate::{component::{generate_element_id, TextEditState}, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
+use crate::{component::{TextEditState}, constants::CURSOR_BLINK_INTERVAL, theme::ActiveTheme};
 
 actions!(
     ui_text_area,
@@ -39,8 +39,8 @@ type TextAreaHandler = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
 /// Creates a new text area element.
 /// Requires an id to be set via `.id()` for internal state management.
-pub fn text_area() -> TextArea {
-    TextArea::new()
+pub fn text_area(id: impl Into<ElementId>) -> TextArea {
+    TextArea::new().id(id)
 }
 
 pub(crate) fn init(cx: &mut App) {
@@ -1055,7 +1055,7 @@ fn runs_for_line(
 
 #[derive(IntoElement)]
 pub struct TextArea {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     placeholder: SharedString,
 
@@ -1075,7 +1075,7 @@ pub struct TextArea {
 impl TextArea {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:text-area".into(),
             base: div().h(px(120.)).px_3(),
             placeholder: "".into(),
 
@@ -1093,7 +1093,7 @@ impl TextArea {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -1154,6 +1154,11 @@ impl TextArea {
         self.height = Some(height);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl Default for TextArea {
@@ -1184,11 +1189,7 @@ impl StatefulInteractiveElement for TextArea {}
 
 impl RenderOnce for TextArea {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
-        let element_id = self.element_id;
-
-        // TextArea requires an element ID for keyed state management.
-        // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:text-area"));
+        let id = self.element_id;
 
         let disabled = self.disabled;
         let state = window.use_keyed_state(id.clone(), cx, |_, cx| TextAreaState::new(cx));
@@ -1205,7 +1206,7 @@ impl RenderOnce for TextArea {
 
         let on_change = self.on_change;
         let last_content =
-            window.use_keyed_state((id.clone(), "ui:text-area:last-content"), cx, |_, _cx| {
+            window.use_keyed_state((id.clone(), format!("{}:last-content", id)), cx, |_, _cx| {
                 SharedString::new_static("")
             });
 
@@ -1462,7 +1463,7 @@ impl RenderOnce for TextArea {
                         .w_full()
                         .h_full()
                         .rounded_sm()
-                        .id((id.clone(), "ui:text-area:scroll"))
+                        .id(format!("{}:scroll", id))
                         .overflow_scroll()
                         .child(TextAreaElement {
                             input: state.clone(),

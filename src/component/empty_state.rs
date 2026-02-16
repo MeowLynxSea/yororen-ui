@@ -4,17 +4,17 @@ use gpui::{
     div, px,
 };
 
-use crate::component::{generate_element_id, Heading, HeadingLevel, Icon, IconName, Label, button, heading, label};
+use crate::component::{Heading, HeadingLevel, Icon, IconName, Label, button, heading, label};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new empty state element.
-pub fn empty_state() -> EmptyState {
-    EmptyState::new()
+pub fn empty_state(id: impl Into<ElementId>) -> EmptyState {
+    EmptyState::new().id(id)
 }
 
 #[derive(IntoElement)]
 pub struct EmptyState {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     icon: Option<Icon>,
     title: Option<Heading>,
@@ -32,7 +32,7 @@ impl Default for EmptyState {
 impl EmptyState {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:empty-state".into(),
             base: div(),
             icon: Some(crate::component::icon(IconName::Info).size(px(20.))),
             title: None,
@@ -43,7 +43,7 @@ impl EmptyState {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -76,6 +76,11 @@ impl EmptyState {
         self.max_width = Some(max_width);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for EmptyState {
@@ -92,14 +97,13 @@ impl Styled for EmptyState {
 
 impl RenderOnce for EmptyState {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
         let theme = cx.theme();
 
         let icon = self
             .icon
             .unwrap_or_else(|| crate::component::icon(IconName::Info));
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:empty-state")))
+        self.base.id(self.element_id.clone())
             .flex()
             .flex_col()
             .items_center()
@@ -135,7 +139,7 @@ impl RenderOnce for EmptyState {
 }
 
 pub fn empty_state_primary_action(label_text: impl Into<gpui::SharedString>) -> gpui::AnyElement {
-    button()
+    button("ui:empty-state-action")
         .variant(ActionVariantKind::Primary)
         .child(label_text.into())
         .into_any_element()

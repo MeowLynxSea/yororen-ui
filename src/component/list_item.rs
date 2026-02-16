@@ -3,7 +3,7 @@ use gpui::{
     prelude::FluentBuilder, px,
 };
 
-use crate::{component::generate_element_id, theme::ActiveTheme};
+use crate::theme::ActiveTheme;
 
 /// A row content container for list-style UIs.
 ///
@@ -19,7 +19,7 @@ pub fn list_item() -> ListItem {
 
 #[derive(IntoElement)]
 pub struct ListItem {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     leading: Option<gpui::AnyElement>,
     content: Option<gpui::AnyElement>,
@@ -40,7 +40,7 @@ impl Default for ListItem {
 impl ListItem {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:list-item".into(),
             base: div(),
             leading: None,
             content: None,
@@ -54,7 +54,7 @@ impl ListItem {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -118,7 +118,6 @@ impl Styled for ListItem {
 
 impl RenderOnce for ListItem {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let element_id = self.element_id;
         let hoverable = self.hoverable;
         let selected = self.selected;
         let hover_bg = self.hover_bg.unwrap_or(cx.theme().surface.hover);
@@ -131,7 +130,7 @@ impl RenderOnce for ListItem {
         let secondary = self.secondary;
         let trailing = self.trailing;
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:list-item")))
+        self.base.id(self.element_id)
             .w_full()
             .min_h(px(32.))
             .px_3()

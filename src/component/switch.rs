@@ -7,7 +7,7 @@ use gpui::{
 
 use crate::{
     component::{
-        compute_toggle_style, create_internal_state, generate_element_id,
+        compute_toggle_style, create_internal_state,
         resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
     },
     theme::ActiveTheme,
@@ -27,13 +27,13 @@ use crate::{
 /// - Use with a `<label>` element for proper text association
 /// - The component internally manages `role="switch"` and `aria-checked` state
 /// - Switches are commonly used for on/off settings rather than selections
-pub fn switch() -> Switch {
-    Switch::new()
+pub fn switch(id: impl Into<ElementId>) -> Switch {
+    Switch::new().id(id)
 }
 
 #[derive(IntoElement)]
 pub struct Switch {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     checked: bool,
     disabled: bool,
@@ -50,7 +50,7 @@ impl Default for Switch {
 impl Switch {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:switch".into(),
             base: div().w(px(34.)).h(px(18.)),
             checked: false,
             disabled: false,
@@ -60,7 +60,7 @@ impl Switch {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -119,11 +119,10 @@ impl RenderOnce for Switch {
         let explicit_checked = self.checked;
         let on_toggle = self.on_toggle;
         let tone = self.tone;
-        let element_id = self.element_id;
 
         // Switch requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:switch"));
+        let id = self.element_id;
 
         let use_internal = use_internal_state_simple(on_toggle.is_some());
         let internal_checked = create_internal_state(

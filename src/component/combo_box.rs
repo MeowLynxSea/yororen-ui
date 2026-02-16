@@ -7,7 +7,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{compute_input_style, generate_element_id, ArrowDirection, IconName, TextInputState, icon, text_input},
+    component::{compute_input_style, ArrowDirection, IconName, TextInputState, icon, text_input},
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -52,8 +52,8 @@ impl ComboBoxOption {
 /// - The search input uses `aria-autocomplete="list"` to indicate autocomplete behavior
 /// - Selected options are visually indicated with a checkmark
 /// - Disabled options are properly marked
-pub fn combo_box() -> ComboBox {
-    ComboBox::new()
+pub fn combo_box(id: impl Into<ElementId>) -> ComboBox {
+    ComboBox::new().id(id)
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -61,7 +61,7 @@ type SimpleChangeFn = Arc<dyn Fn(String)>;
 
 #[derive(IntoElement)]
 pub struct ComboBox {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     options: Vec<ComboBoxOption>,
 
@@ -93,7 +93,7 @@ impl Default for ComboBox {
 impl ComboBox {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:combo-box".into(),
             base: div(),
             options: Vec::new(),
             value: None,
@@ -121,7 +121,7 @@ impl ComboBox {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -226,6 +226,11 @@ impl ComboBox {
         self.menu_width = Some(width);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for ComboBox {
@@ -268,22 +273,21 @@ impl RenderOnce for ComboBox {
         let on_change = self.on_change;
         let on_change_simple = self.on_change_simple;
         let max_results = self.max_results;
-        let element_id = self.element_id;
 
         // ComboBox requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = element_id.unwrap_or_else(|| generate_element_id("ui:combo-box"));
+        let id = self.element_id;
 
-        let menu_open = window.use_keyed_state((id.clone(), "ui:combo-box:open"), cx, |_, _| false);
+        let menu_open = window.use_keyed_state((id.clone(), format!("{}:open", id)), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
-        let query_id = (id.clone(), "ui:combo-box:query");
+        let query_id = format!("{}:query", id);
         let query_state =
             window.use_keyed_state(query_id.clone(), cx, |_, cx| TextInputState::new(cx));
 
         let use_internal_value = on_change.is_none() && on_change_simple.is_none() && self.value.is_none();
         let internal_value = use_internal_value.then(|| {
-            window.use_keyed_state((id.clone(), "ui:combo-box:value"), cx, |_, _| {
+            window.use_keyed_state((id.clone(), format!("{}:value", id)), cx, |_, _| {
                 options
                     .first()
                     .map(|opt| opt.value.clone())
@@ -393,7 +397,7 @@ impl RenderOnce for ComboBox {
                     .collect::<Vec<_>>();
 
                 let menu = div()
-                    .id((id.clone(), "combo-box-menu"))
+                    .id(format!("{}:menu", id))
                     .absolute()
                     .top_full()
                     .left_0()
@@ -412,8 +416,7 @@ impl RenderOnce for ComboBox {
                     })
                     .child(
                         div().px_2().pb_2().child(
-                            text_input()
-                                .id(query_id.clone())
+                            text_input(format!("{}:query", id))
                                 .placeholder(search_placeholder)
                                 .bg(theme.surface.base)
                                 .border(theme.border.default)

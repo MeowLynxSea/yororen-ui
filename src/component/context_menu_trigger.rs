@@ -3,18 +3,18 @@ use gpui::{
     ParentElement, RenderOnce, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::{component::generate_element_id, theme::{ActionVariantKind, ActiveTheme}};
+use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new context menu trigger element.
-pub fn context_menu_trigger() -> ContextMenuTrigger {
-    ContextMenuTrigger::new()
+pub fn context_menu_trigger(id: impl Into<ElementId>) -> ContextMenuTrigger {
+    ContextMenuTrigger::new().id(id)
 }
 
 type OpenFn = Box<dyn Fn(&MouseDownEvent, &mut gpui::Window, &mut gpui::App)>;
 
 #[derive(IntoElement)]
 pub struct ContextMenuTrigger {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
 
     on_open: Option<OpenFn>,
@@ -35,7 +35,7 @@ impl Default for ContextMenuTrigger {
 impl ContextMenuTrigger {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:context-menu-trigger".into(),
             base: div(),
 
             on_open: None,
@@ -49,7 +49,7 @@ impl ContextMenuTrigger {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -118,7 +118,6 @@ impl RenderOnce for ContextMenuTrigger {
         let bg = self.bg;
         let hover_bg = self.hover_bg;
         let variant = self.variant;
-        let element_id = self.element_id;
 
         let action_variant = _cx.theme().action_variant(variant);
         let hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
@@ -128,7 +127,7 @@ impl RenderOnce for ContextMenuTrigger {
             resolved_bg = action_variant.disabled_bg;
         }
 
-        self.base.id(element_id.unwrap_or_else(|| generate_element_id("ui:context-menu-trigger")))
+        self.base.id(self.element_id.clone())
             .when(enabled, |this| this.cursor_context_menu())
             .on_mouse_down(MouseButton::Right, move |ev, window, cx| {
                 if !enabled {

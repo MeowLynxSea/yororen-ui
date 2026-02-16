@@ -32,8 +32,8 @@ impl RadioOption {
 
 /// Creates a new radio group.
 /// Use `.id()` to set a stable element ID for state management.
-pub fn radio_group() -> RadioGroup {
-    RadioGroup::new()
+pub fn radio_group(id: impl Into<ElementId>) -> RadioGroup {
+    RadioGroup::new().id(id)
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -42,7 +42,7 @@ type RenderOptionFn = Box<dyn Fn(&RadioOption, Radio) -> AnyElement>;
 
 #[derive(IntoElement)]
 pub struct RadioGroup {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     options: Vec<RadioOption>,
     value: Option<String>,
@@ -63,7 +63,7 @@ impl RadioGroup {
     /// Use `.id()` to set a stable element ID for state management.
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:radio-group".into(),
             base: div(),
             options: Vec::new(),
             value: None,
@@ -75,7 +75,7 @@ impl RadioGroup {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -124,6 +124,11 @@ impl RadioGroup {
         self.render_option = Some(Box::new(render));
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    pub fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for RadioGroup {
@@ -152,11 +157,7 @@ impl RenderOnce for RadioGroup {
         let tone = self.tone;
         let on_change = self.on_change;
 
-        // RadioGroup requires an element ID for keyed state management.
-        // Use `.id()` to provide a stable ID.
-        let id = self.element_id.unwrap_or_else(|| {
-            panic!("RadioGroup requires an element ID. Use `.id()` to set a stable ID.")
-        });
+        let id = self.element_id;
 
         let use_internal_state = on_change.is_none() && self.value.is_none();
         let internal_value = use_internal_state.then(|| {
@@ -193,7 +194,8 @@ impl RenderOnce for RadioGroup {
             .children(options.into_iter().map(move |option| {
                 let option_disabled = disabled || option.disabled;
                 let is_selected = option.value == selected;
-                let radio = radio()
+                let radio_id = (group_id.clone(), format!("radio:{}", option.value));
+                let radio = radio(radio_id)
                     .checked(is_selected)
                     .disabled(option_disabled)
                     .when_some(tone, |this, tone| this.tone(tone));
@@ -235,7 +237,7 @@ impl RenderOnce for RadioGroup {
                     render_option(&option, radio)
                 } else {
                     div()
-                        .id((ElementId::from("ui:radio-group:option"), value_for_id))
+                        .id((group_id.clone(), format!("option:{}", value_for_id)))
                         .flex()
                         .items_center()
                         .gap_2()

@@ -2,7 +2,7 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use super::TextEditState;
-use crate::component::{compute_input_style, generate_element_id, ChangeCallback};
+use crate::component::{compute_input_style, ChangeCallback};
 use crate::theme::ActiveTheme;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -35,8 +35,8 @@ actions!(
 
 /// Creates a new text input.
 /// Use `.id()` to set a stable element ID for state management.
-pub fn text_input() -> TextInput {
-    TextInput::new()
+pub fn text_input(id: impl Into<ElementId>) -> TextInput {
+    TextInput::new().id(id)
 }
 
 pub(crate) fn init(cx: &mut App) {
@@ -670,7 +670,7 @@ impl Element for TextLineElement {
 
 #[derive(IntoElement)]
 pub struct TextInput {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     placeholder: SharedString,
 
@@ -694,7 +694,7 @@ pub struct TextInput {
 impl TextInput {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:text-input".into(),
             base: div().h(px(36.)).px_3(),
             placeholder: "".into(),
 
@@ -712,7 +712,7 @@ impl TextInput {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -782,6 +782,11 @@ impl TextInput {
         self.height = Some(height);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl Default for TextInput {
@@ -814,7 +819,7 @@ impl RenderOnce for TextInput {
     fn render(self, window: &mut gpui::Window, cx: &mut App) -> impl IntoElement {
         // TextInput requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = self.element_id.unwrap_or_else(|| generate_element_id("ui:text-input"));
+        let id = self.element_id;
 
         let disabled = self.disabled;
 
@@ -828,7 +833,7 @@ impl RenderOnce for TextInput {
 
         let content = self.content;
         let last_prop_content = window.use_keyed_state(
-            (id.clone(), "ui:text-input:last-prop-content"),
+            (id.clone(), format!("{}:last-prop-content", id)),
             cx,
             |_, _cx| None::<SharedString>,
         );
@@ -854,7 +859,7 @@ impl RenderOnce for TextInput {
 
         let on_change = self.on_change;
         let last_content =
-            window.use_keyed_state((id.clone(), "ui:text-input:last-content"), cx, |_, _cx| {
+            window.use_keyed_state((id.clone(), format!("{}:last-content", id)), cx, |_, _cx| {
                 SharedString::new_static("")
             });
 

@@ -6,19 +6,19 @@ use gpui::{
     px,
 };
 
-use crate::theme::ActiveTheme;
+use crate::{theme::ActiveTheme};
 
 use super::tree_data::{TreeCheckedState, FlatTreeNode, TreeNodeData};
 
 /// Creates a new tree node element.
-pub fn tree_node() -> TreeNodeComponent {
-    TreeNodeComponent::new()
+pub fn tree_node(id: impl Into<ElementId>) -> TreeNodeComponent {
+    TreeNodeComponent::new().id(id)
 }
 
 /// A tree node component that renders a node and its children.
 #[derive(IntoElement)]
 pub struct TreeNodeComponent {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     node: Option<FlatTreeNode>,
     show_checkbox: bool,
@@ -38,7 +38,7 @@ impl Default for TreeNodeComponent {
 impl TreeNodeComponent {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:tree-node".into(),
             base: div(),
             node: None,
             show_checkbox: false,
@@ -51,7 +51,7 @@ impl TreeNodeComponent {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -123,7 +123,7 @@ impl RenderOnce for TreeNodeComponent {
         };
 
         let theme = cx.theme();
-        let element_id = self.element_id.unwrap_or(node.id.clone());
+        let element_id = self.element_id;
         let depth = node.depth;
         let _expanded = node.expanded;
         let _has_children = node.has_children;

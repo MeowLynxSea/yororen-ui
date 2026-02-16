@@ -8,7 +8,7 @@ use gpui::{
 
 use crate::{
     component::{
-        compute_input_style, create_internal_state, generate_element_id, use_internal_state,
+        compute_input_style, create_internal_state, use_internal_state,
         ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon,
     },
     constants::animation,
@@ -86,13 +86,13 @@ impl SelectOption {
 /// - The menu container has a unique ID for `aria-controls` association
 /// - Selected options are visually indicated with a checkmark
 /// - Disabled options are properly marked
-pub fn select() -> Select {
-    Select::new()
+pub fn select(id: impl Into<ElementId>) -> Select {
+    Select::new().id(id)
 }
 
 #[derive(IntoElement)]
 pub struct Select {
-    element_id: Option<ElementId>,
+    element_id: ElementId,
     base: Div,
     options: Vec<SelectOption>,
 
@@ -123,7 +123,7 @@ impl Default for Select {
 impl Select {
     pub fn new() -> Self {
         Self {
-            element_id: None,
+            element_id: "ui:select".into(),
             base: div(),
             options: Vec::new(),
             value: None,
@@ -150,7 +150,7 @@ impl Select {
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.element_id = Some(id.into());
+        self.element_id = id.into();
         self
     }
 
@@ -252,6 +252,11 @@ impl Select {
         self.menu_width = Some(width);
         self
     }
+
+    /// Generate a child element ID by combining this component's element ID with a suffix.
+    fn child_id(&self, suffix: &str) -> ElementId {
+        (self.element_id.clone(), suffix.to_string()).into()
+    }
 }
 
 impl ParentElement for Select {
@@ -292,7 +297,7 @@ impl RenderOnce for Select {
 
         // Select requires an element ID for keyed state management.
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
-        let id = self.element_id.unwrap_or_else(|| generate_element_id("ui:select"));
+        let id = self.element_id;
 
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
@@ -307,7 +312,7 @@ impl RenderOnce for Select {
             window,
             cx,
             &id,
-            "ui:select:value".to_string(),
+            format!("{}:value", id),
             default_value,
             use_internal,
         );
