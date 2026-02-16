@@ -253,6 +253,23 @@ impl InteractiveElement for ComboBox {
 
 impl StatefulInteractiveElement for ComboBox {}
 
+/// Helper function to call on_change handlers with the correct priority.
+#[allow(clippy::too_many_arguments)]
+fn call_on_change(
+    option_value: String,
+    on_change: Option<&ChangeFn>,
+    on_change_simple: Option<&SimpleChangeFn>,
+    ev: &ClickEvent,
+    window: &mut gpui::Window,
+    cx: &mut gpui::App,
+) {
+    if let Some(handler) = on_change {
+        handler(option_value.clone(), ev, window, cx);
+    } else if let Some(handler) = on_change_simple {
+        handler(option_value);
+    }
+}
+
 impl RenderOnce for ComboBox {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let disabled = self.disabled;
@@ -485,12 +502,14 @@ impl RenderOnce for ComboBox {
                                     });
                                 }
 
-                                // Prefer on_change if provided, otherwise use on_change_simple
-                                if let Some(handler) = &on_change {
-                                    handler(option_value.clone(), ev, window, cx);
-                                } else if let Some(handler) = &on_change_simple {
-                                    handler(option_value.clone());
-                                }
+                                call_on_change(
+                                    option_value.clone(),
+                                    on_change.as_ref(),
+                                    on_change_simple.as_ref(),
+                                    ev,
+                                    window,
+                                    cx,
+                                );
 
                                 menu_open_for_select.update(cx, |open, _| *open = false);
                             })

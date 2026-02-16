@@ -35,6 +35,21 @@ actions!(
     ]
 );
 
+/// Macro to generate action handlers with disabled check.
+/// Reduces boilerplate for repeated on_action patterns.
+macro_rules! action_handler {
+    ($state:expr, $disabled:expr, $action:ty, $method:ident) => {{
+        let state = $state.clone();
+        let disabled = $disabled;
+        move |action: &$action, window, cx| {
+            if disabled {
+                return;
+            }
+            state.update(cx, |state, cx| state.$method(action, window, cx))
+        }
+    }};
+}
+
 type TextAreaHandler = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut App)>;
 
 /// Creates a new text area element.
@@ -744,94 +759,23 @@ impl Element for TextAreaElement {
             strikethrough: None,
         };
 
-        let mut lines = Vec::new();
-        let mut y = Pixels::ZERO;
-        let mut max_width = Pixels::ZERO;
-
         let marked_range = if display_text.is_empty() {
             None
         } else {
             marked_range
         };
 
-        match wrap {
-            WrapMode::None => {
-                let mut start = 0;
-                for (i, ch) in display_text.char_indices() {
-                    if ch == '\n' {
-                        let line_text = SharedString::new(display_text[start..i].to_string());
-                        let runs = runs_for_line(&base_run, start..i, marked_range.as_ref());
-                        let shaped = window.text_system().shape_line(
-                            line_text.clone(),
-                            font_size,
-                            &runs,
-                            None,
-                        );
-                        max_width = max_width.max(shaped.width);
-                        lines.push(LineLayout {
-                            range: start..i,
-                            shaped,
-                            y,
-                        });
-                        y += line_height;
-                        start = i + '\n'.len_utf8();
-                    }
-                }
-                let end = display_text.len();
-                let line_text = SharedString::new(display_text[start..end].to_string());
-                let runs = runs_for_line(&base_run, start..end, marked_range.as_ref());
-                let shaped =
-                    window
-                        .text_system()
-                        .shape_line(line_text.clone(), font_size, &runs, None);
-                max_width = max_width.max(shaped.width);
-                lines.push(LineLayout {
-                    range: start..end,
-                    shaped,
-                    y,
-                });
-                y += line_height;
-            }
-            WrapMode::Soft => {
-                // Minimal implementation: only respect explicit newlines.
-                // Soft wrapping by width can be layered on later.
-                let mut start = 0;
-                for (i, ch) in display_text.char_indices() {
-                    if ch == '\n' {
-                        let line_text = SharedString::new(display_text[start..i].to_string());
-                        let runs = runs_for_line(&base_run, start..i, marked_range.as_ref());
-                        let shaped = window.text_system().shape_line(
-                            line_text.clone(),
-                            font_size,
-                            &runs,
-                            None,
-                        );
-                        max_width = max_width.max(shaped.width);
-                        lines.push(LineLayout {
-                            range: start..i,
-                            shaped,
-                            y,
-                        });
-                        y += line_height;
-                        start = i + '\n'.len_utf8();
-                    }
-                }
-                let end = display_text.len();
-                let line_text = SharedString::new(display_text[start..end].to_string());
-                let runs = runs_for_line(&base_run, start..end, marked_range.as_ref());
-                let shaped =
-                    window
-                        .text_system()
-                        .shape_line(line_text.clone(), font_size, &runs, None);
-                max_width = max_width.max(shaped.width);
-                lines.push(LineLayout {
-                    range: start..end,
-                    shaped,
-                    y,
-                });
-                y += line_height;
-            }
-        }
+        // Use helper function to layout lines (unifies WrapMode::None and Soft logic)
+        let (lines_result, max_width) = layout_lines(
+            display_text.as_str(),
+            marked_range.as_ref(),
+            &base_run,
+            font_size,
+            line_height,
+            window,
+        );
+        let lines = lines_result;
+        let y = lines.last().map(|l| l.y + line_height).unwrap_or(line_height);
 
         let content_height = y.max(line_height);
         let layout = TextAreaLayout {
@@ -1003,6 +947,57 @@ impl Element for TextAreaElement {
             input.scroll_y = prepaint.scroll_y;
         });
     }
+}
+
+/// Helper function to layout text lines based on wrap mode.
+/// Extracts the duplicate logic from prepaint() for WrapMode::None and WrapMode::Soft.
+fn layout_lines(
+    display_text: &str,
+    marked_range: Option<&Range<usize>>,
+    base_run: &TextRun,
+    font_size: Pixels,
+    line_height: Pixels,
+    window: &mut gpui::Window,
+) -> (Vec<LineLayout>, Pixels) {
+    let mut lines = Vec::new();
+    let mut y = Pixels::ZERO;
+    let mut max_width = Pixels::ZERO;
+
+    // For both None and Soft wrap modes, we respect explicit newlines
+    // Soft wrapping by width can be layered on later
+    let mut start = 0;
+    for (i, ch) in display_text.char_indices() {
+        if ch == '\n' {
+            let line_text = SharedString::new(display_text[start..i].to_string());
+            let runs = runs_for_line(base_run, start..i, marked_range);
+            let shaped = window.text_system().shape_line(line_text, font_size, &runs, None);
+            max_width = max_width.max(shaped.width);
+            lines.push(LineLayout {
+                range: start..i,
+                shaped,
+                y,
+            });
+            y += line_height;
+            start = i + '\n'.len_utf8();
+        }
+    }
+
+    // Handle the last line (after final newline or entire text if no newlines)
+    let end = display_text.len();
+    if start < end || lines.is_empty() {
+        let line_text = SharedString::new(display_text[start..end].to_string());
+        let runs = runs_for_line(base_run, start..end, marked_range);
+        let shaped = window.text_system().shape_line(line_text, font_size, &runs, None);
+        max_width = max_width.max(shaped.width);
+        lines.push(LineLayout {
+            range: start..end,
+            shaped,
+            y,
+        });
+        y += line_height;
+    }
+
+    (lines, max_width)
 }
 
 fn runs_for_line(
@@ -1251,161 +1246,23 @@ impl RenderOnce for TextArea {
             .when(!disabled, |this| this.cursor(CursorStyle::IBeam))
             .when(disabled, |this| this.cursor_not_allowed().opacity(0.6))
             .key_context("UITextArea")
-            .on_action({
-                let state = state.clone();
-                move |action: &Backspace, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.backspace(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Delete, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.delete(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Left, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.left(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Right, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.right(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Up, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.up(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Down, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.down(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectLeft, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_left(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectRight, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_right(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectUp, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_up(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectDown, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_down(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectAll, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_all(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Home, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.home(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &End, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.end(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Enter, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.enter(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &ShowCharacterPalette, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| {
-                        state.show_character_palette(action, window, cx)
-                    });
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Paste, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.paste(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Cut, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.cut(action, window, cx));
-                }
-            })
+            .on_action(action_handler!(state, disabled, Backspace, backspace))
+            .on_action(action_handler!(state, disabled, Delete, delete))
+            .on_action(action_handler!(state, disabled, Left, left))
+            .on_action(action_handler!(state, disabled, Right, right))
+            .on_action(action_handler!(state, disabled, Up, up))
+            .on_action(action_handler!(state, disabled, Down, down))
+            .on_action(action_handler!(state, disabled, SelectLeft, select_left))
+            .on_action(action_handler!(state, disabled, SelectRight, select_right))
+            .on_action(action_handler!(state, disabled, SelectUp, select_up))
+            .on_action(action_handler!(state, disabled, SelectDown, select_down))
+            .on_action(action_handler!(state, disabled, SelectAll, select_all))
+            .on_action(action_handler!(state, disabled, Home, home))
+            .on_action(action_handler!(state, disabled, End, end))
+            .on_action(action_handler!(state, disabled, Enter, enter))
+            .on_action(action_handler!(state, disabled, ShowCharacterPalette, show_character_palette))
+            .on_action(action_handler!(state, disabled, Paste, paste))
+            .on_action(action_handler!(state, disabled, Cut, cut))
             .on_action({
                 let state = state.clone();
                 move |action: &Copy, window, cx| {

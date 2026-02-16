@@ -279,6 +279,31 @@ impl InteractiveElement for Select {
 
 impl StatefulInteractiveElement for Select {}
 
+/// Helper function to call on_change handlers with the correct priority.
+/// Prefers on_change_with_event > on_change > on_change_simple
+#[allow(clippy::too_many_arguments)]
+fn call_on_change(
+    option_value: String,
+    on_change_with_event: Option<&ChangeWithEventCallback<String>>,
+    on_change: Option<&ChangeCallback<String>>,
+    on_change_simple: Option<&Arc<dyn Fn(String)>>,
+    ev: Option<&ClickEvent>,
+    window: &mut gpui::Window,
+    cx: &mut gpui::App,
+) {
+    if let Some(handler) = on_change_with_event {
+        if let Some(ev) = ev {
+            handler(option_value.clone(), ev, window, cx);
+            return;
+        }
+    }
+    if let Some(handler) = on_change {
+        handler(option_value.clone(), window, cx);
+    } else if let Some(handler) = on_change_simple {
+        handler(option_value);
+    }
+}
+
 impl RenderOnce for Select {
     fn render(self, window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         let disabled = self.disabled;
@@ -470,14 +495,15 @@ impl RenderOnce for Select {
                                     });
                                 }
 
-                                // Prefer on_change_with_event if provided, otherwise use on_change or on_change_simple
-                                if let Some(handler) = &on_change_with_event {
-                                    handler(option_value.clone(), ev, window, cx);
-                                } else if let Some(handler) = &on_change {
-                                    handler(option_value.clone(), window, cx);
-                                } else if let Some(handler) = &on_change_simple {
-                                    handler(option_value.clone());
-                                }
+                                call_on_change(
+                                    option_value.clone(),
+                                    on_change_with_event.as_ref(),
+                                    on_change.as_ref(),
+                                    on_change_simple.as_ref(),
+                                    Some(ev),
+                                    window,
+                                    cx,
+                                );
 
                                 menu_open_for_select.update(cx, |open, _| *open = false);
                             })

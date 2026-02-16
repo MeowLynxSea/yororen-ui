@@ -35,6 +35,21 @@ actions!(
     ]
 );
 
+/// Macro to generate action handlers with disabled check.
+/// Reduces boilerplate for repeated on_action patterns.
+macro_rules! action_handler {
+    ($state:expr, $disabled:expr, $action:ty, $method:ident) => {{
+        let state = $state.clone();
+        let disabled = $disabled;
+        move |action: &$action, window, cx| {
+            if disabled {
+                return;
+            }
+            state.update(cx, |state, cx| state.$method(action, window, cx))
+        }
+    }};
+}
+
 /// Creates a new password input element.
 /// Requires an id to be set via `.id()` for internal state management.
 pub fn password_input(id: impl Into<ElementId>) -> PasswordInput {
@@ -1026,107 +1041,17 @@ impl RenderOnce for PasswordInput {
             .when(!disabled, |this| this.cursor(CursorStyle::IBeam))
             .when(disabled, |this| this.cursor_not_allowed().opacity(0.6))
             .key_context("UIPasswordInput")
-            .on_action({
-                let state = state.clone();
-                move |action: &Backspace, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.backspace(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Delete, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.delete(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Left, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.left(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Right, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.right(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectLeft, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_left(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectRight, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_right(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &SelectAll, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.select_all(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Home, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.home(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &End, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.end(action, window, cx));
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &ShowCharacterPalette, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| {
-                        state.show_character_palette(action, window, cx)
-                    });
-                }
-            })
-            .on_action({
-                let state = state.clone();
-                move |action: &Paste, window, cx| {
-                    if disabled {
-                        return;
-                    }
-                    state.update(cx, |state, cx| state.paste(action, window, cx));
-                }
-            })
+            .on_action(action_handler!(state, disabled, Backspace, backspace))
+            .on_action(action_handler!(state, disabled, Delete, delete))
+            .on_action(action_handler!(state, disabled, Left, left))
+            .on_action(action_handler!(state, disabled, Right, right))
+            .on_action(action_handler!(state, disabled, SelectLeft, select_left))
+            .on_action(action_handler!(state, disabled, SelectRight, select_right))
+            .on_action(action_handler!(state, disabled, SelectAll, select_all))
+            .on_action(action_handler!(state, disabled, Home, home))
+            .on_action(action_handler!(state, disabled, End, end))
+            .on_action(action_handler!(state, disabled, ShowCharacterPalette, show_character_palette))
+            .on_action(action_handler!(state, disabled, Paste, paste))
             .on_action({
                 let state = state.clone();
                 move |action: &Cut, window, cx| {
