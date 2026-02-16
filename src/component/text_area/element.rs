@@ -2,14 +2,13 @@
 //!
 //! Contains the element implementation for text area rendering.
 
-use std::ops::Range;
 use gpui::{
-    App, Bounds, Div, Element, ElementId, ElementInputHandler,
-    Entity, GlobalElementId, Hsla,
-    IntoElement, LayoutId, MouseDownEvent, MouseMoveEvent, MouseUpEvent, PaintQuad,
-    Pixels, Point, RenderOnce, SharedString, ShapedLine, Styled, TextRun,
-    UnderlineStyle, Style, StatefulInteractiveElement,
-    actions, div, fill, point, px, relative, size,
+    App, Bounds, Element, ElementId, ElementInputHandler,
+    Entity, GlobalElementId,
+    IntoElement, LayoutId, PaintQuad,
+    Pixels, TextRun,
+    Style,
+    fill, point, px, relative, size,
 };
 
 use super::state::{TextAreaState, WrapMode};

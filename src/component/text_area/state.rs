@@ -3,7 +3,7 @@
 use std::ops::Range;
 use std::sync::Arc;
 
-use gpui::{App, Context, FocusHandle, Focusable, ParentElement, SharedString, UTF16Selection};
+use gpui::{App, Context, FocusHandle, ParentElement, SharedString, UTF16Selection};
 
 use crate::component::TextEditState;
 use crate::constants::CURSOR_BLINK_INTERVAL;

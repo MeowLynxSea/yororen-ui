@@ -1,10 +1,10 @@
 //! Password input element module.
 
 use gpui::{
-    App, Bounds, Div, Element, ElementId, ElementInputHandler,
-    Entity, GlobalElementId, PaintQuad, Pixels, Point,
+    App, Bounds, Element, ElementId, ElementInputHandler,
+    Entity, GlobalElementId, PaintQuad, Pixels,
     ShapedLine, Style, TextRun, UnderlineStyle,
-    div, fill, point, size, px, relative,
+    fill, point, size, px, relative,
 };
 
 use super::state::PasswordInputState;

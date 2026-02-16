@@ -124,11 +124,6 @@ impl PasswordInput {
         self.height = Some(height);
         self
     }
-
-    /// Generate a child element ID by combining this component's element ID with a suffix.
-    fn child_id(&self, suffix: &str) -> ElementId {
-        (self.element_id.clone(), suffix.to_string()).into()
-    }
 }
 
 impl Default for PasswordInput {

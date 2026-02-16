@@ -3,8 +3,8 @@
 use std::sync::Arc;
 
 use gpui::{
-    div, App, Context, CursorStyle, Div, ElementId,
-    Entity, FocusHandle, Hsla, InteractiveElement, IntoElement,
+    div, App, CursorStyle, Div, ElementId,
+    Hsla, InteractiveElement, IntoElement,
     MouseButton, ParentElement, RenderOnce, SharedString, StatefulInteractiveElement,
     Styled, prelude::FluentBuilder,
 };
