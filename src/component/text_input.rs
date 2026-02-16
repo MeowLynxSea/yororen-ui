@@ -690,6 +690,8 @@ pub struct TextInput {
     on_change: Option<ChangeCallback<SharedString>>,
 
     on_submit: Option<ChangeCallback<SharedString>>,
+
+    on_focus: Option<ChangeCallback<SharedString>>,
 }
 
 impl TextInput {
@@ -709,6 +711,7 @@ impl TextInput {
             max_length: None,
             on_change: None,
             on_submit: None,
+            on_focus: None,
         }
     }
 
@@ -750,6 +753,14 @@ impl TextInput {
         F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
     {
         self.on_submit = Some(Arc::new(handler));
+        self
+    }
+
+    pub fn on_focus<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(SharedString, &mut gpui::Window, &mut App),
+    {
+        self.on_focus = Some(Arc::new(handler));
         self
     }
 
@@ -834,9 +845,16 @@ impl RenderOnce for TextInput {
             |_, _cx| None::<SharedString>,
         );
 
+        // Only sync content when it's explicitly provided and different from current state.
+        // Compare by value content, not by reference, to avoid unnecessary updates.
         if let Some(prop_content) = content.clone() {
-            let should_sync = last_prop_content.read(cx).as_ref() != Some(&prop_content);
-            if should_sync {
+            let current_stored = last_prop_content.read(cx).clone();
+            let needs_sync = match current_stored.as_ref() {
+                Some(stored) => stored != &prop_content,
+                None => true,
+            };
+
+            if needs_sync {
                 last_prop_content.update(cx, |state, _cx| {
                     *state = Some(prop_content.clone());
                 });

@@ -7,7 +7,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{compute_input_style, ArrowDirection, IconName, TextInputState, icon, text_input},
+    component::{compute_input_style, ArrowDirection, IconName, icon, text_input},
     constants::animation,
     i18n::{defaults::DefaultPlaceholders, I18nContext},
     theme::ActiveTheme,
@@ -293,9 +293,20 @@ impl RenderOnce for ComboBox {
         let menu_open = window.use_keyed_state((id.clone(), format!("{}:open", id)), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
-        let query_id = format!("{}:query", id);
-        let query_state =
-            window.use_keyed_state(query_id.clone(), cx, |_, cx| TextInputState::new(cx));
+        // Track if we should set content on the text input
+        // Only set content when menu just opened, not on every render
+        let needs_content_init = window.use_keyed_state(
+            (id.clone(), format!("{}:needs-content-init", id)),
+            cx,
+            |_, _| true,
+        );
+
+        // Store search text for filtering (synced on menu open, not on every keystroke)
+        let search_text = window.use_keyed_state(
+            (id.clone(), format!("{}:search-text", id)),
+            cx,
+            |_, _| SharedString::new_static(""),
+        );
 
         let use_internal_value = on_change.is_none() && on_change_simple.is_none() && self.value.is_none();
         let internal_value = use_internal_value.then(|| {
@@ -390,10 +401,18 @@ impl RenderOnce for ComboBox {
                 let on_change = on_change_for_select.clone();
                 let on_change_simple = on_change_simple_for_select.clone();
                 let internal_value = internal_value_for_select.clone();
-                let query_state = query_state.clone();
+                let search_text = search_text.clone();
+                let needs_content_init = needs_content_init.clone();
                 let max_results = max_results;
 
-                let query = query_state.read(cx).content().to_string();
+                // Check if we need to initialize content
+                let should_init_content = *needs_content_init.read(cx);
+                if should_init_content {
+                    needs_content_init.update(cx, |v, _| *v = false);
+                }
+
+                // Read search text for filtering
+                let query = search_text.read(cx).clone();
                 let query_lower = query.to_lowercase();
 
                 let filtered = options
@@ -423,8 +442,12 @@ impl RenderOnce for ComboBox {
                     .when_some(menu_width, |this, width| this.w(width))
                     .when(menu_width.is_none(), |this| this.w(px(420.)))
                     .occlude()
-                    .on_mouse_down_out(move |_ev, _window, cx| {
-                        menu_open_for_outside.update(cx, |open, _cx| *open = false);
+                    .on_mouse_down_out({
+                        let needs_content_init = needs_content_init.clone();
+                        move |_ev, _window, cx| {
+                            menu_open_for_outside.update(cx, |open, _cx| *open = false);
+                            needs_content_init.update(cx, |v, _| *v = true);
+                        }
                     })
                     .child(
                         div().px_2().pb_2().child(
@@ -434,18 +457,13 @@ impl RenderOnce for ComboBox {
                                 .border(theme.border.default)
                                 .focus_border(theme.border.focus)
                                 .text_color(theme.content.primary)
-                                .content(query.clone())
+                                .when(should_init_content, |this| this.content(query.clone()))
                                 .on_change({
-                                    let query_state = query_state.clone();
-                                    let menu_open = menu_open_for_select.clone();
-                                    move |value, window, cx| {
-                                        query_state.update(cx, |state, _| {
-                                            state.set_content(value);
+                                    let search_text = search_text.clone();
+                                    move |value, _window, cx| {
+                                        search_text.update(cx, |text, _| {
+                                            *text = value;
                                         });
-
-                                        // Ensure menu stays visible while typing even if focus moves.
-                                        menu_open.update(cx, |open, _| *open = true);
-                                        window.refresh();
                                     }
                                 }),
                         ),
