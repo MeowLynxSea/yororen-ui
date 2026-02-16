@@ -3,13 +3,13 @@ use std::sync::Arc;
 use gpui::{
     AppContext, Bounds, Div, Element, ElementId, Empty, GlobalElementId, Hsla, InspectorElementId,
     InteractiveElement, IntoElement, LayoutId, MouseButton, MouseDownEvent, ParentElement,
-    RenderOnce, StatefulInteractiveElement, Styled, px,
+    relative, RenderOnce, StatefulInteractiveElement, Styled, px,
 };
 
 use gpui::prelude::FluentBuilder;
 
 use crate::{
-    component::{create_internal_state, resolve_state_value, use_internal_state},
+    component::create_internal_state,
     theme::ActiveTheme,
 };
 
@@ -108,6 +108,7 @@ pub struct Slider {
     max: f32,
     step: Option<f32>,
     value: Option<f32>,
+    default_value: Option<f32>,
 
     disabled: bool,
 
@@ -136,6 +137,7 @@ impl Slider {
             max: 1.0,
             step: None,
             value: None,
+            default_value: None,
 
             disabled: false,
 
@@ -176,6 +178,11 @@ impl Slider {
 
     pub fn value(mut self, value: f32) -> Self {
         self.value = Some(value);
+        self
+    }
+
+    pub fn default_value(mut self, default_value: f32) -> Self {
+        self.default_value = Some(default_value);
         self
     }
 
@@ -266,18 +273,30 @@ impl RenderOnce for Slider {
         let step = self.step;
 
         let on_change = self.on_change;
-        let use_internal = use_internal_state(self.value.is_some(), on_change.is_some());
-        let initial_value = self.value.unwrap_or(min);
+        let external_value = self.value;
+        let default_value = self.default_value;
+
+        // Determine if this is controlled mode (external value provided)
+        let is_controlled = external_value.is_some();
+
+        // Determine initial value for internal state
+        // Use default_value if provided, otherwise use min
+        let initial_value = default_value.unwrap_or(min);
+
+        // Create internal state for drag/click interactions
+        // In controlled mode, we still create it but don't update it
         let internal_value = create_internal_state(
             window,
             cx,
             &id,
             "ui:slider:value".to_string(),
             initial_value,
-            use_internal,
-        );
+            true,
+        )
+        .expect("internal_value should always be created");
 
-        let mut value = resolve_state_value(self.value.as_ref(), &internal_value, cx);
+        // Use external value if provided (controlled), otherwise use internal value (uncontrolled)
+        let mut value = external_value.unwrap_or(*internal_value.read(cx));
 
         value = clamp(value, min.min(max), max.max(min));
         let t = if (max - min).abs() <= f32::EPSILON {
@@ -315,7 +334,9 @@ impl RenderOnce for Slider {
                 }
                 new_value = clamp(new_value, min.min(max), max.max(min));
 
-                if let Some(internal_value) = &internal_value {
+                // Only update internal state in uncontrolled mode
+                // In controlled mode, external value controls the display
+                if !is_controlled {
                     internal_value.update(cx, |state, cx| {
                         *state = new_value;
                         cx.notify();
@@ -431,12 +452,12 @@ impl RenderOnce for Slider {
                     gpui::div()
                         .absolute()
                         .top(px(-(knob_diameter - track_height) / 2.0))
-                        .left_0()
+                        // Use left with percentage to position knob correctly
+                        // This ensures knob is visible even when t=0
+                        .when(t > 0.0, |this| this.left(relative(t)))
+                        .when(t <= 0.0, |this| this.left_0())
                         .h(px(knob_diameter))
-                        .w(gpui::relative(t))
-                        .flex()
-                        .items_center()
-                        .justify_end()
+                        .w(px(knob_diameter))
                         .child(
                             gpui::div()
                                 .w(px(knob_diameter))
