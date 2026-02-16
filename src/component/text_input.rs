@@ -2,6 +2,7 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use super::TextEditState;
+use super::input::action_handler;
 use crate::component::{compute_input_style, ChangeCallback};
 use crate::theme::ActiveTheme;
 use gpui::{
@@ -60,21 +61,6 @@ pub(crate) fn init(cx: &mut App) {
             Some("UITextInput"),
         ),
     ]);
-}
-
-/// Macro to generate action handlers with disabled check.
-/// Reduces boilerplate for repeated on_action patterns.
-macro_rules! action_handler {
-    ($state:expr, $disabled:expr, $action:ty, $method:ident) => {{
-        let state = $state.clone();
-        let disabled = $disabled;
-        move |action: &$action, window, cx| {
-            if disabled {
-                return;
-            }
-            state.update(cx, |state, cx| state.$method(action, window, cx))
-        }
-    }};
 }
 
 pub struct TextInputState {

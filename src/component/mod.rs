@@ -19,6 +19,7 @@ mod heading;
 mod icon;
 mod icon_button;
 mod image;
+mod input;
 mod keybinding_display;
 mod keybinding_input;
 mod label;
