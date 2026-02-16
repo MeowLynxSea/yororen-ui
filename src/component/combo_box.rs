@@ -434,6 +434,7 @@ impl RenderOnce for ComboBox {
                                 .border(theme.border.default)
                                 .focus_border(theme.border.focus)
                                 .text_color(theme.content.primary)
+                                .content(query.clone())
                                 .on_change({
                                     let query_state = query_state.clone();
                                     let menu_open = menu_open_for_select.clone();
