@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
 use gpui::{
-    ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
-    StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
+    Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
+    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, ease_in_out, px,
+    prelude::FluentBuilder,
 };
 
 use crate::{
+    animation,
     component::{
         compute_toggle_style, create_internal_state,
         resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
@@ -158,7 +160,24 @@ impl RenderOnce for Radio {
             base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
-        base = base.when(checked, |this| this.border_color(toggle_style.border).text_color(toggle_style.fg));
+        // Add animated inner dot for checked state
+        let inner_dot = div()
+            .w(px(8.))
+            .h(px(8.))
+            .rounded_full()
+            .bg(toggle_style.fg);
+
+        let animated_dot = inner_dot.with_animation(
+            format!("ui:radio:dot:{}", checked),
+            Animation::new(animation::duration::FAST).with_easing(ease_in_out),
+            move |this, value| this.opacity(if checked { value } else { 1.0 - value }),
+        );
+
+        base = base.when(checked, |this| {
+            this.border_color(toggle_style.border)
+                .text_color(toggle_style.fg)
+                .child(animated_dot)
+        });
 
         base.on_click(move |ev, window, cx| {
             if disabled {

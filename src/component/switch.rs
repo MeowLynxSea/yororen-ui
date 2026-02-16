@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
 use gpui::{
-    ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
-    StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
+    Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
+    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, ease_in_out, px,
 };
 
 use crate::{
+    animation,
     component::{
         compute_toggle_style, create_internal_state,
         resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
@@ -156,10 +157,8 @@ impl RenderOnce for Switch {
             .border_color(toggle_style.border)
             .bg(toggle_style.bg)
             .p(px(2.))
-            .flex()
-            .items_center()
-            .when(checked, |this| this.justify_end())
-            .when(!checked, |this| this.justify_start())
+            .relative() // Enable relative positioning for knob animation
+            .h(px(18.)) // Ensure consistent height
             .focusable()
             .focus_visible(|style| style.border_2().border_color(theme.border.focus));
 
@@ -169,7 +168,29 @@ impl RenderOnce for Switch {
             base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
-        base.child(div().w(px(14.)).h(px(14.)).rounded_full().bg(knob_bg))
+        // Create animated knob with position transition
+        // Initial position: left at 2px (padding), vertically centered
+        let knob = div()
+            .w(px(14.))
+            .h(px(14.))
+            .rounded_full()
+            .bg(knob_bg)
+            .absolute()
+            .top(px(2.)) // Vertically centered (18 - 14) / 2 = 2px
+            .left(px(2.)); // Initial position at left
+
+        let animated_knob = knob.with_animation(
+            format!("ui:switch:knob:{}", checked),
+            Animation::new(animation::duration::FAST).with_easing(ease_in_out),
+            move |this, value| {
+                // Interpolate between left (2px) and right (18px - 14px - 2px = 2px offset)
+                // Total travel distance: 34 - 2 - 14 - 2 = 16px
+                let position = if checked { value } else { 1.0 - value };
+                this.left(px(2. + position * 16.0))
+            },
+        );
+
+        base.child(animated_knob)
             .on_click(move |ev, window, cx| {
                 if disabled {
                     return;

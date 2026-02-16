@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
 use gpui::{
-    ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce,
-    StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
+    Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
+    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, ease_in_out, px,
+    prelude::FluentBuilder,
 };
 
 use crate::{
+    animation,
     component::{
         compute_toggle_style, create_internal_state, icon,
         resolve_state_value_simple, use_internal_state_simple, IconName, ToggleCallback,
@@ -158,9 +160,15 @@ impl RenderOnce for Checkbox {
             base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
-        base = base.when(checked, |this| {
-            this.child(icon(IconName::Check).size(px(12.)).color(toggle_style.fg))
-        });
+        // Animate check icon with opacity effect (wrap in div for animation support)
+        let check_wrapper = div().child(icon(IconName::Check).size(px(12.)).color(toggle_style.fg));
+        let animated_check = check_wrapper.with_animation(
+            format!("ui:checkbox:check:{}", checked),
+            Animation::new(animation::duration::FAST).with_easing(ease_in_out),
+            move |this, value| this.opacity(if checked { value } else { 1.0 - value * 0.3 }),
+        );
+
+        base = base.when(checked, |this| this.child(animated_check));
 
         base.on_click(move |ev, window, cx| {
             if disabled {
