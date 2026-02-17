@@ -41,6 +41,8 @@ pub enum IconName {
     PingIndicator(usize),
     Server,
     User,
+    Pencil,
+    Trash,
 }
 
 impl From<IconName> for SharedString {
@@ -62,6 +64,8 @@ impl From<IconName> for SharedString {
             IconName::PingIndicator(i) => format!("ping-indicator-{i}").into(),
             IconName::Server => "server".into(),
             IconName::User => "user".into(),
+            IconName::Pencil => "pencil".into(),
+            IconName::Trash => "trash".into(),
         };
         format!("icons/{name}.svg").into()
     }

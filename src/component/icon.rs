@@ -93,3 +93,9 @@ impl RenderOnce for Icon {
         }
     }
 }
+
+impl From<IconName> for Icon {
+    fn from(value: IconName) -> Self {
+        Icon::new(value)
+    }
+}
