@@ -174,20 +174,37 @@ impl RenderOnce for SearchInput {
 
         let input_state =
             window.use_keyed_state(input_id.clone(), cx, |_, cx| TextInputState::new(cx));
+
+        let on_change_for_input = {
+            let input_state = input_state.clone();
+            let on_change = on_change.clone();
+            move |value: SharedString, window: &mut gpui::Window, cx: &mut App| {
+                // Sync to our input_state
+                input_state.update(cx, |state, cx| {
+                    state.set_content(value.clone());
+                    cx.notify();
+                });
+                // Call external handler
+                if let Some(handler) = &on_change {
+                    handler(value, window, cx);
+                }
+            }
+        };
+
         let clear_visible = !input_state.read(cx).content().is_empty();
 
-        let on_change_for_input = on_change.clone();
         let on_change_for_clear = on_change;
 
         let on_submit_for_input = on_submit.clone();
 
-        self.base
+        let mut base = self
+            .base
             .id(id.clone())
             .flex()
             .items_center()
-            .gap_2()
+            .gap_1()
             .h(height)
-            .px_3()
+            .px_2()
             .bg(bg.unwrap_or(theme.surface.base))
             .border_1()
             .border_color(border.unwrap_or(theme.border.default))
@@ -198,23 +215,17 @@ impl RenderOnce for SearchInput {
             .when(disabled, |this| this.opacity(0.6).cursor_not_allowed())
             .child(icon(IconName::Search).size(px(14.)).color(hint))
             .child(
-                div().flex_1().child(
+                div().flex_1().h(height).child(
                     text_input(input_id)
                         .placeholder(placeholder)
                         .disabled(disabled)
                         .height(height)
+                        .px_1()
                         .bg(theme.surface.base.alpha(0.0))
                         .border(theme.border.default.alpha(0.0))
                         .focus_border(theme.border.default.alpha(0.0))
                         .text_color(text_color.unwrap_or(theme.content.primary))
-                        .on_change({
-                            let on_change = on_change_for_input;
-                            move |value, window, cx| {
-                                if let Some(handler) = &on_change {
-                                    handler(value, window, cx);
-                                }
-                            }
-                        })
+                        .on_change(on_change_for_input)
                         .on_submit({
                             let on_submit = on_submit_for_input;
                             move |value, window, cx| {
@@ -224,37 +235,44 @@ impl RenderOnce for SearchInput {
                             }
                         }),
                 ),
-            )
-            .child(
+            );
+
+        // Conditionally add clear button
+        if clear_visible && !disabled {
+            base = base.child(
                 div()
-                    .w(px(36.))
-                    .h(px(36.))
+                    .w(px(24.))
+                    .h(px(24.))
                     .flex()
                     .items_center()
                     .justify_center()
-                    .when(clear_visible && !disabled, |this| {
-                        this.child(
-                            icon_button(clear_id)
-                                .icon(icon(IconName::Close))
-                                .icon_size(px(12.))
-                                .bg(action_variant.bg.alpha(0.0))
-                                .hover_bg(action_variant.hover_bg)
-                                .on_click({
-                                    let input_state = input_state.clone();
-                                    let on_change = on_change_for_clear;
-                                    move |_ev, window, cx| {
-                                        input_state.update(cx, |state, cx| {
-                                            state.set_content(SharedString::new_static(""));
-                                            cx.notify();
-                                        });
+                    .child(
+                        icon_button(clear_id)
+                            .icon(icon(IconName::Close))
+                            .icon_size(px(14.))
+                            .w(px(24.))
+                            .h(px(24.))
+                            .rounded_md()
+                            .bg(action_variant.bg.alpha(0.0))
+                            .hover_bg(action_variant.hover_bg)
+                            .on_click({
+                                let input_state = input_state.clone();
+                                let on_change = on_change_for_clear;
+                                move |_ev, window, cx| {
+                                    input_state.update(cx, |state, cx| {
+                                        state.set_content(SharedString::new_static(""));
+                                        cx.notify();
+                                    });
 
-                                        if let Some(handler) = &on_change {
-                                            handler(SharedString::new_static(""), window, cx);
-                                        }
+                                    if let Some(handler) = &on_change {
+                                        handler(SharedString::new_static(""), window, cx);
                                     }
-                                }),
-                        )
-                    }),
-            )
+                                }
+                            }),
+                    ),
+            );
+        }
+
+        base
     }
 }
