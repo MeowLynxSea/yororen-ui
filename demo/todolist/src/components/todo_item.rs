@@ -1,3 +1,23 @@
+//! yororen-ui List Item Pattern
+//!
+//! This component demonstrates two common patterns for rendering list items in yororen-ui.
+//!
+//! ## Pattern 1: Compact Layout (div-based)
+//! Uses basic div with flexbox for simple horizontal layouts.
+//! Good for: Toolbars, simple lists, compact views.
+//!
+//! ## Pattern 2: List Item Layout (list_item-based)
+//! Uses the `list_item` component with leading/content/trailing sections.
+//! Good for: Complex lists with multiple data points, proper accessibility.
+//!
+//! ## Key Components Used
+//!
+//! - `checkbox` - Toggle state (completed/pending)
+//! - `icon_button` - Icon-only buttons for actions
+//! - `tag` - Category/labels
+//! - `list_item` - Structured list item with sections
+//! - `label` - Text display
+
 use gpui::prelude::FluentBuilder;
 use gpui::{AnyElement, IntoElement, ParentElement, Styled, div, px};
 use yororen_ui::component::{
@@ -7,9 +27,11 @@ use yororen_ui::component::{
 use crate::state::TodoState;
 use crate::todo::Todo;
 
+/// Demonstrates two list item rendering patterns
 pub struct TodoItem;
 
 impl TodoItem {
+    /// Renders a todo item - demonstrates conditional rendering pattern
     pub fn render(todo: &Todo, compact_mode: bool) -> AnyElement {
         if compact_mode {
             Self::render_compact(todo).into_any_element()
@@ -18,6 +40,7 @@ impl TodoItem {
         }
     }
 
+    /// Pattern 1: Compact div-based layout
     fn render_compact(todo: &Todo) -> impl IntoElement {
         let todo_id = todo.id;
         let title = todo.title.clone();
@@ -30,7 +53,9 @@ impl TodoItem {
             .gap(px(12.))
             .p(px(8.))
             .rounded(px(4.))
+            // Conditional styling with .when()
             .when(completed, |this| this.opacity(0.6))
+            // Checkbox with on_toggle handler
             .child(
                 checkbox(format!("todo-{}", todo_id))
                     .checked(completed)
@@ -43,6 +68,7 @@ impl TodoItem {
             )
             .child(label(&title))
             .child(tag(&category_label).selected(true))
+            // Icon buttons for actions
             .child(
                 div()
                     .flex()
@@ -82,12 +108,17 @@ impl TodoItem {
             )
     }
 
+    /// Pattern 2: Full list_item with leading/content/trailing
     fn render_normal(todo: &Todo) -> impl IntoElement {
         let todo_id = todo.id;
         let title = todo.title.clone();
         let category_label = todo.category.label().to_string();
         let completed = todo.completed;
 
+        // list_item provides structured layout
+        // - leading: actions on the left (checkbox)
+        // - content: main content (title, category)
+        // - trailing: actions on the right (edit, delete)
         list_item()
             .id(format!("todo-item-{}", todo_id))
             .leading(
