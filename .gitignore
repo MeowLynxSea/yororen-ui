@@ -2,3 +2,6 @@
 **/*.DS_Store
 
 Cargo.lock
+
+# Demo targets
+demo/*/target

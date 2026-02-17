@@ -684,6 +684,7 @@ pub struct TextInput {
     height: Option<gpui::AbsoluteLength>,
 
     content: Option<SharedString>,
+    set_content_once: Option<SharedString>,
 
     max_length: Option<usize>,
 
@@ -708,6 +709,7 @@ impl TextInput {
             text_color: None,
             height: None,
             content: None,
+            set_content_once: None,
             max_length: None,
             on_change: None,
             on_submit: None,
@@ -737,6 +739,17 @@ impl TextInput {
 
     pub fn content(mut self, content: impl Into<SharedString>) -> Self {
         self.content = Some(content.into());
+        self
+    }
+
+    /// Set content once programmatically (e.g., clear button, initial value, loading saved data).
+    /// Unlike `.content()`, this only applies once and doesn't create a sync loop.
+    /// Use this when you need to:
+    /// - Clear the input programmatically
+    /// - Set initial value on first render
+    /// - Load saved data into the input
+    pub fn set_content(mut self, content: impl Into<SharedString>) -> Self {
+        self.set_content_once = Some(content.into());
         self
     }
 
@@ -839,6 +852,15 @@ impl RenderOnce for TextInput {
         });
 
         let content = self.content;
+        let set_content_once = self.set_content_once;
+
+        // Handle set_content_once: apply once and consume it
+        if let Some(new_content) = set_content_once {
+            state.update(cx, |state, _cx| {
+                state.set_content(new_content);
+            });
+        }
+
         let last_prop_content = window.use_keyed_state(
             (id.clone(), format!("{}:last-prop-content", id)),
             cx,
