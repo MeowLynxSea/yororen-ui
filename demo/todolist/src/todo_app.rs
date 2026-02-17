@@ -48,20 +48,28 @@ impl Render for TodoApp {
             .collect();
 
         div()
-            .bg(theme.surface.base)
-            .p(px(24.))
-            .flex_col()
-            .gap(px(16.))
-            .child(components::todo_header::TodoHeader::render(compact_mode))
-            .child(components::todo_toolbar::TodoToolbar::render(&search_query, &selected_category))
-            .child(components::todo_form::TodoForm::render(new_todo_category))
+            .size_full()
             .child(
                 div()
+                    .size_full()
+                    .bg(theme.surface.base)
+                    .p(px(24.))
+                    .flex()
                     .flex_col()
-                    .gap(px(8.))
-                    .children(filtered_todos.into_iter().map(|todo| {
-                        components::todo_item::TodoItem::render(&todo, compact_mode)
-                    })),
+                    .gap(px(16.))
+                    .child(components::todo_header::TodoHeader::render(compact_mode))
+                    .child(components::todo_toolbar::TodoToolbar::render(&search_query, &selected_category))
+                    .child(components::todo_form::TodoForm::render(new_todo_category))
+                    .child(
+                        div()
+                            .flex_col()
+                            .gap(px(12.))
+                            .flex_grow()
+                            .min_h_0()
+                            .children(filtered_todos.into_iter().map(|todo| {
+                                components::todo_item::TodoItem::render(&todo, compact_mode)
+                            })),
+                    ),
             )
             .when_some(editing_todo, |this, _| {
                 this.child(components::todo_modal::TodoModal::render(edit_title, edit_category))
