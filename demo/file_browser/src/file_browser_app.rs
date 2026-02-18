@@ -388,6 +388,11 @@ impl Render for FileBrowserApp {
                     .flex_col()
                     .flex_grow()
                     .min_h_0()
+                    .rounded_lg()
+                    .bg(theme.surface.raised)
+                    .border_1()
+                    .border_color(theme.border.divider)
+                    .p_2()
                     .on_open(move |_ev, _window, cx| {
                         let state = cx.global::<FileBrowserState>();
                         // Fallback behavior: if we didn't right-click a specific row,
@@ -400,17 +405,7 @@ impl Render for FileBrowserApp {
                             cx.notify(id);
                         }
                     })
-                    .child(
-                        div()
-                            .w_full()
-                            .h_full()
-                            .flex_grow()
-                            .min_h_0()
-                            .rounded_lg()
-                            .border_1()
-                            .border_color(theme.border.divider)
-                            .child(tree_view),
-                    )
+                    .child(tree_view)
                     .child(context_menu),
             )
     }

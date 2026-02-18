@@ -465,6 +465,8 @@ impl Tree {
         // Preserve styling set on the `Tree` itself (e.g. `.height(px(...))`).
         // This wrapper provides the bounded height needed for the virtualized
         // list to establish a scroll viewport.
+        // Note: rounded and padding styles set via Styled are NOT preserved in virtualized mode.
+        // If you need these styles in virtualized mode, wrap the tree in a parent div instead.
         base.flex().flex_col().w_full().h_full().min_h_0().flex_grow().child(list)
     }
 
