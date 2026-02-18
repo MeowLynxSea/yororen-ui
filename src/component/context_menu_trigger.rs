@@ -127,7 +127,11 @@ impl RenderOnce for ContextMenuTrigger {
             resolved_bg = action_variant.disabled_bg;
         }
 
-        self.base.id(self.element_id.clone())
+        // Only handle right-click; allow other mouse interactions (including
+        // scroll wheel) to pass through to children.
+        self.base
+            .block_mouse_except_scroll()
+            .id(self.element_id.clone())
             .when(enabled, |this| this.cursor_context_menu())
             .on_mouse_down(MouseButton::Right, move |ev, window, cx| {
                 if !enabled {

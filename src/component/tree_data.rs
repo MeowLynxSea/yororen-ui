@@ -242,6 +242,11 @@ impl TreeState {
     pub fn checked_ids(&self) -> impl Iterator<Item = (&ElementId, &TreeCheckedState)> {
         self.checked_nodes.iter()
     }
+
+    /// Get all expanded node IDs.
+    pub fn expanded_nodes(&self) -> impl Iterator<Item = (&ElementId, &bool)> {
+        self.expanded_nodes.iter()
+    }
 }
 
 /// Event emitted by tree interactions.

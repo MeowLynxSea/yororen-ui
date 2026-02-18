@@ -194,7 +194,6 @@ impl RenderOnce for TreeItem {
         let hover_bg = self.hover_bg.unwrap_or(theme.surface.hover);
         let selected_bg = self.selected_bg.unwrap_or(theme.action.neutral.active_bg);
 
-        let indent_width = indent * depth as f32;
         let is_checked = checked == TreeCheckedState::Checked;
 
         let disclosure_id: ElementId = (element_id.clone(), "ui:tree-item:disclosure").into();
@@ -204,7 +203,8 @@ impl RenderOnce for TreeItem {
             .id(element_id.to_string())
             .w_full()
             .min_h(px(32.))
-            .px_3()
+            .pl(indent * depth as f32)
+            .pr_3()
             .py_1()
             .rounded_md()
             .flex()
@@ -213,16 +213,9 @@ impl RenderOnce for TreeItem {
             .when(selected, |this| this.bg(selected_bg))
             .when(!selected, |this| this.hover(|s| s.bg(hover_bg)))
             .when(disabled, |this| this.opacity(0.5))
-            .child(
-                div()
-                    .w(indent_width)
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .when(has_children, |this| {
-                        this.child(disclosure(disclosure_id).expanded(expanded))
-                    }),
-            )
+            .when(has_children, |this| {
+                this.child(disclosure(disclosure_id).expanded(expanded))
+            })
             .when(show_checkbox, |this| {
                 this.child(checkbox(checkbox_id).checked(is_checked))
             })
