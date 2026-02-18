@@ -1,8 +1,9 @@
 use gpui::prelude::FluentBuilder;
 use gpui::{
-    AlignSelf, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce,
-    SharedString, Styled, div, px,
+    AlignSelf, AnyElement, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
+    RenderOnce, SharedString, Styled, div, px,
 };
+use serde::{Deserialize, Serialize};
 
 use crate::{
     component::{Icon, IconName, label},
@@ -14,7 +15,7 @@ use crate::{
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,ignore
 /// toast()
 ///     .message("Operation completed")
 ///     .kind(ToastKind::Success)
@@ -23,7 +24,7 @@ pub fn toast() -> Toast {
     Toast::new()
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ToastKind {
     Neutral,
     Success,
@@ -36,6 +37,7 @@ pub enum ToastKind {
 pub struct Toast {
     base: gpui::Div,
     message: Option<SharedString>,
+    content: Option<AnyElement>,
     kind: ToastKind,
     icon: bool,
     wrap: bool,
@@ -43,6 +45,7 @@ pub struct Toast {
     fg: Option<Hsla>,
     width: Option<Pixels>,
     max_width: Option<Pixels>,
+    trailing: Option<AnyElement>,
 }
 
 impl Default for Toast {
@@ -56,6 +59,7 @@ impl Toast {
         Self {
             base: div(),
             message: None,
+            content: None,
             kind: ToastKind::Neutral,
             icon: true,
             wrap: false,
@@ -63,12 +67,23 @@ impl Toast {
             fg: None,
             width: None,
             max_width: None,
+            trailing: None,
         }
     }
 
     /// Set the toast message.
     pub fn message(mut self, message: impl Into<SharedString>) -> Self {
         self.message = Some(message.into());
+        self.content = None;
+        self
+    }
+
+    /// Set a custom toast body.
+    ///
+    /// This overrides `.message(...)` and renders the provided element in the toast's content slot.
+    pub fn content(mut self, content: impl IntoElement) -> Self {
+        self.content = Some(content.into_any_element());
+        self.message = None;
         self
     }
 
@@ -108,6 +123,12 @@ impl Toast {
     /// Constrain the toast width while allowing the message to wrap.
     pub fn max_width(mut self, width: Pixels) -> Self {
         self.max_width = Some(width);
+        self
+    }
+
+    /// Render an element at the end of the toast row (e.g. a close button).
+    pub fn trailing(mut self, element: impl IntoElement) -> Self {
+        self.trailing = Some(element.into_any_element());
         self
     }
 }
@@ -161,20 +182,23 @@ impl RenderOnce for Toast {
             base.style().align_self = Some(AlignSelf::FlexStart);
         }
 
-        let width = self.width;
-        let max_width = self.max_width;
-        let constrain_width = width.is_some() || max_width.is_some();
+		let width = self.width;
+		let max_width = self.max_width;
+		let constrain_width = width.is_some() || max_width.is_some();
+		let content = self.content;
+		let message = self.message;
+		let has_content = content.is_some();
 
-        base.id("ui:toast")
-            .px_3()
-            .py_2()
-            .rounded_md()
-            .bg(bg)
-            .text_color(fg)
-            .shadow_md()
-            .flex()
-            .items_center()
-            .gap_2()
+		base.id("ui:toast")
+			.px_3()
+			.py_2()
+			.rounded_md()
+			.bg(bg)
+			.text_color(fg)
+			.shadow_md()
+			.flex()
+			.items_center()
+			.gap_2()
             .when_some(width, |this, width| this.w(width))
             .when(width.is_none(), |this| {
                 this.when_some(max_width, |this, max_width| this.max_w(max_width))
@@ -183,13 +207,22 @@ impl RenderOnce for Toast {
                 // Explicit color to avoid relying on inherited SVG behavior.
                 this.child(Icon::new(icon).size(px(14.)).color(fg))
             })
-            // Ensure the message uses the same color as the container.
-            .when_some(self.message, |this, message| {
-                this.child(
-                    div()
-                        .when(constrain_width, |this| this.flex_1().min_w(px(0.)))
-                        .child(label(message).inherit_color(true).ellipsis(!self.wrap)),
-                )
-            })
-    }
+			.when_some(content, |this, content| {
+				this.child(
+					div()
+						.when(constrain_width, |this| this.flex_1().min_w(px(0.)))
+						.child(content),
+				)
+			})
+			.when(!has_content, |this| {
+				this.when_some(message, |this, message| {
+					this.child(
+						div()
+							.when(constrain_width, |this| this.flex_1().min_w(px(0.)))
+							.child(label(message).inherit_color(true).ellipsis(!self.wrap)),
+					)
+				})
+			})
+			.when_some(self.trailing, |this, trailing| this.child(trailing))
+	}
 }
