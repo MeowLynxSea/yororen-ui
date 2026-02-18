@@ -32,6 +32,18 @@ impl fmt::Display for TextDirection {
     }
 }
 
+/// Error type for locale parsing failures.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LocaleParseError;
+
+impl fmt::Display for LocaleParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Failed to parse locale from tag")
+    }
+}
+
+impl std::error::Error for LocaleParseError {}
+
 /// Simple locale identifier that supports language and region tags.
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Locale {
@@ -45,10 +57,10 @@ pub struct Locale {
 
 impl Locale {
     /// Create a new locale from a language tag string (e.g., "en", "zh-CN", "ar-SA").
-    pub fn new(tag: &str) -> Result<Self, ()> {
+    pub fn new(tag: &str) -> Result<Self, LocaleParseError> {
         let parts: Vec<&str> = tag.split('-').collect();
 
-        let language = parts.get(0).map(|s| s.to_string()).ok_or(())?;
+        let language = parts.first().map(|s| s.to_string()).ok_or(LocaleParseError)?;
         let region = parts.get(1).map(|s| s.to_string());
         let variant = parts.get(2).map(|s| s.to_string());
 
@@ -115,7 +127,7 @@ impl fmt::Display for Locale {
 }
 
 impl FromStr for Locale {
-    type Err = ();
+    type Err = LocaleParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::new(s)
@@ -187,21 +199,13 @@ impl SupportedLocale {
     /// Try to match a locale string to a supported locale.
     pub fn match_locale(tag: &str) -> Option<SupportedLocale> {
         // Try exact match first
-        for &locale in Self::all() {
-            if locale.to_locale().to_tag() == tag {
-                return Some(locale);
-            }
+        if let Some(&locale) = Self::all().iter().find(|&&l| l.to_locale().to_tag() == tag) {
+            return Some(locale);
         }
 
         // Try language-only match
         let lang = tag.split('-').next()?;
-        for &locale in Self::all() {
-            if locale.to_locale().language() == lang {
-                return Some(locale);
-            }
-        }
-
-        None
+        Self::all().iter().find(|&&locale| locale.to_locale().language() == lang).copied()
     }
 }
 

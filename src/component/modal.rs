@@ -9,6 +9,9 @@ use crate::{
     theme::{ActionVariantKind, ActiveTheme},
 };
 
+/// Callback type for modal close handler.
+type ModalCloseCallback = Box<dyn Fn(&mut gpui::Window, &mut gpui::App)>;
+
 /// Modal content shell (dialog panel).
 ///
 /// This component only renders the *panel* (title/content/actions slots) and is
@@ -43,7 +46,7 @@ pub struct Modal {
     bg: Option<Hsla>,
     border: Option<Hsla>,
     closable: bool,
-    on_close: Option<Box<dyn Fn(&mut gpui::Window, &mut gpui::App)>>,
+    on_close: Option<ModalCloseCallback>,
     /// Accessibility: ID of the element that describes this modal.
     /// This is typically used to associate additional descriptive content.
     described_by: Option<SharedString>,

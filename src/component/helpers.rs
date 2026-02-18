@@ -49,21 +49,21 @@ pub fn compute_input_style(
     let bg = if disabled {
         theme.surface.sunken
     } else {
-        bg_color.unwrap_or_else(|| theme.surface.base)
+        bg_color.unwrap_or(theme.surface.base)
     };
 
     let border = if disabled {
         theme.border.muted
     } else {
-        border_color.unwrap_or_else(|| theme.border.default)
+        border_color.unwrap_or(theme.border.default)
     };
 
-    let focus_border = focus_border_color.unwrap_or_else(|| theme.border.focus);
+    let focus_border = focus_border_color.unwrap_or(theme.border.focus);
 
     let text_color = if disabled {
         theme.content.disabled
     } else {
-        text_color.unwrap_or_else(|| theme.content.primary)
+        text_color.unwrap_or(theme.content.primary)
     };
 
     InputStyle {
@@ -227,10 +227,8 @@ pub fn resolve_state_value_simple<T: Clone + 'static>(
     cx: &App,
     use_internal: bool,
 ) -> T {
-    if use_internal {
-        if let Some(internal) = internal {
-            return internal.read(cx).clone();
-        }
+    if use_internal && let Some(internal) = internal {
+        return internal.read(cx).clone();
     }
     external
 }

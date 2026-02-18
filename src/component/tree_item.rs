@@ -19,6 +19,9 @@ pub fn tree_item(id: impl Into<ElementId>) -> TreeItem {
     TreeItem::new().id(id)
 }
 
+/// Callback type for tree item context menu handler.
+type TreeItemContextMenuCallback = Box<dyn Fn(&MouseDownEvent, &mut gpui::Window, &mut gpui::App)>;
+
 /// A row in a tree view, representing a single node.
 #[derive(IntoElement)]
 pub struct TreeItem {
@@ -38,7 +41,7 @@ pub struct TreeItem {
     indent: Pixels,
     hover_bg: Option<Hsla>,
     selected_bg: Option<Hsla>,
-    on_context_menu: Option<Box<dyn Fn(&MouseDownEvent, &mut gpui::Window, &mut gpui::App)>>,
+    on_context_menu: Option<TreeItemContextMenuCallback>,
 }
 
 impl Default for TreeItem {

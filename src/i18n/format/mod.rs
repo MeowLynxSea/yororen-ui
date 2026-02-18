@@ -62,12 +62,10 @@ impl NumberFormatter {
             } else {
                 int_formatted
             }
+        } else if value.fract() == 0.0 {
+            format!("{:.0}", value)
         } else {
-            if value.fract() == 0.0 {
-                format!("{:.0}", value)
-            } else {
-                format!("{}", value)
-            }
+            format!("{}", value)
         }
     }
 

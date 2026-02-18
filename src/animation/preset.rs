@@ -114,6 +114,12 @@ impl FadeIn {
     }
 }
 
+impl Default for FadeIn {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Fade out animation (opacity 1 -> 0).
 pub struct FadeOut;
 
@@ -126,6 +132,12 @@ impl FadeOut {
     /// Apply to a gpui element.
     pub fn apply(self, element: gpui::Div, progress: f32) -> gpui::Div {
         element.opacity(1.0 - progress)
+    }
+}
+
+impl Default for FadeOut {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

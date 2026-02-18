@@ -43,6 +43,9 @@ pub struct DropTarget {
     pub y_offset: Pixels,
 }
 
+/// Callback type for tree drag drop handler.
+type TreeDropCallback = Box<dyn Fn(&ElementId, &ElementId, DropPosition)>;
+
 /// Drag and drop controller for tree views.
 pub struct TreeDragController {
     /// Current drag state.
@@ -50,7 +53,7 @@ pub struct TreeDragController {
     /// Row height for calculations.
     _row_height: Pixels,
     /// Callback when a drop occurs.
-    on_drop: Option<Box<dyn Fn(&ElementId, &ElementId, DropPosition)>>,
+    on_drop: Option<TreeDropCallback>,
 }
 
 impl TreeDragController {
@@ -94,10 +97,8 @@ impl TreeDragController {
             )
         });
 
-        if let Some((dragged_id, target_id, position)) = &result {
-            if let Some(handler) = &self.on_drop {
-                handler(dragged_id, target_id, *position);
-            }
+        if let Some((dragged_id, target_id, position)) = &result && let Some(handler) = &self.on_drop {
+            handler(dragged_id, target_id, *position);
         }
 
         self.state = TreeDragState::default();

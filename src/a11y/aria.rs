@@ -449,7 +449,6 @@ pub fn aria() -> AriaAttrs {
 }
 
 /// Predefined ARIA attribute sets for common component patterns.
-
 /// Attributes for a dialog/modal element.
 pub mod dialog {
     /// Creates aria attributes for a dialog.

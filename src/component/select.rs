@@ -286,11 +286,9 @@ fn call_on_change(
     window: &mut gpui::Window,
     cx: &mut gpui::App,
 ) {
-    if let Some(handler) = on_change_with_event {
-        if let Some(ev) = ev {
-            handler(option_value.clone(), ev, window, cx);
-            return;
-        }
+    if let Some(handler) = on_change_with_event && let Some(ev) = ev {
+        handler(option_value.clone(), ev, window, cx);
+        return;
     }
     if let Some(handler) = on_change {
         handler(option_value.clone(), window, cx);

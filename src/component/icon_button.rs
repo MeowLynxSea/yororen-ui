@@ -66,7 +66,15 @@ impl IconButton {
             icon_size: None,
         }
     }
+}
 
+impl Default for IconButton {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl IconButton {
     pub fn icon(mut self, icon: impl Into<Icon>) -> Self {
         self.icon = Some(icon.into());
         self

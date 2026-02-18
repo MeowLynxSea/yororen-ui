@@ -140,6 +140,7 @@ struct State {
 impl Global for NotificationCenter {}
 
 impl NotificationCenter {
+    #[allow(clippy::arc_with_non_send_sync)]
     pub fn new() -> Self {
         Self {
             state: Arc::new(Mutex::new(State {

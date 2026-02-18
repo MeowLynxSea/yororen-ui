@@ -95,9 +95,9 @@ impl Card {
     pub fn padding_all(mut self, value: impl Into<DefiniteLength>) -> Self {
         let value = value.into();
         self.base.style().padding = EdgesRefinement {
-            top: Some(value.clone()),
-            right: Some(value.clone()),
-            bottom: Some(value.clone()),
+            top: Some(value),
+            right: Some(value),
+            bottom: Some(value),
             left: Some(value),
         };
         self

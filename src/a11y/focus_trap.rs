@@ -22,6 +22,9 @@ actions!(
     ]
 );
 
+/// Callback type for window and app event handlers.
+type WindowAppCallback = Arc<dyn Fn(&mut Window, &mut App)>;
+
 /// A component that traps focus within a container element.
 ///
 /// FocusTrap is essential for modal dialogs and other overlays where
@@ -45,11 +48,11 @@ pub struct FocusTrap {
     element_id: Option<ElementId>,
     base: gpui::Div,
     /// Callback fired when Escape key is pressed.
-    on_escape: Option<Arc<dyn Fn(&mut Window, &mut App)>>,
+    on_escape: Option<WindowAppCallback>,
     /// Callback fired when FocusNext (Tab) is pressed.
-    on_focus_next: Option<Arc<dyn Fn(&mut Window, &mut App)>>,
+    on_focus_next: Option<WindowAppCallback>,
     /// Callback fired when FocusPrev (Shift+Tab) is pressed.
-    on_focus_prev: Option<Arc<dyn Fn(&mut Window, &mut App)>>,
+    on_focus_prev: Option<WindowAppCallback>,
     /// Whether to trap focus (default: true).
     trap_focus: bool,
     /// Initial focus element ID.
@@ -184,7 +187,7 @@ impl FocusTrapState {
     /// Deactivates the focus trap and restores previous focus.
     pub fn deactivate(&mut self, window: &mut Window, cx: &mut App) {
         if let Some(handle) = &self.previous_focus {
-            let _ = handle.focus(window, cx);
+            handle.focus(window, cx);
         }
         self.is_active = false;
     }

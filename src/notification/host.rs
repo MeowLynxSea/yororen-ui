@@ -187,7 +187,7 @@ impl RenderOnce for NotificationHost {
                     .content(body)
                     .trailing(close);
 
-                let wrapper = div()
+                div()
                     .id(("ui:notification", id.as_u128() as u64))
                     .cursor_pointer()
                     .on_click(move |ev: &ClickEvent, window, cx| {
@@ -201,9 +201,7 @@ impl RenderOnce for NotificationHost {
                     .flex_col()
                     .items_end()
                     .gap_1()
-                    .child(toast_el);
-
-                wrapper
+                    .child(toast_el)
             }))
     }
 }

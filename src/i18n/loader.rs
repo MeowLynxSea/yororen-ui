@@ -205,16 +205,14 @@ impl TranslationLoader for FallbackLoader {
         }
 
         // Fall back to file system
-        if let Some(ref file) = self.file {
-            if file.is_available(locale) {
-                return file.load(locale);
-            }
+        if let Some(ref file) = self.file && file.is_available(locale) {
+            return file.load(locale);
         }
 
         Err(LoadError::LocaleNotFound(locale.to_string()))
     }
 
     fn is_available(&self, locale: &Locale) -> bool {
-        self.embedded.is_available(locale) || self.file.as_ref().map_or(false, |f| f.is_available(locale))
+        self.embedded.is_available(locale) || self.file.as_ref().is_some_and(|f| f.is_available(locale))
     }
 }

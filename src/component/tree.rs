@@ -51,6 +51,9 @@ pub fn tree(state: TreeState, nodes: &[TreeNode]) -> Tree {
     Tree::new(state, nodes)
 }
 
+/// Callback type for tree check handler.
+type TreeCheckCallback = Arc<dyn Fn(&ElementId, TreeCheckedState)>;
+
 /// The main tree view component.
 #[derive(IntoElement)]
 pub struct Tree {
@@ -71,7 +74,7 @@ pub struct Tree {
     on_item_context_menu: Option<ElementMouseDownCallback>,
     on_toggle_expand: Option<ElementCallback>,
     on_select: Option<ElementCallback>,
-    on_check: Option<Arc<dyn Fn(&ElementId, TreeCheckedState)>>,
+    on_check: Option<TreeCheckCallback>,
 }
 
 impl Default for Tree {
