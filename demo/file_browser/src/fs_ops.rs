@@ -1,6 +1,44 @@
+//! File System Operations - Domain Logic
+//!
+//! This module demonstrates how to structure **business logic** separate from UI code.
+//!
+//! ## Domain Logic Pattern
+//!
+//! Keep file system operations (business logic) separate from UI components:
+//! - No gpui or yororen-ui imports
+//! - Plain Rust functions
+//! - Pure file system operations
+//!
+//! ## Why Separate Logic?
+//!
+//! Separating business logic from UI makes code:
+//! - Testable: Can be unit tested without UI
+//! - Reusable: Functions can be used in different contexts
+//! - Clean: Clear separation of concerns
+//!
+//! ## This Pattern in Your App
+//!
+//! Create a `domain.rs` or similar module for your business logic:
+//! ```ignore
+//! // domain.rs
+//! pub fn calculate_total(items: &[Item]) -> f64 { ... }
+//! pub fn validate_input(input: &str) -> Result<(), Error> { ... }
+//! ```
+
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// Generates a unique file path by appending a number if the file exists
+///
+/// If `file_name` doesn't exist in `parent`, returns that path.
+/// Otherwise, tries `file_name (1)`, `file_name (2)`, etc. up to 999.
+///
+/// # Arguments
+/// * `parent` - The parent directory
+/// * `file_name` - The desired file name
+///
+/// # Returns
+/// A unique PathBuf that doesn't conflict with existing files
 pub fn unique_child_path(parent: &Path, file_name: &str) -> PathBuf {
     // If dst exists, append " (n)".
     let mut candidate = parent.join(file_name);
@@ -32,6 +70,18 @@ pub fn unique_child_path(parent: &Path, file_name: &str) -> PathBuf {
     candidate
 }
 
+/// Copies a file or directory to a destination path
+///
+/// Handles both files and directories:
+/// - For files: copies the file content
+/// - For directories: recursively copies all contents
+///
+/// # Arguments
+/// * `src` - Source file or directory path
+/// * `dst` - Destination path
+///
+/// # Returns
+/// `Ok(())` on success, or an I/O error
 pub fn copy_path(src: &Path, dst: &Path) -> std::io::Result<()> {
     if src.is_dir() {
         copy_dir_recursive(src, dst)
@@ -44,6 +94,9 @@ pub fn copy_path(src: &Path, dst: &Path) -> std::io::Result<()> {
     }
 }
 
+/// Recursively copies a directory and all its contents
+///
+/// This is an internal helper function used by `copy_path`.
 fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<()> {
     fs::create_dir_all(dst)?;
 

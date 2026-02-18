@@ -1,3 +1,7 @@
+//! File Browser Tree Panel Component
+//!
+//! Displays the file/folder tree with virtualized scrolling.
+
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -12,9 +16,17 @@ use yororen_ui::widget::virtual_list_state;
 use crate::actions;
 use crate::state::FileBrowserState;
 
+/// Tree panel component for displaying file system hierarchy
 pub struct FileBrowserTreePanel;
 
 impl FileBrowserTreePanel {
+    /// Renders the tree panel with file/folder nodes
+    ///
+    /// Handles:
+    /// - Empty state when no files
+    /// - Scanning progress indicator
+    /// - Virtualized tree rendering
+    /// - Selection and context menu events
     pub fn render(
         theme: &Arc<Theme>,
         root: PathBuf,

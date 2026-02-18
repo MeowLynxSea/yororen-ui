@@ -1,3 +1,7 @@
+//! File Browser Header Component
+//!
+//! Displays the application title and action buttons.
+
 use std::path::PathBuf;
 
 use gpui::{IntoElement, ParentElement, Styled, div, px};
@@ -7,9 +11,11 @@ use yororen_ui::theme::ActionVariantKind;
 
 use crate::actions;
 
+/// Header component showing title and action buttons
 pub struct FileBrowserHeader;
 
 impl FileBrowserHeader {
+    /// Renders the header with title, root path, and action buttons
     pub fn render(root: &PathBuf) -> impl IntoElement {
         let root_label = root.to_string_lossy().to_string();
 

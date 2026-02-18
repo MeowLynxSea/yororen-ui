@@ -1,3 +1,14 @@
+//! File System Scanning
+//!
+//! This module handles asynchronous directory scanning for the file browser.
+//!
+//! ## Key Concepts
+//!
+//! - **Background Scanning**: Directory scanning runs in the background using gpui's async runtime
+//! - **Generation Tracking**: A generation counter detects stale scans (when root changes during scan)
+//! - **Incremental Updates**: Tree nodes are updated incrementally as directories are scanned
+//! - **Yield Points**: The scanner yields between directories to keep UI responsive
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -8,6 +19,9 @@ use yororen_ui::component::{ArcTreeNode, TreeCheckedState, TreeNode};
 
 use crate::state::{notify_file_browser, FileBrowserState};
 
+/// Recursively updates children of a tree node by its ID
+///
+/// Used to insert scanned directory contents into the tree structure.
 fn set_children_by_id(nodes: &mut [TreeNode], parent_id: &str, children: Vec<TreeNode>) -> bool {
     for node in nodes {
         if node.id.to_string() == parent_id {
@@ -22,6 +36,13 @@ fn set_children_by_id(nodes: &mut [TreeNode], parent_id: &str, children: Vec<Tre
     false
 }
 
+/// Reads directory contents and creates tree nodes
+///
+/// Returns a vector of (TreeNode, Option<PathBuf>) pairs:
+/// - TreeNode: The UI representation of the file/directory
+/// - Option<PathBuf>: Some(path) if it's a directory (for further scanning), None otherwise
+///
+/// Directories are sorted first, then files, both alphabetically.
 fn read_dir_nodes(dir: &Path) -> Vec<(TreeNode, Option<PathBuf>)> {
     let Ok(read_dir) = fs::read_dir(dir) else {
         return Vec::new();
@@ -69,6 +90,17 @@ fn read_dir_nodes(dir: &Path) -> Vec<(TreeNode, Option<PathBuf>)> {
     out
 }
 
+/// Starts an asynchronous directory scan from the given root path
+///
+/// This function:
+/// 1. Increments the generation counter (to detect stale scans)
+/// 2. Sets is_scanning to true
+/// 3. Spawns a background task that scans directories up to max_depth (3)
+/// 4. Updates tree nodes incrementally as directories are scanned
+/// 5. Yields between directories to keep UI responsive
+///
+/// The generation counter ensures that if the root changes during scanning,
+/// older scan results are discarded.
 pub fn start_scan(root: PathBuf, window: &mut Window, cx: &mut gpui::App) {
     let state = cx.global::<FileBrowserState>();
     let generation = {

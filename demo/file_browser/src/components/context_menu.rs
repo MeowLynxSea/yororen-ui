@@ -1,3 +1,7 @@
+//! File Browser Context Menu Component
+//!
+//! Renders a context menu for file operations (copy/paste).
+
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -13,6 +17,9 @@ use crate::fs_ops;
 use crate::scan;
 use crate::state::FileBrowserState;
 
+/// Renders the context menu at the specified position
+///
+/// Provides Copy and Paste actions based on current selection and clipboard state.
 pub fn render(
     theme: &Arc<Theme>,
     menu_position: Option<gpui::Point<Pixels>>,

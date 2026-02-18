@@ -1,3 +1,7 @@
+//! File Browser Details Component
+//!
+//! Displays current selection and clipboard status.
+
 use std::path::PathBuf;
 
 use gpui::{IntoElement, ParentElement, Styled, div, px};
@@ -6,9 +10,11 @@ use yororen_ui::component::label;
 use crate::clipboard::FileClipboard;
 use crate::format;
 
+/// Details component showing selected path and clipboard status
 pub struct FileBrowserDetails;
 
 impl FileBrowserDetails {
+    /// Renders the details bar with selected path and clipboard info
     pub fn render(selected_path: &Option<PathBuf>, clipboard: &Option<FileClipboard>) -> impl IntoElement {
         div()
             .flex()
