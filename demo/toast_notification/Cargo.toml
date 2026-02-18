@@ -1,0 +1,8 @@
+[package]
+name = "toast-demo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gpui = { git = "https://github.com/zed-industries/zed", rev = "acee48bfda7b71e1347129bddccfcca85d40b4c7" }
+yororen_ui = { path = "../.." }
