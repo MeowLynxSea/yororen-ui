@@ -1,0 +1,83 @@
+name: "🧩 Component Issue"
+description: "Issues specific to a particular component (API, props, behavior)"
+title: "[Component] "
+labels: ["component"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for issues specific to a component's API, props, or behavior.
+
+  - type: input
+    id: component-name
+    attributes:
+      label: "Component Name"
+      description: "Which component has the issue?"
+      placeholder: "e.g., Button, TextInput, Modal"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: "Issue Type"
+      description: "What type of issue is this?"
+      options:
+        - "API / Props inconsistency"
+        - "Missing functionality"
+        - "Incorrect behavior"
+        - "TypeScript/Rust type issue"
+        - "Styling/Theme issue"
+        - "Accessibility issue"
+        - "Performance issue"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Describe the issue in detail"
+      placeholder: "The Button component's on_click callback..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: "Current Behavior"
+      description: "What is currently happening?"
+      placeholder: "When I set disabled=true, the button still responds to clicks..."
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "What should happen?"
+      placeholder: "When disabled=true, the button should not respond to clicks..."
+
+  - type: textarea
+    id: code-example
+    attributes:
+      label: "Code Example"
+      description: "A minimal reproducible example"
+      placeholder: |
+        ```rust
+        button()
+            .disabled(true)
+            .on_click(|_, _| {})
+        ```
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: "Suggested Fix / Change"
+      description: "How do you think this should be fixed?"
+      placeholder: "Add a guard in the on_click handler..."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional Context"
+      description: "Any other context or screenshots"

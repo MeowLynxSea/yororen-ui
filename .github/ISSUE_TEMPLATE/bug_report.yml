@@ -1,0 +1,96 @@
+name: "🐛 Bug Report"
+description: "Report a bug in Yororen UI components or widgets"
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us fix it faster.
+
+  - type: input
+    id: component
+    attributes:
+      label: "Component/Widget Name"
+      description: "Which component or widget is affected? (e.g., Button, TextInput, Modal, VirtualList)"
+      placeholder: "e.g., Modal"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "A clear and concise description of what the bug is"
+      placeholder: "Describe the bug here..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      description: "How to reproduce the bug? (Please be as detailed as possible)"
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Behavior"
+      description: "What did you expect to happen?"
+      placeholder: "The modal should close when clicking outside..."
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual Behavior"
+      description: "What actually happened?"
+      placeholder: "The modal stayed open and threw an error..."
+
+  - type: input
+    id: gpui-version
+    attributes:
+      label: "GPUI Version / Commit"
+      description: "Which gpui revision are you using? (check your Cargo.lock)"
+      placeholder: "e.g., acee48bfda7b71e1347129bddccfcca85d40b4c7"
+
+  - type: input
+    id: yororen-version
+    attributes:
+      label: "Yororen UI Version"
+      description: "Which version of Yororen UI?"
+      placeholder: "e.g., v0.1.0 or commit hash"
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment"
+      description: "OS, Rust version, and any other relevant environment details"
+      placeholder: |
+        - OS: macOS 14.0
+        - Rust: 1.75.0
+        - Target: aarch64-apple-darwin
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots / Recordings"
+      description: "Add screenshots or recordings to explain the problem (drag & drop)"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Error Logs"
+      description: "Any error messages or stack traces"
+      placeholder: "Paste your error logs here..."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context about the problem here"
