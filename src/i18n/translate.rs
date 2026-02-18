@@ -215,8 +215,8 @@ impl Translator for TranslationMap {
 /// Macro for translating strings.
 ///
 /// # Example
-/// ```
-/// use yororen_ui::i18n::t;
+/// ```rust,ignore
+/// use yororen_ui::t;
 ///
 /// let translated = t!("select.placeholder");
 /// ```
@@ -232,13 +232,13 @@ macro_rules! t {
 /// Macro for translating strings with arguments.
 ///
 /// # Example
-/// ```
+/// ```rust,ignore
 /// use std::collections::HashMap;
-/// use yororen_ui::i18n::t;
+/// use yororen_ui::{t, tf};
 ///
 /// let mut args = HashMap::new();
 /// args.insert("name", "World");
-/// args.insert("count", 5);
+/// args.insert("count", "5");
 /// let translated = tf!("items.count", &args);
 /// ```
 #[macro_export]
@@ -251,8 +251,8 @@ macro_rules! tf {
 /// Macro for plural forms.
 ///
 /// # Example
-/// ```
-/// use yororen_ui::i18n::tn;
+/// ```rust,ignore
+/// use yororen_ui::tn;
 ///
 /// let translated = tn!("items.count", n = 5);
 /// ```

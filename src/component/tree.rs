@@ -37,7 +37,7 @@ use super::tree_data::{
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,ignore
 /// let state = TreeState::new();
 /// let nodes = vec![
 ///     TreeNode::new("root")

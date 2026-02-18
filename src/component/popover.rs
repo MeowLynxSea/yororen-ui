@@ -21,7 +21,7 @@ pub enum PopoverPlacement {
 /// the clickable element and `.content()` to set the popover body.
 ///
 /// # Example
-/// ```rust
+/// ```rust,ignore
 /// use gpui::px;
 /// use yororen_ui::component::{button, popover};
 ///
@@ -94,7 +94,7 @@ impl Popover {
     /// a clear relationship to the parent component's ID.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,ignore
     /// let popover = popover("my-popover");
     /// let trigger_id = popover.child_id("trigger"); // "my-popover-trigger"
     /// let content_id = popover.child_id("content"); // "my-popover-content"

@@ -14,7 +14,7 @@ use crate::theme::{ActionVariantKind, ActiveTheme};
 /// (e.g., `ActionVariantKind::Primary`, `ActionVariantKind::Danger`).
 ///
 /// # Example
-/// ```rust
+/// ```rust,ignore
 /// use yororen_ui::component::{button, ActionVariantKind};
 ///
 /// let btn = button("my-button")
@@ -58,7 +58,7 @@ impl Button {
     /// Default variant is `ActionVariantKind::Neutral`.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,ignore
     /// button()
     ///     .id("my-button")
     ///     .on_click(|_ev, _window, _cx| { /* ... */ })

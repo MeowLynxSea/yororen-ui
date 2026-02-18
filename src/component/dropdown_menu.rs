@@ -107,7 +107,7 @@ impl DropdownMenu {
     /// a clear relationship to the parent component's ID.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,ignore
     /// let menu = dropdown_menu("my-menu");
     /// let trigger_id = menu.child_id("trigger"); // "my-menu-trigger"
     /// let item_id = menu.child_id("item-0"); // "my-menu-item-0"

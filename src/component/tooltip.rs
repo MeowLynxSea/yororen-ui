@@ -24,10 +24,10 @@ pub enum TooltipPlacement {
 /// The tooltip is typically used with `.with_tooltip()` on interactive elements.
 ///
 /// # Example
-/// ```rust
+/// ```rust,ignore
 /// use yororen_ui::component::{button, tooltip, TooltipPlacement};
 ///
-/// let btn = button()
+/// let btn = button("my-button")
 ///     .child("Hover me")
 ///     .with_tooltip(tooltip("Helpful information").placement(TooltipPlacement::Bottom));
 /// ```

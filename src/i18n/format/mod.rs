@@ -121,23 +121,21 @@ fn add_grouping_separators(s: &str, lang: &str) -> String {
         return s.to_string();
     }
 
+    // Build from the end to avoid underflow.
     let mut result = String::new();
-    let groups = (len + group_size - 1) / group_size;
+    let mut remaining = len;
 
-    for i in 0..groups {
-        let mut start = len - (i + 1) * group_size;
-        let end = if i == 0 { len } else { len - i * group_size };
-        if start > end {
-            start = end;
-        }
+    while remaining > 0 {
+        let start = remaining.saturating_sub(group_size);
+        let group: String = chars[start..remaining].iter().collect();
 
-        let group: String = chars[start..end].iter().collect();
-
-        if i == 0 {
+        if result.is_empty() {
             result = group;
         } else {
-            result = format!("{}{}{}", separator, group, result);
+            result = format!("{}{}{}", group, separator, result);
         }
+
+        remaining = start;
     }
 
     result

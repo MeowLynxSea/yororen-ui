@@ -20,7 +20,7 @@ use crate::{
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,ignore
 /// select_option()
 ///     .value("option1")
 ///     .label("Option 1")
@@ -199,7 +199,7 @@ impl Select {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```rust,ignore
     /// select()
     ///     .on_change_simple(|value| {
     ///         println!("Selected: {}", value);

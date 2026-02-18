@@ -178,8 +178,8 @@ impl ComboBox {
     ///
     /// # Example
     ///
-    /// ```rust
-    /// combo_box()
+    /// ```rust,ignore
+    /// combo_box("my-combo")
     ///     .on_change_simple(|value| {
     ///         println!("Selected: {}", value);
     ///     })

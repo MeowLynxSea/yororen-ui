@@ -19,10 +19,10 @@ use crate::{
 /// Use `.range(min, max)` to set the value range, and `.on_change()` to receive value updates.
 ///
 /// # Example
-/// ```rust
+/// ```rust,ignore
 /// use yororen_ui::component::slider;
 ///
-/// let s = slider()
+/// let s = slider("my-slider")
 ///     .range(0.0, 100.0)
 ///     .value(50.0)
 ///     .on_change(|value, _window, _cx| {

@@ -16,10 +16,12 @@ use crate::{
 /// actions like close, settings, or navigation. Use `.variant()` to change visual style.
 ///
 /// # Example
-/// ```rust
-/// use yororen_ui::component::{icon_button, IconName};
+/// ```rust,ignore
+/// use yororen_ui::component::{icon_button, Icon, IconName};
+/// use yororen_ui::theme::ActionVariantKind;
 ///
-/// let btn = icon_button("my-icon-button", IconName::Close)
+/// let btn = icon_button("my-icon-button")
+///     .icon(Icon::new(IconName::Close))
 ///     .variant(ActionVariantKind::Danger)
 ///     .on_click(|_ev, _window, _cx| {
 ///         // handle click

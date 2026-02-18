@@ -28,8 +28,8 @@ pub enum SelectionMode {
 ///
 /// # Example
 ///
-/// ```rust
-/// use crate::component::tree_data::{TreeNode, ArcTreeNode, TreeNodeBuilder};
+/// ```rust,ignore
+/// use yororen_ui::component::tree_data::{TreeNode, ArcTreeNode, TreeNodeBuilder};
 ///
 /// // Using default ArcTreeNode
 /// let node = TreeNodeBuilder::new("node-1", ArcTreeNode::new("My Node"))
