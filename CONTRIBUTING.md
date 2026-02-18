@@ -1,62 +1,62 @@
 # Contributing to yororen-ui
 
-感谢你对 yororen-ui 的兴趣！我们欢迎各种形式的贡献，包括 bug 修复、新功能、文档改进等。
+Thank you for your interest in yororen-ui! We welcome all forms of contributions, including bug fixes, new features, documentation improvements, and more.
 
-## 开发环境设置
+## Development Setup
 
-### 前置要求
+### Prerequisites
 
 - Rust 1.75+
 - Cargo
 
-### 本地开发
+### Local Development
 
 ```bash
-# 克隆项目
+# Clone the repository
 git clone https://github.com/MeowLynxSea/yororen-ui.git
 cd yororen-ui
 
-# 构建项目
+# Build the project
 cargo build
 
-# 运行测试
+# Run tests
 cargo test
 
-# 运行 clippy 检查
+# Run clippy checks
 cargo clippy
 ```
 
-## 代码规范
+## Code Standards
 
-- 遵循 [Rust API 规范](https://rust-lang.github.io/api-guidelines/)
-- 使用 `cargo clippy` 检查代码风格
-- 确保 `cargo fmt` 格式化代码
-- 所有公开 API 必须有文档注释
+- Follow the [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+- Use `cargo clippy` to check code style
+- Ensure code is formatted with `cargo fmt`
+- All public APIs must have documentation comments
 
-## 提交规范
+## Commit Standards
 
-我们使用 [Conventional Commits](https://www.conventionalcommits.org/) 提交格式：
+We use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ```
 <type>(<scope>): <description>
 
-[可选的正文]
+[optional body]
 
-[可选的脚注]
+[optional footer]
 ```
 
-### 类型 (type)
+### Types
 
-- `feat`: 新功能
-- `fix`: bug 修复
-- `docs`: 文档修改
-- `style`: 代码格式调整（不影响功能）
-- `refactor`: 代码重构
-- `perf`: 性能优化
-- `test`: 测试相关
-- `chore`: 构建过程或辅助工具变动
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code formatting (no functional changes)
+- `refactor`: Code refactoring
+- `perf`: Performance improvement
+- `test`: Test related
+- `chore`: Build process or auxiliary tool changes
 
-### 示例
+### Examples
 
 ```bash
 git commit -m "feat(button): add loading state support"
@@ -64,28 +64,28 @@ git commit -m "fix(toast): fix memory leak in notification queue"
 git commit -m "docs(readme): add installation instructions"
 ```
 
-## Pull Request 流程
+## Pull Request Process
 
-1. Fork 仓库并创建分支
-2. 进行开发并提交代码
-3. 确保所有测试和检查通过
-4. 提交 Pull Request
-5. 等待代码审查
+1. Fork the repository and create a branch
+2. Make your changes and commit
+3. Ensure all tests and checks pass
+4. Submit a Pull Request
+5. Wait for code review
 
-### PR 检查清单
+### PR Checklist
 
-- [ ] `cargo build` 成功
-- [ ] `cargo test` 全部通过
-- [ ] `cargo clippy` 无警告
-- [ ] 代码已格式化 (`cargo fmt`)
-- [ ] 已添加/更新相关文档
+- [ ] `cargo build` succeeds
+- [ ] All `cargo test` pass
+- [ ] `cargo clippy` has no warnings
+- [ ] Code is formatted (`cargo fmt`)
+- [ ] Documentation is added/updated
 
-## 行为准则
+## Code of Conduct
 
-请阅读并遵守我们的 [Code of Conduct](CODE_OF_CONDUCT.md)。
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## 问题反馈
+## Reporting Issues
 
-- 使用 GitHub Issues 报告 bug
-- 使用 GitHub Issues 提出新功能请求
-- 提交问题时，请提供复现步骤和环境信息
+- Use GitHub Issues to report bugs
+- Use GitHub Issues for feature requests
+- When submitting issues, please provide reproduction steps and environment information
