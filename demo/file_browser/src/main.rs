@@ -12,6 +12,12 @@
 //! ```
 
 mod file_browser_app;
+mod actions;
+mod clipboard;
+mod components;
+mod format;
+mod fs_ops;
+mod scan;
 mod state;
 
 use gpui::{App, AppContext, Application, WindowOptions, px, size};

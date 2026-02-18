@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use gpui::{App, ClickEvent, ElementId, Window};
+use gpui::{App, ClickEvent, ElementId, MouseDownEvent, Window};
 
 /// Callback for click events.
 ///
@@ -25,6 +25,12 @@ pub type ClickCallback = Arc<dyn Fn(&ClickEvent, &mut Window, &mut App)>;
 /// - `&mut App` - The application context
 pub type ElementClickCallback =
     Arc<dyn Fn(&ElementId, &ClickEvent, &mut Window, &mut App)>;
+
+/// Callback for mouse down events with element identifier.
+///
+/// Useful for context menus or custom mouse interactions.
+pub type ElementMouseDownCallback =
+    Arc<dyn Fn(&ElementId, &MouseDownEvent, &mut Window, &mut App)>;
 
 /// Callback for hover state changes.
 ///

@@ -26,6 +26,7 @@ use gpui::{
 };
 
 use crate::component::{ClickCallback, ElementCallback, ElementClickCallback};
+use crate::component::ElementMouseDownCallback;
 
 use super::tree_data::{
     ArcTreeNode, FlatTreeNode, SelectionMode, TreeCheckedState, TreeNode, TreeNodeData, TreeState,
@@ -67,6 +68,7 @@ pub struct Tree {
     list_state: Option<ListState>,
     on_click: Option<ClickCallback>,
     on_item_click: Option<ElementClickCallback>,
+    on_item_context_menu: Option<ElementMouseDownCallback>,
     on_toggle_expand: Option<ElementCallback>,
     on_select: Option<ElementCallback>,
     on_check: Option<Arc<dyn Fn(&ElementId, TreeCheckedState)>>,
@@ -95,6 +97,7 @@ impl Tree {
             list_state: None,
             on_click: None,
             on_item_click: None,
+            on_item_context_menu: None,
             on_toggle_expand: None,
             on_select: None,
             on_check: None,
@@ -198,6 +201,17 @@ impl Tree {
         F: 'static + Fn(&ElementId, &ClickEvent, &mut gpui::Window, &mut gpui::App),
     {
         self.on_item_click = Some(Arc::new(handler));
+        self
+    }
+
+    /// Set a right-click (context menu) handler for individual items.
+    ///
+    /// This is triggered when the user right-clicks a row.
+    pub fn on_item_context_menu<F>(mut self, handler: F) -> Self
+    where
+        F: 'static + Fn(&ElementId, &gpui::MouseDownEvent, &mut gpui::Window, &mut gpui::App),
+    {
+        self.on_item_context_menu = Some(Arc::new(handler));
         self
     }
 
@@ -367,6 +381,7 @@ impl Tree {
 
         let state_snapshot: TreeState = state_entity.read(cx).clone();
         let on_item_click = self.on_item_click;
+        let on_item_context_menu = self.on_item_context_menu;
         let selection_mode = self.selection_mode;
         let _on_toggle_expand = self.on_toggle_expand;
         let _on_select = self.on_select;
@@ -375,6 +390,7 @@ impl Tree {
         let state_entity_for_toggle = state_entity.clone();
         let state_entity_for_select = state_entity.clone();
         let on_item_click_clone = on_item_click.clone();
+        let on_item_context_menu_clone = on_item_context_menu.clone();
 
         // Create the virtualized list
         let _node_id = self.element_id.clone();
@@ -449,6 +465,18 @@ impl Tree {
                 });
             }
 
+            if !disabled {
+                let on_item_context_menu = on_item_context_menu_clone.clone();
+                row = row.on_context_menu({
+                    let node_id = node_id.clone();
+                    move |ev, window, cx| {
+                        if let Some(handler) = &on_item_context_menu {
+                            handler(&node_id, ev, window, cx);
+                        }
+                    }
+                });
+            }
+
             super::virtual_row(node_id.clone())
                 .child(row)
                 .into_any_element()
@@ -516,6 +544,7 @@ impl Tree {
 
         let on_item_click = self.on_item_click;
         let on_click = self.on_click;
+        let on_item_context_menu = self.on_item_context_menu;
         let on_toggle_expand = self.on_toggle_expand;
         let selection_mode = self.selection_mode;
         let on_select = self.on_select;
@@ -539,6 +568,7 @@ impl Tree {
 
                 let on_item_click = on_item_click.clone();
                 let on_click = on_click.clone();
+                let on_item_context_menu = on_item_context_menu.clone();
                 let on_toggle_expand = on_toggle_expand.clone();
                 let on_select = on_select.clone();
 
@@ -614,6 +644,17 @@ impl Tree {
                             }
 
                             window.refresh();
+                        }
+                    });
+                }
+
+                if !disabled {
+                    row = row.on_context_menu({
+                        let node_id = node_id.clone();
+                        move |ev, window, cx| {
+                            if let Some(handler) = &on_item_context_menu {
+                                handler(&node_id, ev, window, cx);
+                            }
                         }
                     });
                 }

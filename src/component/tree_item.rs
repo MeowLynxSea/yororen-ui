@@ -5,8 +5,8 @@
 
 use gpui::{
     div, AnyElement, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, Pixels, RenderOnce, Styled, StatefulInteractiveElement,
-    prelude::FluentBuilder, px,
+    MouseButton, MouseDownEvent, ParentElement, Pixels, RenderOnce, Styled,
+    StatefulInteractiveElement, prelude::FluentBuilder, px,
 };
 
 use crate::component::{checkbox, disclosure};
@@ -38,6 +38,7 @@ pub struct TreeItem {
     indent: Pixels,
     hover_bg: Option<Hsla>,
     selected_bg: Option<Hsla>,
+    on_context_menu: Option<Box<dyn Fn(&MouseDownEvent, &mut gpui::Window, &mut gpui::App)>>,
 }
 
 impl Default for TreeItem {
@@ -65,6 +66,7 @@ impl TreeItem {
             indent: px(20.),
             hover_bg: None,
             selected_bg: None,
+            on_context_menu: None,
         }
     }
 
@@ -147,6 +149,15 @@ impl TreeItem {
         self
     }
 
+    /// Attach a right-click handler for this row.
+    pub fn on_context_menu<F>(mut self, listener: F) -> Self
+    where
+        F: 'static + Fn(&MouseDownEvent, &mut gpui::Window, &mut gpui::App),
+    {
+        self.on_context_menu = Some(Box::new(listener));
+        self
+    }
+
     /// Generate a child element ID by combining this component's element ID with a suffix.
     pub fn child_id(&self, suffix: &str) -> ElementId {
         (self.element_id.clone(), suffix.to_string()).into()
@@ -193,6 +204,7 @@ impl RenderOnce for TreeItem {
         let indent = self.indent;
         let hover_bg = self.hover_bg.unwrap_or(theme.surface.hover);
         let selected_bg = self.selected_bg.unwrap_or(theme.action.neutral.active_bg);
+        let on_context_menu = self.on_context_menu;
 
         let is_checked = checked == TreeCheckedState::Checked;
 
@@ -213,6 +225,12 @@ impl RenderOnce for TreeItem {
             .when(selected, |this| this.bg(selected_bg))
             .when(!selected, |this| this.hover(|s| s.bg(hover_bg)))
             .when(disabled, |this| this.opacity(0.5))
+            .when_some(on_context_menu, |this, handler| {
+                this.on_mouse_down(MouseButton::Right, move |ev, window, cx| {
+                    cx.stop_propagation();
+                    handler(ev, window, cx);
+                })
+            })
             .when(has_children, |this| {
                 this.child(disclosure(disclosure_id).expanded(expanded))
             })

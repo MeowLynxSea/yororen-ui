@@ -2,16 +2,7 @@ use gpui::{EntityId, Global, Pixels, Point};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ClipboardOp {
-    Copy,
-}
-
-#[derive(Clone, Debug)]
-pub struct FileClipboard {
-    pub op: ClipboardOp,
-    pub src: PathBuf,
-}
+use crate::clipboard::FileClipboard;
 
 pub struct FileBrowserState {
     pub root: Arc<Mutex<PathBuf>>,
@@ -68,3 +59,13 @@ impl Default for FileBrowserState {
 }
 
 impl Global for FileBrowserState {}
+
+pub fn notify_file_browser(cx: &mut gpui::App) {
+    let id = {
+        let state = cx.global::<FileBrowserState>();
+        *state.notify_entity.lock().unwrap()
+    };
+    if let Some(id) = id {
+        cx.notify(id);
+    }
+}
