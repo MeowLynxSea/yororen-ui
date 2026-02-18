@@ -4,4 +4,7 @@
 Cargo.lock
 
 # Demo targets
-demo/*/target
+demo/**/target
+
+# Local accidental recursion in file_browser demo
+demo/file_browser/file_browser/

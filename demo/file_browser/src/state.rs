@@ -1,0 +1,67 @@
+use gpui::{EntityId, Global};
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ClipboardOp {
+    Copy,
+}
+
+#[derive(Clone, Debug)]
+pub struct FileClipboard {
+    pub op: ClipboardOp,
+    pub src: PathBuf,
+}
+
+pub struct FileBrowserState {
+    pub root: Arc<Mutex<PathBuf>>,
+
+    pub selected_path: Arc<Mutex<Option<PathBuf>>>,
+    pub context_path: Arc<Mutex<Option<PathBuf>>>,
+
+    pub clipboard: Arc<Mutex<Option<FileClipboard>>>,
+
+    pub menu_open: Arc<Mutex<bool>>,
+
+    // Cached tree nodes built from filesystem scanning.
+    pub tree_nodes: Arc<Mutex<Vec<yororen_ui::component::TreeNode>>>,
+    pub is_scanning: Arc<Mutex<bool>>,
+    pub scan_generation: Arc<Mutex<u64>>,
+
+    pub notify_entity: Arc<Mutex<Option<EntityId>>>,
+}
+
+impl Clone for FileBrowserState {
+    fn clone(&self) -> Self {
+        Self {
+            root: self.root.clone(),
+            selected_path: self.selected_path.clone(),
+            context_path: self.context_path.clone(),
+            clipboard: self.clipboard.clone(),
+            menu_open: self.menu_open.clone(),
+            tree_nodes: self.tree_nodes.clone(),
+            is_scanning: self.is_scanning.clone(),
+            scan_generation: self.scan_generation.clone(),
+            notify_entity: self.notify_entity.clone(),
+        }
+    }
+}
+
+impl Default for FileBrowserState {
+    fn default() -> Self {
+        let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        Self {
+            root: Arc::new(Mutex::new(root)),
+            selected_path: Arc::new(Mutex::new(None)),
+            context_path: Arc::new(Mutex::new(None)),
+            clipboard: Arc::new(Mutex::new(None)),
+            menu_open: Arc::new(Mutex::new(false)),
+            tree_nodes: Arc::new(Mutex::new(Vec::new())),
+            is_scanning: Arc::new(Mutex::new(false)),
+            scan_generation: Arc::new(Mutex::new(0)),
+            notify_entity: Arc::new(Mutex::new(None)),
+        }
+    }
+}
+
+impl Global for FileBrowserState {}
