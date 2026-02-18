@@ -1,4 +1,4 @@
-use gpui::{EntityId, Global};
+use gpui::{EntityId, Global, Pixels, Point};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
@@ -22,6 +22,7 @@ pub struct FileBrowserState {
     pub clipboard: Arc<Mutex<Option<FileClipboard>>>,
 
     pub menu_open: Arc<Mutex<bool>>,
+    pub menu_position: Arc<Mutex<Option<Point<Pixels>>>>,
 
     // Cached tree nodes built from filesystem scanning.
     pub tree_nodes: Arc<Mutex<Vec<yororen_ui::component::TreeNode>>>,
@@ -39,6 +40,7 @@ impl Clone for FileBrowserState {
             context_path: self.context_path.clone(),
             clipboard: self.clipboard.clone(),
             menu_open: self.menu_open.clone(),
+            menu_position: self.menu_position.clone(),
             tree_nodes: self.tree_nodes.clone(),
             is_scanning: self.is_scanning.clone(),
             scan_generation: self.scan_generation.clone(),
@@ -56,6 +58,7 @@ impl Default for FileBrowserState {
             context_path: Arc::new(Mutex::new(None)),
             clipboard: Arc::new(Mutex::new(None)),
             menu_open: Arc::new(Mutex::new(false)),
+            menu_position: Arc::new(Mutex::new(None)),
             tree_nodes: Arc::new(Mutex::new(Vec::new())),
             is_scanning: Arc::new(Mutex::new(false)),
             scan_generation: Arc::new(Mutex::new(0)),

@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use gpui::{Context, IntoElement, ParentElement, Render, Styled, Window, div, px};
+use gpui::{AnyElement, Context, InteractiveElement, IntoElement, ParentElement, Pixels, Render, Styled, Window, div, px};
 
 use yororen_ui::component::{
     ArcTreeNode, IconName, PopoverPlacement, SelectionMode, TreeNode, TreeState,
@@ -180,6 +180,7 @@ impl Render for FileBrowserApp {
         let context_path = state.context_path.lock().unwrap().clone();
         let clipboard = state.clipboard.lock().unwrap().clone();
         let menu_open = *state.menu_open.lock().unwrap();
+        let menu_position = state.menu_position.lock().unwrap().clone();
 
         let tree_nodes = state.tree_nodes.lock().unwrap().clone();
         let is_scanning = *state.is_scanning.lock().unwrap();
@@ -257,6 +258,7 @@ impl Render for FileBrowserApp {
                                                 *state.selected_path.lock().unwrap() = None;
                                                 *state.context_path.lock().unwrap() = None;
                                                 *state.menu_open.lock().unwrap() = false;
+                                                *state.menu_position.lock().unwrap() = None;
                                                 let root = state.root.lock().unwrap().clone();
                                                 let entity_id = *state.notify_entity.lock().unwrap();
                                                 let _ = state;
@@ -311,6 +313,7 @@ impl Render for FileBrowserApp {
                                         *state.selected_path.lock().unwrap() = None;
                                         *state.context_path.lock().unwrap() = None;
                                         *state.menu_open.lock().unwrap() = false;
+                                        *state.menu_position.lock().unwrap() = None;
                                         let root = state.root.lock().unwrap().clone();
                                         let entity_id = *state.notify_entity.lock().unwrap();
                                         let _ = state;
@@ -324,13 +327,9 @@ impl Render for FileBrowserApp {
                     }),
             );
 
-        let context_menu = build_context_menu(
-            window,
-            cx,
-            menu_open,
-            &context_path,
-            &clipboard,
-        );
+        let context_menu: Option<AnyElement> = menu_open
+            .then(|| build_context_menu(window, cx, menu_position, &context_path, &clipboard))
+            .map(IntoElement::into_any_element);
 
         let tree_view: gpui::AnyElement = if is_empty {
             div()
@@ -366,48 +365,57 @@ impl Render for FileBrowserApp {
                 .into_any_element()
         };
 
-        div()
-            .size_full()
-            .bg(theme.surface.base)
-            .p(px(20.))
-            .flex()
-            .flex_col()
-            .min_h_0()
-            .gap(px(12.))
-            .child(header)
-            .child(details)
-            .child(divider())
-            .child(
-                // Wrap the tree in a context menu trigger so right-click always has a surface.
-                // Actual context path is set by per-row triggers in custom rows (see below).
-                context_menu_trigger("file-browser:context")
-                    // Don't consume events on this wrapper; otherwise the scroll wheel
-                    // can be intercepted before it reaches the virtualized list.
-                    .consume(false)
-                    .flex()
-                    .flex_col()
-                    .flex_grow()
-                    .min_h_0()
-                    .rounded_lg()
-                    .bg(theme.surface.raised)
-                    .border_1()
-                    .border_color(theme.border.divider)
-                    .p_2()
-                    .on_open(move |_ev, _window, cx| {
-                        let state = cx.global::<FileBrowserState>();
-                        // Fallback behavior: if we didn't right-click a specific row,
-                        // open the menu for the root directory.
-                        *state.context_path.lock().unwrap() = Some(root.clone());
-                        *state.menu_open.lock().unwrap() = true;
-                        let entity_id = *state.notify_entity.lock().unwrap();
-                        let _ = state;
-                        if let Some(id) = entity_id {
-                            cx.notify(id);
-                        }
-                    })
-                    .child(tree_view)
-                    .child(context_menu),
-            )
+        let mut root_view = div().size_full().bg(theme.surface.base).relative();
+
+        root_view = root_view.child(
+            div()
+                .size_full()
+                .p(px(20.))
+                .flex()
+                .flex_col()
+                .min_h_0()
+                .gap(px(12.))
+                .child(header)
+                .child(details)
+                .child(divider())
+                .child(
+                    // Wrap the tree in a context menu trigger so right-click always has a surface.
+                    // Actual context path is set by per-row triggers in custom rows (see below).
+                    context_menu_trigger("file-browser:context")
+                        // Don't consume events on this wrapper; otherwise the scroll wheel
+                        // can be intercepted before it reaches the virtualized list.
+                        .consume(false)
+                        .flex()
+                        .flex_col()
+                        .flex_grow()
+                        .min_h_0()
+                        .rounded_lg()
+                        .bg(theme.surface.raised)
+                        .border_1()
+                        .border_color(theme.border.divider)
+                        .p_2()
+                        .on_open(move |ev, _window, cx| {
+                            let state = cx.global::<FileBrowserState>();
+                            // Fallback behavior: if we didn't right-click a specific row,
+                            // open the menu for the root directory.
+                            *state.context_path.lock().unwrap() = Some(root.clone());
+                            *state.menu_position.lock().unwrap() = Some(ev.position);
+                            *state.menu_open.lock().unwrap() = true;
+                            let entity_id = *state.notify_entity.lock().unwrap();
+                            let _ = state;
+                            if let Some(id) = entity_id {
+                                cx.notify(id);
+                            }
+                        })
+                        .child(tree_view),
+                ),
+        );
+
+        if let Some(context_menu) = context_menu {
+            root_view = root_view.child(context_menu);
+        }
+
+        root_view
     }
 }
 
@@ -430,7 +438,7 @@ fn clipboard_label(clipboard: &Option<FileClipboard>) -> String {
 fn build_context_menu(
     _window: &mut Window,
     cx: &mut Context<FileBrowserApp>,
-    menu_open: bool,
+    menu_position: Option<gpui::Point<Pixels>>,
     context_path: &Option<PathBuf>,
     clipboard: &Option<FileClipboard>,
 ) -> impl IntoElement {
@@ -481,6 +489,7 @@ fn build_context_menu(
                             src: path,
                         });
                         *state.menu_open.lock().unwrap() = false;
+                        *state.menu_position.lock().unwrap() = None;
                         *state.notify_entity.lock().unwrap()
                     };
 
@@ -533,6 +542,7 @@ fn build_context_menu(
                         let result = copy_path(&clip.src, &dst);
 
                         *state.menu_open.lock().unwrap() = false;
+                        *state.menu_position.lock().unwrap() = None;
                         ( *state.notify_entity.lock().unwrap(), result )
                     };
 
@@ -544,23 +554,42 @@ fn build_context_menu(
                 }),
         );
 
-    popover("file-browser:menu")
-        .open(menu_open)
-        .placement(PopoverPlacement::BottomStart)
-        .width(px(260.))
-        .on_close(move |window, cx| {
-            let entity_id = {
-                let state = cx.global::<FileBrowserState>();
-                *state.menu_open.lock().unwrap() = false;
-                *state.notify_entity.lock().unwrap()
-            };
-            if let Some(id) = entity_id {
-                cx.notify(id);
-            }
-            window.refresh();
-        })
-        .trigger(div())
-        .content(menu)
+    // `Popover` anchors its menu to the trigger element. For a context menu we want the anchor
+    // to be the mouse click location, so we render an (invisible) absolute trigger at that point.
+    let (trigger_left, trigger_top) = menu_position
+        .map(|p| (p.x, p.y))
+        .unwrap_or((px(0.), px(0.)));
+
+    div()
+        .absolute()
+        .inset_0()
+        .occlude()
+        .child(
+            // The popover menu positions itself relative to the trigger in *normal flow*.
+            // To anchor at an arbitrary point, position the entire popover at the click point
+            // and use a 1x1 trigger.
+            popover("file-browser:menu")
+                .open(true)
+                .placement(PopoverPlacement::BottomStart)
+                .width(px(260.))
+                .absolute()
+                .left(trigger_left)
+                .top(trigger_top)
+                .on_close(move |window, cx| {
+                    let entity_id = {
+                        let state = cx.global::<FileBrowserState>();
+                        *state.menu_open.lock().unwrap() = false;
+                        *state.menu_position.lock().unwrap() = None;
+                        *state.notify_entity.lock().unwrap()
+                    };
+                    if let Some(id) = entity_id {
+                        cx.notify(id);
+                    }
+                    window.refresh();
+                })
+                .trigger(div().w(px(1.)).h(px(1.)))
+                .content(menu),
+        )
 }
 
 // Note: filesystem scanning moved out of render into `start_scan(...)`.
