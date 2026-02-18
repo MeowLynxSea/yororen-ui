@@ -1,3 +1,27 @@
+//! yororen-ui Toast Notification Demo Root Component
+//!
+//! This file demonstrates the **Toast notification patterns** in yororen-ui.
+//!
+//! ## Toast vs NotificationCenter
+//!
+//! yororen-ui provides two notification systems:
+//! 1. **Toast Component** - Lightweight, static UI element for immediate display
+//!    - Use for simple in-app feedback
+//!    - Renders inline within your UI tree
+//!    - No persistence or queuing
+//!
+//! 2. **NotificationCenter** - Managed notification queue with interactions
+//!    - Use for important user feedback that may need acknowledgment
+//!    - Notifications queued and displayed via overlay
+//!    - Supports callbacks, payloads, and manual dismiss
+//!
+//! ## This Demo Shows
+//!
+//! - Toast component variants (Success, Warning, Error, Info, Neutral)
+//! - Toast customization (wrapping, dimensions, custom content)
+//! - NotificationCenter initialization and usage
+//! - Interactive notifications with callbacks and payloads
+
 use std::sync::Arc;
 
 use gpui::{
@@ -10,22 +34,40 @@ use yororen_ui::notification::{DismissStrategy, Notification, NotificationCenter
 use yororen_ui::notification::notification_host;
 use yororen_ui::theme::ActiveTheme;
 
+/// Root component - displays Toast demo and handles notification interactions
+///
+/// This is the component passed to `cx.open_window()` in main().
+/// It serves as the parent for all other components in the application.
 pub struct ToastDemoApp;
 
 impl ToastDemoApp {
+    /// Initializes the root component
+    ///
+    /// For this demo, no special initialization is needed.
+    /// In other apps, you might store entity_id in global state here.
     pub fn new(_cx: &mut Context<Self>) -> Self {
         Self
     }
 }
 
+/// Render trait - builds the UI tree for this component
+///
+/// This is called by gpui when:
+/// - The component is first displayed
+/// - `cx.notify(entity_id)` is called
+/// - Global state changes that this component depends on
 impl Render for ToastDemoApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        // Step 1: Read theme for styling
         let theme = cx.theme().clone();
 
-        // Ensure notification center exists.
+        // Step 2: Initialize NotificationCenter if not exists
+        // NotificationCenter manages queued notifications across the app.
+        // It's stored as global state so any component can access it.
         if cx.try_global::<NotificationCenter>().is_none() {
             cx.set_global(NotificationCenter::new());
         }
+        // Clone for use in closures (Arc-based for thread safety)
         let center = cx.global::<NotificationCenter>().clone();
 
         let title = div()
@@ -39,7 +81,27 @@ impl Render for ToastDemoApp {
             .text_color(theme.content.secondary)
             .child("Toast variants and options (static display)");
 
-        // Toast variants section
+        // Step 3: Build UI sections
+
+        // Section 1: Demo title
+        let title = div()
+            .text_xl()
+            .font_weight(FontWeight::BOLD)
+            .text_color(theme.content.primary)
+            .child("Toast Notification Demo");
+
+        // Section 2: Description
+        let description = div()
+            .text_sm()
+            .text_color(theme.content.secondary)
+            .child("Toast variants and options (static display)");
+
+        // Section 3: Toast variants - demonstrates ToastKind enum
+        // ToastKind::Success  - Green styling for successful operations
+        // ToastKind::Warning  - Yellow styling for warnings
+        // ToastKind::Error    - Red styling for errors
+        // ToastKind::Info     - Blue styling for informational messages
+        // ToastKind::Neutral  - Gray styling for neutral messages
         let variants_title = div()
             .text_lg()
             .font_weight(FontWeight::SEMIBOLD)
@@ -77,7 +139,12 @@ impl Render for ToastDemoApp {
                     .kind(ToastKind::Neutral),
             );
 
-        // Additional options section
+        // Section 4: Additional toast options - demonstrates customization
+        // .wrap(true)        - Enable text wrapping for long messages
+        // .max_width()      - Set maximum width before wrapping
+        // .width()          - Set fixed width
+        // .icon(false)      - Hide the icon
+        // .content(...)     - Render custom content inside toast
         let options_title = div()
             .text_lg()
             .font_weight(FontWeight::SEMIBOLD)
@@ -127,6 +194,15 @@ impl Render for ToastDemoApp {
                     ),
             );
 
+        // Section 5: NotificationCenter actions - demonstrates interactive notifications
+        // NotificationCenter queues notifications and displays them as overlay
+        // Key features:
+        //   - center.notify()        - Queue a simple notification
+        //   - center.notify_with_callbacks() - Queue with action callbacks
+        //   - .sticky(true)         - Keep visible until manually dismissed
+        //   - .dismiss(DismissStrategy::Manual) - Disable auto-dismiss
+        //   - .payload(...)         - Attach JSON data to notification
+        //   - .action_label(...)    - Add action button text
         let actions_title = div()
             .text_lg()
             .font_weight(FontWeight::SEMIBOLD)
@@ -134,6 +210,8 @@ impl Render for ToastDemoApp {
             .mt_6()
             .child("Notification Center (queued)");
 
+        // Interactive button 1: Simple notification
+        // Uses center.notify() for basic queued notification
         let actions = div()
             .flex()
             .gap_2()
@@ -150,6 +228,8 @@ impl Render for ToastDemoApp {
                         }
                     }),
             )
+            // Interactive button 2: Sticky notification
+            // Stays visible until user explicitly dismisses it
             .child(
                 button("demo:notify:sticky")
                     .child("Notify sticky")
@@ -166,12 +246,20 @@ impl Render for ToastDemoApp {
                         }
                     }),
             )
+            // Interactive button 3: Notification with payload and callback
+            // Demonstrates:
+            //   - .payload()     - Attach arbitrary JSON data
+            //   - .action_label() - Add action button text
+            //   - notify_with_callbacks() - Handle user interactions
+            //   - First callback (Some(...)) - Called when action button clicked
+            //   - Second callback (None)   - Called when notification dismissed
             .child(
                 button("demo:notify:payload")
                     .child("Notify payload")
                     .on_click({
                         let center = center.clone();
                         move |_ev, _window, cx| {
+                            // Clone center for use in callback closure
                             let center_for_cb = center.clone();
                             center.notify_with_callbacks(
                                 Notification::new("Click this toast to read payload")
@@ -183,7 +271,9 @@ impl Render for ToastDemoApp {
                                         "message": "hello from payload"
                                     }))
                                     .dismiss(DismissStrategy::Manual),
+                                // on_action callback - triggered when action button clicked
                                 Some(Arc::new(move |n, _ev, window, cx| {
+                                    // Extract payload data
                                     let payload = n
                                         .payload
                                         .as_ref()
@@ -191,13 +281,16 @@ impl Render for ToastDemoApp {
                                         .and_then(|v| v.as_str())
                                         .unwrap_or("<missing>");
 
+                                    // Display result in new notification
                                     center_for_cb.notify(
                                         Notification::new(format!("payload.message = {payload}"))
                                             .kind(ToastKind::Success),
                                         cx,
                                     );
+                                    // Refresh window to update UI
                                     window.refresh();
                                 })),
+                                // on_dismiss callback - triggered when notification dismissed (None here)
                                 None,
                                 cx,
                             );
@@ -205,6 +298,7 @@ impl Render for ToastDemoApp {
                     }),
             );
 
+        // Step 4: Compose all sections into final content
         let content = div()
             .p(px(24.))
             .flex()
@@ -219,6 +313,12 @@ impl Render for ToastDemoApp {
             .child(actions_title)
             .child(actions);
 
+        // Step 5: Render final UI tree
+        // Root div with:
+        //   - size_full()      - Fill parent container
+        //   .relative()       - Enable absolute positioning for overlay
+        //   .bg()             - Apply theme background color
+        //   notification_host() - Render notification overlay last (paints on top)
         div()
             .size_full()
             .relative()
@@ -227,6 +327,7 @@ impl Render for ToastDemoApp {
             .flex_col()
             .min_h_0()
             .child(
+                // Scrollable content area
                 div()
                     .flex_1()
                     .min_h_0()
@@ -234,7 +335,9 @@ impl Render for ToastDemoApp {
                     .overflow_scroll()
                     .child(content),
             )
-            // Render overlay host last so it paints above.
+            // IMPORTANT: notification_host() must be rendered last
+            // This ensures notifications appear above all other content
+            // The overlay is positioned absolutely and rendered on top
             .child(notification_host())
     }
 }
