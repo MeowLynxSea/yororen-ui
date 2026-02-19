@@ -18,6 +18,7 @@
 
 use gpui::{IntoElement, ParentElement, Styled, div, px};
 use yororen_ui::component::{button, combo_box, text_input, ComboBoxOption};
+use yororen_ui::i18n::Translate;
 use yororen_ui::theme::ActionVariantKind;
 
 use crate::state::TodoState;
@@ -28,14 +29,17 @@ pub struct TodoForm;
 
 impl TodoForm {
     /// Standard form render pattern
-    pub fn render(current_category: TodoCategory) -> impl IntoElement {
+    pub fn render(cx: &gpui::App, current_category: TodoCategory) -> impl IntoElement {
+        let add_placeholder = cx.t("demo.todolist.add_placeholder");
+        let add_label = cx.t("demo.todolist.add");
+
         // Build options for dropdown (common pattern)
         let category_options: Vec<ComboBoxOption> = TodoCategory::all()
             .iter()
-            .map(|c| ComboBoxOption::new(c.label(), c.label()))
+            .map(|c| ComboBoxOption::new(c.code(), cx.t(c.key())))
             .collect();
 
-        let category_label = current_category.label().to_string();
+        let category_label = current_category.code().to_string();
 
         div()
             .flex()
@@ -45,7 +49,7 @@ impl TodoForm {
             .child(
                 text_input("new-todo")
                     .gap_2()
-                    .placeholder("Add new task...")
+                    .placeholder(add_placeholder)
                     .on_change(|text, _window, cx| {
                         // Store value in global state for persistence
                         let state = cx.global::<TodoState>();
@@ -60,7 +64,7 @@ impl TodoForm {
                     .options(category_options.clone())
                     .on_change(|value, _ev, _window, cx| {
                         let state = cx.global::<TodoState>();
-                        if let Some(cat) = TodoCategory::all().into_iter().find(|c| c.label() == value) {
+                        if let Some(cat) = TodoCategory::all().into_iter().find(|c| c.code() == value) {
                             *state.new_todo_category.lock().unwrap() = cat;
                         }
                     }),
@@ -70,7 +74,7 @@ impl TodoForm {
                 button("add-btn")
                     .gap_2()
                     .variant(ActionVariantKind::Primary)  // Use Primary for main action
-                    .child("Add")
+                    .child(add_label)
                     .on_click(|_ev, _window, cx| {
                         let state = cx.global::<TodoState>();
                         let title = state.new_todo_title.lock().unwrap().clone();

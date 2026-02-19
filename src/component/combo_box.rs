@@ -2,16 +2,18 @@ use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
+    ParentElement, Pixels, Bounds, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
     prelude::FluentBuilder, px,
 };
 
 use crate::{
     animation::constants::duration,
-    component::{ArrowDirection, IconName, compute_input_style, icon, text_input},
-    i18n::{I18nContext, defaults::DefaultPlaceholders},
+    component::{ArrowDirection, BoundsTrackerElement, IconName, compute_input_style, icon, text_input},
+    i18n::{I18n, I18nContext, TextDirection, defaults::DefaultPlaceholders},
     theme::ActiveTheme,
 };
+
+use crate::rtl;
 
 use crate::animation::ease_out_quint_clamped;
 
@@ -56,6 +58,28 @@ impl ComboBoxOption {
 /// - Disabled options are properly marked
 pub fn combo_box(id: impl Into<ElementId>) -> ComboBox {
     ComboBox::new().id(id)
+}
+
+fn desired_menu_left(
+    trigger_bounds: Bounds<Pixels>,
+    menu_width: Pixels,
+    direction: TextDirection,
+    window: &gpui::Window,
+) -> Pixels {
+    let desired_left = if direction.is_rtl() {
+        trigger_bounds.right() - menu_width
+    } else {
+        trigger_bounds.left()
+    };
+
+    let window_bounds = window.bounds();
+    let min_left = window_bounds.left();
+    let max_left = (window_bounds.right() - menu_width).max(min_left);
+    desired_left.clamp(min_left, max_left)
+}
+
+fn menu_width_px(menu_width: Option<Pixels>, default: Pixels) -> Pixels {
+    menu_width.unwrap_or(default)
 }
 
 type ChangeFn = Arc<dyn Fn(String, &ClickEvent, &mut gpui::Window, &mut gpui::App)>;
@@ -292,6 +316,12 @@ impl RenderOnce for ComboBox {
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
         let id = self.element_id;
 
+        let trigger_bounds_state = window.use_keyed_state(
+            (id.clone(), "ui:combo-box:trigger-bounds"),
+            cx,
+            |_, _| Bounds::default(),
+        );
+
         let menu_open =
             window.use_keyed_state((id.clone(), format!("{}:open", id)), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
@@ -359,7 +389,8 @@ impl RenderOnce for ComboBox {
         let on_change_for_select = on_change.clone();
         let on_change_simple_for_select = on_change_simple.clone();
 
-        self.base
+        let trigger = self
+            .base
             .id(id.clone())
             .relative()
             .flex()
@@ -401,8 +432,10 @@ impl RenderOnce for ComboBox {
                 icon(IconName::Arrow(ArrowDirection::Down))
                     .size(px(14.))
                     .color(hint),
-            )
-            .when(is_open, move |this| {
+            );
+
+        let trigger_bounds_state_for_menu = trigger_bounds_state.clone();
+        let trigger = trigger.when(is_open, move |this| {
                 let text_color = input_style.text_color;
                 let value = value.clone();
                 let options = options.clone();
@@ -412,6 +445,16 @@ impl RenderOnce for ComboBox {
                 let search_text = search_text.clone();
                 let needs_content_init = needs_content_init.clone();
                 let max_results = max_results;
+
+                let direction = cx
+                    .try_global::<I18n>()
+                    .map(|i18n| i18n.text_direction())
+                    .unwrap_or(TextDirection::Ltr);
+
+                let trigger_bounds = *trigger_bounds_state_for_menu.read(cx);
+                let menu_width_px = menu_width_px(menu_width, px(420.));
+                let menu_left = desired_menu_left(trigger_bounds, menu_width_px, direction, window);
+                let relative_left = menu_left - trigger_bounds.left();
 
                 // Check if we need to initialize content
                 let should_init_content = *needs_content_init.read(cx);
@@ -440,6 +483,8 @@ impl RenderOnce for ComboBox {
                     .absolute()
                     .top_full()
                     .left_0()
+                    // Horizontal overflow protection: shift within window bounds.
+                    .when(relative_left != Pixels::ZERO, |this| this.left(relative_left))
                     .mt(px(10.))
                     .rounded_md()
                     .border_1()
@@ -447,9 +492,9 @@ impl RenderOnce for ComboBox {
                     .bg(theme.surface.raised)
                     .shadow_md()
                     .py_1()
-                    .when_some(menu_width, |this, width| this.w(width))
-                    .when(menu_width.is_none(), |this| this.w(px(420.)))
+                    .w(menu_width_px)
                     .occlude()
+                    .text_align(rtl::text_align_start(direction))
                     .on_mouse_down_out({
                         let needs_content_init = needs_content_init.clone();
                         move |_ev, _window, cx| {
@@ -544,6 +589,11 @@ impl RenderOnce for ComboBox {
                 );
 
                 this.child(gpui::deferred(animated_menu).with_priority(100))
-            })
+            });
+
+        BoundsTrackerElement {
+            bounds_state: trigger_bounds_state,
+            inner: trigger.into_any_element(),
+        }
     }
 }

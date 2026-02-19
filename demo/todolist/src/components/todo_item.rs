@@ -23,6 +23,7 @@ use gpui::{AnyElement, IntoElement, ParentElement, Styled, div, px};
 use yororen_ui::component::{
     checkbox, icon_button, label, list_item, tag, IconName,
 };
+use yororen_ui::i18n::Translate;
 
 use crate::state::TodoState;
 use crate::todo::Todo;
@@ -32,19 +33,19 @@ pub struct TodoItem;
 
 impl TodoItem {
     /// Renders a todo item - demonstrates conditional rendering pattern
-    pub fn render(todo: &Todo, compact_mode: bool) -> AnyElement {
+    pub fn render(cx: &gpui::App, todo: &Todo, compact_mode: bool) -> AnyElement {
         if compact_mode {
-            Self::render_compact(todo).into_any_element()
+            Self::render_compact(cx, todo).into_any_element()
         } else {
-            Self::render_normal(todo).into_any_element()
+            Self::render_normal(cx, todo).into_any_element()
         }
     }
 
     /// Pattern 1: Compact div-based layout
-    fn render_compact(todo: &Todo) -> impl IntoElement {
+    fn render_compact(cx: &gpui::App, todo: &Todo) -> impl IntoElement {
         let todo_id = todo.id;
         let title = todo.title.clone();
-        let category_label = todo.category.label().to_string();
+        let category_label = cx.t(todo.category.key());
         let completed = todo.completed;
 
         div()
@@ -67,7 +68,7 @@ impl TodoItem {
                     }),
             )
             .child(label(&title))
-            .child(tag(&category_label).selected(true))
+            .child(tag(category_label).selected(true))
             // Icon buttons for actions
             .child(
                 div()
@@ -109,10 +110,10 @@ impl TodoItem {
     }
 
     /// Pattern 2: Full list_item with leading/content/trailing
-    fn render_normal(todo: &Todo) -> impl IntoElement {
+    fn render_normal(cx: &gpui::App, todo: &Todo) -> impl IntoElement {
         let todo_id = todo.id;
         let title = todo.title.clone();
-        let category_label = todo.category.label().to_string();
+        let category_label = cx.t(todo.category.key());
         let completed = todo.completed;
 
         // list_item provides structured layout
@@ -144,7 +145,7 @@ impl TodoItem {
                             .flex()
                             .items_center()
                             .gap(px(8.))
-                            .child(tag(&category_label).selected(true)),
+                            .child(tag(category_label).selected(true)),
                     ),
             )
             .trailing(

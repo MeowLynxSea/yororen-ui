@@ -1,5 +1,6 @@
 mod avatar;
 mod badge;
+mod bounds_tracker;
 mod button;
 mod button_group;
 mod card;
@@ -61,6 +62,8 @@ pub use helpers::*;
 
 pub use avatar::*;
 pub use badge::*;
+
+pub(crate) use bounds_tracker::BoundsTrackerElement;
 pub use button::*;
 pub use button_group::*;
 pub use card::*;

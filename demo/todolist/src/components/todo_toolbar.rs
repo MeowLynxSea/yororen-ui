@@ -10,6 +10,7 @@
 
 use gpui::{IntoElement, ParentElement, Styled, div, px};
 use yororen_ui::component::{combo_box, search_input, ComboBoxOption};
+use yororen_ui::i18n::Translate;
 
 use crate::state::TodoState;
 use crate::todo::TodoCategory;
@@ -18,21 +19,28 @@ use crate::todo::TodoCategory;
 pub struct TodoToolbar;
 impl TodoToolbar {
     /// Standard toolbar pattern with search and filter
-    pub fn render(search_query: &str, selected_category: &Option<TodoCategory>) -> impl IntoElement {
+    pub fn render(
+        cx: &gpui::App,
+        _search_query: &str,
+        selected_category: &Option<TodoCategory>,
+    ) -> impl IntoElement {
+        let search_placeholder = cx.t("demo.todolist.search_placeholder");
+        let all_categories_label = cx.t("demo.todolist.all_categories");
+
         // Build category options
         let category_options: Vec<ComboBoxOption> = TodoCategory::all()
             .iter()
-            .map(|c| ComboBoxOption::new(c.label(), c.label()))
+            .map(|c| ComboBoxOption::new(c.code(), cx.t(c.key())))
             .collect();
 
         // Add "All" option
-        let mut search_options = vec![ComboBoxOption::new("all", "All Categories")];
+        let mut search_options = vec![ComboBoxOption::new("all", all_categories_label.clone())];
         search_options.extend(category_options.clone());
 
         let selected_value = selected_category
             .as_ref()
-            .map(|c| c.label().to_string())
-            .unwrap_or_else(|| "All Categories".to_string());
+            .map(|c| c.code().to_string())
+            .unwrap_or_else(|| "all".to_string());
 
         div()
             .flex()
@@ -42,7 +50,7 @@ impl TodoToolbar {
             .child(
                 search_input("search")
                     .w(px(200.))
-                    .placeholder("Search todos...")
+                    .placeholder(search_placeholder)
                     .on_change(|text, _window, cx| {
                         let state = cx.global::<TodoState>();
                         *state.search_query.lock().unwrap() = text.to_string();
@@ -51,7 +59,7 @@ impl TodoToolbar {
             // Category filter dropdown
             .child(
                 combo_box("category-filter")
-                    .placeholder("All Categories")
+                    .placeholder(all_categories_label)
                     .value(&selected_value)
                     .options(search_options)
                     .on_change(|value, _ev, _window, cx| {
@@ -59,7 +67,7 @@ impl TodoToolbar {
                         let category = if value == "all" {
                             None
                         } else {
-                            TodoCategory::all().into_iter().find(|c| c.label() == value)
+                            TodoCategory::all().into_iter().find(|c| c.code() == value)
                         };
                         *state.selected_category.lock().unwrap() = category;
                     }),

@@ -6,5 +6,6 @@ pub mod constants;
 pub mod hover_refresh;
 pub mod i18n;
 pub mod notification;
+pub mod rtl;
 pub mod theme;
 pub mod widget;

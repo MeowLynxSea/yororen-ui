@@ -1,0 +1,22 @@
+{
+  "demo": {
+    "todolist": {
+      "title": "مهام",
+      "compact_mode": "وضع مضغوط",
+      "add_placeholder": "أضف مهمة جديدة…",
+      "add": "إضافة",
+      "search_placeholder": "ابحث في المهام…",
+      "all_categories": "كل الفئات",
+      "edit_task": "تعديل المهمة",
+      "task_title": "عنوان المهمة",
+      "categories": {
+        "work": "العمل",
+        "personal": "شخصي",
+        "shopping": "تسوق",
+        "health": "الصحة",
+        "other": "أخرى"
+      }
+    }
+  }
+}
+

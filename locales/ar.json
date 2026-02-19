@@ -1,0 +1,52 @@
+{
+  "select": {
+    "placeholder": "اختر…"
+  },
+  "combobox": {
+    "placeholder": "اختر…",
+    "search_placeholder": "بحث…"
+  },
+  "dropdown_menu": {
+    "label": "القائمة"
+  },
+  "file_path_input": {
+    "placeholder": "اختر مسارًا…",
+    "select": "اختر…"
+  },
+  "keybinding_input": {
+    "press_keys": "اضغط على المفاتيح…",
+    "waiting": "بانتظار الإدخال…"
+  },
+  "number_input": {
+    "placeholder": "0"
+  },
+  "common": {
+    "ok": "موافق",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "loading": "جارٍ التحميل…"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "invalid_email": "عنوان البريد الإلكتروني غير صالح",
+    "min_length": "الحد الأدنى {min} أحرف",
+    "max_length": "الحد الأقصى {max} أحرف"
+  },
+  "items": {
+    "zero": "{count} عنصر",
+    "one": "{count} عنصر",
+    "two": "{count} عنصران",
+    "few": "{count} عناصر",
+    "many": "{count} عنصرًا",
+    "other": "{count} عنصر"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "page": "الصفحة {page} من {total}"
+  }
+}
+

@@ -24,6 +24,7 @@ use gpui::{App, AppContext, Application, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui::component;
+use yororen_ui::i18n::{I18n, Locale};
 use yororen_ui::theme::GlobalTheme;
 
 fn main() {
@@ -32,6 +33,7 @@ fn main() {
     app.run(|cx: &mut App| {
         component::init(cx);
         cx.set_global(GlobalTheme::new(cx.window_appearance()));
+        cx.set_global(I18n::with_embedded(Locale::new("en").unwrap()));
         cx.set_global(state::FileBrowserState::default());
 
         let options = WindowOptions {

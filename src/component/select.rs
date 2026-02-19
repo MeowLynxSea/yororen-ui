@@ -2,19 +2,39 @@ use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
+    ParentElement, Pixels, Bounds, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
     prelude::FluentBuilder, px,
 };
 
 use crate::{
     animation::constants::duration,
     component::{
-        ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, compute_input_style,
-        create_internal_state, icon, use_internal_state,
+        ArrowDirection, BoundsTrackerElement, ChangeCallback, ChangeWithEventCallback, IconName,
+        compute_input_style, create_internal_state, icon, use_internal_state,
     },
-    i18n::{I18nContext, defaults::DefaultPlaceholders},
+    i18n::{I18n, I18nContext, TextDirection, defaults::DefaultPlaceholders},
     theme::ActiveTheme,
 };
+
+use crate::rtl;
+
+fn desired_menu_left(
+    trigger_bounds: Bounds<Pixels>,
+    menu_width: Pixels,
+    direction: TextDirection,
+    window: &gpui::Window,
+) -> Pixels {
+    let desired_left = if direction.is_rtl() {
+        trigger_bounds.right() - menu_width
+    } else {
+        trigger_bounds.left()
+    };
+
+    let window_bounds = window.bounds();
+    let min_left = window_bounds.left();
+    let max_left = (window_bounds.right() - menu_width).max(min_left);
+    desired_left.clamp(min_left, max_left)
+}
 
 use crate::animation::ease_out_quint_clamped;
 
@@ -321,6 +341,12 @@ impl RenderOnce for Select {
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
         let id = self.element_id;
 
+        let trigger_bounds_state = window.use_keyed_state(
+            (id.clone(), "ui:select:trigger-bounds"),
+            cx,
+            |_, _| Bounds::default(),
+        );
+
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
@@ -380,7 +406,10 @@ impl RenderOnce for Select {
         let on_change_simple_for_select = on_change_simple.clone();
         let on_change_with_event_for_select = on_change_with_event.clone();
 
-        self.base
+        let trigger_bounds_state_for_menu = trigger_bounds_state.clone();
+
+        let trigger = self
+            .base
             .id(id.clone())
             .relative()
             .flex()
@@ -431,12 +460,22 @@ impl RenderOnce for Select {
                 let on_change_with_event = on_change_with_event_for_select.clone();
                 let internal_value = internal_value_for_select.clone();
                 let text_color = input_style.text_color;
+                let direction = cx
+                    .try_global::<I18n>()
+                    .map(|i18n| i18n.text_direction())
+                    .unwrap_or(TextDirection::Ltr);
+
+                let trigger_bounds = *trigger_bounds_state_for_menu.read(cx);
+                let menu_width_px = menu_width.unwrap_or_else(|| trigger_bounds.size.width);
+                let menu_left = desired_menu_left(trigger_bounds, menu_width_px, direction, window);
+                let relative_left = menu_left - trigger_bounds.left();
 
                 let menu = div()
                     .id((id.clone(), "select-menu"))
                     .absolute()
                     .top_full()
                     .left_0()
+                    .when(relative_left != Pixels::ZERO, |this| this.left(relative_left))
                     .mt(px(10.))
                     .rounded_md()
                     .border_1()
@@ -444,8 +483,10 @@ impl RenderOnce for Select {
                     .bg(theme.surface.raised)
                     .shadow_md()
                     .py_1()
-                    .when_some(menu_width, |this, width| this.w(width))
+                    .w(menu_width_px)
                     .occlude()
+                    // Align menu content: start in LTR, end in RTL.
+                    .text_align(rtl::text_align_start(direction))
                     .on_mouse_down_out(move |_ev, _window, cx| {
                         menu_open_for_outside.update(cx, |open, _cx| *open = false);
                     })
@@ -520,6 +561,13 @@ impl RenderOnce for Select {
                 );
 
                 this.child(gpui::deferred(animated_menu).with_priority(100))
-            })
+            });
+
+        let trigger = BoundsTrackerElement {
+            bounds_state: trigger_bounds_state,
+            inner: trigger.into_any_element(),
+        };
+
+        trigger
     }
 }

@@ -98,6 +98,27 @@ let theme = cx.theme();
 let _ = div().bg(theme.surface.base).text_color(theme.content.primary);
 ```
 
+### 2.5) 安装 i18n（Locale + RTL）
+
+Yororen UI 使用 `locales/*.json` 作为嵌入式翻译资源，并提供 `I18n` 全局状态。
+建议在应用启动时初始化：
+
+```rust
+use gpui::App;
+use yororen_ui::i18n::{I18n, Locale};
+
+fn init_i18n(cx: &mut App) {
+    // 加载所有嵌入式语言包并指定默认语言
+    cx.set_global(I18n::with_embedded(Locale::new("en").unwrap()));
+}
+```
+
+想预览 RTL（如阿拉伯语），可以切换 locale：
+
+```rust
+cx.set_global(I18n::with_embedded(Locale::new("ar").unwrap()));
+```
+
 ### 3) 提供资源（图标）
 
 此 crate 将其图标嵌入到 <code>assets/icons/**</code> 下，并作为 <code>gpui::AssetSource</code>（<code>yororen_ui::assets::UiAsset</code>）公开。

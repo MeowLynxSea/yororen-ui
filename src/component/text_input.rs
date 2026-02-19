@@ -5,6 +5,8 @@ use super::TextEditState;
 use super::input::action_handler;
 use crate::component::{ChangeCallback, compute_input_style};
 use crate::theme::ActiveTheme;
+use crate::i18n::{I18n, TextDirection};
+use crate::rtl;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
     Entity, EntityInputHandler, FocusHandle, Focusable, GlobalElementId, Hsla, InteractiveElement,
@@ -642,10 +644,15 @@ impl Element for TextLineElement {
             window.paint_quad(selection)
         }
         let line = prepaint.line.take().expect("line should exist");
+        let direction = cx
+            .try_global::<I18n>()
+            .map(|i18n| i18n.text_direction())
+            .unwrap_or(TextDirection::Ltr);
+
         line.paint(
             point(bounds.left() - prepaint.scroll_x, bounds.top()),
             window.line_height(),
-            gpui::TextAlign::Left,
+            rtl::text_align_start(direction),
             None,
             window,
             cx,

@@ -98,6 +98,27 @@ let theme = cx.theme();
 let _ = div().bg(theme.surface.base).text_color(theme.content.primary);
 ```
 
+### 2.5) Install i18n (Locale + RTL)
+
+Yororen UI ships with an embedded JSON translation loader under `locales/*.json`.
+Initialize `I18n` during app startup:
+
+```rust
+use gpui::App;
+use yororen_ui::i18n::{I18n, Locale};
+
+fn init_i18n(cx: &mut App) {
+    // Load all embedded locales and pick a default.
+    cx.set_global(I18n::with_embedded(Locale::new("en").unwrap()));
+}
+```
+
+To preview RTL, switch the locale:
+
+```rust
+cx.set_global(I18n::with_embedded(Locale::new("ar").unwrap()));
+```
+
 ### 3) Provide Assets (Icons)
 
 This crate embeds its icons under `assets/icons/**` and exposes them as a `gpui::AssetSource` (`yororen_ui::assets::UiAsset`).

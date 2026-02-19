@@ -27,6 +27,7 @@
 
 use gpui::{InteractiveElement, IntoElement, ParentElement, Styled, div, px, hsla};
 use yororen_ui::component::{button, combo_box, modal, text_input, ComboBoxOption};
+use yororen_ui::i18n::Translate;
 use yororen_ui::theme::ActionVariantKind;
 
 use crate::state::TodoState;
@@ -37,13 +38,18 @@ pub struct TodoModal;
 
 impl TodoModal {
     /// Standard modal render pattern
-    pub fn render(edit_title: String, edit_category: TodoCategory) -> impl IntoElement {
+    pub fn render(cx: &gpui::App, edit_title: String, edit_category: TodoCategory) -> impl IntoElement {
+        let edit_title_key = cx.t("demo.todolist.edit_task");
+        let task_title_key = cx.t("demo.todolist.task_title");
+        let cancel_key = cx.t("common.cancel");
+        let save_key = cx.t("common.save");
+
         let category_options: Vec<ComboBoxOption> = TodoCategory::all()
             .iter()
-            .map(|c| ComboBoxOption::new(c.label(), c.label()))
+            .map(|c| ComboBoxOption::new(c.code(), cx.t(c.key())))
             .collect();
 
-        let category_label = edit_category.label().to_string();
+        let category_value = edit_category.code().to_string();
 
         // Outer container with overlay
         // The overlay prevents mouse events from reaching elements behind the modal
@@ -72,7 +78,7 @@ impl TodoModal {
                     .child(
                         // yororen-ui modal component
                         modal()
-                            .title("Edit Task")
+                            .title(edit_title_key)
                             .width(px(400.))
                             .closable(true)
                             // Handle modal close (via X button)
@@ -94,7 +100,7 @@ impl TodoModal {
                                     .gap(px(16.))
                                     .child(
                                         text_input("edit-title")
-                                            .placeholder("Task title")
+                                            .placeholder(task_title_key)
                                             .set_content(edit_title)
                                             .on_change(|text, _window, cx| {
                                                 let state = cx.global::<TodoState>();
@@ -103,11 +109,11 @@ impl TodoModal {
                                     )
                                     .child(
                                         combo_box("edit-category")
-                                            .value(&category_label)
+                                            .value(&category_value)
                                             .options(category_options)
                                             .on_change(|value, _ev, _window, cx| {
                                                 let state = cx.global::<TodoState>();
-                                                if let Some(cat) = TodoCategory::all().into_iter().find(|c| c.label() == value) {
+                                                if let Some(cat) = TodoCategory::all().into_iter().find(|c| c.code() == value) {
                                                     *state.edit_category.lock().unwrap() = cat;
                                                 }
                                             }),
@@ -122,7 +128,7 @@ impl TodoModal {
                                     // Cancel button - closes modal without saving
                                     .child(
                                         button("cancel-edit")
-                                            .child("Cancel")
+                                            .child(cancel_key)
                                             .on_click(|_ev, _window, cx| {
                                                 let entity_id = {
                                                     let state = cx.global::<TodoState>();
@@ -138,7 +144,7 @@ impl TodoModal {
                                     .child(
                                         button("save-edit")
                                             .variant(ActionVariantKind::Primary)
-                                            .child("Save")
+                                            .child(save_key)
                                             .on_click(|_ev, _window, cx| {
                                                 // IMPORTANT: Lock ordering
                                                 // First get the id and new values, release lock

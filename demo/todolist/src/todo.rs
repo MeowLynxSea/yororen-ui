@@ -58,14 +58,25 @@ impl TodoCategory {
         ]
     }
 
-    /// Display label for UI
-    pub fn label(&self) -> &'static str {
+    /// Stable category code for state/storage.
+    pub fn code(&self) -> &'static str {
         match self {
-            TodoCategory::Work => "Work",
-            TodoCategory::Personal => "Personal",
-            TodoCategory::Shopping => "Shopping",
-            TodoCategory::Health => "Health",
-            TodoCategory::Other => "Other",
+            TodoCategory::Work => "work",
+            TodoCategory::Personal => "personal",
+            TodoCategory::Shopping => "shopping",
+            TodoCategory::Health => "health",
+            TodoCategory::Other => "other",
+        }
+    }
+
+    /// Translation key for UI label.
+    pub fn key(&self) -> &'static str {
+        match self {
+            TodoCategory::Work => "demo.todolist.categories.work",
+            TodoCategory::Personal => "demo.todolist.categories.personal",
+            TodoCategory::Shopping => "demo.todolist.categories.shopping",
+            TodoCategory::Health => "demo.todolist.categories.health",
+            TodoCategory::Other => "demo.todolist.categories.other",
         }
     }
 }

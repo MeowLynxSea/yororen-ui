@@ -69,6 +69,8 @@ impl TodoApp {
 /// - Global state changes that this component depends on
 impl Render for TodoApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let app: &gpui::App = &*cx;
+
         // Step 1: Read global state
         let state = cx.global::<TodoState>();
         let theme = cx.theme();
@@ -110,9 +112,13 @@ impl Render for TodoApp {
                     .flex_col()
                     .gap(px(16.))
                     // Step 5: Render child components
-                    .child(components::todo_header::TodoHeader::render(compact_mode))
-                    .child(components::todo_toolbar::TodoToolbar::render(&search_query, &selected_category))
-                    .child(components::todo_form::TodoForm::render(new_todo_category))
+                    .child(components::todo_header::TodoHeader::render(app, compact_mode))
+                    .child(components::todo_toolbar::TodoToolbar::render(
+                        app,
+                        &search_query,
+                        &selected_category,
+                    ))
+                    .child(components::todo_form::TodoForm::render(app, new_todo_category))
                     .child(
                         div()
                             .flex_col()
@@ -120,13 +126,13 @@ impl Render for TodoApp {
                             .flex_grow()
                             .min_h_0()
                             .children(filtered_todos.into_iter().map(|todo| {
-                                components::todo_item::TodoItem::render(&todo, compact_mode)
+                                components::todo_item::TodoItem::render(app, &todo, compact_mode)
                             })),
                     ),
             )
             // Conditional rendering: show modal when editing
             .when_some(editing_todo, |this, _| {
-                this.child(components::todo_modal::TodoModal::render(edit_title, edit_category))
+                this.child(components::todo_modal::TodoModal::render(app, edit_title, edit_category))
             })
     }
 }

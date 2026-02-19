@@ -6,6 +6,7 @@ use std::sync::Arc;
 use gpui::{App, Global, SharedString};
 
 use super::locale::{Locale, SupportedLocale, TextDirection};
+use super::loader::{EmbeddedLoader, TranslationLoader};
 
 /// Global i18n state that stores the current locale and available translations.
 pub struct I18n {
@@ -23,6 +24,28 @@ impl I18n {
     /// Create a new i18n instance with default English locale.
     pub fn new() -> Self {
         Self::with_locale(Locale::default())
+    }
+
+    /// Create an i18n instance with embedded translations loaded.
+    pub fn with_embedded(locale: Locale) -> Self {
+        let mut i18n = Self::with_locale(locale);
+        i18n.load_all_embedded();
+        i18n
+    }
+
+    /// Load all embedded translations for supported locales.
+    ///
+    /// Missing locale files are skipped.
+    pub fn load_all_embedded(&mut self) {
+        let loader = EmbeddedLoader::new();
+        for supported in SupportedLocale::all() {
+            let locale = supported.to_locale();
+            if loader.is_available(&locale) {
+                if let Ok(map) = loader.load(&locale) {
+                    self.load_translations(locale, map);
+                }
+            }
+        }
     }
 
     /// Create a new i18n instance with a specific locale.
@@ -57,6 +80,21 @@ impl I18n {
     /// Load translations for a locale.
     pub fn load_translations(&mut self, locale: Locale, translations: TranslationMap) {
         self.translations.insert(locale, Arc::new(translations));
+    }
+
+    /// Merge translations into an existing locale map.
+    ///
+    /// If the locale hasn't been loaded yet, this behaves like `load_translations`.
+    pub fn merge_translations(&mut self, locale: Locale, translations: TranslationMap) {
+        match self.translations.get_mut(&locale) {
+            Some(existing) => {
+                let existing_map = Arc::make_mut(existing);
+                existing_map.merge(translations);
+            }
+            None => {
+                self.load_translations(locale, translations);
+            }
+        }
     }
 
     /// Get translations for the current locale.
@@ -136,6 +174,24 @@ impl TranslationMap {
     /// Get all nested maps.
     pub fn nested(&self) -> &HashMap<String, TranslationMap> {
         &self.nested
+    }
+
+    /// Merge another translation map into this one.
+    ///
+    /// - Flat keys from `other` override existing keys.
+    /// - Nested maps are merged recursively.
+    pub fn merge(&mut self, other: TranslationMap) {
+        for (key, value) in other.values {
+            self.values.insert(key, value);
+        }
+        for (key, nested_other) in other.nested {
+            match self.nested.get_mut(&key) {
+                Some(existing) => existing.merge(nested_other),
+                None => {
+                    self.nested.insert(key, nested_other);
+                }
+            }
+        }
     }
 }
 

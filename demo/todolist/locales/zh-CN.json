@@ -1,0 +1,22 @@
+{
+  "demo": {
+    "todolist": {
+      "title": "待办事项",
+      "compact_mode": "紧凑模式",
+      "add_placeholder": "添加新任务…",
+      "add": "添加",
+      "search_placeholder": "搜索任务…",
+      "all_categories": "全部分类",
+      "edit_task": "编辑任务",
+      "task_title": "任务标题",
+      "categories": {
+        "work": "工作",
+        "personal": "个人",
+        "shopping": "购物",
+        "health": "健康",
+        "other": "其他"
+      }
+    }
+  }
+}
+

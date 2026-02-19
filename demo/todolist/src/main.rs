@@ -31,6 +31,7 @@ mod todo;
 mod todo_app;
 mod state;
 mod components;
+mod i18n;
 
 // Gpui framework imports
 // Core types for building gpui applications
@@ -40,6 +41,7 @@ use gpui::{AppContext, Application, App, WindowOptions, px, size};
 // These are the foundation of every yororen-ui application
 use yororen_ui::assets::UiAsset;
 use yororen_ui::component;
+use yororen_ui::i18n::Locale;
 use yororen_ui::theme::GlobalTheme;
 
 /// Standard yororen-ui application entry point
@@ -63,6 +65,11 @@ fn main() {
         // REQUIRED: Set up theming
         // GlobalTheme handles light/dark mode based on system preferences
         cx.set_global(GlobalTheme::new(cx.window_appearance()));
+
+        // RECOMMENDED: Set up i18n.
+        // This demo additionally loads `demo/todolist/locales/<locale>.json` to keep demo strings
+        // out of the core library locales.
+        cx.set_global(i18n::load_demo_i18n(Locale::new("ar").unwrap()).unwrap());
 
         // RECOMMENDED: Set up global application state
         // Use Global trait + Arc<Mutex<T>> for shared state

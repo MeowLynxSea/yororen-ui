@@ -5,8 +5,49 @@
 
 use super::locale::Locale;
 
+use std::borrow::Cow;
+
+/// Locale-specific separators and digit shape.
+#[derive(Clone, Copy, Debug)]
+struct NumberSymbols {
+    decimal: char,
+    group: char,
+    minus: char,
+    /// Whether to use Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩).
+    use_arabic_indic_digits: bool,
+}
+
+impl NumberSymbols {
+    fn for_locale(locale: &Locale) -> Self {
+        match locale.language() {
+            // Arabic: Arabic-Indic digits + Arabic separators.
+            // Note: Decimal separator in Arabic locales is typically "٫" (U+066B)
+            // and group separator is "٬" (U+066C).
+            "ar" => Self {
+                decimal: '٫',
+                group: '٬',
+                minus: '−',
+                use_arabic_indic_digits: true,
+            },
+            // French family commonly uses comma for decimals and space (or NBSP) for grouping.
+            "fr" | "de" | "es" | "it" | "ru" => Self {
+                decimal: ',',
+                group: ' ',
+                minus: '−',
+                use_arabic_indic_digits: false,
+            },
+            _ => Self {
+                decimal: '.',
+                group: ',',
+                minus: '-',
+                use_arabic_indic_digits: false,
+            },
+        }
+    }
+}
+
 /// Number formatting options.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct NumberFormatOptions {
     /// Minimum decimal places.
     pub min_fraction_digits: Option<usize>,
@@ -16,8 +57,25 @@ pub struct NumberFormatOptions {
     pub use_grouping: bool,
     /// Currency code (e.g., "USD", "EUR").
     pub currency: Option<&'static str>,
+    /// Put the currency symbol/code after the number.
+    ///
+    /// If `None`, a locale-aware default is used.
+    pub currency_as_suffix: Option<bool>,
     /// Currency display style.
     pub currency_display: super::CurrencyDisplay,
+}
+
+impl Default for NumberFormatOptions {
+    fn default() -> Self {
+        Self {
+            min_fraction_digits: None,
+            max_fraction_digits: None,
+            use_grouping: true,
+            currency: None,
+            currency_as_suffix: None,
+            currency_display: super::CurrencyDisplay::default(),
+        }
+    }
 }
 
 /// Currency display style.
@@ -42,46 +100,133 @@ impl NumberFormatter {
 
     /// Format a number as a decimal.
     pub fn format_decimal(&self, value: f64) -> String {
-        // Use basic formatting based on locale
+        self.format_decimal_with_options(value, &NumberFormatOptions::default())
+    }
+
+    fn format_decimal_with_options(&self, value: f64, options: &NumberFormatOptions) -> String {
+        let symbols = NumberSymbols::for_locale(&self.locale);
         let lang = self.locale.language();
+        let use_grouping = options.use_grouping
+            && !matches!(lang, "ja" | "zh" | "ko")
+            && value.is_finite();
 
-        // Check if locale uses grouping (most do except some Asian locales)
-        let use_grouping = !matches!(lang, "ja" | "zh" | "ko");
-
-        if use_grouping {
-            let formatted = format!("{:.}", value);
-            let parts: Vec<&str> = formatted.split('.').collect();
-            let int_part = parts[0];
-            let dec_part = parts.get(1);
-
-            // Add grouping separators
-            let int_formatted = add_grouping_separators(int_part, lang);
-
-            if let Some(dec) = dec_part {
-                format!("{}.{}", int_formatted, dec)
-            } else {
-                int_formatted
-            }
-        } else if value.fract() == 0.0 {
-            format!("{:.0}", value)
-        } else {
-            format!("{}", value)
+        if value.is_nan() {
+            return "NaN".to_string();
         }
+        if value.is_infinite() {
+            if value.is_sign_negative() {
+                return format!("{}∞", symbols.minus);
+            }
+            return "∞".to_string();
+        }
+
+        let mut value = value;
+        let mut sign = "";
+        if value.is_sign_negative() {
+            sign = "-";
+            value = -value;
+        }
+
+        // Determine fraction digits.
+        // If not specified, keep Rust's default formatting for non-integers.
+        let formatted = match (options.min_fraction_digits, options.max_fraction_digits) {
+            (Some(min), Some(max)) => {
+                let max = max.max(min);
+                let mut s = format!("{value:.max$}");
+                if max > min {
+                    // Trim trailing zeros but keep at least min digits.
+                    if let Some(dot) = s.find('.') {
+                        let mut frac = s[dot + 1..].to_string();
+                        while frac.len() > min && frac.ends_with('0') {
+                            frac.pop();
+                        }
+                        if frac.is_empty() {
+                            s.truncate(dot);
+                        } else {
+                            s.truncate(dot + 1);
+                            s.push_str(&frac);
+                        }
+                    }
+                }
+                s
+            }
+            (None, Some(max)) => format!("{value:.max$}"),
+            (Some(min), None) => {
+                if value.fract() == 0.0 {
+                    format!("{value:.0}")
+                } else {
+                    let mut s = format!("{value}");
+                    // Ensure at least min digits by padding if necessary.
+                    if let Some(dot) = s.find('.') {
+                        let current = s.len() - (dot + 1);
+                        if current < min {
+                            s.push_str(&"0".repeat(min - current));
+                        }
+                    } else {
+                        s.push(symbols.decimal);
+                        s.push_str(&"0".repeat(min));
+                    }
+                    s
+                }
+            }
+            (None, None) => {
+                if value.fract() == 0.0 {
+                    format!("{value:.0}")
+                } else {
+                    format!("{value}")
+                }
+            }
+        };
+
+        let (int_part, frac_part) = formatted
+            .split_once('.')
+            .map(|(a, b)| (a, Some(b)))
+            .unwrap_or((formatted.as_str(), None));
+
+        let int_part = if use_grouping {
+            add_grouping_separators(int_part, symbols.group)
+        } else {
+            int_part.to_string()
+        };
+
+        let mut out = String::new();
+        if sign == "-" {
+            out.push(symbols.minus);
+        }
+        out.push_str(&int_part);
+        if let Some(frac) = frac_part {
+            out.push(symbols.decimal);
+            out.push_str(frac);
+        }
+
+        if symbols.use_arabic_indic_digits {
+            out = latin_to_arabic_indic_digits(&out);
+        }
+
+        out
     }
 
     /// Format a number with options.
     pub fn format_with_options(&self, value: f64, options: &NumberFormatOptions) -> String {
-        let result = self.format_decimal(value);
+        let result = self.format_decimal_with_options(value, options);
+        let Some(currency) = options.currency else {
+            return result;
+        };
 
-        if let Some(currency) = options.currency {
-            let symbol = match options.currency_display {
-                CurrencyDisplay::Symbol => get_currency_symbol(currency).to_string(),
-                CurrencyDisplay::Code => currency.to_string(),
-                CurrencyDisplay::Name => get_currency_name(currency),
-            };
-            format!("{} {}", symbol, result)
+        let symbol = match options.currency_display {
+            CurrencyDisplay::Symbol => get_currency_symbol(currency, &self.locale).to_string(),
+            CurrencyDisplay::Code => currency.to_string(),
+            CurrencyDisplay::Name => get_currency_name(currency, &self.locale),
+        };
+
+        let as_suffix = options
+            .currency_as_suffix
+            .unwrap_or_else(|| currency_should_be_suffix(&self.locale));
+
+        if as_suffix {
+            format!("{result} {symbol}")
         } else {
-            result
+            format!("{symbol} {result}")
         }
     }
 
@@ -90,6 +235,11 @@ impl NumberFormatter {
         let options = NumberFormatOptions {
             currency: Some(currency),
             currency_display: CurrencyDisplay::Symbol,
+            use_grouping: true,
+            // Pragmatic default: many currencies usually display 2 fraction digits, except
+            // some zero-decimal currencies (JPY/KRW).
+            min_fraction_digits: Some(currency_default_fraction_digits(currency)),
+            max_fraction_digits: Some(currency_default_fraction_digits(currency)),
             ..Default::default()
         };
         self.format_with_options(value, &options)
@@ -103,14 +253,8 @@ impl NumberFormatter {
 }
 
 /// Add thousand separators based on locale.
-fn add_grouping_separators(s: &str, lang: &str) -> String {
-    // Different locales use different group sizes
-    let (group_size, separator) = match lang {
-        "en" | "zh" => (3, ","),
-        "de" | "es" | "fr" | "it" | "ru" => (3, " "),
-        "hi" => (3, ","),
-        _ => (3, ","),
-    };
+fn add_grouping_separators(s: &str, separator: char) -> String {
+    let group_size = 3;
 
     let chars: Vec<char> = s.chars().collect();
     let len = chars.len();
@@ -139,32 +283,106 @@ fn add_grouping_separators(s: &str, lang: &str) -> String {
     result
 }
 
-/// Get currency symbol.
-fn get_currency_symbol(currency: &str) -> &str {
+fn latin_to_arabic_indic_digits(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            '0' => '٠',
+            '1' => '١',
+            '2' => '٢',
+            '3' => '٣',
+            '4' => '٤',
+            '5' => '٥',
+            '6' => '٦',
+            '7' => '٧',
+            '8' => '٨',
+            '9' => '٩',
+            _ => c,
+        })
+        .collect()
+}
+
+fn currency_should_be_suffix(locale: &Locale) -> bool {
+    // A small pragmatic default: English often prefixes, many European languages suffix.
+    match locale.language() {
+        "fr" | "de" | "es" | "it" | "ru" => true,
+        // Arabic commonly uses suffix in many contexts (e.g. ١٠٠ ر.س), but varies.
+        "ar" => true,
+        _ => false,
+    }
+}
+
+fn currency_default_fraction_digits(currency: &str) -> usize {
     match currency {
-        "USD" => "$",
-        "EUR" => "€",
-        "GBP" => "£",
-        "JPY" => "¥",
-        "CNY" => "¥",
-        "KRW" => "₩",
-        "INR" => "₹",
-        "RUB" => "₽",
-        _ => currency,
+        "JPY" | "KRW" => 0,
+        _ => 2,
+    }
+}
+
+/// Get currency symbol.
+fn get_currency_symbol<'a>(currency: &'a str, locale: &Locale) -> Cow<'a, str> {
+    match currency {
+        "USD" => Cow::Borrowed("$"),
+        "EUR" => Cow::Borrowed("€"),
+        "GBP" => Cow::Borrowed("£"),
+        "JPY" => Cow::Borrowed("¥"),
+        "CNY" => Cow::Borrowed("¥"),
+        "KRW" => Cow::Borrowed("₩"),
+        "INR" => Cow::Borrowed("₹"),
+        "RUB" => Cow::Borrowed("₽"),
+        "SAR" => {
+            if locale.language() == "ar" {
+                Cow::Borrowed("ر.س")
+            } else {
+                Cow::Borrowed("SAR")
+            }
+        }
+        _ => Cow::Borrowed(currency),
     }
 }
 
 /// Get currency name (localized).
-fn get_currency_name(currency: &str) -> String {
+fn get_currency_name(currency: &str, locale: &Locale) -> String {
     match currency {
-        "USD" => "US Dollar".to_string(),
-        "EUR" => "Euro".to_string(),
-        "GBP" => "British Pound".to_string(),
-        "JPY" => "Japanese Yen".to_string(),
-        "CNY" => "Chinese Yuan".to_string(),
-        "KRW" => "Korean Won".to_string(),
-        "INR" => "Indian Rupee".to_string(),
-        "RUB" => "Russian Ruble".to_string(),
+        "USD" => match locale.language() {
+            "zh" => "美元".to_string(),
+            "ar" => "دولار أمريكي".to_string(),
+            _ => "US Dollar".to_string(),
+        },
+        "EUR" => match locale.language() {
+            "zh" => "欧元".to_string(),
+            "ar" => "يورو".to_string(),
+            _ => "Euro".to_string(),
+        },
+        "GBP" => match locale.language() {
+            "zh" => "英镑".to_string(),
+            "ar" => "جنيه إسترليني".to_string(),
+            _ => "British Pound".to_string(),
+        },
+        "JPY" => match locale.language() {
+            "zh" => "日元".to_string(),
+            "ar" => "ين ياباني".to_string(),
+            _ => "Japanese Yen".to_string(),
+        },
+        "CNY" => match locale.language() {
+            "zh" => "人民币".to_string(),
+            "ar" => "يوان صيني".to_string(),
+            _ => "Chinese Yuan".to_string(),
+        },
+        "KRW" => match locale.language() {
+            "zh" => "韩元".to_string(),
+            "ar" => "وون كوري".to_string(),
+            _ => "Korean Won".to_string(),
+        },
+        "INR" => match locale.language() {
+            "zh" => "印度卢比".to_string(),
+            "ar" => "روبية هندية".to_string(),
+            _ => "Indian Rupee".to_string(),
+        },
+        "RUB" => match locale.language() {
+            "zh" => "俄罗斯卢布".to_string(),
+            "ar" => "روبل روسي".to_string(),
+            _ => "Russian Ruble".to_string(),
+        },
         _ => currency.to_string(),
     }
 }
@@ -349,8 +567,8 @@ mod tests {
     fn test_currency_format() {
         let formatter = NumberFormatter::new(Locale::new("en").unwrap());
 
-        assert_eq!(formatter.format_currency(100.50, "USD"), "$ 100.5");
-        assert_eq!(formatter.format_currency(1000.0, "EUR"), "€ 1,000");
+        assert_eq!(formatter.format_currency(100.50, "USD"), "$ 100.50");
+        assert_eq!(formatter.format_currency(1000.0, "EUR"), "€ 1,000.00");
     }
 
     #[test]

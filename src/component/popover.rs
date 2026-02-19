@@ -1,12 +1,32 @@
 use gpui::prelude::FluentBuilder;
+use gpui::AppContext;
 use gpui::{
     Animation, AnimationExt, ClickEvent, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, Styled, div, px,
+    Bounds, ParentElement, Pixels, RenderOnce, Styled, div, px,
 };
 
 use crate::{animation::constants::duration, theme::ActiveTheme};
+use crate::i18n::{I18n, TextDirection};
+use crate::component::BoundsTrackerElement;
 
 use crate::animation::ease_out_quint_clamped;
+
+fn desired_menu_left(
+    trigger_bounds: Bounds<Pixels>,
+    menu_width: Pixels,
+    direction: TextDirection,
+    window: &gpui::Window,
+) -> Pixels {
+    let desired_left = match direction {
+        TextDirection::Ltr => trigger_bounds.left(),
+        TextDirection::Rtl => trigger_bounds.right() - menu_width,
+    };
+
+    let window_bounds = window.bounds();
+    let min_left = window_bounds.left();
+    let max_left = (window_bounds.right() - menu_width).max(min_left);
+    desired_left.clamp(min_left, max_left)
+}
 
 /// Defines the placement position of a popover relative to its trigger element.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -170,6 +190,9 @@ impl RenderOnce for Popover {
         let element_id = self.element_id;
         let id = element_id.clone();
 
+        // Track trigger bounds for overflow protection.
+        let trigger_bounds_state = cx.new(|_| Bounds::<Pixels>::default());
+
         let theme = cx.theme();
         let bg = self.bg.unwrap_or(theme.surface.raised);
         let border = self.border.unwrap_or(theme.border.default);
@@ -184,11 +207,25 @@ impl RenderOnce for Popover {
 
         // Like Select/ComboBox, Popover is a relative container and the menu is an absolute child
         // rendered via `gpui::deferred(...)` so it is painted above.
-        self.base
+        let trigger = self.base
             .id(element_id)
             .relative()
-            .child(trigger)
+            .child(BoundsTrackerElement {
+                bounds_state: trigger_bounds_state.clone(),
+                inner: trigger.into_any_element(),
+            })
             .when(is_open, move |this| {
+                let direction = cx
+                    .try_global::<I18n>()
+                    .map(|i18n| i18n.text_direction())
+                    .unwrap_or(TextDirection::Ltr);
+
+                // Resolve menu width for clamping.
+                let menu_width_px = width.unwrap_or(px(260.));
+                let trigger_bounds = *trigger_bounds_state.read(cx);
+                let menu_left = desired_menu_left(trigger_bounds, menu_width_px, direction, _window);
+                let relative_left = menu_left - trigger_bounds.left();
+
                 let menu = div()
                     .id((id.clone(), "ui:popover:menu"))
                     .absolute()
@@ -196,8 +233,9 @@ impl RenderOnce for Popover {
                         this.top_full().left_0()
                     })
                     .when(placement == PopoverPlacement::BottomEnd, |this| {
-                        this.top_full().right_0()
+                        this.top_full().left_0()
                     })
+                    .when(relative_left != Pixels::ZERO, |this| this.left(relative_left))
                     .mt(px(10.))
                     .rounded_md()
                     .overflow_hidden()
@@ -206,7 +244,7 @@ impl RenderOnce for Popover {
                     .bg(bg)
                     .shadow_md()
                     .py_1()
-                    .when_some(width, |this, width| this.w(width))
+                    .w(menu_width_px)
                     .occlude()
                     .on_mouse_down_out(move |_ev, window, cx| {
                         if let Some(on_close) = &on_close {
@@ -222,7 +260,9 @@ impl RenderOnce for Popover {
                 );
 
                 this.child(gpui::deferred(animated).with_priority(100))
-            })
+            });
+
+        trigger
     }
 }
 

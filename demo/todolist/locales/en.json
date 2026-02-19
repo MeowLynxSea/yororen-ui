@@ -1,0 +1,22 @@
+{
+  "demo": {
+    "todolist": {
+      "title": "Todo Manager",
+      "compact_mode": "Compact Mode",
+      "add_placeholder": "Add new task...",
+      "add": "Add",
+      "search_placeholder": "Search todos...",
+      "all_categories": "All Categories",
+      "edit_task": "Edit Task",
+      "task_title": "Task title",
+      "categories": {
+        "work": "Work",
+        "personal": "Personal",
+        "shopping": "Shopping",
+        "health": "Health",
+        "other": "Other"
+      }
+    }
+  }
+}
+
