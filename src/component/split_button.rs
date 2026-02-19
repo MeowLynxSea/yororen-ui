@@ -220,7 +220,7 @@ impl RenderOnce for SplitButton {
                 let id = id.clone();
                 let on_action = on_action_for_menu.clone();
                 let menu = div()
-                    .id("split-button-menu")
+                    .id("ui:split-button:menu")
                     .absolute()
                     .top_full()
                     .right_0()
@@ -264,7 +264,7 @@ impl RenderOnce for SplitButton {
                     }));
 
                 let animated_menu = menu.with_animation(
-                    format!("split-button-menu-{}", is_open),
+                    format!("ui:split-button:menu-{}", is_open),
                     Animation::new(duration::MENU_OPEN).with_easing(ease_out_quint_clamped),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );

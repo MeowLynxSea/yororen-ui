@@ -1,6 +1,6 @@
 use gpui::prelude::FluentBuilder;
 use gpui::{
-    AlignSelf, AnyElement, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
+    AlignSelf, AnyElement, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
     RenderOnce, SharedString, Styled, div, px,
 };
 use serde::{Deserialize, Serialize};
@@ -35,6 +35,7 @@ pub enum ToastKind {
 
 #[derive(IntoElement)]
 pub struct Toast {
+    element_id: ElementId,
     base: gpui::Div,
     message: Option<SharedString>,
     content: Option<AnyElement>,
@@ -57,6 +58,7 @@ impl Default for Toast {
 impl Toast {
     pub fn new() -> Self {
         Self {
+            element_id: "ui:toast".into(),
             base: div(),
             message: None,
             content: None,
@@ -69,6 +71,16 @@ impl Toast {
             max_width: None,
             trailing: None,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     /// Set the toast message.
@@ -177,6 +189,7 @@ impl RenderOnce for Toast {
 
         // In column flex containers, children are often stretched to full width.
         // Toast should shrink to its content by default.
+        let element_id = self.element_id;
         let mut base = self.base;
         if base.style().align_self.is_none() {
             base.style().align_self = Some(AlignSelf::FlexStart);
@@ -189,7 +202,7 @@ impl RenderOnce for Toast {
         let message = self.message;
         let has_content = content.is_some();
 
-        base.id("ui:toast")
+        base.id(element_id)
             .px_3()
             .py_2()
             .rounded_md()

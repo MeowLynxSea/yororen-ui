@@ -107,7 +107,7 @@ impl RenderOnce for Tag {
             let on_close = self.on_close;
             base = base.child(
                 div()
-                    .id("tag-close")
+                    .id("ui:tag:close")
                     .w_4()
                     .h_4()
                     .rounded_full()

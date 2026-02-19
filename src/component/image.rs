@@ -1,8 +1,9 @@
 use std::{path::PathBuf, sync::Arc};
 
+use gpui::InteractiveElement;
 use gpui::{
-    AnyElement, Div, Image, ImageFormat, IntoElement, ObjectFit, ParentElement, RenderOnce, Styled,
-    StyledImage, div, img,
+    AnyElement, Div, ElementId, Image, ImageFormat, IntoElement, ObjectFit, ParentElement,
+    RenderOnce, Styled, StyledImage, div, img,
 };
 
 use crate::theme::ActiveTheme;
@@ -45,6 +46,7 @@ impl From<ImageFit> for ObjectFit {
 
 #[derive(IntoElement)]
 pub struct ImageView {
+    element_id: ElementId,
     base: Div,
     source: ImageSource,
     fit: ImageFit,
@@ -53,10 +55,21 @@ pub struct ImageView {
 impl ImageView {
     pub fn new(source: impl Into<ImageSource>) -> Self {
         Self {
+            element_id: "ui:image".into(),
             base: div(),
             source: source.into(),
             fit: ImageFit::Contain,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn fit(mut self, fit: ImageFit) -> Self {
@@ -116,7 +129,7 @@ impl RenderOnce for ImageView {
         .with_fallback(fallback)
         .size_full();
 
-        self.base.child(image)
+        self.base.id(self.element_id).child(image)
     }
 }
 

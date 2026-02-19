@@ -1,5 +1,6 @@
 use gpui::{
-    AnyView, AppContext, Hsla, IntoElement, ParentElement, Render, RenderOnce, Styled, div,
+    AnyView, AppContext, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Render,
+    RenderOnce, Styled, div,
 };
 
 use crate::theme::ActiveTheme;
@@ -42,6 +43,7 @@ pub fn tooltip(content: impl Into<String>) -> Tooltip {
 /// a fixed placement using `.placement()`.
 #[derive(IntoElement)]
 pub struct Tooltip {
+    element_id: ElementId,
     content: String,
     placement: TooltipPlacement,
     bg: Option<Hsla>,
@@ -49,6 +51,7 @@ pub struct Tooltip {
 }
 
 struct TooltipView {
+    element_id: ElementId,
     content: String,
     bg: Option<Hsla>,
     text_color: Option<Hsla>,
@@ -57,11 +60,22 @@ struct TooltipView {
 impl Tooltip {
     pub fn text(content: impl Into<String>) -> Self {
         Self {
+            element_id: "ui:tooltip".into(),
             content: content.into(),
             placement: TooltipPlacement::Auto,
             bg: None,
             text_color: None,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn placement(mut self, placement: TooltipPlacement) -> Self {
@@ -80,12 +94,14 @@ impl Tooltip {
     }
 
     pub fn build(self) -> impl Fn(&mut gpui::Window, &mut gpui::App) -> AnyView {
+        let element_id = self.element_id;
         let content = self.content;
         let _placement = self.placement;
         let bg = self.bg;
         let text_color = self.text_color;
         move |_, cx| {
             cx.new(|_| TooltipView {
+                element_id: element_id.clone(),
                 content: content.clone(),
                 bg,
                 text_color,
@@ -103,6 +119,7 @@ impl Render for TooltipView {
     ) -> impl IntoElement {
         let theme = cx.theme();
         div()
+            .id(self.element_id.clone())
             .px_3()
             .py_2()
             .rounded_sm()
@@ -115,6 +132,6 @@ impl Render for TooltipView {
 
 impl RenderOnce for Tooltip {
     fn render(self, _window: &mut gpui::Window, _cx: &mut gpui::App) -> impl IntoElement {
-        div().child(self.content)
+        div().id(self.element_id).child(self.content)
     }
 }

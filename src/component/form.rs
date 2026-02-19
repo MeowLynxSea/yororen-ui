@@ -1,5 +1,8 @@
 use gpui::prelude::FluentBuilder;
-use gpui::{Div, Hsla, IntoElement, ParentElement, RenderOnce, SharedString, Styled, div, px};
+use gpui::{
+    Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString,
+    Styled, div, px,
+};
 
 use crate::{
     component::{IconName, icon, label},
@@ -12,12 +15,26 @@ pub fn form() -> Form {
 
 #[derive(IntoElement)]
 pub struct Form {
+    element_id: ElementId,
     base: Div,
 }
 
 impl Form {
     pub fn new() -> Self {
-        Self { base: div() }
+        Self {
+            element_id: "ui:form".into(),
+            base: div(),
+        }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 }
 
@@ -41,7 +58,7 @@ impl Styled for Form {
 
 impl RenderOnce for Form {
     fn render(self, _window: &mut gpui::Window, _cx: &mut gpui::App) -> impl IntoElement {
-        self.base.flex().flex_col().gap_3()
+        self.base.id(self.element_id).flex().flex_col().gap_3()
     }
 }
 
@@ -58,6 +75,7 @@ pub fn validation_state_icon(state: ValidationState) -> ValidationStateIcon {
 
 #[derive(IntoElement)]
 pub struct ValidationStateIcon {
+    element_id: ElementId,
     base: Div,
     state: ValidationState,
     size: gpui::Pixels,
@@ -66,10 +84,21 @@ pub struct ValidationStateIcon {
 impl ValidationStateIcon {
     pub fn new(state: ValidationState) -> Self {
         Self {
+            element_id: "ui:validation-state-icon".into(),
             base: div(),
             state,
             size: px(22.),
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn size(mut self, size: gpui::Pixels) -> Self {
@@ -95,6 +124,7 @@ impl RenderOnce for ValidationStateIcon {
         let fg = cx.theme().content.on_status;
 
         self.base
+            .id(self.element_id)
             .flex()
             .items_center()
             .justify_center()
@@ -111,6 +141,7 @@ pub fn help_text(text: impl Into<SharedString>) -> HelpText {
 
 #[derive(IntoElement)]
 pub struct HelpText {
+    element_id: ElementId,
     base: Div,
     text: SharedString,
 }
@@ -118,9 +149,20 @@ pub struct HelpText {
 impl HelpText {
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
+            element_id: "ui:help-text".into(),
             base: div(),
             text: text.into(),
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 }
 
@@ -133,6 +175,7 @@ impl Styled for HelpText {
 impl RenderOnce for HelpText {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
         self.base
+            .id(self.element_id)
             .text_sm()
             .text_color(cx.theme().content.secondary)
             .child(self.text)
@@ -145,6 +188,7 @@ pub fn inline_error(text: impl Into<SharedString>) -> InlineError {
 
 #[derive(IntoElement)]
 pub struct InlineError {
+    element_id: ElementId,
     base: Div,
     text: SharedString,
     icon: bool,
@@ -153,10 +197,21 @@ pub struct InlineError {
 impl InlineError {
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
+            element_id: "ui:inline-error".into(),
             base: div(),
             text: text.into(),
             icon: true,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn icon(mut self, icon: bool) -> Self {
@@ -177,6 +232,7 @@ impl RenderOnce for InlineError {
         let fg = cx.theme().status.error.fg;
 
         self.base
+            .id(self.element_id)
             .flex()
             .items_center()
             .gap_2()
@@ -199,6 +255,7 @@ pub fn form_row(label: impl Into<SharedString>, control: impl IntoElement) -> Fo
 
 #[derive(IntoElement)]
 pub struct FormRow {
+    element_id: ElementId,
     base: Div,
 
     label: SharedString,
@@ -217,6 +274,7 @@ pub struct FormRow {
 impl FormRow {
     pub fn new(label: impl Into<SharedString>, control: impl IntoElement) -> Self {
         Self {
+            element_id: "ui:form-row".into(),
             base: div(),
             label: label.into(),
             control: control.into_any_element(),
@@ -227,6 +285,16 @@ impl FormRow {
             validation: None,
             validation_icon_size: None,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn help(mut self, help: impl IntoElement) -> Self {
@@ -297,6 +365,7 @@ impl RenderOnce for FormRow {
         });
 
         self.base
+            .id(self.element_id)
             .w_full()
             .flex()
             .items_start()

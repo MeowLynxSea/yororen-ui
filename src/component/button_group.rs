@@ -1,6 +1,6 @@
 use gpui::{
-    AbsoluteLength, DefiniteLength, Div, IntoElement, ParentElement, RenderOnce, Styled, div,
-    prelude::FluentBuilder,
+    AbsoluteLength, DefiniteLength, Div, ElementId, InteractiveElement, IntoElement, ParentElement,
+    RenderOnce, Styled, div, prelude::FluentBuilder,
 };
 
 pub fn button_group() -> ButtonGroup {
@@ -9,6 +9,7 @@ pub fn button_group() -> ButtonGroup {
 
 #[derive(IntoElement)]
 pub struct ButtonGroup {
+    element_id: ElementId,
     base: Div,
     children: Vec<gpui::AnyElement>,
     gap: Option<DefiniteLength>,
@@ -25,12 +26,23 @@ impl Default for ButtonGroup {
 impl ButtonGroup {
     pub fn new() -> Self {
         Self {
+            element_id: "ui:button-group".into(),
             base: div(),
             children: Vec::new(),
             gap: None,
             radius: None,
             connected: false,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn gap(mut self, gap: DefiniteLength) -> Self {
@@ -66,8 +78,9 @@ impl RenderOnce for ButtonGroup {
         let gap = self.gap;
         let radius = self.radius;
         let connected = self.connected;
+        let element_id = self.element_id;
 
-        let mut group = self.base.flex().items_center();
+        let mut group = self.base.id(element_id).flex().items_center();
         if let Some(gap) = gap
             && !connected
         {

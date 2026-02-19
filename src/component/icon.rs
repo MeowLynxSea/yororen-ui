@@ -1,6 +1,9 @@
 mod name;
 
-use gpui::{Hsla, IntoElement, Pixels, RenderOnce, SharedString, Styled, px, svg};
+use gpui::{
+    ElementId, Hsla, InteractiveElement, IntoElement, Pixels, RenderOnce, SharedString, Styled, px,
+    svg,
+};
 pub use name::*;
 
 use crate::theme::ActiveTheme;
@@ -49,6 +52,7 @@ impl From<IconPath> for SharedString {
 
 #[derive(IntoElement)]
 pub struct Icon {
+    element_id: ElementId,
     path: IconPath,
     size: Pixels,
     color: Option<Hsla>,
@@ -58,11 +62,22 @@ pub struct Icon {
 impl Icon {
     pub fn new(path: impl Into<IconPath>) -> Self {
         Self {
+            element_id: "ui:icon".into(),
             path: path.into(),
             size: px(14.),
             color: None,
             inherit_color: false,
         }
+    }
+
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.element_id = id.into();
+        self
+    }
+
+    /// Alias for `id(...)`. Use `key(...)` when you want to emphasize state identity.
+    pub fn key(self, key: impl Into<ElementId>) -> Self {
+        self.id(key)
     }
 
     pub fn size(mut self, size: Pixels) -> Self {
@@ -83,7 +98,7 @@ impl Icon {
 
 impl RenderOnce for Icon {
     fn render(self, _window: &mut gpui::Window, cx: &mut gpui::App) -> impl IntoElement {
-        let base = svg().path(self.path).size(self.size);
+        let base = svg().path(self.path).size(self.size).id(self.element_id);
         if let Some(color) = self.color {
             base.text_color(color)
         } else if self.inherit_color {

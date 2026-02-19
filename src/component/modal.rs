@@ -61,7 +61,7 @@ impl Default for Modal {
 impl Modal {
     pub fn new() -> Self {
         Self {
-            element_id: "modal".into(),
+            element_id: "ui:modal".into(),
             base: div(),
             title: None,
             content: None,

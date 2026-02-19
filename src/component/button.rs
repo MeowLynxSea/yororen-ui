@@ -67,7 +67,7 @@ impl Button {
     /// Note: Always provide a unique, stable ID via `.id()` for interactive components.
     pub fn new() -> Self {
         Self {
-            element_id: "button".into(),
+            element_id: "ui:button".into(),
             base: div().h(px(36.)).px_4().py_2(),
             click_fn: None,
             hover_fn: None,
