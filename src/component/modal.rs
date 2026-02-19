@@ -1,11 +1,11 @@
 use gpui::prelude::FluentBuilder;
 use gpui::{
-    ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString, Styled,
-    div, px,
+    ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString,
+    Styled, div, px,
 };
 
 use crate::{
-    component::{icon, icon_button, HeadingLevel, IconName, button, heading, label},
+    component::{HeadingLevel, IconName, button, heading, icon, icon_button, label},
     theme::{ActionVariantKind, ActiveTheme},
 };
 

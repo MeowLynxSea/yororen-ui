@@ -246,13 +246,7 @@ impl NotificationCenter {
         state.queue.iter().cloned().collect()
     }
 
-    pub(crate) fn click(
-        &self,
-        id: Uuid,
-        ev: &ClickEvent,
-        window: &mut Window,
-        cx: &mut gpui::App,
-    ) {
+    pub(crate) fn click(&self, id: Uuid, ev: &ClickEvent, window: &mut Window, cx: &mut gpui::App) {
         let (n, cb) = {
             let state = self.state.lock().unwrap();
             let n = state.queue.iter().find(|n| n.id == id).cloned();
@@ -390,14 +384,13 @@ impl NotificationCenter {
         let (enabled, entity, snapshot) = {
             let state = self.state.lock().unwrap();
             let snapshot = PersistedState {
-                items: state
-                    .queue
-                    .iter()
-                    .filter(|n| n.sticky)
-                    .cloned()
-                    .collect(),
+                items: state.queue.iter().filter(|n| n.sticky).cloned().collect(),
             };
-            (state.persist_enabled, state.persisted_state.clone(), snapshot)
+            (
+                state.persist_enabled,
+                state.persisted_state.clone(),
+                snapshot,
+            )
         };
 
         if !enabled {

@@ -210,9 +210,24 @@ impl DateTimeFormatter {
             // Format based on locale
             match lang {
                 "en" => dt.format("%Y-%m-%d").to_string(),
-                "zh" => format!("{}年{}月{}日", dt.format("%Y"), dt.format("%m"), dt.format("%d")),
-                "ja" => format!("{}年{}月{}日", dt.format("%Y"), dt.format("%m"), dt.format("%d")),
-                "ko" => format!("{}-{}-{}", dt.format("%Y"), dt.format("%m"), dt.format("%d")),
+                "zh" => format!(
+                    "{}年{}月{}日",
+                    dt.format("%Y"),
+                    dt.format("%m"),
+                    dt.format("%d")
+                ),
+                "ja" => format!(
+                    "{}年{}月{}日",
+                    dt.format("%Y"),
+                    dt.format("%m"),
+                    dt.format("%d")
+                ),
+                "ko" => format!(
+                    "{}-{}-{}",
+                    dt.format("%Y"),
+                    dt.format("%m"),
+                    dt.format("%d")
+                ),
                 "de" => dt.format("%d.%m.%Y").to_string(),
                 "fr" => dt.format("%d/%m/%Y").to_string(),
                 "es" => dt.format("%d/%m/%Y").to_string(),

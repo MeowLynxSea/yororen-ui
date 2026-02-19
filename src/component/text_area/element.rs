@@ -3,16 +3,12 @@
 //! Contains the element implementation for text area rendering.
 
 use gpui::{
-    App, Bounds, Element, ElementId, ElementInputHandler,
-    Entity, GlobalElementId,
-    IntoElement, LayoutId, PaintQuad,
-    Pixels, TextRun,
-    Style,
-    fill, point, px, relative, size,
+    App, Bounds, Element, ElementId, ElementInputHandler, Entity, GlobalElementId, IntoElement,
+    LayoutId, PaintQuad, Pixels, Style, TextRun, fill, point, px, relative, size,
 };
 
+use super::layout::{LineLayout, TextAreaLayout};
 use super::state::{TextAreaState, WrapMode};
-use super::layout::{TextAreaLayout, LineLayout};
 use crate::theme::ActiveTheme;
 
 pub struct TextAreaElement {
@@ -114,7 +110,10 @@ impl Element for TextAreaElement {
             window,
         );
         let lines = lines_result;
-        let y = lines.last().map(|l| l.y + line_height).unwrap_or(line_height);
+        let y = lines
+            .last()
+            .map(|l| l.y + line_height)
+            .unwrap_or(line_height);
 
         let content_height = y.max(line_height);
         let layout = TextAreaLayout {
@@ -286,4 +285,3 @@ impl Element for TextAreaElement {
         });
     }
 }
-

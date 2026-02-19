@@ -6,9 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{
-        create_internal_state, use_internal_state_simple, ToggleCallback,
-    },
+    component::{ToggleCallback, create_internal_state, use_internal_state_simple},
     theme::{ActionVariantKind, ActiveTheme},
 };
 

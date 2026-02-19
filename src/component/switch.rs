@@ -2,17 +2,19 @@ use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, ease_in_out, px,
+    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, px,
 };
 
 use crate::{
     animation,
     component::{
-        compute_toggle_style, create_internal_state,
-        resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
+        ToggleCallback, compute_toggle_style, create_internal_state, resolve_state_value_simple,
+        use_internal_state_simple,
     },
     theme::ActiveTheme,
 };
+
+use crate::animation::ease_in_out_clamped;
 
 /// Creates a new switch element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -135,7 +137,8 @@ impl RenderOnce for Switch {
             use_internal,
         );
 
-        let checked = resolve_state_value_simple(explicit_checked, &internal_checked, cx, use_internal);
+        let checked =
+            resolve_state_value_simple(explicit_checked, &internal_checked, cx, use_internal);
 
         let theme = cx.theme();
         let toggle_style = compute_toggle_style(theme, checked, disabled, tone);
@@ -163,9 +166,13 @@ impl RenderOnce for Switch {
             .focus_visible(|style| style.border_2().border_color(theme.border.focus));
 
         if disabled {
-            base = base.opacity(toggle_style.disabled_opacity).cursor_not_allowed();
+            base = base
+                .opacity(toggle_style.disabled_opacity)
+                .cursor_not_allowed();
         } else {
-            base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
+            base = base
+                .cursor_pointer()
+                .hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
         // Create animated knob with position transition
@@ -181,7 +188,7 @@ impl RenderOnce for Switch {
 
         let animated_knob = knob.with_animation(
             format!("ui:switch:knob:{}", checked),
-            Animation::new(animation::duration::FAST).with_easing(ease_in_out),
+            Animation::new(animation::duration::FAST).with_easing(ease_in_out_clamped),
             move |this, value| {
                 // Interpolate between left (2px) and right (18px - 14px - 2px = 2px offset)
                 // Total travel distance: 34 - 2 - 14 - 2 = 16px
@@ -190,19 +197,18 @@ impl RenderOnce for Switch {
             },
         );
 
-        base.child(animated_knob)
-            .on_click(move |ev, window, cx| {
-                if disabled {
-                    return;
-                }
+        base.child(animated_knob).on_click(move |ev, window, cx| {
+            if disabled {
+                return;
+            }
 
-                if use_internal {
-                    if let Some(internal_checked) = &internal_checked {
-                        internal_checked.update(cx, |value, _cx| *value = !*value);
-                    }
-                } else if let Some(handler) = &on_toggle {
-                    handler(!explicit_checked, Some(ev), window, cx);
+            if use_internal {
+                if let Some(internal_checked) = &internal_checked {
+                    internal_checked.update(cx, |value, _cx| *value = !*value);
                 }
-            })
+            } else if let Some(handler) = &on_toggle {
+                handler(!explicit_checked, Some(ev), window, cx);
+            }
+        })
     }
 }

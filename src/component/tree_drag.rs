@@ -3,8 +3,8 @@
 //! This module provides utilities for implementing drag and drop
 //! reordering in tree views.
 
-use gpui::{ElementId, IntoElement, ParentElement, Pixels, Point, RenderOnce, Styled, div, px};
 use crate::theme::ActiveTheme;
+use gpui::{ElementId, IntoElement, ParentElement, Pixels, Point, RenderOnce, Styled, div, px};
 
 use super::tree_data::DropPosition;
 
@@ -97,7 +97,9 @@ impl TreeDragController {
             )
         });
 
-        if let Some((dragged_id, target_id, position)) = &result && let Some(handler) = &self.on_drop {
+        if let Some((dragged_id, target_id, position)) = &result
+            && let Some(handler) = &self.on_drop
+        {
             handler(dragged_id, target_id, *position);
         }
 

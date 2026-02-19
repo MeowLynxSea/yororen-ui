@@ -103,7 +103,8 @@ impl RenderOnce for EmptyState {
             .icon
             .unwrap_or_else(|| crate::component::icon(IconName::Info));
 
-        self.base.id(self.element_id.clone())
+        self.base
+            .id(self.element_id.clone())
             .flex()
             .flex_col()
             .items_center()

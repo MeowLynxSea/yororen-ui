@@ -2,13 +2,15 @@ use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, Pixels, RenderOnce, StatefulInteractiveElement, Styled, div, ease_out_quint,
+    ParentElement, Pixels, RenderOnce, StatefulInteractiveElement, Styled, div,
     prelude::FluentBuilder, px,
 };
 
+use crate::animation::constants::duration;
 use crate::component::{ArrowDirection, Icon, IconName, button};
-use crate::constants::animation;
 use crate::theme::ActiveTheme;
+
+use crate::animation::ease_out_quint_clamped;
 
 /// Creates a new split button element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -263,8 +265,7 @@ impl RenderOnce for SplitButton {
 
                 let animated_menu = menu.with_animation(
                     format!("split-button-menu-{}", is_open),
-                    Animation::new(animation::MENU_OPEN)
-                        .with_easing(ease_out_quint()),
+                    Animation::new(duration::MENU_OPEN).with_easing(ease_out_quint_clamped),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );
 

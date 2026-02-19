@@ -128,7 +128,9 @@ impl RenderOnce for Label {
             .when(self.ellipsis, |this| this.truncate())
             // If wrap is enabled and ellipsis is not, allow text to wrap naturally
             .when(self.wrap && !self.ellipsis, |this| {
-                this.overflow_x_hidden().overflow_y_hidden().whitespace_normal()
+                this.overflow_x_hidden()
+                    .overflow_y_hidden()
+                    .whitespace_normal()
             })
             // If both are provided, `preview_lines` wins: it also controls the line clamp.
             .when_some(self.preview_lines, |this, lines| {

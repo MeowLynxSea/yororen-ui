@@ -7,7 +7,7 @@ use gpui::{
 
 use crate::{
     component::{button, label, text_input},
-    i18n::{defaults::DefaultPlaceholders, I18nContext},
+    i18n::{I18nContext, defaults::DefaultPlaceholders},
     theme::{ActionVariantKind, ActiveTheme},
 };
 

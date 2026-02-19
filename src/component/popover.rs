@@ -1,10 +1,12 @@
 use gpui::prelude::FluentBuilder;
 use gpui::{
     Animation, AnimationExt, ClickEvent, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, Styled, div, ease_out_quint, px,
+    ParentElement, RenderOnce, Styled, div, px,
 };
 
-use crate::{constants::animation, theme::ActiveTheme};
+use crate::{animation::constants::duration, theme::ActiveTheme};
+
+use crate::animation::ease_out_quint_clamped;
 
 /// Defines the placement position of a popover relative to its trigger element.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -182,7 +184,8 @@ impl RenderOnce for Popover {
 
         // Like Select/ComboBox, Popover is a relative container and the menu is an absolute child
         // rendered via `gpui::deferred(...)` so it is painted above.
-        self.base.id(element_id)
+        self.base
+            .id(element_id)
             .relative()
             .child(trigger)
             .when(is_open, move |this| {
@@ -214,8 +217,7 @@ impl RenderOnce for Popover {
 
                 let animated = menu.with_animation(
                     format!("ui:popover:menu:{}", is_open),
-                    Animation::new(animation::MENU_OPEN)
-                        .with_easing(ease_out_quint()),
+                    Animation::new(duration::MENU_OPEN).with_easing(ease_out_quint_clamped),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );
 

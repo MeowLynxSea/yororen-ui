@@ -3,15 +3,13 @@
 use std::sync::Arc;
 
 use gpui::{
-    div, App, CursorStyle, Div, ElementId,
-    Hsla, InteractiveElement, MouseButton,
-    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement,
-    Styled, prelude::FluentBuilder,
+    App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, MouseButton, ParentElement,
+    RenderOnce, SharedString, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
 };
 
-use super::state::{PasswordInputState, PasswordInputHandler};
 use super::actions::*;
 use super::element::PasswordLineElement;
+use super::state::{PasswordInputHandler, PasswordInputState};
 use crate::action_handler;
 use crate::theme::ActiveTheme;
 
@@ -189,9 +187,7 @@ impl RenderOnce for PasswordInput {
         } else {
             self.border.unwrap_or_else(|| theme.border.default)
         };
-        let focus_border_color = self
-            .focus_border
-            .unwrap_or_else(|| theme.border.focus);
+        let focus_border_color = self.focus_border.unwrap_or_else(|| theme.border.focus);
         let text_color = if disabled {
             theme.content.disabled
         } else {
@@ -227,7 +223,12 @@ impl RenderOnce for PasswordInput {
             .on_action(action_handler!(state, disabled, SelectAll, select_all))
             .on_action(action_handler!(state, disabled, Home, home))
             .on_action(action_handler!(state, disabled, End, end))
-            .on_action(action_handler!(state, disabled, ShowCharacterPalette, show_character_palette))
+            .on_action(action_handler!(
+                state,
+                disabled,
+                ShowCharacterPalette,
+                show_character_palette
+            ))
             .on_action(action_handler!(state, disabled, Paste, paste))
             .on_action({
                 let state = state.clone();

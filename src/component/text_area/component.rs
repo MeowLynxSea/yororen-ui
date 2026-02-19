@@ -3,15 +3,14 @@
 use std::sync::Arc;
 
 use gpui::{
-    div, App, CursorStyle, Div, ElementId,
-    Hsla, InteractiveElement, IntoElement,
-    MouseButton, ParentElement, RenderOnce, SharedString, StatefulInteractiveElement,
-    Styled, prelude::FluentBuilder,
+    App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, IntoElement, MouseButton,
+    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
+    prelude::FluentBuilder,
 };
 
-use super::state::{TextAreaState, WrapMode, EnterBehavior, TextAreaHandler};
 use super::actions::*;
 use super::element::TextAreaElement;
+use super::state::{EnterBehavior, TextAreaHandler, TextAreaState, WrapMode};
 use crate::action_handler;
 use crate::theme::ActiveTheme;
 
@@ -161,10 +160,11 @@ impl RenderOnce for TextArea {
         });
 
         let on_change = self.on_change;
-        let last_content =
-            window.use_keyed_state((id.clone(), format!("{}:last-content", id)), cx, |_, _cx| {
-                SharedString::new_static("")
-            });
+        let last_content = window.use_keyed_state(
+            (id.clone(), format!("{}:last-content", id)),
+            cx,
+            |_, _cx| SharedString::new_static(""),
+        );
 
         let theme = cx.theme();
         let bg = if disabled {
@@ -178,9 +178,7 @@ impl RenderOnce for TextArea {
         } else {
             self.border.unwrap_or_else(|| theme.border.default)
         };
-        let focus_border_color = self
-            .focus_border
-            .unwrap_or_else(|| theme.border.focus);
+        let focus_border_color = self.focus_border.unwrap_or_else(|| theme.border.focus);
         let text_color = if disabled {
             theme.content.disabled
         } else {
@@ -221,7 +219,12 @@ impl RenderOnce for TextArea {
             .on_action(action_handler!(state, disabled, Home, home))
             .on_action(action_handler!(state, disabled, End, end))
             .on_action(action_handler!(state, disabled, Enter, enter))
-            .on_action(action_handler!(state, disabled, ShowCharacterPalette, show_character_palette))
+            .on_action(action_handler!(
+                state,
+                disabled,
+                ShowCharacterPalette,
+                show_character_palette
+            ))
             .on_action(action_handler!(state, disabled, Paste, paste))
             .on_action(action_handler!(state, disabled, Cut, cut))
             .on_action({

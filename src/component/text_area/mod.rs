@@ -3,14 +3,14 @@
 //! A multi-line text input component with editing capabilities.
 
 mod actions;
-mod state;
-mod layout;
-mod element;
 mod component;
+mod element;
+mod layout;
+mod state;
 
 pub use actions::*;
-pub use state::*;
 pub use component::*;
+pub use state::*;
 
 use gpui::{App, ElementId};
 

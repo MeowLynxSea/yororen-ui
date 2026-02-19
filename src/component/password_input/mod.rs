@@ -3,13 +3,13 @@
 //! A single-line password input component with masking.
 
 mod actions;
-mod state;
-mod element;
 mod component;
+mod element;
+mod state;
 
 pub use actions::*;
-pub use state::*;
 pub use component::*;
+pub use state::*;
 
 use gpui::App;
 use gpui::ElementId;

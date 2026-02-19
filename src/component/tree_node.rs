@@ -1,14 +1,13 @@
 //! Tree node component for rendering a single node with its children.
 
 use gpui::{
-    div, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, Pixels, RenderOnce, Styled, StatefulInteractiveElement,
-    px,
+    Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce,
+    StatefulInteractiveElement, Styled, div, px,
 };
 
-use crate::{theme::ActiveTheme};
+use crate::theme::ActiveTheme;
 
-use super::tree_data::{TreeCheckedState, FlatTreeNode, TreeNodeData};
+use super::tree_data::{FlatTreeNode, TreeCheckedState, TreeNodeData};
 
 /// Creates a new tree node element.
 pub fn tree_node(id: impl Into<ElementId>) -> TreeNodeComponent {

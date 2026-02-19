@@ -241,7 +241,9 @@ impl RenderOnce for NumberInput {
 
         let sanitize = move |raw: &str| -> Option<f64> {
             // If custom validator is set, check it first
-            if let Some(ref validator) = validate && !validator(raw) {
+            if let Some(ref validator) = validate
+                && !validator(raw)
+            {
                 return None;
             }
             raw.parse::<f64>().ok()

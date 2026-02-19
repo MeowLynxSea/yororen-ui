@@ -149,7 +149,8 @@ impl RenderOnce for ClickableSurface {
         let hover_bg = hover_bg.unwrap_or(action_variant.hover_bg);
         let focus_ring = focus_ring.unwrap_or(_cx.theme().border.focus);
 
-        self.base.id(element_id)
+        self.base
+            .id(element_id)
             .when(focusable, |this| this.focusable())
             .when(clickable, |this| this.cursor_pointer())
             .on_click(move |ev, window, cx| {

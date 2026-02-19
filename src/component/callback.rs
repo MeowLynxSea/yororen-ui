@@ -23,14 +23,12 @@ pub type ClickCallback = Arc<dyn Fn(&ClickEvent, &mut Window, &mut App)>;
 /// - `&ClickEvent` - The click event data
 /// - `&mut Window` - The window context
 /// - `&mut App` - The application context
-pub type ElementClickCallback =
-    Arc<dyn Fn(&ElementId, &ClickEvent, &mut Window, &mut App)>;
+pub type ElementClickCallback = Arc<dyn Fn(&ElementId, &ClickEvent, &mut Window, &mut App)>;
 
 /// Callback for mouse down events with element identifier.
 ///
 /// Useful for context menus or custom mouse interactions.
-pub type ElementMouseDownCallback =
-    Arc<dyn Fn(&ElementId, &MouseDownEvent, &mut Window, &mut App)>;
+pub type ElementMouseDownCallback = Arc<dyn Fn(&ElementId, &MouseDownEvent, &mut Window, &mut App)>;
 
 /// Callback for hover state changes.
 ///
@@ -47,8 +45,7 @@ pub type HoverCallback = Arc<dyn Fn(bool, &mut Window, &mut App)>;
 /// - `&ClickEvent` - The click event data (optional, can be None for programmatic changes)
 /// - `&mut Window` - The window context
 /// - `&mut App` - The application context
-pub type ToggleCallback =
-    Arc<dyn Fn(bool, Option<&ClickEvent>, &mut Window, &mut App)>;
+pub type ToggleCallback = Arc<dyn Fn(bool, Option<&ClickEvent>, &mut Window, &mut App)>;
 
 /// Callback for value changes with generic value type.
 ///
@@ -65,8 +62,7 @@ pub type ChangeCallback<T> = Arc<dyn Fn(T, &mut Window, &mut App)>;
 /// - `&ClickEvent` - The click event data
 /// - `&mut Window` - The window context
 /// - `&mut App` - The application context
-pub type ChangeWithEventCallback<T> =
-    Arc<dyn Fn(T, &ClickEvent, &mut Window, &mut App)>;
+pub type ChangeWithEventCallback<T> = Arc<dyn Fn(T, &ClickEvent, &mut Window, &mut App)>;
 
 /// Callback for generic element identifier events.
 ///

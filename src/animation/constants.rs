@@ -96,4 +96,7 @@ pub mod duration {
 
     /// Very slow animation (for emphasis).
     pub const VERY_SLOW: Duration = Duration::from_millis(400);
+
+    /// Instant (0ms).
+    pub const INSTANT: Duration = Duration::ZERO;
 }

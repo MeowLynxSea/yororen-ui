@@ -60,7 +60,10 @@ impl Locale {
     pub fn new(tag: &str) -> Result<Self, LocaleParseError> {
         let parts: Vec<&str> = tag.split('-').collect();
 
-        let language = parts.first().map(|s| s.to_string()).ok_or(LocaleParseError)?;
+        let language = parts
+            .first()
+            .map(|s| s.to_string())
+            .ok_or(LocaleParseError)?;
         let region = parts.get(1).map(|s| s.to_string());
         let variant = parts.get(2).map(|s| s.to_string());
 
@@ -205,7 +208,10 @@ impl SupportedLocale {
 
         // Try language-only match
         let lang = tag.split('-').next()?;
-        Self::all().iter().find(|&&locale| locale.to_locale().language() == lang).copied()
+        Self::all()
+            .iter()
+            .find(|&&locale| locale.to_locale().language() == lang)
+            .copied()
     }
 }
 

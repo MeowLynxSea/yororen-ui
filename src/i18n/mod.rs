@@ -58,10 +58,15 @@ pub mod locale;
 pub mod runtime;
 pub mod translate;
 
-pub use format::{DateTimeFormatter, DateTimeFormatOptions, DateTimeLength, Formatter, NumberFormatter, NumberFormatOptions, CurrencyDisplay, I18nFormatter};
+pub use format::{
+    CurrencyDisplay, DateTimeFormatOptions, DateTimeFormatter, DateTimeLength, Formatter,
+    I18nFormatter, NumberFormatOptions, NumberFormatter,
+};
+pub use loader::{
+    EmbeddedLoader, FallbackLoader, FileLoader, LoadError, LocaleFiles, TranslationLoader,
+};
 pub use locale::{Locale, SupportedLocale, TextDirection};
-pub use loader::{EmbeddedLoader, FallbackLoader, FileLoader, LoadError, LocaleFiles, TranslationLoader};
-pub use runtime::{I18n, I18nContext, TranslationMap, Translate};
+pub use runtime::{I18n, I18nContext, Translate, TranslationMap};
 pub use translate::{PluralCategory, TranslatedString, Translator};
 
 // Re-export commonly used types

@@ -6,7 +6,7 @@ use gpui::{
 };
 
 use crate::{
-    component::{compute_action_style, ClickCallback, HoverCallback, Icon},
+    component::{ClickCallback, HoverCallback, Icon, compute_action_style},
     theme::{ActionVariantKind, ActiveTheme},
 };
 
@@ -170,7 +170,8 @@ impl RenderOnce for IconButton {
 
         let action_style = compute_action_style(cx.theme(), variant, disabled, bg, hover_bg);
 
-        self.base.id(self.element_id)
+        self.base
+            .id(self.element_id)
             .rounded_md()
             .flex()
             .items_center()

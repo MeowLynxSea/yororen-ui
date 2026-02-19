@@ -219,7 +219,10 @@ impl TreeState {
 
     /// Get the checked state of a node.
     pub fn get_checked(&self, id: &ElementId) -> TreeCheckedState {
-        self.checked_nodes.get(id).copied().unwrap_or(TreeCheckedState::Unchecked)
+        self.checked_nodes
+            .get(id)
+            .copied()
+            .unwrap_or(TreeCheckedState::Unchecked)
     }
 
     /// Toggle the expanded state of a node.

@@ -4,9 +4,9 @@
 //! including indentation, expand/collapse toggle, icons, and selection states.
 
 use gpui::{
-    div, AnyElement, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    MouseButton, MouseDownEvent, ParentElement, Pixels, RenderOnce, Styled,
-    StatefulInteractiveElement, prelude::FluentBuilder, px,
+    AnyElement, Div, ElementId, Hsla, InteractiveElement, IntoElement, MouseButton, MouseDownEvent,
+    ParentElement, Pixels, RenderOnce, StatefulInteractiveElement, Styled, div,
+    prelude::FluentBuilder, px,
 };
 
 use crate::component::{checkbox, disclosure};

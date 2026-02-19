@@ -131,8 +131,6 @@ impl RenderOnce for Card {
             (None, None) => theme.border.default,
         };
 
-        self.base.id(self.element_id)
-            .bg(bg)
-            .border_color(border)
+        self.base.id(self.element_id).bg(bg).border_color(border)
     }
 }

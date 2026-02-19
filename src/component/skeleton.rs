@@ -1,12 +1,14 @@
 use gpui::{
     Animation, AnimationExt, Div, ElementId, Hsla, IntoElement, ParentElement, Pixels, RenderOnce,
-    Styled, div, ease_in_out, px,
+    Styled, div, px,
 };
 
 use gpui::InteractiveElement;
 use gpui::prelude::FluentBuilder;
 
-use crate::{constants::animation, theme::ActiveTheme};
+use crate::{animation::constants::duration, theme::ActiveTheme};
+
+use crate::animation::ease_in_out_clamped;
 
 /// Creates a new skeleton line element.
 pub fn skeleton_line() -> SkeletonLine {
@@ -82,7 +84,9 @@ impl RenderOnce for SkeletonLine {
         let id = self.element_id.clone();
         let theme = cx.theme();
 
-        let base = self.base.id(self.element_id)
+        let base = self
+            .base
+            .id(self.element_id)
             .h(self.height)
             .rounded_full()
             .bg(self.tone.unwrap_or(theme.surface.hover))
@@ -91,9 +95,9 @@ impl RenderOnce for SkeletonLine {
 
         base.with_animation(
             (id, "pulse"),
-            Animation::new(animation::SKELETON_PULSE_1)
+            Animation::new(duration::SKELETON_PULSE_1)
                 .repeat()
-                .with_easing(ease_in_out),
+                .with_easing(ease_in_out_clamped),
             move |this, delta| {
                 // Animate opacity between 0.55..0.95.
                 let t = 0.55 + 0.40 * delta;
@@ -184,7 +188,9 @@ impl RenderOnce for SkeletonBlock {
         let id = self.element_id.clone();
         let theme = cx.theme();
 
-        let base = self.base.id(self.element_id)
+        let base = self
+            .base
+            .id(self.element_id)
             .h(self.height)
             .when(self.rounded, |this| this.rounded_md())
             .when(!self.rounded, |this| this.rounded_none())
@@ -194,9 +200,9 @@ impl RenderOnce for SkeletonBlock {
 
         base.with_animation(
             (id, "pulse"),
-            Animation::new(animation::SKELETON_PULSE_2)
+            Animation::new(duration::SKELETON_PULSE_2)
                 .repeat()
-                .with_easing(ease_in_out),
+                .with_easing(ease_in_out_clamped),
             move |this, delta| {
                 let t = 0.55 + 0.40 * delta;
                 this.opacity(t)

@@ -130,7 +130,8 @@ impl RenderOnce for ListItem {
         let secondary = self.secondary;
         let trailing = self.trailing;
 
-        self.base.id(self.element_id)
+        self.base
+            .id(self.element_id)
             .w_full()
             .min_h(px(32.))
             .px_3()

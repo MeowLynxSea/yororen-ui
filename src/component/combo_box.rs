@@ -3,15 +3,17 @@ use std::sync::Arc;
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
     ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
-    ease_out_quint, prelude::FluentBuilder, px,
+    prelude::FluentBuilder, px,
 };
 
 use crate::{
-    component::{compute_input_style, ArrowDirection, IconName, icon, text_input},
-    constants::animation,
-    i18n::{defaults::DefaultPlaceholders, I18nContext},
+    animation::constants::duration,
+    component::{ArrowDirection, IconName, compute_input_style, icon, text_input},
+    i18n::{I18nContext, defaults::DefaultPlaceholders},
     theme::ActiveTheme,
 };
+
+use crate::animation::ease_out_quint_clamped;
 
 #[derive(Clone, Debug)]
 pub struct ComboBoxOption {
@@ -290,7 +292,8 @@ impl RenderOnce for ComboBox {
         // Use `.id()` to provide a stable ID, or a unique ID will be generated automatically.
         let id = self.element_id;
 
-        let menu_open = window.use_keyed_state((id.clone(), format!("{}:open", id)), cx, |_, _| false);
+        let menu_open =
+            window.use_keyed_state((id.clone(), format!("{}:open", id)), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
         // Track if we should set content on the text input
@@ -302,13 +305,13 @@ impl RenderOnce for ComboBox {
         );
 
         // Store search text for filtering (synced on menu open, not on every keystroke)
-        let search_text = window.use_keyed_state(
-            (id.clone(), format!("{}:search-text", id)),
-            cx,
-            |_, _| SharedString::new_static(""),
-        );
+        let search_text =
+            window.use_keyed_state((id.clone(), format!("{}:search-text", id)), cx, |_, _| {
+                SharedString::new_static("")
+            });
 
-        let use_internal_value = on_change.is_none() && on_change_simple.is_none() && self.value.is_none();
+        let use_internal_value =
+            on_change.is_none() && on_change_simple.is_none() && self.value.is_none();
         let internal_value = use_internal_value.then(|| {
             window.use_keyed_state((id.clone(), format!("{}:value", id)), cx, |_, _| {
                 options
@@ -386,7 +389,12 @@ impl RenderOnce for ComboBox {
                     .flex_1()
                     .min_w(px(0.))
                     .truncate()
-                    .text_color(selected_label.as_ref().map(|_| input_style.text_color).unwrap_or(hint))
+                    .text_color(
+                        selected_label
+                            .as_ref()
+                            .map(|_| input_style.text_color)
+                            .unwrap_or(hint),
+                    )
                     .child(selected_label.unwrap_or(placeholder)),
             )
             .child(
@@ -531,8 +539,7 @@ impl RenderOnce for ComboBox {
 
                 let animated_menu = menu.with_animation(
                     format!("combo-box-menu-{}", is_open),
-                    Animation::new(animation::MENU_OPEN)
-                        .with_easing(ease_out_quint()),
+                    Animation::new(duration::MENU_OPEN).with_easing(ease_out_quint_clamped),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );
 

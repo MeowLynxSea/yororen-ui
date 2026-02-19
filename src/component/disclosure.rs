@@ -81,7 +81,8 @@ impl RenderOnce for Disclosure {
         let expanded = self.expanded;
         let size = self.size;
 
-        self.base.id(element_id)
+        self.base
+            .id(element_id)
             .w(size)
             .h(size)
             .flex()

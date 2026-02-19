@@ -2,18 +2,19 @@ use std::sync::Arc;
 
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, ease_in_out, px,
-    prelude::FluentBuilder,
+    ParentElement, RenderOnce, StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
 use crate::{
     animation,
     component::{
-        compute_toggle_style, create_internal_state,
-        resolve_state_value_simple, use_internal_state_simple, ToggleCallback,
+        ToggleCallback, compute_toggle_style, create_internal_state, resolve_state_value_simple,
+        use_internal_state_simple,
     },
     theme::ActiveTheme,
 };
+
+use crate::animation::ease_in_out_clamped;
 
 /// Creates a new radio button element.
 /// Requires an id to be set via `.id()` for internal state management.
@@ -136,7 +137,8 @@ impl RenderOnce for Radio {
             use_internal,
         );
 
-        let checked = resolve_state_value_simple(explicit_checked, &internal_checked, cx, use_internal);
+        let checked =
+            resolve_state_value_simple(explicit_checked, &internal_checked, cx, use_internal);
 
         let theme = cx.theme();
         let toggle_style = compute_toggle_style(theme, checked, disabled, tone);
@@ -155,21 +157,21 @@ impl RenderOnce for Radio {
             .focus_visible(|style| style.border_2().border_color(theme.border.focus));
 
         if disabled {
-            base = base.opacity(toggle_style.disabled_opacity).cursor_not_allowed();
+            base = base
+                .opacity(toggle_style.disabled_opacity)
+                .cursor_not_allowed();
         } else {
-            base = base.cursor_pointer().hover(move |this| this.bg(toggle_style.hover_bg));
+            base = base
+                .cursor_pointer()
+                .hover(move |this| this.bg(toggle_style.hover_bg));
         }
 
         // Add animated inner dot for checked state
-        let inner_dot = div()
-            .w(px(8.))
-            .h(px(8.))
-            .rounded_full()
-            .bg(toggle_style.fg);
+        let inner_dot = div().w(px(8.)).h(px(8.)).rounded_full().bg(toggle_style.fg);
 
         let animated_dot = inner_dot.with_animation(
             format!("ui:radio:dot:{}", checked),
-            Animation::new(animation::duration::FAST).with_easing(ease_in_out),
+            Animation::new(animation::duration::FAST).with_easing(ease_in_out_clamped),
             move |this, value| this.opacity(if checked { value } else { 1.0 - value }),
         );
 

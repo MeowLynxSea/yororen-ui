@@ -68,7 +68,8 @@ impl RenderOnce for Badge {
             cx.theme().status.info.fg
         };
 
-        self.base.id(element_id)
+        self.base
+            .id(element_id)
             .px_2()
             .h_5()
             .rounded_full()

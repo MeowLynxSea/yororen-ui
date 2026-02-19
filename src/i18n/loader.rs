@@ -80,11 +80,11 @@ impl TranslationLoader for EmbeddedLoader {
 
         let content = file.data.into_owned();
 
-        let json_str = std::str::from_utf8(&content)
-            .map_err(|e| LoadError::EmbedError(e.to_string()))?;
+        let json_str =
+            std::str::from_utf8(&content).map_err(|e| LoadError::EmbedError(e.to_string()))?;
 
-        let value: serde_json::Value = serde_json::from_str(json_str)
-            .map_err(|e| LoadError::ParseError(e.to_string()))?;
+        let value: serde_json::Value =
+            serde_json::from_str(json_str).map_err(|e| LoadError::ParseError(e.to_string()))?;
 
         parse_json_to_translation_map(value)
     }
@@ -168,8 +168,8 @@ impl TranslationLoader for FileLoader {
         let content = std::fs::read_to_string(&path)
             .map_err(|e| LoadError::EmbedError(format!("Failed to read file: {}", e)))?;
 
-        let value: serde_json::Value = serde_json::from_str(&content)
-            .map_err(|e| LoadError::ParseError(e.to_string()))?;
+        let value: serde_json::Value =
+            serde_json::from_str(&content).map_err(|e| LoadError::ParseError(e.to_string()))?;
 
         parse_json_to_translation_map(value)
     }
@@ -205,7 +205,9 @@ impl TranslationLoader for FallbackLoader {
         }
 
         // Fall back to file system
-        if let Some(ref file) = self.file && file.is_available(locale) {
+        if let Some(ref file) = self.file
+            && file.is_available(locale)
+        {
             return file.load(locale);
         }
 
@@ -213,6 +215,7 @@ impl TranslationLoader for FallbackLoader {
     }
 
     fn is_available(&self, locale: &Locale) -> bool {
-        self.embedded.is_available(locale) || self.file.as_ref().is_some_and(|f| f.is_available(locale))
+        self.embedded.is_available(locale)
+            || self.file.as_ref().is_some_and(|f| f.is_available(locale))
     }
 }

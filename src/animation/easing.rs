@@ -5,7 +5,23 @@
 //! the eased progress value.
 
 /// A function that maps linear progress to eased progress.
+///
+/// Note: `gpui::Animation::with_easing` expects the easing output to stay within
+/// `[0.0, 1.0]`. Some classic easing curves (e.g. back/elastic) overshoot this
+/// range by design. Prefer using the `*_clamped` variants in this module when
+/// passing an easing function to gpui.
 pub type EasingFn = fn(f32) -> f32;
+
+#[inline]
+fn clamp01(t: f32) -> f32 {
+    t.clamp(0.0, 1.0)
+}
+
+/// Clamp an easing function's output to `[0.0, 1.0]`.
+#[inline]
+pub fn clamp_easing(easing: EasingFn, t: f32) -> f32 {
+    clamp01(easing(t))
+}
 
 // ============================================================================
 // Linear
@@ -25,14 +41,29 @@ pub fn ease_in_sine(t: f32) -> f32 {
     1.0 - (t * std::f32::consts::FRAC_PI_2).cos()
 }
 
+/// Clamped version of [`ease_in_sine`].
+pub fn ease_in_sine_clamped(t: f32) -> f32 {
+    clamp01(ease_in_sine(t))
+}
+
 /// Ease out with sine function.
 pub fn ease_out_sine(t: f32) -> f32 {
     (t * std::f32::consts::FRAC_PI_2).sin()
 }
 
+/// Clamped version of [`ease_out_sine`].
+pub fn ease_out_sine_clamped(t: f32) -> f32 {
+    clamp01(ease_out_sine(t))
+}
+
 /// Ease in-out with sine function.
 pub fn ease_in_out_sine(t: f32) -> f32 {
     -(t * std::f32::consts::PI).cos() / 2.0 + 0.5
+}
+
+/// Clamped version of [`ease_in_out_sine`].
+pub fn ease_in_out_sine_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_sine(t))
 }
 
 // ============================================================================
@@ -44,9 +75,17 @@ pub const fn ease_in_quad(t: f32) -> f32 {
     t * t
 }
 
+pub fn ease_in_quad_clamped(t: f32) -> f32 {
+    clamp01(ease_in_quad(t))
+}
+
 /// Ease out with quadratic function (t^2).
 pub const fn ease_out_quad(t: f32) -> f32 {
     1.0 - (1.0 - t) * (1.0 - t)
+}
+
+pub fn ease_out_quad_clamped(t: f32) -> f32 {
+    clamp01(ease_out_quad(t))
 }
 
 /// Ease in-out with quadratic function (t^2).
@@ -58,6 +97,10 @@ pub fn ease_in_out_quad(t: f32) -> f32 {
     }
 }
 
+pub fn ease_in_out_quad_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_quad(t))
+}
+
 // ============================================================================
 // Cubic (Power 3)
 // ============================================================================
@@ -67,10 +110,18 @@ pub const fn ease_in_cubic(t: f32) -> f32 {
     t * t * t
 }
 
+pub fn ease_in_cubic_clamped(t: f32) -> f32 {
+    clamp01(ease_in_cubic(t))
+}
+
 /// Ease out with cubic function (t^3).
 pub const fn ease_out_cubic(t: f32) -> f32 {
     let t = 1.0 - t;
     1.0 - t * t * t
+}
+
+pub fn ease_out_cubic_clamped(t: f32) -> f32 {
+    clamp01(ease_out_cubic(t))
 }
 
 /// Ease in-out with cubic function (t^3).
@@ -83,6 +134,10 @@ pub const fn ease_in_out_cubic(t: f32) -> f32 {
     }
 }
 
+pub fn ease_in_out_cubic_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_cubic(t))
+}
+
 // ============================================================================
 // Quartic (Power 4)
 // ============================================================================
@@ -92,10 +147,18 @@ pub const fn ease_in_quart(t: f32) -> f32 {
     t * t * t * t
 }
 
+pub fn ease_in_quart_clamped(t: f32) -> f32 {
+    clamp01(ease_in_quart(t))
+}
+
 /// Ease out with quartic function (t^4).
 pub const fn ease_out_quart(t: f32) -> f32 {
     let t = 1.0 - t;
     1.0 - t * t * t * t
+}
+
+pub fn ease_out_quart_clamped(t: f32) -> f32 {
+    clamp01(ease_out_quart(t))
 }
 
 /// Ease in-out with quartic function (t^4).
@@ -109,6 +172,10 @@ pub const fn ease_in_out_quart(t: f32) -> f32 {
     }
 }
 
+pub fn ease_in_out_quart_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_quart(t))
+}
+
 // ============================================================================
 // Quintic (Power 5)
 // ============================================================================
@@ -118,10 +185,18 @@ pub const fn ease_in_quint(t: f32) -> f32 {
     t * t * t * t * t
 }
 
+pub fn ease_in_quint_clamped(t: f32) -> f32 {
+    clamp01(ease_in_quint(t))
+}
+
 /// Ease out with quintic function (t^5).
 pub const fn ease_out_quint(t: f32) -> f32 {
     let t = 1.0 - t;
     1.0 - t * t * t * t * t
+}
+
+pub fn ease_out_quint_clamped(t: f32) -> f32 {
+    clamp01(ease_out_quint(t))
 }
 
 /// Ease in-out with quintic function (t^5).
@@ -132,6 +207,10 @@ pub const fn ease_in_out_quint(t: f32) -> f32 {
         let t = 2.0 * t - 2.0;
         (t * t * t * t * t + 2.0) / 2.0
     }
+}
+
+pub fn ease_in_out_quint_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_quint(t))
 }
 
 // ============================================================================
@@ -147,6 +226,10 @@ pub fn ease_in_expo(t: f32) -> f32 {
     }
 }
 
+pub fn ease_in_expo_clamped(t: f32) -> f32 {
+    clamp01(ease_in_expo(t))
+}
+
 /// Ease out with exponential function (-2^(-10*t) + 1).
 pub fn ease_out_expo(t: f32) -> f32 {
     if t == 1.0 {
@@ -154,6 +237,10 @@ pub fn ease_out_expo(t: f32) -> f32 {
     } else {
         1.0 - 2.0_f32.powf(-10.0 * t)
     }
+}
+
+pub fn ease_out_expo_clamped(t: f32) -> f32 {
+    clamp01(ease_out_expo(t))
 }
 
 /// Ease in-out with exponential function.
@@ -169,6 +256,10 @@ pub fn ease_in_out_expo(t: f32) -> f32 {
     }
 }
 
+pub fn ease_in_out_expo_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_expo(t))
+}
+
 // ============================================================================
 // Circular
 // ============================================================================
@@ -178,10 +269,18 @@ pub fn ease_in_circ(t: f32) -> f32 {
     1.0 - (1.0 - t * t).sqrt()
 }
 
+pub fn ease_in_circ_clamped(t: f32) -> f32 {
+    clamp01(ease_in_circ(t))
+}
+
 /// Ease out with circular function.
 pub fn ease_out_circ(t: f32) -> f32 {
     let t = t - 1.0;
     (1.0 - t * t).sqrt()
+}
+
+pub fn ease_out_circ_clamped(t: f32) -> f32 {
+    clamp01(ease_out_circ(t))
 }
 
 /// Ease in-out with circular function.
@@ -192,6 +291,10 @@ pub fn ease_in_out_circ(t: f32) -> f32 {
     } else {
         ((4.0 * t * t - 4.0 * t + 1.0).sqrt() + 1.0) / 2.0
     }
+}
+
+pub fn ease_in_out_circ_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_circ(t))
 }
 
 // ============================================================================
@@ -206,11 +309,21 @@ pub fn ease_in_back(t: f32) -> f32 {
     c3 * t * t * t - c1 * t * t
 }
 
+/// Clamped version of [`ease_in_back`].
+pub fn ease_in_back_clamped(t: f32) -> f32 {
+    clamp01(ease_in_back(t))
+}
+
 /// Ease out with back/overshoot effect.
 pub fn ease_out_back(t: f32) -> f32 {
     let c1 = 1.70158;
     let c3 = c1 + 1.0;
     1.0 + c3 * (t - 1.0).powi(3) + c1 * (t - 1.0).powi(2)
+}
+
+/// Clamped version of [`ease_out_back`].
+pub fn ease_out_back_clamped(t: f32) -> f32 {
+    clamp01(ease_out_back(t))
 }
 
 /// Ease in-out with back/overshoot effect.
@@ -222,6 +335,11 @@ pub fn ease_in_out_back(t: f32) -> f32 {
     } else {
         ((2.0 * t - 2.0).powi(2) * ((c2 + 1.0) * (t * 2.0 - 2.0) + c2) + 2.0) / 2.0
     }
+}
+
+/// Clamped version of [`ease_in_out_back`].
+pub fn ease_in_out_back_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_back(t))
 }
 
 // ============================================================================
@@ -240,6 +358,11 @@ pub fn ease_in_elastic(t: f32) -> f32 {
     }
 }
 
+/// Clamped version of [`ease_in_elastic`].
+pub fn ease_in_elastic_clamped(t: f32) -> f32 {
+    clamp01(ease_in_elastic(t))
+}
+
 /// Ease out with elastic/spring effect.
 pub fn ease_out_elastic(t: f32) -> f32 {
     if t == 0.0 {
@@ -250,6 +373,11 @@ pub fn ease_out_elastic(t: f32) -> f32 {
         let c4 = (2.0 * std::f32::consts::PI) / 3.0;
         2.0_f32.powf(-10.0 * t) * ((t * 10.0 - 0.75) * c4).sin() + 1.0
     }
+}
+
+/// Clamped version of [`ease_out_elastic`].
+pub fn ease_out_elastic_clamped(t: f32) -> f32 {
+    clamp01(ease_out_elastic(t))
 }
 
 /// Ease in-out with elastic/spring effect.
@@ -268,6 +396,11 @@ pub fn ease_in_out_elastic(t: f32) -> f32 {
     }
 }
 
+/// Clamped version of [`ease_in_out_elastic`].
+pub fn ease_in_out_elastic_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_elastic(t))
+}
+
 // ============================================================================
 // Bounce
 // ============================================================================
@@ -275,6 +408,10 @@ pub fn ease_in_out_elastic(t: f32) -> f32 {
 /// Ease in with bounce effect.
 pub fn ease_in_bounce(t: f32) -> f32 {
     1.0 - ease_out_bounce(1.0 - t)
+}
+
+pub fn ease_in_bounce_clamped(t: f32) -> f32 {
+    clamp01(ease_in_bounce(t))
 }
 
 /// Ease out with bounce effect.
@@ -296,6 +433,10 @@ pub fn ease_out_bounce(t: f32) -> f32 {
     }
 }
 
+pub fn ease_out_bounce_clamped(t: f32) -> f32 {
+    clamp01(ease_out_bounce(t))
+}
+
 /// Ease in-out with bounce effect.
 pub fn ease_in_out_bounce(t: f32) -> f32 {
     if t < 0.5 {
@@ -303,6 +444,10 @@ pub fn ease_in_out_bounce(t: f32) -> f32 {
     } else {
         (1.0 + ease_out_bounce(2.0 * t - 1.0)) / 2.0
     }
+}
+
+pub fn ease_in_out_bounce_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out_bounce(t))
 }
 
 // ============================================================================
@@ -314,9 +459,19 @@ pub const fn ease_in(t: f32) -> f32 {
     t * t
 }
 
+#[allow(dead_code)]
+pub fn ease_in_clamped(t: f32) -> f32 {
+    clamp01(ease_in(t))
+}
+
 /// Ease out (simple quadratic).
 pub const fn ease_out(t: f32) -> f32 {
     1.0 - (1.0 - t) * (1.0 - t)
+}
+
+#[allow(dead_code)]
+pub fn ease_out_clamped(t: f32) -> f32 {
+    clamp01(ease_out(t))
 }
 
 /// Ease in-out (simple quadratic).
@@ -326,4 +481,9 @@ pub fn ease_in_out(t: f32) -> f32 {
     } else {
         1.0 - (2.0 - 2.0 * t) * (2.0 - 2.0 * t) / 2.0
     }
+}
+
+#[allow(dead_code)]
+pub fn ease_in_out_clamped(t: f32) -> f32 {
+    clamp01(ease_in_out(t))
 }

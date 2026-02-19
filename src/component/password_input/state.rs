@@ -3,7 +3,10 @@
 use std::ops::Range;
 use std::sync::Arc;
 
-use gpui::{App, Context, EntityInputHandler, FocusHandle, Focusable, ParentElement, ShapedLine, SharedString, UTF16Selection};
+use gpui::{
+    App, Context, EntityInputHandler, FocusHandle, Focusable, ParentElement, ShapedLine,
+    SharedString, UTF16Selection,
+};
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::constants::CURSOR_BLINK_INTERVAL;
@@ -82,9 +85,7 @@ impl PasswordInputState {
         window
             .spawn(cx, async move |cx| {
                 loop {
-                    cx.background_executor()
-                        .timer(CURSOR_BLINK_INTERVAL)
-                        .await;
+                    cx.background_executor().timer(CURSOR_BLINK_INTERVAL).await;
 
                     let Ok(should_continue) = cx.update(|window, cx| {
                         this.update(cx, |this, cx| {
@@ -130,7 +131,12 @@ impl PasswordInputState {
         self.reset_cursor_blink(window, cx);
     }
 
-    pub fn left(&mut self, _: &super::actions::Left, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn left(
+        &mut self,
+        _: &super::actions::Left,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.selected_range.is_empty() {
             self.move_to(self.previous_boundary(self.cursor_offset()), window, cx);
         } else {
@@ -138,7 +144,12 @@ impl PasswordInputState {
         }
     }
 
-    pub fn right(&mut self, _: &super::actions::Right, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn right(
+        &mut self,
+        _: &super::actions::Right,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.selected_range.is_empty() {
             self.move_to(self.next_boundary(self.selected_range.end), window, cx);
         } else {
@@ -146,28 +157,58 @@ impl PasswordInputState {
         }
     }
 
-    pub fn select_left(&mut self, _: &super::actions::SelectLeft, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn select_left(
+        &mut self,
+        _: &super::actions::SelectLeft,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         self.select_to(self.previous_boundary(self.cursor_offset()), window, cx);
     }
 
-    pub fn select_right(&mut self, _: &super::actions::SelectRight, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn select_right(
+        &mut self,
+        _: &super::actions::SelectRight,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         self.select_to(self.next_boundary(self.cursor_offset()), window, cx);
     }
 
-    pub fn select_all(&mut self, _: &super::actions::SelectAll, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn select_all(
+        &mut self,
+        _: &super::actions::SelectAll,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         self.move_to(0, window, cx);
         self.select_to(self.content.len(), window, cx)
     }
 
-    pub fn home(&mut self, _: &super::actions::Home, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn home(
+        &mut self,
+        _: &super::actions::Home,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         self.move_to(0, window, cx);
     }
 
-    pub fn end(&mut self, _: &super::actions::End, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn end(
+        &mut self,
+        _: &super::actions::End,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         self.move_to(self.content.len(), window, cx);
     }
 
-    pub fn backspace(&mut self, _: &super::actions::Backspace, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn backspace(
+        &mut self,
+        _: &super::actions::Backspace,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.selected_range.is_empty() {
             self.select_to(self.previous_boundary(self.cursor_offset()), window, cx)
         }
@@ -175,7 +216,12 @@ impl PasswordInputState {
         self.replace_text_in_range(None, "", window, cx)
     }
 
-    pub fn delete(&mut self, _: &super::actions::Delete, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn delete(
+        &mut self,
+        _: &super::actions::Delete,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.selected_range.is_empty() {
             self.select_to(self.next_boundary(self.cursor_offset()), window, cx)
         }
@@ -199,7 +245,12 @@ impl PasswordInputState {
         }
     }
 
-    pub fn on_mouse_up(&mut self, _: &gpui::MouseUpEvent, _window: &mut gpui::Window, _: &mut Context<Self>) {
+    pub fn on_mouse_up(
+        &mut self,
+        _: &gpui::MouseUpEvent,
+        _window: &mut gpui::Window,
+        _: &mut Context<Self>,
+    ) {
         self.is_selecting = false;
     }
 
@@ -224,7 +275,12 @@ impl PasswordInputState {
         window.show_character_palette();
     }
 
-    pub fn paste(&mut self, _: &super::actions::Paste, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn paste(
+        &mut self,
+        _: &super::actions::Paste,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(text) = cx.read_from_clipboard().and_then(|item| item.text()) {
             self.reset_cursor_blink(window, cx);
             self.replace_text_in_range(None, &text.replace("\n", " "), window, cx);
@@ -239,7 +295,12 @@ impl PasswordInputState {
         }
     }
 
-    pub fn cut(&mut self, _: &super::actions::Cut, window: &mut gpui::Window, cx: &mut Context<Self>) {
+    pub fn cut(
+        &mut self,
+        _: &super::actions::Cut,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
         if !self.selected_range.is_empty() {
             cx.write_to_clipboard(gpui::ClipboardItem::new_string(
                 self.content[self.selected_range.clone()].to_string(),

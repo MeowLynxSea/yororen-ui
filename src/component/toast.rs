@@ -182,23 +182,23 @@ impl RenderOnce for Toast {
             base.style().align_self = Some(AlignSelf::FlexStart);
         }
 
-		let width = self.width;
-		let max_width = self.max_width;
-		let constrain_width = width.is_some() || max_width.is_some();
-		let content = self.content;
-		let message = self.message;
-		let has_content = content.is_some();
+        let width = self.width;
+        let max_width = self.max_width;
+        let constrain_width = width.is_some() || max_width.is_some();
+        let content = self.content;
+        let message = self.message;
+        let has_content = content.is_some();
 
-		base.id("ui:toast")
-			.px_3()
-			.py_2()
-			.rounded_md()
-			.bg(bg)
-			.text_color(fg)
-			.shadow_md()
-			.flex()
-			.items_center()
-			.gap_2()
+        base.id("ui:toast")
+            .px_3()
+            .py_2()
+            .rounded_md()
+            .bg(bg)
+            .text_color(fg)
+            .shadow_md()
+            .flex()
+            .items_center()
+            .gap_2()
             .when_some(width, |this, width| this.w(width))
             .when(width.is_none(), |this| {
                 this.when_some(max_width, |this, max_width| this.max_w(max_width))
@@ -207,22 +207,22 @@ impl RenderOnce for Toast {
                 // Explicit color to avoid relying on inherited SVG behavior.
                 this.child(Icon::new(icon).size(px(14.)).color(fg))
             })
-			.when_some(content, |this, content| {
-				this.child(
-					div()
-						.when(constrain_width, |this| this.flex_1().min_w(px(0.)))
-						.child(content),
-				)
-			})
-			.when(!has_content, |this| {
-				this.when_some(message, |this, message| {
-					this.child(
-						div()
-							.when(constrain_width, |this| this.flex_1().min_w(px(0.)))
-							.child(label(message).inherit_color(true).ellipsis(!self.wrap)),
-					)
-				})
-			})
-			.when_some(self.trailing, |this, trailing| this.child(trailing))
-	}
+            .when_some(content, |this, content| {
+                this.child(
+                    div()
+                        .when(constrain_width, |this| this.flex_1().min_w(px(0.)))
+                        .child(content),
+                )
+            })
+            .when(!has_content, |this| {
+                this.when_some(message, |this, message| {
+                    this.child(
+                        div()
+                            .when(constrain_width, |this| this.flex_1().min_w(px(0.)))
+                            .child(label(message).inherit_color(true).ellipsis(!self.wrap)),
+                    )
+                })
+            })
+            .when_some(self.trailing, |this, trailing| this.child(trailing))
+    }
 }

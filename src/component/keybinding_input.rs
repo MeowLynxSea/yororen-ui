@@ -6,7 +6,7 @@ use gpui::{
 
 use crate::{
     component::{compute_input_style, format_keybinding_ui, shortcut_hint},
-    i18n::{defaults::DefaultPlaceholders, I18nContext},
+    i18n::{I18nContext, defaults::DefaultPlaceholders},
     theme::ActiveTheme,
 };
 
@@ -183,14 +183,8 @@ impl RenderOnce for KeybindingInput {
         let focus_border = self.focus_border;
         let text_color = self.text_color;
 
-        let input_style = compute_input_style(
-            &theme,
-            disabled,
-            bg,
-            border,
-            focus_border,
-            text_color,
-        );
+        let input_style =
+            compute_input_style(&theme, disabled, bg, border, focus_border, text_color);
 
         let height = self.height.unwrap_or_else(|| px(36.).into());
 
@@ -426,6 +420,10 @@ impl RenderOnce for KeybindingInput {
                     .into_any_element(),
                 ),
             )
-            .child(div().id((id.clone(), "hint")).child(shortcut_hint("Press keys")))
+            .child(
+                div()
+                    .id((id.clone(), "hint"))
+                    .child(shortcut_hint("Press keys")),
+            )
     }
 }

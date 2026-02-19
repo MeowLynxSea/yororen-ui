@@ -134,7 +134,9 @@ impl RenderOnce for NotificationHost {
                     crate::component::ToastKind::Error => {
                         (theme.status.error.bg, theme.content.on_status)
                     }
-                    crate::component::ToastKind::Info => (theme.status.info.bg, theme.content.on_status),
+                    crate::component::ToastKind::Info => {
+                        (theme.status.info.bg, theme.content.on_status)
+                    }
                 };
                 let close_hover_bg = adjust_hover(bg);
                 let close_border = Hsla { a: 0.25, ..fg };

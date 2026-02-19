@@ -5,7 +5,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder, px,
 };
 
-use crate::component::{compute_action_style, ClickCallback, HoverCallback};
+use crate::component::{ClickCallback, HoverCallback, compute_action_style};
 use crate::theme::{ActionVariantKind, ActiveTheme};
 
 /// Creates a new button element.
@@ -163,7 +163,8 @@ impl RenderOnce for Button {
 
         let action_style = compute_action_style(cx.theme(), variant, disabled, bg, hover_bg);
 
-        self.base.id(self.element_id)
+        self.base
+            .id(self.element_id)
             .rounded_md()
             .flex()
             .items_center()

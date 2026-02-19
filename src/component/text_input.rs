@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use super::TextEditState;
 use super::input::action_handler;
-use crate::component::{compute_input_style, ChangeCallback};
+use crate::component::{ChangeCallback, compute_input_style};
 use crate::theme::ActiveTheme;
 use gpui::{
     AnyElement, App, Bounds, Context, CursorStyle, Div, Element, ElementId, ElementInputHandler,
@@ -115,9 +115,7 @@ impl TextInputState {
                 use crate::constants::CURSOR_BLINK_INTERVAL;
 
                 loop {
-                    cx.background_executor()
-                        .timer(CURSOR_BLINK_INTERVAL)
-                        .await;
+                    cx.background_executor().timer(CURSOR_BLINK_INTERVAL).await;
 
                     let Ok(should_continue) = cx.update(|window, cx| {
                         this.update(cx, |this, cx| {
@@ -894,10 +892,11 @@ impl RenderOnce for TextInput {
         }
 
         let on_change = self.on_change;
-        let last_content =
-            window.use_keyed_state((id.clone(), format!("{}:last-content", id)), cx, |_, _cx| {
-                SharedString::new_static("")
-            });
+        let last_content = window.use_keyed_state(
+            (id.clone(), format!("{}:last-content", id)),
+            cx,
+            |_, _cx| SharedString::new_static(""),
+        );
 
         let theme = cx.theme();
 
@@ -955,7 +954,12 @@ impl RenderOnce for TextInput {
             .on_action(action_handler!(state, disabled, SelectAll, select_all))
             .on_action(action_handler!(state, disabled, Home, home))
             .on_action(action_handler!(state, disabled, End, end))
-            .on_action(action_handler!(state, disabled, ShowCharacterPalette, show_character_palette))
+            .on_action(action_handler!(
+                state,
+                disabled,
+                ShowCharacterPalette,
+                show_character_palette
+            ))
             .on_action(action_handler!(state, disabled, Paste, paste))
             .on_action(action_handler!(state, disabled, Cut, cut))
             .on_action(action_handler!(state, disabled, Copy, copy))

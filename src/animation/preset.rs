@@ -7,12 +7,14 @@ use std::time::Duration;
 use gpui::{Pixels, Styled};
 
 use super::easing::{
-    ease_in_bounce, ease_in_out, ease_out_bounce, ease_out_cubic,
-    ease_out_elastic, ease_out_quint,
+    ease_in_bounce, ease_in_out, ease_out_bounce, ease_out_cubic, ease_out_elastic, ease_out_quint,
 };
 
 /// Preset animation durations.
-pub mod duration {
+///
+/// Note: to avoid confusion with `crate::animation::duration` (global constants),
+/// this module is intended for preset-only usage.
+pub mod preset_duration {
     use super::Duration;
 
     /// Very fast animation (100ms).
@@ -32,6 +34,26 @@ pub mod duration {
 
     /// Instant (0ms).
     pub const INSTANT: Duration = Duration::ZERO;
+}
+
+/// Commonly used preset timings.
+///
+/// Prefer using `animation::constants::duration::*` for global consistency,
+/// but these defaults are convenient when you want presets only.
+pub mod defaults {
+    /// Default distance for slide-like presets.
+    #[allow(dead_code)]
+    pub const SLIDE_DISTANCE_PX: f32 = 10.0;
+
+    /// Default distance for bounce-like presets.
+    #[allow(dead_code)]
+    pub const BOUNCE_DISTANCE_PX: f32 = 30.0;
+
+    /// Default opacity min for pulse.
+    pub const PULSE_MIN_OPACITY: f32 = 0.55;
+
+    /// Default opacity max for pulse.
+    pub const PULSE_MAX_OPACITY: f32 = 0.95;
 }
 
 /// A struct representing a preset animation effect.
@@ -81,6 +103,17 @@ pub enum SlideDirection {
     Right,
     Up,
     Down,
+}
+
+impl From<SlideDirection> for super::helpers::SlideDirection {
+    fn from(value: SlideDirection) -> Self {
+        match value {
+            SlideDirection::Left => Self::Left,
+            SlideDirection::Right => Self::Right,
+            SlideDirection::Up => Self::Up,
+            SlideDirection::Down => Self::Down,
+        }
+    }
 }
 
 // ============================================================================
@@ -151,9 +184,7 @@ pub fn fade_slide_in(duration: Duration) -> impl Fn(gpui::Div, f32) -> gpui::Div
     let _ = duration;
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_quint(progress);
-        element
-            .opacity(eased)
-            .mt(gpui::px(10.0 - 6.0 * eased))
+        element.opacity(eased).mt(gpui::px(10.0 - 6.0 * eased))
     }
 }
 
@@ -162,9 +193,46 @@ pub fn fade_slide_out(duration: Duration) -> impl Fn(gpui::Div, f32) -> gpui::Di
     let _ = duration;
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_quint(progress);
-        element
-            .opacity(1.0 - eased)
-            .mt(gpui::px(4.0 + 6.0 * eased))
+        element.opacity(1.0 - eased).mt(gpui::px(4.0 + 6.0 * eased))
+    }
+}
+
+/// Fade + slide in from a given direction.
+pub fn fade_slide_in_from(
+    direction: SlideDirection,
+    distance: Pixels,
+) -> impl Fn(gpui::Div, f32) -> gpui::Div {
+    let distance_f: f32 = distance.into();
+    move |element: gpui::Div, progress: f32| {
+        let eased = ease_out_cubic(progress);
+        let translate = distance_f * (1.0 - eased);
+
+        match direction {
+            SlideDirection::Left => element.opacity(eased).ml(gpui::px(-translate)),
+            SlideDirection::Right => element.opacity(eased).ml(gpui::px(translate)),
+            SlideDirection::Up => element.opacity(eased).mt(gpui::px(-translate)),
+            SlideDirection::Down => element.opacity(eased).mt(gpui::px(translate)),
+        }
+    }
+}
+
+/// Fade + slide out to a given direction.
+pub fn fade_slide_out_to(
+    direction: SlideDirection,
+    distance: Pixels,
+) -> impl Fn(gpui::Div, f32) -> gpui::Div {
+    let distance_f: f32 = distance.into();
+    move |element: gpui::Div, progress: f32| {
+        let eased = ease_out_cubic(progress);
+        let translate = distance_f * eased;
+        let opacity = 1.0 - eased;
+
+        match direction {
+            SlideDirection::Left => element.opacity(opacity).ml(gpui::px(-translate)),
+            SlideDirection::Right => element.opacity(opacity).ml(gpui::px(translate)),
+            SlideDirection::Up => element.opacity(opacity).mt(gpui::px(-translate)),
+            SlideDirection::Down => element.opacity(opacity).mt(gpui::px(translate)),
+        }
     }
 }
 
@@ -173,7 +241,8 @@ pub fn pulse(duration: Duration) -> impl Fn(gpui::Div, f32) -> gpui::Div {
     let _ = duration;
     move |element: gpui::Div, progress: f32| {
         let eased = ease_in_out(progress);
-        let opacity = 0.55 + 0.40 * eased;
+        let opacity = defaults::PULSE_MIN_OPACITY
+            + (defaults::PULSE_MAX_OPACITY - defaults::PULSE_MIN_OPACITY) * eased;
         element.opacity(opacity)
     }
 }
@@ -184,9 +253,7 @@ pub fn fade_slide_in_left(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_cubic(progress);
         let translate = -distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .ml(gpui::px(translate))
+        element.opacity(eased).ml(gpui::px(translate))
     }
 }
 
@@ -196,9 +263,7 @@ pub fn fade_slide_in_right(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui:
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_cubic(progress);
         let translate = distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .ml(gpui::px(translate))
+        element.opacity(eased).ml(gpui::px(translate))
     }
 }
 
@@ -208,9 +273,7 @@ pub fn fade_slide_in_up(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::Di
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_cubic(progress);
         let translate = -distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .mt(gpui::px(translate))
+        element.opacity(eased).mt(gpui::px(translate))
     }
 }
 
@@ -220,9 +283,7 @@ pub fn fade_slide_in_down(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_cubic(progress);
         let translate = distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .mt(gpui::px(translate))
+        element.opacity(eased).mt(gpui::px(translate))
     }
 }
 
@@ -346,9 +407,7 @@ impl BounceIn {
             let eased_progress = easing(progress);
             // Start from above and bounce down
             let translate = -30.0 * (1.0 - eased_progress);
-            element
-                .opacity(eased_progress)
-                .mt(gpui::px(translate))
+            element.opacity(eased_progress).mt(gpui::px(translate))
         }
     }
 
@@ -356,9 +415,7 @@ impl BounceIn {
     pub fn apply_default(self, element: gpui::Div, progress: f32) -> gpui::Div {
         let eased = ease_out_bounce(progress);
         let translate = -30.0 * (1.0 - eased);
-        element
-            .opacity(eased)
-            .mt(gpui::px(translate))
+        element.opacity(eased).mt(gpui::px(translate))
     }
 }
 
@@ -398,9 +455,7 @@ impl BounceOut {
     pub fn apply_default(self, element: gpui::Div, progress: f32) -> gpui::Div {
         let eased = ease_in_bounce(progress);
         let translate = 30.0 * eased;
-        element
-            .opacity(1.0 - eased)
-            .mt(gpui::px(translate))
+        element.opacity(1.0 - eased).mt(gpui::px(translate))
     }
 }
 
@@ -416,9 +471,7 @@ pub fn bounce_in_left(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::Div 
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_bounce(progress);
         let translate = -distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .ml(gpui::px(translate))
+        element.opacity(eased).ml(gpui::px(translate))
     }
 }
 
@@ -428,9 +481,7 @@ pub fn bounce_in_right(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::Div
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_bounce(progress);
         let translate = distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .ml(gpui::px(translate))
+        element.opacity(eased).ml(gpui::px(translate))
     }
 }
 
@@ -440,9 +491,7 @@ pub fn bounce_in_up(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::Div {
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_bounce(progress);
         let translate = -distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .mt(gpui::px(translate))
+        element.opacity(eased).mt(gpui::px(translate))
     }
 }
 
@@ -452,9 +501,26 @@ pub fn bounce_in_down(distance: Pixels) -> impl Fn(gpui::Div, f32) -> gpui::Div 
     move |element: gpui::Div, progress: f32| {
         let eased = ease_out_bounce(progress);
         let translate = distance_f * (1.0 - eased);
-        element
-            .opacity(eased)
-            .mt(gpui::px(translate))
+        element.opacity(eased).mt(gpui::px(translate))
+    }
+}
+
+/// Bounce out to a given direction.
+pub fn bounce_out_to(
+    direction: SlideDirection,
+    distance: Pixels,
+) -> impl Fn(gpui::Div, f32) -> gpui::Div {
+    let distance_f: f32 = distance.into();
+    move |element: gpui::Div, progress: f32| {
+        let eased = ease_in_bounce(progress);
+        let translate = distance_f * eased;
+        let opacity = 1.0 - eased;
+        match direction {
+            SlideDirection::Left => element.opacity(opacity).ml(gpui::px(-translate)),
+            SlideDirection::Right => element.opacity(opacity).ml(gpui::px(translate)),
+            SlideDirection::Up => element.opacity(opacity).mt(gpui::px(-translate)),
+            SlideDirection::Down => element.opacity(opacity).mt(gpui::px(translate)),
+        }
     }
 }
 
@@ -487,9 +553,7 @@ impl ElasticIn {
             } else {
                 0.0
             };
-            element
-                .opacity(eased_progress)
-                .mt(gpui::px(overshoot))
+            element.opacity(eased_progress).mt(gpui::px(overshoot))
         }
     }
 

@@ -1,11 +1,13 @@
 use gpui::{
     Animation, AnimationExt, Div, ElementId, Hsla, IntoElement, ParentElement, Pixels, RenderOnce,
-    Styled, div, ease_in_out, px, relative,
+    Styled, div, px, relative,
 };
 
 use gpui::InteractiveElement;
 
-use crate::{constants::animation, theme::ActiveTheme};
+use crate::{animation::constants::duration, theme::ActiveTheme};
+
+use crate::animation::ease_in_out_clamped;
 
 /// Creates a new spinner element.
 pub fn spinner() -> Spinner {
@@ -201,13 +203,14 @@ impl RenderOnce for Spinner {
 
         let animated = make_canvas(0.0).with_animation(
             (id.clone(), "spin"),
-            Animation::new(animation::PROGRESS_SPINNER)
+            Animation::new(duration::PROGRESS_SPINNER)
                 .repeat()
-                .with_easing(ease_in_out),
+                .with_easing(ease_in_out_clamped),
             move |_this, delta| make_canvas(delta * std::f32::consts::TAU),
         );
 
-        self.base.id(self.element_id.clone())
+        self.base
+            .id(self.element_id.clone())
             .relative()
             .w(diameter)
             .h(diameter)
@@ -313,10 +316,13 @@ impl RenderOnce for ProgressBar {
         let t = self.value.clamp(0.0, 1.0);
         let indeterminate = self.indeterminate;
 
-        let indeterminate_id: ElementId = (element_id.clone(), "ui:progress-bar:indeterminate").into();
+        let indeterminate_id: ElementId =
+            (element_id.clone(), "ui:progress-bar:indeterminate").into();
         let fill_id: ElementId = (element_id.clone(), "ui:progress-bar:fill").into();
 
-        let base = self.base.id(element_id)
+        let base = self
+            .base
+            .id(element_id)
             .relative()
             .h(height)
             .rounded_full()
@@ -336,9 +342,9 @@ impl RenderOnce for ProgressBar {
                     .bg(fill)
                     .with_animation(
                         "ui:progress-bar:indeterminate:anim",
-                        Animation::new(animation::PROGRESS_CIRCLE)
+                        Animation::new(duration::PROGRESS_CIRCLE)
                             .repeat()
-                            .with_easing(ease_in_out),
+                            .with_easing(ease_in_out_clamped),
                         move |this, delta| {
                             // A more dynamic indeterminate animation: bar grows and shrinks as it
                             // moves, similar to common loading indicators.
@@ -501,68 +507,74 @@ impl RenderOnce for ProgressCircle {
             .max(px(1.));
         let t = self.value.clamp(0.0, 1.0);
 
-        self.base.id(self.element_id.clone()).relative().w(diameter).h(diameter).child(
-            gpui::canvas(
-                move |_bounds, _window, _cx| (),
-                move |bounds, _, window, _cx| {
-                    let tau = std::f32::consts::TAU;
-                    let start_angle = -std::f32::consts::FRAC_PI_2;
+        self.base
+            .id(self.element_id.clone())
+            .relative()
+            .w(diameter)
+            .h(diameter)
+            .child(
+                gpui::canvas(
+                    move |_bounds, _window, _cx| (),
+                    move |bounds, _, window, _cx| {
+                        let tau = std::f32::consts::TAU;
+                        let start_angle = -std::f32::consts::FRAC_PI_2;
 
-                    let center = gpui::point(
-                        bounds.origin.x + (bounds.size.width / 2.0),
-                        bounds.origin.y + (bounds.size.height / 2.0),
-                    );
-                    let radius = (bounds.size.width.min(bounds.size.height) / 2.0) - (stroke / 2.0);
-                    if radius <= px(0.5) {
-                        return;
-                    }
-
-                    let steps = 128usize;
-
-                    // Track circle
-                    let mut track_path = gpui::PathBuilder::stroke(stroke);
-                    for i in 0..=steps {
-                        let frac = i as f32 / steps as f32;
-                        let angle = start_angle + (tau * frac);
-                        let p = gpui::point(
-                            center.x + radius * angle.cos(),
-                            center.y + radius * angle.sin(),
+                        let center = gpui::point(
+                            bounds.origin.x + (bounds.size.width / 2.0),
+                            bounds.origin.y + (bounds.size.height / 2.0),
                         );
-                        if i == 0 {
-                            track_path.move_to(p);
-                        } else {
-                            track_path.line_to(p);
+                        let radius =
+                            (bounds.size.width.min(bounds.size.height) / 2.0) - (stroke / 2.0);
+                        if radius <= px(0.5) {
+                            return;
                         }
-                    }
-                    if let Ok(path) = track_path.build() {
-                        window.paint_path(path, track);
-                    }
 
-                    // Indicator arc
-                    let sweep = (t * tau).clamp(0.0, tau);
-                    if sweep > 0.0 {
-                        let mut arc_path = gpui::PathBuilder::stroke(stroke);
+                        let steps = 128usize;
+
+                        // Track circle
+                        let mut track_path = gpui::PathBuilder::stroke(stroke);
                         for i in 0..=steps {
                             let frac = i as f32 / steps as f32;
-                            let angle = start_angle + (sweep * frac);
+                            let angle = start_angle + (tau * frac);
                             let p = gpui::point(
                                 center.x + radius * angle.cos(),
                                 center.y + radius * angle.sin(),
                             );
                             if i == 0 {
-                                arc_path.move_to(p);
+                                track_path.move_to(p);
                             } else {
-                                arc_path.line_to(p);
+                                track_path.line_to(p);
                             }
                         }
-                        if let Ok(path) = arc_path.build() {
-                            window.paint_path(path, indicator);
+                        if let Ok(path) = track_path.build() {
+                            window.paint_path(path, track);
                         }
-                    }
-                },
+
+                        // Indicator arc
+                        let sweep = (t * tau).clamp(0.0, tau);
+                        if sweep > 0.0 {
+                            let mut arc_path = gpui::PathBuilder::stroke(stroke);
+                            for i in 0..=steps {
+                                let frac = i as f32 / steps as f32;
+                                let angle = start_angle + (sweep * frac);
+                                let p = gpui::point(
+                                    center.x + radius * angle.cos(),
+                                    center.y + radius * angle.sin(),
+                                );
+                                if i == 0 {
+                                    arc_path.move_to(p);
+                                } else {
+                                    arc_path.line_to(p);
+                                }
+                            }
+                            if let Ok(path) = arc_path.build() {
+                                window.paint_path(path, indicator);
+                            }
+                        }
+                    },
+                )
+                .w_full()
+                .h_full(),
             )
-            .w_full()
-            .h_full(),
-        )
     }
 }

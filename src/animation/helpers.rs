@@ -2,14 +2,17 @@
 
 use std::time::Duration;
 
-use gpui::{
-    Div, ElementId, Hsla, InteractiveElement, Pixels, Stateful, Styled,
-};
+use gpui::{Div, ElementId, Hsla, InteractiveElement, Pixels, Stateful, Styled};
 
 /// Extension trait for animating gpui elements.
 pub trait AnimateExt {
     /// Apply a fade animation.
-    fn animate_fade(self, id: impl Into<ElementId>, duration: Duration, progress: f32) -> Stateful<Self>
+    fn animate_fade(
+        self,
+        id: impl Into<ElementId>,
+        duration: Duration,
+        progress: f32,
+    ) -> Stateful<Self>
     where
         Self: Sized;
 
@@ -46,7 +49,12 @@ pub enum SlideDirection {
 }
 
 impl AnimateExt for Div {
-    fn animate_fade(self, id: impl Into<ElementId>, _duration: Duration, progress: f32) -> Stateful<Self> {
+    fn animate_fade(
+        self,
+        id: impl Into<ElementId>,
+        _duration: Duration,
+        progress: f32,
+    ) -> Stateful<Self> {
         self.id(id).opacity(progress)
     }
 
@@ -65,10 +73,7 @@ impl AnimateExt for Div {
             SlideDirection::Up => (gpui::px(0.0), gpui::px(distance_f * (progress - 1.0))),
             SlideDirection::Down => (gpui::px(0.0), gpui::px(distance_f * (1.0 - progress))),
         };
-        self.id(id)
-            .opacity(progress)
-            .ml(ml)
-            .mt(mt)
+        self.id(id).opacity(progress).ml(ml).mt(mt)
     }
 
     fn animate_scale(

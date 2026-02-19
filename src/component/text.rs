@@ -3,7 +3,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, div, prelude::FluentBuilder,
 };
 
-use crate::component::{Icon};
+use crate::component::Icon;
 
 pub fn text(text: impl Into<SharedString>) -> Text {
     Text::new(text)

@@ -20,13 +20,12 @@
 use std::sync::Arc;
 
 use gpui::{
-    div, ClickEvent, Div, ElementId, ListAlignment, ListSizingBehavior,
-    IntoElement, ListState, ParentElement, Pixels,
-    RenderOnce, StatefulInteractiveElement, Styled, Window, list, px,
+    ClickEvent, Div, ElementId, IntoElement, ListAlignment, ListSizingBehavior, ListState,
+    ParentElement, Pixels, RenderOnce, StatefulInteractiveElement, Styled, Window, div, list, px,
 };
 
-use crate::component::{ClickCallback, ElementCallback, ElementClickCallback};
 use crate::component::ElementMouseDownCallback;
+use crate::component::{ClickCallback, ElementCallback, ElementClickCallback};
 
 use super::tree_data::{
     ArcTreeNode, FlatTreeNode, SelectionMode, TreeCheckedState, TreeNode, TreeNodeData, TreeState,
@@ -335,18 +334,17 @@ impl Tree {
 
         // Use keyed state to persist list state across renders
         let list_state = window.use_keyed_state((id.clone(), "ui:tree:list-state"), cx, |_, _| {
-            self.list_state.clone().unwrap_or_else(|| {
-                ListState::new(0, ListAlignment::Top, px(32.))
-            })
+            self.list_state
+                .clone()
+                .unwrap_or_else(|| ListState::new(0, ListAlignment::Top, px(32.)))
         });
 
         // Recalculate flattened nodes
         let mut expanded_ids = std::collections::HashMap::new();
 
         // Collect expanded IDs from the persisted state
-        let state_entity = window.use_keyed_state((id.clone(), "ui:tree:state"), cx, |_, _| {
-            self.state.clone()
-        });
+        let state_entity =
+            window.use_keyed_state((id.clone(), "ui:tree:state"), cx, |_, _| self.state.clone());
 
         for (id, expanded) in state_entity.read(cx).expanded_nodes() {
             expanded_ids.insert(id.clone(), *expanded);
@@ -445,18 +443,16 @@ impl Tree {
                 row = row.on_click({
                     let node_id = node_id.clone();
                     move |ev, window, cx| {
-                        state_entity.update(cx, |state, _cx| {
-                            match selection_mode {
-                                SelectionMode::Single => {
-                                    state.clear_selection();
-                                    state.set_selected(&node_id, true);
-                                }
-                                SelectionMode::Multiple => {
-                                    let selected = state.is_selected(&node_id);
-                                    state.set_selected(&node_id, !selected);
-                                }
-                                SelectionMode::None => {}
+                        state_entity.update(cx, |state, _cx| match selection_mode {
+                            SelectionMode::Single => {
+                                state.clear_selection();
+                                state.set_selected(&node_id, true);
                             }
+                            SelectionMode::Multiple => {
+                                let selected = state.is_selected(&node_id);
+                                state.set_selected(&node_id, !selected);
+                            }
+                            SelectionMode::None => {}
                         });
 
                         if let Some(handler) = &on_item_click {
@@ -498,7 +494,13 @@ impl Tree {
         // list to establish a scroll viewport.
         // Note: rounded and padding styles set via Styled are NOT preserved in virtualized mode.
         // If you need these styles in virtualized mode, wrap the tree in a parent div instead.
-        base.flex().flex_col().w_full().h_full().min_h_0().flex_grow().child(list)
+        base.flex()
+            .flex_col()
+            .w_full()
+            .h_full()
+            .min_h_0()
+            .flex_grow()
+            .child(list)
     }
 
     /// Render the tree using normal flex layout.
@@ -516,9 +518,8 @@ impl Tree {
 
         // Tree needs internal state to be updatable from click handlers.
         // Store TreeState in a keyed entity so closures can call `update`.
-        let state_entity = window.use_keyed_state((id.clone(), "ui:tree:state"), cx, |_, _| {
-            self.state.clone()
-        });
+        let state_entity =
+            window.use_keyed_state((id.clone(), "ui:tree:state"), cx, |_, _| self.state.clone());
 
         // Collect expanded IDs from the persisted state
         for (id, expanded) in state_entity.read(cx).expanded_nodes() {
@@ -621,18 +622,16 @@ impl Tree {
                         let node_id = node_id.clone();
                         let state_entity = state_entity.clone();
                         move |ev, window, cx| {
-                            state_entity.update(cx, |state, _cx| {
-                                match selection_mode {
-                                    SelectionMode::Single => {
-                                        state.clear_selection();
-                                        state.set_selected(&node_id, true);
-                                    }
-                                    SelectionMode::Multiple => {
-                                        let selected = state.is_selected(&node_id);
-                                        state.set_selected(&node_id, !selected);
-                                    }
-                                    SelectionMode::None => {}
+                            state_entity.update(cx, |state, _cx| match selection_mode {
+                                SelectionMode::Single => {
+                                    state.clear_selection();
+                                    state.set_selected(&node_id, true);
                                 }
+                                SelectionMode::Multiple => {
+                                    let selected = state.is_selected(&node_id);
+                                    state.set_selected(&node_id, !selected);
+                                }
+                                SelectionMode::None => {}
                             });
 
                             if let Some(handler) = &on_item_click {

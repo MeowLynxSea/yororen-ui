@@ -5,8 +5,8 @@
 //! of a modal or other focused interaction area.
 
 use gpui::{
-    actions, div, App, ElementId, FocusHandle, InteractiveElement, IntoElement, ParentElement,
-    RenderOnce, StatefulInteractiveElement, Styled, Window,
+    App, ElementId, FocusHandle, InteractiveElement, IntoElement, ParentElement, RenderOnce,
+    StatefulInteractiveElement, Styled, Window, actions, div,
 };
 use std::sync::Arc;
 

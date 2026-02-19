@@ -3,15 +3,12 @@ use std::sync::Arc;
 use gpui::{
     AppContext, Bounds, Div, Element, ElementId, Empty, GlobalElementId, Hsla, InspectorElementId,
     InteractiveElement, IntoElement, LayoutId, MouseButton, MouseDownEvent, ParentElement,
-    relative, RenderOnce, StatefulInteractiveElement, Styled, px,
+    RenderOnce, StatefulInteractiveElement, Styled, px, relative,
 };
 
 use gpui::prelude::FluentBuilder;
 
-use crate::{
-    component::create_internal_state,
-    theme::ActiveTheme,
-};
+use crate::{component::create_internal_state, theme::ActiveTheme};
 
 /// Creates a new slider element.
 ///

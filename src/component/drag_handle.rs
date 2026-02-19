@@ -151,7 +151,8 @@ impl RenderOnce for DragHandle {
             resolved_hover_bg = action_variant.disabled_bg;
         }
 
-        self.base.id(self.element_id)
+        self.base
+            .id(self.element_id)
             .when(enabled, |this| this.cursor_grab())
             .when(dragging, |this| this.cursor_grabbing())
             .bg(resolved_bg)

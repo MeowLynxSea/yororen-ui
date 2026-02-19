@@ -1,9 +1,11 @@
 use gpui::{
     Animation, AnimationExt, App, Decorations, Entity, FontWeight, MouseDownEvent, SharedString,
-    div, ease_out_quint, prelude::*, px,
+    div, prelude::*, px,
 };
 
-use crate::{component::icon, constants::animation, theme::ActiveTheme};
+use crate::{animation::constants::duration, component::icon, theme::ActiveTheme};
+
+use crate::animation::ease_out_quint_clamped;
 
 pub const DEFAULT_NAV_ITEMS: [&str; 5] = ["Home", "Explore", "Player", "Components", "Settings"];
 
@@ -144,11 +146,14 @@ impl RenderOnce for Navigator {
         } else {
             // Use default width for all items
             let count = items.len();
-            (0..=count).map(|i| (i as f32) * (default_width + gap)).collect()
+            (0..=count)
+                .map(|i| (i as f32) * (default_width + gap))
+                .collect()
         };
 
         // Current width for slider
-        let current_width = item_widths.as_ref()
+        let current_width = item_widths
+            .as_ref()
             .and_then(|w| w.get(current).copied())
             .unwrap_or(default_width);
 
@@ -170,14 +175,15 @@ impl RenderOnce for Navigator {
                     .rounded_full()
                     .with_animation(
                         format!("navigator-slider-{}", current),
-                        Animation::new(animation::NAVIGATOR_SLIDER).with_easing(ease_out_quint()),
+                        Animation::new(duration::NAVIGATOR_SLIDER)
+                            .with_easing(ease_out_quint_clamped),
                         move |this, delta| {
                             let target_left = positions.get(current).copied().unwrap_or(0.0);
                             let current_left = positions.get(prev).copied().unwrap_or(0.0);
                             let new_left = current_left + (target_left - current_left) * delta;
                             this.left(px(new_left))
                         },
-                    )
+                    ),
             )
             // Menu items - use custom widths if provided
             .child(
@@ -189,7 +195,8 @@ impl RenderOnce for Navigator {
                     .gap_1()
                     .children(items.into_iter().enumerate().map(move |(i, t)| {
                         let state = state.clone();
-                        let width = item_widths.as_ref()
+                        let width = item_widths
+                            .as_ref()
                             .and_then(|w| w.get(i).copied())
                             .unwrap_or(default_width);
                         div()
@@ -206,12 +213,7 @@ impl RenderOnce for Navigator {
                             .flex()
                             .justify_center()
                             .items_center()
-                            .child(
-                                div()
-                                    .line_clamp(1)
-                                    .text_ellipsis()
-                                    .child(t)
-                            )
+                            .child(div().line_clamp(1).text_ellipsis().child(t))
                             .cursor_pointer()
                             .when(current != i, |this| {
                                 this.hover(|this| this.bg(cx.theme().action.neutral.hover_bg))

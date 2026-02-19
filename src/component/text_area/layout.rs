@@ -2,8 +2,8 @@
 //!
 //! Contains layout structures for text area rendering.
 
-use std::ops::Range;
 use gpui::{Pixels, ShapedLine, SharedString, TextRun, UnderlineStyle, px};
+use std::ops::Range;
 
 pub struct LineLayout {
     pub range: Range<usize>,
@@ -62,7 +62,9 @@ pub fn layout_lines(
         if ch == '\n' {
             let line_text = SharedString::new(display_text[start..i].to_string());
             let runs = runs_for_line(start..i, marked_range, base_run);
-            let shaped = window.text_system().shape_line(line_text, font_size, &runs, None);
+            let shaped = window
+                .text_system()
+                .shape_line(line_text, font_size, &runs, None);
             max_width = max_width.max(shaped.width);
             lines.push(LineLayout {
                 range: start..i,
@@ -78,7 +80,9 @@ pub fn layout_lines(
     if start < end || lines.is_empty() {
         let line_text = SharedString::new(display_text[start..end].to_string());
         let runs = runs_for_line(start..end, marked_range, base_run);
-        let shaped = window.text_system().shape_line(line_text, font_size, &runs, None);
+        let shaped = window
+            .text_system()
+            .shape_line(line_text, font_size, &runs, None);
         max_width = max_width.max(shaped.width);
         lines.push(LineLayout {
             range: start..end,
@@ -115,7 +119,10 @@ fn runs_for_line(
     let after_len = line_range.end - marked_end;
 
     [
-        TextRun { len: before_len, ..base.clone() },
+        TextRun {
+            len: before_len,
+            ..base.clone()
+        },
         TextRun {
             len: marked_len,
             underline: Some(UnderlineStyle {
@@ -125,7 +132,10 @@ fn runs_for_line(
             }),
             ..base.clone()
         },
-        TextRun { len: after_len, ..base },
+        TextRun {
+            len: after_len,
+            ..base
+        },
     ]
     .into_iter()
     .filter(|run| run.len > 0)

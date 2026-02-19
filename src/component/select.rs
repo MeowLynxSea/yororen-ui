@@ -3,18 +3,20 @@ use std::sync::Arc;
 use gpui::{
     Animation, AnimationExt, ClickEvent, Div, ElementId, Hsla, InteractiveElement, IntoElement,
     ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, Styled, div,
-    ease_out_quint, prelude::FluentBuilder, px,
+    prelude::FluentBuilder, px,
 };
 
 use crate::{
+    animation::constants::duration,
     component::{
-        compute_input_style, create_internal_state, use_internal_state,
-        ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, icon,
+        ArrowDirection, ChangeCallback, ChangeWithEventCallback, IconName, compute_input_style,
+        create_internal_state, icon, use_internal_state,
     },
-    constants::animation,
-    i18n::{defaults::DefaultPlaceholders, I18nContext},
+    i18n::{I18nContext, defaults::DefaultPlaceholders},
     theme::ActiveTheme,
 };
+
+use crate::animation::ease_out_quint_clamped;
 
 /// Creates a new select option.
 ///
@@ -286,7 +288,9 @@ fn call_on_change(
     window: &mut gpui::Window,
     cx: &mut gpui::App,
 ) {
-    if let Some(handler) = on_change_with_event && let Some(ev) = ev {
+    if let Some(handler) = on_change_with_event
+        && let Some(ev) = ev
+    {
         handler(option_value.clone(), ev, window, cx);
         return;
     }
@@ -320,7 +324,8 @@ impl RenderOnce for Select {
         let menu_open = window.use_keyed_state((id.clone(), "ui:select:open"), cx, |_, _| false);
         let is_open = *menu_open.read(cx);
 
-        let has_on_change = on_change.is_some() || on_change_simple.is_some() || on_change_with_event.is_some();
+        let has_on_change =
+            on_change.is_some() || on_change_simple.is_some() || on_change_with_event.is_some();
         let use_internal = use_internal_state(self.value.is_some(), has_on_change);
         let default_value = options
             .first()
@@ -405,7 +410,12 @@ impl RenderOnce for Select {
                     .flex_1()
                     .min_w(px(0.))
                     .truncate()
-                    .text_color(selected_label.as_ref().map(|_| input_style.text_color).unwrap_or(hint))
+                    .text_color(
+                        selected_label
+                            .as_ref()
+                            .map(|_| input_style.text_color)
+                            .unwrap_or(hint),
+                    )
                     .child(selected_label.unwrap_or(placeholder)),
             )
             .child(
@@ -442,7 +452,8 @@ impl RenderOnce for Select {
                     .children(options.into_iter().map(move |opt| {
                         let is_selected = opt.value.as_ref() == Some(&value);
                         let is_disabled = disabled || opt.disabled;
-                        let option_value = opt.value.clone().expect("SelectOption value is required");
+                        let option_value =
+                            opt.value.clone().expect("SelectOption value is required");
                         let menu_open_for_select = menu_open_for_select.clone();
                         let on_change = on_change.clone();
                         let on_change_simple = on_change_simple.clone();
@@ -504,8 +515,7 @@ impl RenderOnce for Select {
 
                 let animated_menu = menu.with_animation(
                     format!("select-menu-{}", is_open),
-                    Animation::new(animation::MENU_OPEN)
-                        .with_easing(ease_out_quint()),
+                    Animation::new(duration::MENU_OPEN).with_easing(ease_out_quint_clamped),
                     |this, value| this.opacity(value).mt(px(10.0 - 6.0 * value)),
                 );
 

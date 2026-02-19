@@ -1,29 +1,11 @@
-//! Animation and timing constants for the UI library.
+//! Library-wide constants.
+//!
+//! Note: animation/timing constants live in `crate::animation::constants`. This
+//! module re-exports them for backward compatibility.
 
-use std::time::Duration;
+pub use crate::animation::constants::*;
 
-/// Cursor blink interval for text inputs.
-pub const CURSOR_BLINK_INTERVAL: Duration = Duration::from_millis(500);
-
-/// Animation durations for UI transitions.
+/// Backwards-compatible export path for older code.
 pub mod animation {
-    use super::Duration;
-
-    /// Dropdown menu open/close animation.
-    pub const MENU_OPEN: Duration = Duration::from_millis(160);
-
-    /// Navigator slider animation.
-    pub const NAVIGATOR_SLIDER: Duration = Duration::from_millis(200);
-
-    /// Skeleton loading pulse animation (variant 1).
-    pub const SKELETON_PULSE_1: Duration = Duration::from_millis(1100);
-
-    /// Skeleton loading pulse animation (variant 2).
-    pub const SKELETON_PULSE_2: Duration = Duration::from_millis(1200);
-
-    /// Progress spinner animation.
-    pub const PROGRESS_SPINNER: Duration = Duration::from_millis(850);
-
-    /// Progress circle animation.
-    pub const PROGRESS_CIRCLE: Duration = Duration::from_millis(900);
+    pub use crate::animation::constants::duration::*;
 }

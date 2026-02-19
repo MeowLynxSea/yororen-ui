@@ -243,9 +243,7 @@ macro_rules! t {
 /// ```
 #[macro_export]
 macro_rules! tf {
-    ($key:expr, $args:expr) => {{
-        $key
-    }};
+    ($key:expr, $args:expr) => {{ $key }};
 }
 
 /// Macro for plural forms.
@@ -258,9 +256,7 @@ macro_rules! tf {
 /// ```
 #[macro_export]
 macro_rules! tn {
-    ($key:expr, n = $n:expr) => {{
-        $key
-    }};
+    ($key:expr, n = $n:expr) => {{ $key }};
 }
 
 #[cfg(test)]
@@ -271,10 +267,19 @@ mod tests {
     fn test_plural_english() {
         let locale = Locale::new("en").unwrap();
 
-        assert_eq!(PluralCategory::for_number(0, &locale), PluralCategory::Other);
+        assert_eq!(
+            PluralCategory::for_number(0, &locale),
+            PluralCategory::Other
+        );
         assert_eq!(PluralCategory::for_number(1, &locale), PluralCategory::One);
-        assert_eq!(PluralCategory::for_number(2, &locale), PluralCategory::Other);
-        assert_eq!(PluralCategory::for_number(5, &locale), PluralCategory::Other);
+        assert_eq!(
+            PluralCategory::for_number(2, &locale),
+            PluralCategory::Other
+        );
+        assert_eq!(
+            PluralCategory::for_number(5, &locale),
+            PluralCategory::Other
+        );
     }
 
     #[test]
@@ -293,8 +298,7 @@ mod tests {
         args.insert("name", Box::new("World"));
         args.insert("count", Box::new(5));
 
-        let s = TranslatedString::new("Hello {name}, you have {count} items")
-            .with_args(&args);
+        let s = TranslatedString::new("Hello {name}, you have {count} items").with_args(&args);
 
         assert_eq!(s.into_shared().to_string(), "Hello World, you have 5 items");
     }
