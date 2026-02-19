@@ -1,20 +1,37 @@
-//! yororen-ui Form Pattern
+//! yororen-ui Form Component
 //!
-//! This component demonstrates the standard pattern for building forms in yororen-ui.
+//! This module demonstrates the standard pattern for building forms in yororen-ui applications.
+//! The TodoForm component handles new task creation, providing input fields for task title
+//! and category selection, along with a submit button to add the task to the list.
 //!
-//! ## Form Pattern
+//! ## Form Implementation Pattern
 //!
-//! Forms in yororen-ui typically:
-//! 1. Store input values in global state (via `on_change` handlers)
-//! 2. Validate input before submission
-//! 3. Perform action on submit (via `on_click`)
-//! 4. Trigger re-render after state change
+//! Forms in yororen-ui follow a consistent pattern:
+//!
+//! 1. **Input Handling**: Each input component (text_input, combo_box) has an `on_change` handler
+//!    that stores the current value in global state as the user types or selects options.
+//! 2. **Validation**: Before performing any action, validate the input to ensure it meets
+//!    requirements (e.g., non-empty title for a task).
+//! 3. **Action Execution**: When the submit button is clicked (`on_click`), perform the desired
+//!    action (create a new todo, update existing data, etc.).
+//! 4. **State Reset**: After successful submission, reset form fields to their initial state.
+//! 5. **Re-render Trigger**: Call `cx.notify()` to trigger a re-render so the UI reflects the changes.
+//!
+//! ## Form State Management
+//!
+//! This component uses global state to persist input values across renders:
+//!
+//! - `new_todo_title`: Stores the current text input value
+//! - `new_todo_category`: Stores the currently selected category
+//!
+//! This pattern allows the form to maintain its state even when the component re-renders
+//! for other reasons.
 //!
 //! ## Key Components Used
 //!
-//! - `text_input` - Single-line text input
-//! - `combo_box` - Dropdown selection
-//! - `button` - Action buttons (use `ActionVariantKind::Primary` for main action)
+//! - `text_input` - Single-line text input for task title entry
+//! - `combo_box` - Dropdown selection for task category
+//! - `button` - Action button with `ActionVariantKind::Primary` variant for the main submit action
 
 use gpui::{IntoElement, ParentElement, Styled, div, px};
 use yororen_ui::component::{button, combo_box, text_input, ComboBoxOption};

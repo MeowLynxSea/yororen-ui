@@ -1,31 +1,63 @@
-//! yororen-ui Application Template
+//! yororen-ui Application Entry Point
 //!
-//! This demo serves as a reference implementation for building yororen-ui applications.
-//! It demonstrates the standard patterns and best practices used throughout yororen-ui.
+//! This module serves as the entry point and reference implementation for building yororen-ui applications.
+//! It demonstrates the standard patterns and best practices used throughout the framework.
 //!
-//! ## Key Patterns (For yororen-ui Developers)
+//! ## Application Bootstrap Sequence
 //!
-//! ### 1. Application Bootstrap
-//! Every yororen-ui app follows this initialization sequence:
-//!   - `Application::new().with_assets(UiAsset)` - Create app and load UI assets
-//!   - `component::init(cx)` - Register all yororen-ui components
-//!   - `cx.set_global(GlobalTheme::new(...))` - Initialize theme system
-//!   - `cx.set_global(YourAppState::default())` - Set app-specific global state
-//!   - `cx.open_window(...)` - Create the main window
+//! Every yororen-ui application follows a specific initialization sequence:
 //!
-//! ### 2. Module Structure
-//! A typical yororen-ui application should have:
-//!   - `main.rs` - Application entry point and initialization
-//!   - `state.rs` - Global state management (see Arc<Mutex<T>> pattern)
-//!   - `*_app.rs` - Root component implementing `Render` trait
-//!   - `components/` - Reusable UI components
-//!   - `*.rs` - Domain models (no UI dependencies)
+//! 1. **Create Application Instance**: Initialize the gpui Application with required assets
+//!    ```rust
+//!    Application::new().with_assets(UiAsset)
+//!    ```
+//!    The `UiAsset` provides built-in yororen-ui resources including icons, fonts, and other assets.
 //!
-//! ## Usage
-//! Run this demo to explore yororen-ui components:
+//! 2. **Initialize Component Library**: Register all yororen-ui components
+//!    ```rust
+//!    component::init(cx)
+//!    ```
+//!    This must be called before using any yororen-ui components.
+//!
+//! 3. **Initialize Theme System**: Set up theming with system preference detection
+//!    ```rust
+//!    cx.set_global(GlobalTheme::new(cx.window_appearance()))
+//!    ```
+//!    The GlobalTheme automatically handles light/dark mode based on system preferences.
+//!
+//! 4. **Initialize Global State**: Set up application-specific state
+//!    ```rust
+//!    cx.set_global(YourAppState::default())
+//!    ```
+//!    This makes the state accessible to all components via `cx.global::<T>()`.
+//!
+//! 5. **Open Main Window**: Create and display the application window
+//!    ```rust
+//!    cx.open_window(options, |_, cx| {
+//!        cx.new(|cx| YourApp::new(cx))
+//!    })
+//!    ```
+//!
+//! ## Recommended Module Structure
+//!
+//! A typical yororen-ui application should be organized as follows:
+//!
+//! - `main.rs` - Application entry point and framework initialization
+//! - `state.rs` - Global state management using the Arc<Mutex<T>> pattern
+//! - `*_app.rs` - Root component implementing the gpui `Render` trait
+//! - `components/` - Directory containing reusable UI components
+//! - `*.rs` - Domain model files with no UI dependencies
+//!
+//! ## Running the Demo
+//!
+//! To run this demo and explore yororen-ui components:
 //! ```bash
 //! cd demo/todolist && cargo run
 //! ```
+//!
+//! The demo showcases several key yororen-ui components including:
+//! checkbox, switch, tag, text_input, search_input, combo_box, modal, list_item,
+//! icon_button, tooltip, button, and heading.
 
 mod todo;
 mod todo_app;
@@ -69,7 +101,8 @@ fn main() {
         // RECOMMENDED: Set up i18n.
         // This demo additionally loads `demo/todolist/locales/<locale>.json` to keep demo strings
         // out of the core library locales.
-        cx.set_global(i18n::load_demo_i18n(Locale::new("ar").unwrap()).unwrap());
+        // Try to change this to zh-CN or ar
+        cx.set_global(i18n::load_demo_i18n(Locale::new("en").unwrap()).unwrap());
 
         // RECOMMENDED: Set up global application state
         // Use Global trait + Arc<Mutex<T>> for shared state

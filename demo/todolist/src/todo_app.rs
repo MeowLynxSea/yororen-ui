@@ -1,35 +1,52 @@
-//! yororen-ui Root Component Pattern
+//! yororen-ui Root Application Component
 //!
-//! This file demonstrates the **standard pattern** for building the root component
-//! in any yororen-ui application.
+//! This module demonstrates the standard pattern for building the root component in yororen-ui applications.
+//! The root component serves as the top-level container for all other UI elements in the application.
 //!
 //! ## Root Component Responsibilities
 //!
-//! A root component (the one passed to `cx.open_window`) typically:
-//! 1. Implements the `Render` trait from gpui
-//! 2. Reads global state via `cx.global::<T>()`
-//! 3. Derives UI state from global state (filtering, sorting, etc.)
-//! 4. Renders child components
-//! 5. Handles global notifications
+//! The root component (the one passed to `cx.open_window()`) is responsible for:
 //!
-//! ## Render Trait Pattern
+//! 1. **Implementing the Render Trait**: The `Render` trait from gpui is the core of the component system.
+//!    It defines how the component transforms its state into UI elements.
+//! 2. **Reading Global State**: Access application-wide state via `cx.global::<T>()` to retrieve
+//!    shared data that persists across the application lifecycle.
+//! 3. **Deriving UI State**: Transform raw state data into presentation-ready data by applying
+//!    filters, sorting, or other transformations needed for rendering.
+//! 4. **Composing Child Components**: Assemble the UI by combining child components, passing them
+//!    the data and callbacks they need to function correctly.
+//! 5. **Handling Notifications**: Respond to `cx.notify()` calls that signal state changes requiring re-renders.
 //!
-//! ```
+//! ## Render Trait Implementation Pattern
+//!
+//! ```ignore
 //! impl Render for MyApp {
 //!     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-//!         // Read global state
+//!         // Step 1: Read global state
 //!         let state = cx.global::<MyState>();
-//!         // Derive UI state
+//!
+//!         // Step 2: Derive UI state (filtering, sorting, etc.)
 //!         let filtered_data = state.items.lock().unwrap().filter(...);
-//!         // Build UI
+//!
+//!         // Step 3: Build UI using fluent builder pattern
 //!         div().children(...)
 //!     }
 //! }
 //! ```
 //!
-//! ## Using This Pattern
+//! ## Notification System
 //!
-//! Copy this structure for your yororen-ui app's root component.
+//! The root component plays a crucial role in the notification system:
+//! - Other components need to know the root component's entity ID to trigger re-renders
+//! - Store the entity ID in global state during initialization (`Self::new()`)
+//! - Components call `cx.notify(entity_id)` after modifying state to trigger a re-render
+//!
+//! ## Conditional Rendering
+//!
+//! The root component often handles conditional rendering of overlays like modals:
+//! - Check if a modal should be displayed (e.g., `editing_todo.is_some()`)
+//! - Use `.when_some()` or `.when()` to conditionally render elements
+//! - Pass the necessary state to child components for rendering
 
 use gpui::{
     prelude::FluentBuilder,

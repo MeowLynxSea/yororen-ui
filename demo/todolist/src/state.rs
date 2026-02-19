@@ -1,18 +1,30 @@
-//! yororen-ui Global State Pattern
+//! yororen-ui Global State Management
 //!
-//! This module demonstrates the **recommended pattern** for managing application state
-//! in yororen-ui/gpui applications.
+//! This module demonstrates the recommended pattern for managing application state in yororen-ui/gpui applications.
+//! Global state allows components throughout the application to share data without complex prop drilling.
 //!
-//! ## Why This Pattern?
+//! ## Why Arc<Mutex<T>>?
 //!
-//! In yororen-ui, components are often rendered from different contexts (closures).
-//! Standard Rust ownership doesn't allow multiple parts of the code to mutate the same data.
-//! The `Arc<Mutex<T>>` pattern solves this:
+//! In yororen-ui applications, components are often rendered from different contexts (closures and callbacks).
+//! Standard Rust ownership rules don't allow multiple parts of the code to mutate the same data simultaneously.
+//! The `Arc<Mutex<T>>` pattern solves this architectural challenge:
 //!
-//! - **Arc** (Atomic Reference Counted): Allows multiple owners to share data
-//! - **Mutex** (Mutual Exclusion): Ensures only one part can mutate at a time
+//! - **Arc** (Atomic Reference Counted): Enables multiple owners to share access to the same data.
+//!   When an Arc is cloned, it increments an internal reference count; when dropped, it decrements the count.
+//!   The data is only deallocated when the count reaches zero.
+//! - **Mutex** (Mutual Exclusion): Ensures thread-safe access by allowing only one thread (or context) to
+//!   mutate the data at a time. Other threads must wait until the lock is released.
 //!
-//! ## State Update Flow (Important!)
+//! ## State Structure Design
+//!
+//! Global state is typically organized into several categories of data:
+//!
+//! - **Application Data**: The core business data (e.g., `todos` - the list of todo items)
+//! - **UI State**: State that controls how the UI is displayed (e.g., `compact_mode`, `editing_todo`)
+//! - **Form State**: Temporary state for form inputs (e.g., `edit_title`, `edit_category`, `new_todo_title`)
+//! - **System State**: Infrastructure state like the notification entity ID
+//!
+//! ## State Update Flow
 //!
 //! ```ignore
 //! 1. Component reads state: let value = *state.field.lock().unwrap();
@@ -21,14 +33,22 @@
 //! 4. gpui re-renders the component that owns the entity
 //! ```
 //!
-//! ## This Pattern in Your App
+//! ## Implementing Global State
 //!
 //! To add global state to your yororen-ui application:
-//! 1. Define a struct with `Arc<Mutex<T>>` fields
-//! 2. Implement `Clone` (automatically via derive or manually)
-//! 3. Implement `Default` for initial state
-//! 4. Implement `Global` trait
-//! 5. Set via `cx.set_global(YourState::default())` in main()
+//!
+//! 1. Define a struct containing `Arc<Mutex<T>>` fields for each piece of state
+//! 2. Implement the `Clone` trait (can be derived automatically)
+//! 3. Implement `Default` to provide initial state values
+//! 4. Implement the `Global` trait from gpui to make the type accessible via `cx.global::<T>()`
+//! 5. Register the state in main() using `cx.set_global(YourState::default())`
+//!
+//! ## Thread Safety Considerations
+//!
+//! When working with global state, be mindful of:
+//! - **Lock Ordering**: Always acquire and release locks in a consistent order to prevent deadlocks
+//! - **Minimize Lock Duration**: Keep critical sections as short as possible
+//! - **Clone Before Lock Release**: Extract needed data from locks before releasing them
 
 use gpui::{EntityId, Global};
 use std::sync::{Arc, Mutex};

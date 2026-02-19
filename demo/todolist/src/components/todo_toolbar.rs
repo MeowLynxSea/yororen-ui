@@ -1,12 +1,39 @@
-//! yororen-ui Toolbar/Search Pattern
+//! yororen-ui Toolbar Component
 //!
-//! Demonstrates search and filter patterns in yororen-ui.
+//! This module demonstrates the standard pattern for building search and filter toolbars in yororen-ui applications.
+//! The TodoToolbar component provides controls for searching and filtering the todo list.
+//!
+//! ## Toolbar Design Pattern
+//!
+//! Toolbars in yororen-ui applications typically contain controls the for manipulating view or data.
+//! This component demonstrates a common pattern combining:
+//!
+//! - **Search Input**: A text field for filtering items by their text content
+//! - **Category Filter**: A dropdown for filtering items by category
+//!
+//! ## Filter State Management
+//!
+//! Both search and filter controls manage their state in the global state store:
+//!
+//! - `search_query`: Stores the current search text, used to filter todos by title
+//! - `selected_category`: Stores the currently selected category filter (None means "all categories")
+//!
+//! When these values change, the root component re-renders and applies the filters to derive
+//! the visible list of todos.
+//!
+//! ## ComboBox Options Pattern
+//!
+//! The category filter demonstrates a common pattern for dropdown options:
+//!
+//! 1. Create a vector of `ComboBoxOption` items from the domain enum using `.iter()` and `.map()`
+//! 2. Add an "All" option at the beginning to allow showing all items
+//! 3. Map the current selection to the option value for display
 //!
 //! ## Key Components Used
 //!
-//! - `search_input` - Text input for search
-//! - `combo_box` - Dropdown for category selection
-//! - `ComboBoxOption` - Options for dropdowns
+//! - `search_input` - Specialized text input with search icon and placeholder for search queries
+//! - `combo_box` - Dropdown selection component for category filtering
+//! - `ComboBoxOption` - Represents individual options in the dropdown, with a code value and display label
 
 use gpui::{IntoElement, ParentElement, Styled, div, px};
 use yororen_ui::component::{combo_box, search_input, ComboBoxOption};

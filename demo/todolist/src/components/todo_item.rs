@@ -1,22 +1,57 @@
-//! yororen-ui List Item Pattern
+//! yororen-ui List Item Component
 //!
-//! This component demonstrates two common patterns for rendering list items in yororen-ui.
+//! This module demonstrates two common patterns for rendering list items in yororen-ui applications.
+//! The TodoItem component renders individual todo entries and supports two view modes: compact and detailed.
 //!
-//! ## Pattern 1: Compact Layout (div-based)
-//! Uses basic div with flexbox for simple horizontal layouts.
-//! Good for: Toolbars, simple lists, compact views.
+//! ## View Mode Patterns
 //!
-//! ## Pattern 2: List Item Layout (list_item-based)
-//! Uses the `list_item` component with leading/content/trailing sections.
-//! Good for: Complex lists with multiple data points, proper accessibility.
+//! This component implements two different rendering approaches:
+//!
+//! ### Pattern 1: Compact Layout (div-based)
+//!
+//! Uses basic HTML div elements with flexbox for simple horizontal layouts.
+//! This pattern is ideal for:
+//! - Toolbars and control bars
+//! - Simple lists with minimal information
+//! - Views where space is at a premium
+//! - Scrolling lists with many items
+//!
+//! The compact view displays the checkbox, title, category tag, and action icons in a single row.
+//!
+//! ### Pattern 2: List Item Layout (list_item-based)
+//!
+//! Uses the `list_item` component which provides a structured layout with three distinct sections:
+//! - **leading**: Primary action area on the left (checkbox for completion toggle)
+//! - **content**: Main content area in the center (title and category)
+//! - **trailing**: Secondary actions on the right (edit and delete buttons)
+//!
+//! This pattern is ideal for:
+//! - Complex lists with multiple data points
+//! - Items requiring proper accessibility semantics
+//! - Views where visual hierarchy is important
+//! - List items that need consistent spacing and alignment
+//!
+//! ## Conditional Rendering
+//!
+//! The component switches between view modes based on the `compact_mode` parameter:
+//! - `true`: Renders the compact div-based layout
+//! - `false`: Renders the full list_item layout with structured sections
+//!
+//! ## Item Actions
+//!
+//! Each todo item provides two action buttons:
+//!
+//! - **Edit Button**: Opens the modal dialog for editing the task, populating the edit buffers
+//!   with the current task values and setting the `editing_todo` state
+//! - **Delete Button**: Removes the task from the global state, triggering a re-render
 //!
 //! ## Key Components Used
 //!
-//! - `checkbox` - Toggle state (completed/pending)
-//! - `icon_button` - Icon-only buttons for actions
-//! - `tag` - Category/labels
-//! - `list_item` - Structured list item with sections
-//! - `label` - Text display
+//! - `checkbox` - Toggle button for completed/pending state
+//! - `icon_button` - Icon-only buttons for edit and delete actions
+//! - `tag` - Visual label displaying the task category
+//! - `list_item` - Structured list item container with leading/content/trailing sections
+//! - `label` - Text display for task title
 
 use gpui::prelude::FluentBuilder;
 use gpui::{AnyElement, IntoElement, ParentElement, Styled, div, px};

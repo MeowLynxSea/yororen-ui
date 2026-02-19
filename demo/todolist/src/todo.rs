@@ -1,29 +1,46 @@
-//! yororen-ui Domain Model Pattern
+//! yororen-ui Domain Model Layer
 //!
 //! This module demonstrates how to structure domain models in yororen-ui applications.
+//! Domain models represent the core business concepts and are kept separate from UI implementation details.
 //!
 //! ## Domain Model Pattern
 //!
-//! Keep your domain models (data structures) separate from UI code:
-//! - No gpui or yororen-ui imports
-//! - Plain Rust structs and enums
-//! - Business logic only
+//! Domain models in yororen-ui applications should be kept separate from UI code:
 //!
-//! ## Why Separate Models?
+//! - **No UI Dependencies**: Do not import gpui or yororen-ui modules in domain model files
+//! - **Plain Rust Types**: Use standard Rust structs and enums
+//! - **Business Logic Only**: Include only data structures and their associated methods
 //!
-//! Separating models from UI makes code:
-//! - Testable: Business logic can be unit tested without UI
-//! - Reusable: Models can be used in different contexts
-//! - Clean: Clear separation of concerns
+//! ## Benefits of Separating Models
 //!
-//! ## This Pattern in Your App
+//! Keeping domain models separate from UI code provides several advantages:
 //!
-//! Create a `models.rs` or similar module for your domain types:
+//! - **Testability**: Business logic can be unit tested without requiring a UI environment
+//! - **Reusability**: Models can be used in different contexts (e.g., backend services, CLI tools)
+//! - **Clean Architecture**: Clear separation of concerns between data and presentation
+//! - **Maintainability**: Changes to UI don't affect business logic, and vice versa
+//!
+//! ## Implementing Domain Models
+//!
+//! Create a dedicated module (often named `models.rs` or matching the domain concept) for your types:
 //! ```ignore
-//! // models.rs
+//! // models.rs or todo.rs
 //! pub struct MyEntity { ... }
 //! pub enum MyStatus { ... }
+//! impl MyEntity { ... }
 //! ```
+//!
+//! ## This Module's Models
+//!
+//! This module defines:
+//!
+//! - **Todo**: The main domain entity representing a task item with title, completion status, and category
+//! - **TodoCategory**: An enum representing the different categories a todo can belong to (Work, Personal, Shopping, Health, Other)
+//!
+//! The TodoCategory enum provides helper methods for working with categories:
+//! - `all()`: Returns a vector of all category variants
+//! - `code()`: Returns a stable string code suitable for storage or comparison
+//! - `key()`: Returns the i18n translation key for displaying the category name
 
 use uuid::Uuid;
 
