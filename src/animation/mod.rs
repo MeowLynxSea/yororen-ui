@@ -24,6 +24,11 @@ pub use helpers::{
     lerp_color,
 };
 pub use orchestrator::{AnimationParallel, AnimationSequence, parallel, sequence, Staggered};
-pub use preset::{duration, AnimationType, PresetAnimation, SlideDirection as PresetSlideDirection,
-    fade_slide_in, fade_slide_out, pulse, FadeIn, FadeOut,
-    fade_slide_in_left, fade_slide_in_right, fade_slide_in_up, fade_slide_in_down};
+pub use preset::{
+    bounce_in_down, bounce_in_left, bounce_in_right, bounce_in_up, duration,
+    elastic_scale_in, elastic_scale_out, fade_scale_in, fade_scale_out, fade_slide_in,
+    fade_slide_out, pulse, AnimationType, BounceIn, BounceOut, ElasticIn, ElasticOut,
+    FadeIn, FadeOut, PresetAnimation, ScaleIn, ScaleOut,
+    SlideDirection as PresetSlideDirection, fade_slide_in_left, fade_slide_in_right,
+    fade_slide_in_up, fade_slide_in_down,
+};
