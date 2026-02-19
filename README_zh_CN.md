@@ -159,9 +159,7 @@ let app = Application::new().with_assets(CompositeAssetSource::new(MyAsset, UiAs
 
 ### 计数器
 
-<p align="center">
-  <img src="demo/screenshots/counter.png" alt="计数器示例" width="600">
-</p>
+<img src="demo/screenshots/counter.png" alt="计数器示例" width="600">
 
 一个极简的计数器应用程序，展示了 Yororen UI 最基本的概念。
 
@@ -174,9 +172,7 @@ let app = Application::new().with_assets(CompositeAssetSource::new(MyAsset, UiAs
 
 ### 待办事项
 
-<p align="center">
-  <img src="demo/screenshots/todolist.png" alt="待办事项示例" width="600">
-</p>
+<img src="demo/screenshots/todolist.png" alt="待办事项示例" width="600">
 
 一个待办事项应用程序模板，展示了构建完整 Yororen UI 应用程序的标准模式和最佳实践。
 
@@ -190,9 +186,7 @@ let app = Application::new().with_assets(CompositeAssetSource::new(MyAsset, UiAs
 
 ### 文件浏览器
 
-<p align="center">
-  <img src="demo/screenshots/file-browser.png" alt="文件浏览器示例" width="600">
-</p>
+<img src="demo/screenshots/file-browser.png" alt="文件浏览器示例" width="600">
 
 一个功能完整的文件浏览器示例，展示了如何渲染和交互复杂层次数据结构。
 
@@ -206,9 +200,7 @@ let app = Application::new().with_assets(CompositeAssetSource::new(MyAsset, UiAs
 
 ### 通知演示
 
-<p align="center">
-  <img src="demo/screenshots/toast-notification.png" alt="通知演示示例" width="600">
-</p>
+<img src="demo/screenshots/toast-notification.png" alt="通知演示示例" width="600">
 
 展示了 Toast 通知组件的各种样式和使用模式。
 
@@ -229,14 +221,11 @@ let app = Application::new().with_assets(CompositeAssetSource::new(MyAsset, UiAs
 
 ### Yororen Accelerator
 
-<p align="center">
-  <img src="demo/screenshots/accelerator-1.png" alt="Yororen Accelerator" width="380">
-  <img src="demo/screenshots/accelerator-2.png" alt="Yororen Accelerator" width="380">
-</p>
-<p align="center">
-  <img src="demo/screenshots/accelerator-3.png" alt="Yororen Accelerator" width="380">
-  <img src="demo/screenshots/accelerator-4.png" alt="Yororen Accelerator" width="380">
-</p>
+<img src="demo/screenshots/accelerator-1.png" alt="Yororen Accelerator" width="380">
+<img src="demo/screenshots/accelerator-2.png" alt="Yororen Accelerator" width="380">
+
+<img src="demo/screenshots/accelerator-3.png" alt="Yororen Accelerator" width="380">
+<img src="demo/screenshots/accelerator-4.png" alt="Yororen Accelerator" width="380">
 
 一个网络加速工具，具备本机透明 TCP 导流 + relay 透传功能，使用 Yororen UI 构建。
 
@@ -462,3 +451,9 @@ yororen_ui = { path = "../yororen-ui" }
 ## Wiki
 
 参见 <a href="https://github.com/MeowLynxSea/yororen-ui/wiki" target="_blank">Yororen UI Wiki</a> 获取详细文档、指南和组件参考。
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MeowLynxSea/yororen-ui&type=date&legend=top-left)](https://www.star-history.com/#MeowLynxSea/yororen-ui&type=date&legend=top-left)

@@ -172,9 +172,7 @@ A minimal counter application demonstrating the most fundamental Yororen UI conc
 
 ### TodoList
 
-<p align="center">
-  <img src="demo/screenshots/todolist.png" alt="TodoList Demo" width="600">
-</p>
+<img src="demo/screenshots/todolist.png" alt="TodoList Demo" width="600">
 
 A todo list application template demonstrating standard patterns and best practices for building complete Yororen UI applications.
 
@@ -188,9 +186,7 @@ A todo list application template demonstrating standard patterns and best practi
 
 ### File Browser
 
-<p align="center">
-  <img src="demo/screenshots/file-browser.png" alt="File Browser Demo" width="600">
-</p>
+<img src="demo/screenshots/file-browser.png" alt="File Browser Demo" width="600">
 
 A fully functional file browser demo showing how to render and interact with complex hierarchical data structures.
 
@@ -204,9 +200,7 @@ A fully functional file browser demo showing how to render and interact with com
 
 ### Toast Notification
 
-<p align="center">
-  <img src="demo/screenshots/toast-notification.png" alt="Toast Notification Demo" width="600">
-</p>
+<img src="demo/screenshots/toast-notification.png" alt="Toast Notification Demo" width="600">
 
 Demonstrates the Toast notification component with various styles and usage patterns.
 
@@ -227,14 +221,11 @@ Projects and applications built using Yororen UI.
 
 ### Yororen Accelerator
 
-<p align="center">
-  <img src="demo/screenshots/accelerator-1.png" alt="Yororen Accelerator" width="380">
-  <img src="demo/screenshots/accelerator-2.png" alt="Yororen Accelerator" width="380">
-</p>
-<p align="center">
-  <img src="demo/screenshots/accelerator-3.png" alt="Yororen Accelerator" width="380">
-  <img src="demo/screenshots/accelerator-4.png" alt="Yororen Accelerator" width="380">
-</p>
+<img src="demo/screenshots/accelerator-1.png" alt="Yororen Accelerator" width="380">
+<img src="demo/screenshots/accelerator-2.png" alt="Yororen Accelerator" width="380">
+
+<img src="demo/screenshots/accelerator-3.png" alt="Yororen Accelerator" width="380">
+<img src="demo/screenshots/accelerator-4.png" alt="Yororen Accelerator" width="380">
 
 A network acceleration tool with native-transparent TCP forwarding + relay passthrough, built with Yororen UI.
 
@@ -453,3 +444,9 @@ When changing visuals:
 ## Wiki
 
 See <a href="https://github.com/MeowLynxSea/yororen-ui/wiki" target="_blank">Yororen UI Wiki</a> for detailed documentation, guides, and component references.
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MeowLynxSea/yororen-ui&type=date&legend=top-left)](https://www.star-history.com/#MeowLynxSea/yororen-ui&type=date&legend=top-left)
