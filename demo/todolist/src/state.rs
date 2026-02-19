@@ -53,6 +53,9 @@ pub struct TodoState {
     // Form state
     pub edit_title: Arc<Mutex<String>>,
     pub edit_category: Arc<Mutex<TodoCategory>>,
+    /// When true, the edit modal should initialize its input fields from the edit_* buffers.
+    /// This is set when opening the modal (or switching the edited todo), and cleared after init.
+    pub edit_needs_init: Arc<Mutex<bool>>,
     pub new_todo_category: Arc<Mutex<TodoCategory>>,
     pub new_todo_title: Arc<Mutex<String>>,
     pub clear_input_flag: Arc<Mutex<bool>>,
@@ -73,6 +76,7 @@ impl Clone for TodoState {
             editing_todo: self.editing_todo.clone(),
             edit_title: self.edit_title.clone(),
             edit_category: self.edit_category.clone(),
+            edit_needs_init: self.edit_needs_init.clone(),
             new_todo_category: self.new_todo_category.clone(),
             new_todo_title: self.new_todo_title.clone(),
             clear_input_flag: self.clear_input_flag.clone(),
@@ -86,8 +90,14 @@ impl Default for TodoState {
     fn default() -> Self {
         // Demo data - replace with your app's initial state
         let mut todos = Vec::new();
-        todos.push(Todo::new("Complete project report".to_string(), TodoCategory::Work));
-        todos.push(Todo::new("Buy groceries".to_string(), TodoCategory::Shopping));
+        todos.push(Todo::new(
+            "Complete project report".to_string(),
+            TodoCategory::Work,
+        ));
+        todos.push(Todo::new(
+            "Buy groceries".to_string(),
+            TodoCategory::Shopping,
+        ));
         todos.push(Todo::new("Go to gym".to_string(), TodoCategory::Health));
         todos[0].completed = true;
 
@@ -99,6 +109,7 @@ impl Default for TodoState {
             editing_todo: Arc::new(Mutex::new(None)),
             edit_title: Arc::new(Mutex::new(String::new())),
             edit_category: Arc::new(Mutex::new(TodoCategory::Other)),
+            edit_needs_init: Arc::new(Mutex::new(false)),
             new_todo_category: Arc::new(Mutex::new(TodoCategory::Personal)),
             new_todo_title: Arc::new(Mutex::new(String::new())),
             clear_input_flag: Arc::new(Mutex::new(false)),

@@ -20,9 +20,7 @@
 
 use gpui::prelude::FluentBuilder;
 use gpui::{AnyElement, IntoElement, ParentElement, Styled, div, px};
-use yororen_ui::component::{
-    checkbox, icon_button, label, list_item, tag, IconName,
-};
+use yororen_ui::component::{IconName, checkbox, icon_button, label, list_item, tag};
 use yororen_ui::i18n::Translate;
 
 use crate::state::TodoState;
@@ -62,7 +60,13 @@ impl TodoItem {
                     .checked(completed)
                     .on_toggle(move |_, _, _window, cx| {
                         let state = cx.global::<TodoState>();
-                        if let Some(t) = state.todos.lock().unwrap().iter_mut().find(|t| t.id == todo_id) {
+                        if let Some(t) = state
+                            .todos
+                            .lock()
+                            .unwrap()
+                            .iter_mut()
+                            .find(|t| t.id == todo_id)
+                        {
                             t.completed = !t.completed;
                         }
                     }),
@@ -80,10 +84,13 @@ impl TodoItem {
                             .on_click(move |_ev, _window, cx| {
                                 let entity_id = {
                                     let state = cx.global::<TodoState>();
-                                    if let Some(t) = state.todos.lock().unwrap().iter().find(|t| t.id == todo_id) {
+                                    if let Some(t) =
+                                        state.todos.lock().unwrap().iter().find(|t| t.id == todo_id)
+                                    {
                                         *state.editing_todo.lock().unwrap() = Some(todo_id);
                                         *state.edit_title.lock().unwrap() = t.title.clone();
                                         *state.edit_category.lock().unwrap() = t.category.clone();
+                                        *state.edit_needs_init.lock().unwrap() = true;
                                     }
                                     state.notify_entity.lock().unwrap().clone()
                                 };
@@ -127,7 +134,13 @@ impl TodoItem {
                     .checked(completed)
                     .on_toggle(move |_, _, _window, cx| {
                         let state = cx.global::<TodoState>();
-                        if let Some(t) = state.todos.lock().unwrap().iter_mut().find(|t| t.id == todo_id) {
+                        if let Some(t) = state
+                            .todos
+                            .lock()
+                            .unwrap()
+                            .iter_mut()
+                            .find(|t| t.id == todo_id)
+                        {
                             t.completed = !t.completed;
                         }
                     }),
@@ -136,10 +149,7 @@ impl TodoItem {
                 div()
                     .flex_col()
                     .gap(px(4.))
-                    .child(
-                        label(&title)
-                            .text_size(px(16.))
-                    )
+                    .child(label(&title).text_size(px(16.)))
                     .child(
                         div()
                             .flex()
@@ -158,10 +168,13 @@ impl TodoItem {
                             .on_click(move |_ev, _window, cx| {
                                 let entity_id = {
                                     let state = cx.global::<TodoState>();
-                                    if let Some(t) = state.todos.lock().unwrap().iter().find(|t| t.id == todo_id) {
+                                    if let Some(t) =
+                                        state.todos.lock().unwrap().iter().find(|t| t.id == todo_id)
+                                    {
                                         *state.editing_todo.lock().unwrap() = Some(todo_id);
                                         *state.edit_title.lock().unwrap() = t.title.clone();
                                         *state.edit_category.lock().unwrap() = t.category.clone();
+                                        *state.edit_needs_init.lock().unwrap() = true;
                                     }
                                     state.notify_entity.lock().unwrap().clone()
                                 };
