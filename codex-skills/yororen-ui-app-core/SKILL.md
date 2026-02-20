@@ -10,7 +10,7 @@ Build the foundation of a Yororen UI app: application bootstrap, global registra
 ## Requirements to Enforce
 
 - Use **Rust edition 2024** (match Yororen UI and the demo apps).
-- Pin **gpui** to a single git revision across your whole dependency graph.
+- Use **gpui-ce** (gpui community edition) from crates.io with compatible version.
 
 ## Canonical Bootstrap (copy this shape)
 
@@ -45,35 +45,24 @@ Notes:
 
 Then run a build once so Cargo fetches the dependency source checkout (needed for reading demos/docs from the dependency).
 
-### New project rule (important)
+### New project rule
 
 When scaffolding a brand-new app:
 
 - Pin `yororen_ui` by **tag** (stable API snapshot).
-- Pin `gpui` by **rev** (git commit), and keep it consistent with the `gpui` rev used by `yororen_ui`.
+- Use the same `gpui-ce` version as specified in `yororen_ui` Cargo.toml.
 
-## Pinning `gpui` (required)
+## Using gpui-ce (required)
 
-Yororen UI depends on `gpui` via a git dependency pinned to a specific `rev`.
-If your app pulls a different `gpui` revision, you will likely hit errors like:
-
-- "multiple different versions of crate `gpui` in the dependency graph"
-- trait/type mismatch errors
-
-Do this in the end-user app repo:
-
-1) Read the pinned `gpui` revision from the `yororen_ui` dependency source checkout
-- Use `cargo metadata --format-version 1` to locate the `yororen_ui` checkout path.
-- Open `Cargo.toml` in that checkout and copy its `gpui = { git = "...", rev = "..." }`.
-
-2) Pin `gpui` to the same `rev` in your application workspace
+Yororen UI depends on `gpui-ce` (gpui community edition) from crates.io.
+Make sure your app uses a compatible version:
 
 ```toml
 [dependencies]
-gpui = { git = "https://github.com/zed-industries/zed", rev = "<same rev as yororen_ui>" }
+gpui = { package = "gpui-ce", version = "0.3" }
 ```
 
-Prefer this over local path hacks; keep the graph single-version and reproducible.
+This ensures version compatibility with `yororen_ui`.
 
 ## Project Structure (recommended)
 

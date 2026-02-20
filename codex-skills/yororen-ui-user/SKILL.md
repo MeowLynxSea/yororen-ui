@@ -27,10 +27,10 @@ If the user is editing the Yororen UI library itself, stop and ask for an app re
 
 2.6) Enforce toolchain + core dependency constraints
 - Use **Rust edition 2024** for the app crate(s).
-- Pin **gpui** to the same git `rev` as `yororen_ui` to avoid multiple-gpui mismatch errors.
+- Use **gpui-ce** (gpui community edition) from crates.io with the same version as `yororen_ui`.
 
-2.7) New project rule (important)
-- For a brand-new project: pin `yororen_ui` by **tag**, and pin `gpui` by **rev**.
+2.7) New project rule
+- For a brand-new project: pin `yororen_ui` by **tag**, and use gpui-ce version "0.3".
 
 3) Always follow these safety rules
 - Avoid render-driven feedback loops in inputs.
