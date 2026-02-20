@@ -385,13 +385,18 @@ let _ = icon(IconName::Minecraft);
 
 ## 安装
 
-### 从 GitHub 使用（推荐）
-
-通过 git 添加此 crate 作为依赖，并使用发布标签固定：
+### 从 crates.io 使用（推荐）
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.1.0" }
+yororen_ui = "0.2"
+```
+
+### 从 GitHub 使用（最新开发版）
+
+```toml
+[dependencies]
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.2.0" }
 ```
 
 ### 从本地路径使用（开发时）

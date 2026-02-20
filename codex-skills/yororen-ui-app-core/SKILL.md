@@ -31,16 +31,24 @@ Use the demos as the ground truth for structure:
 
 If the user's app does not include Yororen UI yet, add it first.
 
-Preferred setup (GitHub git + stable tag):
+**Recommended (from crates.io):**
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.1.0" }
+yororen_ui = "0.2"
+```
+
+Alternative (from GitHub):
+
+```toml
+[dependencies]
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.2.0" }
 ```
 
 Notes:
 
-- Prefer `tag = "..."` for reproducible builds.
+- Prefer crates.io for stable releases.
+- Use GitHub for latest development version.
 - Avoid local `path = "../yororen-ui"` dependencies for end users unless they explicitly want to track local, potentially-unstable changes.
 
 Then run a build once so Cargo fetches the dependency source checkout (needed for reading demos/docs from the dependency).
@@ -49,7 +57,7 @@ Then run a build once so Cargo fetches the dependency source checkout (needed fo
 
 When scaffolding a brand-new app:
 
-- Pin `yororen_ui` by **tag** (stable API snapshot).
+- Use crates.io version for production (e.g., `yororen_ui = "0.2"`).
 - Use the same `gpui-ce` version as specified in `yororen_ui` Cargo.toml.
 
 ## Using gpui-ce (required)

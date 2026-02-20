@@ -40,11 +40,18 @@ If the user is editing the Yororen UI library itself, stop and ask for an app re
 ## Docs to Read (Dependency source, read-only)
 
 Do not assume the user has a local `yororen-ui.wiki` checkout.
-Most end users consume Yororen UI via a Cargo git dependency like:
+Most end users consume Yororen UI from crates.io:
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.1.0" }
+yororen_ui = "0.2"
+```
+
+Or from GitHub:
+
+```toml
+[dependencies]
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.2.0" }
 ```
 
 So, read docs from the dependency's *source checkout* that Cargo already fetched:

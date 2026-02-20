@@ -385,16 +385,21 @@ Icon paths map to embedded SVG assets like `icons/minecraft.svg`.
 
 ## Installation
 
-### Use from GitHub (recommended)
-
-Add this crate as a dependency via git, and pin it with a release tag (recommended):
+### From crates.io (recommended)
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.1.0" }
+yororen_ui = "0.2"
 ```
 
-### Use from a local path (development)
+### From GitHub (latest development)
+
+```toml
+[dependencies]
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.2.0" }
+```
+
+### From a local path (development)
 
 ```toml
 [dependencies]
