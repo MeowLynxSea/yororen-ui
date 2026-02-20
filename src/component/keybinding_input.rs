@@ -333,7 +333,7 @@ impl RenderOnce for KeybindingInput {
                         return;
                     }
                     let handle = focus_handle.read(cx).clone();
-                    window.focus(&handle, cx);
+                    window.focus(&handle);
                     capture_active.update(cx, |state, _| *state = true);
 
                     // Ensure we can actually receive key events.

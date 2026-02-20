@@ -10,8 +10,6 @@ use gpui::{
 use super::layout::{LineLayout, TextAreaLayout};
 use super::state::{TextAreaState, WrapMode};
 use crate::theme::ActiveTheme;
-use crate::i18n::{I18n, TextDirection};
-use crate::rtl;
 
 pub struct TextAreaElement {
     pub input: Entity<TextAreaState>,
@@ -248,12 +246,6 @@ impl Element for TextAreaElement {
                 .paint(
                     point(bounds.left() - prepaint.scroll_x, y_top),
                     line_height,
-                    rtl::text_align_start(
-                        cx.try_global::<I18n>()
-                            .map(|i18n| i18n.text_direction())
-                            .unwrap_or(TextDirection::Ltr),
-                    ),
-                    None,
                     window,
                     cx,
                 )

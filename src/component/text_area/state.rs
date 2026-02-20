@@ -136,7 +136,7 @@ impl TextAreaState {
             });
             self.focus_subscription = Some(subscription);
         }
-        window.focus(&self.focus_handle, cx);
+        window.focus(&self.focus_handle);
         self.reset_cursor_blink(window, cx);
     }
 

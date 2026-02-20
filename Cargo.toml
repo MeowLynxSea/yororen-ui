@@ -7,7 +7,7 @@ description = "Reusable UI components and widgets built on top of gpui."
 readme = "README.md"
 repository = "https://github.com/MeowLynxSea/yororen-ui"
 [dependencies]
-gpui = { git = "https://github.com/zed-industries/zed", rev = "acee48bfda7b71e1347129bddccfcca85d40b4c7" }
+gpui = { package = "gpui-ce", version = "0.3" }
 
 rust-embed = "8.9.0"
 smallvec = "1.15"
