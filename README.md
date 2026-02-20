@@ -378,7 +378,7 @@ Icon paths map to embedded SVG assets like `icons/minecraft.svg`.
 
 <ul>
   <li><strong>Rust edition:</strong> 2024 (works with the toolchain used by your <code>gpui</code> app)</li>
-  <li><code>gpui</code> is a git dependency and should be pinned to a specific commit</li>
+  <li><code>gpui</code> is provided via <a href="https://crates.io/crates/gpui-ce"><code>gpui-ce</code></a> crate on crates.io</li>
 </ul>
 
 ---
@@ -403,18 +403,16 @@ yororen_ui = { path = "../yororen-ui" }
 
 ---
 
-## Pinning `gpui`
+## Dependencies
 
-<code>gpui</code> evolves quickly and is consumed via a git dependency. If your app and <code>yororen_ui</code> end up using <em>different</em> <code>gpui</code> revisions, you will see errors like "multiple different versions of crate <code>gpui</code> in the dependency graph" and many trait/type mismatches.
+<code>gpui-ce</code> is distributed via crates.io with semantic versioning. Make sure your application uses a compatible version:
 
-**Recommended approach:**
+```toml
+[dependencies]
+gpui = { package = "gpui-ce", version = "0.3" }
+```
 
-<ul>
-  <li>Pin <code>gpui</code> to the same <code>rev</code> in your application workspace</li>
-  <li>Pin <code>yororen_ui</code> and your application to the same <code>gpui</code> revision</li>
-</ul>
-
-In this repository, <code>gpui</code> is pinned in <code>Cargo.toml</code>.
+In this repository, <code>gpui-ce</code> is specified in <code>Cargo.toml</code>.
 
 ---
 

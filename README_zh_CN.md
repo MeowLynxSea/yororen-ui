@@ -378,7 +378,7 @@ let _ = icon(IconName::Minecraft);
 
 <ul>
   <li><strong>Rust edition：</strong> 2024（与您的 <code>gpui</code> 应用程序使用的工具链兼容）</li>
-  <li><code>gpui</code> 是 git 依赖，需要固定到特定提交</li>
+  <li><code>gpui</code> 通过 crates.io 上的 <a href="https://crates.io/crates/gpui-ce"><code>gpui-ce</code></a> crate 提供</li>
 </ul>
 
 ---
@@ -403,24 +403,16 @@ yororen_ui = { path = "../yororen-ui" }
 
 ---
 
-## 固定 <code>gpui</code>
+## 依赖项
 
-<code>gpui</code> 更新频繁，且通过 git 依赖进行使用。如果您的应用程序和 <code>yororen_ui</code> 使用了<em>不同</em>的 <code>gpui</code> 版本，您将看到如下错误：
+<code>gpui-ce</code> 通过 crates.io 进行分发，使用语义版本控制。请确保您的应用程序使用兼容的版本：
 
-<blockquote>
-  "multiple different versions of crate <code>gpui</code> in the dependency graph"
-</blockquote>
+```toml
+[dependencies]
+gpui = { package = "gpui-ce", version = "0.3" }
+```
 
-以及许多 trait/类型不匹配的问题。
-
-<strong>推荐方法：</strong>
-
-<ul>
-  <li>在您的应用程序工作区中，将 <code>gpui</code> 固定到相同的 <code>rev</code></li>
-  <li>将 <code>yororen_ui</code> 和您的应用程序都固定到相同的 <code>gpui</code> 版本</li>
-</ul>
-
-在本仓库中，<code>gpui</code> 已在 <code>Cargo.toml</code> 中固定。
+在本仓库中，<code>gpui-ce</code> 已在 <code>Cargo.toml</code> 中指定。
 
 ---
 
