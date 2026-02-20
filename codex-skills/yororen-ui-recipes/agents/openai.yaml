@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yororen UI Recipes"
+  short_description: "Copy demo patterns"
+  default_prompt: "Use $yororen-ui-recipes to provide end-to-end gpui/Yororen UI examples (counter, todolist, modal forms, i18n)."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yororen UI (End-User)"
+  short_description: "Build gpui apps with Yororen UI"
+  default_prompt: "Use $yororen-ui-user to build a gpui app with Yororen UI (best practices, state, inputs, i18n)."

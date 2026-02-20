@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yororen UI State + Inputs"
+  short_description: "Avoid input sync loops"
+  default_prompt: "Use $yororen-ui-state-inputs to implement gpui/Yororen UI state, forms, modals, and TextInput best practices."

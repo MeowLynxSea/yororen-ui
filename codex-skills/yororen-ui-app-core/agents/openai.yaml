@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yororen UI App Core"
+  short_description: "Bootstrap a Yororen UI app"
+  default_prompt: "Use $yororen-ui-app-core to bootstrap a gpui app with Yororen UI (assets, theme, i18n, window, structure)."
