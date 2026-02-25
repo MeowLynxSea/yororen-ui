@@ -164,7 +164,7 @@ We provide four official demo applications to help you get started:
 A minimal counter application demonstrating the most fundamental Yororen UI concepts.
 
 **Key Features:**
-- Simple global state management (`Arc<Mutex<T>>`)
+- Simple global state management (`gpui::Entity<T>`)
 - Button click event handling (`on_click`)
 - Reactive UI updates (`cx.notify()`)
 

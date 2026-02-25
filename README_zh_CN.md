@@ -164,7 +164,7 @@ let app = Application::new().with_assets(CompositeAssetSource::new(MyAsset, UiAs
 一个极简的计数器应用程序，展示了 Yororen UI 最基本的概念。
 
 <strong>核心功能：</strong>
-- 简单的全局状态管理（<code>Arc&lt;Mutex&lt;T&gt;&gt;</code>）
+- 简单的全局状态管理（<code>gpui::Entity&lt;T&gt;</code>）
 - 按钮点击事件处理（<code>on_click</code>）
 - 响应式 UI 更新（<code>cx.notify()</code>）
 
