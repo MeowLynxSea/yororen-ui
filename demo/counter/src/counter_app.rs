@@ -8,9 +8,8 @@
 //! ## Core Pattern
 //!
 //! ```ignore
-//! 1. Read state: let count = *state.counter.lock().unwrap();
-//! 2. Modify state: *state.counter.lock().unwrap() = new_value;
-//! 3. Notify: cx.notify(entity_id);  // CRITICAL: triggers UI update
+//! 1. Read state: let count = state.counter.read(cx).value;
+//! 2. Modify state: state.counter.update(cx, |c, cx| { ...; cx.notify(); });
 //! ```
 
 use gpui::{Context, IntoElement, ParentElement, Render, Styled, Window, div, px};
@@ -24,10 +23,7 @@ pub struct CounterApp;
 
 impl CounterApp {
     /// Initialize the component
-    pub fn new(cx: &mut Context<Self>) -> Self {
-        // Store our entity_id so we can be notified of state changes
-        let state = cx.global::<CounterState>();
-        *state.notify_entity.lock().unwrap() = Some(cx.entity().entity_id());
+    pub fn new(_cx: &mut Context<Self>) -> Self {
         Self
     }
 }
@@ -37,7 +33,7 @@ impl Render for CounterApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         // Step 1: Read state
         let state = cx.global::<CounterState>();
-        let count = *state.counter.lock().unwrap();
+        let count = state.counter.read(cx).value;
         let theme = cx.theme();
 
         // Step 2: Build UI
@@ -67,13 +63,11 @@ impl Render for CounterApp {
                         button("decrease")
                             .child("-")
                             .on_click(|_, _, cx| {
-                                let state = cx.global::<CounterState>();
-                                *state.counter.lock().unwrap() -= 1;
-                                // CRITICAL: Notify component to re-render
-                                let entity_id = state.notify_entity.lock().unwrap().clone();
-                                if let Some(id) = entity_id {
-                                    cx.notify(id);
-                                }
+                                let counter = cx.global::<CounterState>().counter.clone();
+                                counter.update(cx, |counter, cx| {
+                                    counter.value -= 1;
+                                    cx.notify();
+                                });
                             }),
                     )
                     // Reset button
@@ -81,12 +75,11 @@ impl Render for CounterApp {
                         button("reset")
                             .child("Reset")
                             .on_click(|_, _, cx| {
-                                let state = cx.global::<CounterState>();
-                                *state.counter.lock().unwrap() = 0;
-                                let entity_id = state.notify_entity.lock().unwrap().clone();
-                                if let Some(id) = entity_id {
-                                    cx.notify(id);
-                                }
+                                let counter = cx.global::<CounterState>().counter.clone();
+                                counter.update(cx, |counter, cx| {
+                                    counter.value = 0;
+                                    cx.notify();
+                                });
                             }),
                     )
                     // Increase button
@@ -94,12 +87,11 @@ impl Render for CounterApp {
                         button("increase")
                             .child("+")
                             .on_click(|_, _, cx| {
-                                let state = cx.global::<CounterState>();
-                                *state.counter.lock().unwrap() += 1;
-                                let entity_id = state.notify_entity.lock().unwrap().clone();
-                                if let Some(id) = entity_id {
-                                    cx.notify(id);
-                                }
+                                let counter = cx.global::<CounterState>().counter.clone();
+                                counter.update(cx, |counter, cx| {
+                                    counter.value += 1;
+                                    cx.notify();
+                                });
                             }),
                     ),
             )

@@ -1,58 +1,41 @@
 //! yororen-ui Simple State Pattern
 //!
-//! This module demonstrates the **minimal** state pattern for yororen-ui applications.
-//! Unlike the todolist demo which has complex state, this shows the simplest form:
-//! just an Arc<Mutex<T>> wrapping a primitive type.
+//! This demo uses `gpui::Entity<T>` for app state instead of `Arc<Mutex<T>>`.
 //!
-//! ## Key Concepts
+//! Why:
+//! - GPUI already tracks which `Entity`s a window reads during render.
+//! - When an entity is mutated, `cx.notify()` can invalidate the window efficiently.
+//! - No manual `EntityId` plumbing is needed for basic state updates.
 //!
-//! - **Arc<Mutex<T>>**: Allows shared mutable access across components
-//!   - Arc: Multiple components can own the data
-//!   - Mutex: Only one component can modify at a time
-//!
-//! ## State Update Flow
-//!
-//! ```ignore
-//! 1. Read: let value = *state.counter.lock().unwrap();
-//! 2. Modify: *state.counter.lock().unwrap() = value + 1;
-//! 3. Notify: cx.notify(entity_id);  // Trigger re-render
-//! ```
+//! Note: In `gpui-ce 0.3`, `Entity::update(...)` does not implicitly call `notify()`.
+//! You must call `cx.notify()` (on the entity context) after mutation.
 
-use gpui::{EntityId, Global};
-use std::sync::{Arc, Mutex};
+use gpui::{App, AppContext, Entity, Global};
 
-/// Simple counter state - just a number!
-///
-/// This is the minimal state structure. For more complex apps,
-/// add more Arc<Mutex<T>> fields as needed.
-pub struct CounterState {
-    /// The current counter value
-    pub counter: Arc<Mutex<i32>>,
-
-    /// Entity ID for triggering re-renders
-    /// Stored when the component is created, used to notify it of changes
-    pub notify_entity: Arc<Mutex<Option<EntityId>>>,
+#[derive(Debug, Clone, Copy)]
+pub struct Counter {
+    pub value: i32,
 }
 
-/// Required for sharing state across components
-impl Clone for CounterState {
-    fn clone(&self) -> Self {
-        Self {
-            counter: self.counter.clone(),
-            notify_entity: self.notify_entity.clone(),
-        }
-    }
-}
-
-/// Initial state when app starts
-impl Default for CounterState {
+impl Default for Counter {
     fn default() -> Self {
+        Self { value: 0 }
+    }
+}
+
+/// Global wrapper so components can access the same `Entity<Counter>` via `cx.global::<CounterState>()`.
+///
+/// `CounterState` itself is stored as a GPUI global, but the mutable data lives in the entity.
+pub struct CounterState {
+    pub counter: Entity<Counter>,
+}
+
+impl CounterState {
+    pub fn new(cx: &mut App) -> Self {
         Self {
-            counter: Arc::new(Mutex::new(0)),
-            notify_entity: Arc::new(Mutex::new(None)),
+            counter: cx.new(|_| Counter::default()),
         }
     }
 }
 
-/// Required: Makes this type accessible as global state
 impl Global for CounterState {}

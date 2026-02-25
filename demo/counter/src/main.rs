@@ -1,9 +1,9 @@
 //! yororen-ui Counter Demo
 //!
 //! A minimal yororen-ui application demonstrating:
-//! - Simple global state management with Arc<Mutex<T>>
+//! - Global state via `gpui::Entity<T>`
 //! - Event handling (button on_click)
-//! - UI updates via cx.notify()
+//! - Reactive UI updates (`cx.notify()`)
 //!
 //! ## Run this demo
 //! ```bash
@@ -39,8 +39,9 @@ fn main() {
         // This demo uses English by default; switch to e.g. `Locale::new("ar")?` to preview RTL.
         cx.set_global(I18n::with_embedded(Locale::new("en").unwrap()));
 
-        // Set up counter state (simple i32 wrapped in Arc<Mutex<T>>)
-        cx.set_global(state::CounterState::default());
+        // Set up counter state (stored in a GPUI Entity)
+        let counter_state = state::CounterState::new(cx);
+        cx.set_global(counter_state);
 
         // Create main window
         let options = WindowOptions {
