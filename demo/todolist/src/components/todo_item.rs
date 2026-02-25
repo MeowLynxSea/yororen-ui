@@ -94,16 +94,13 @@ impl TodoItem {
                 checkbox(format!("todo-{}", todo_id))
                     .checked(completed)
                     .on_toggle(move |_, _, _window, cx| {
-                        let state = cx.global::<TodoState>();
-                        if let Some(t) = state
-                            .todos
-                            .lock()
-                            .unwrap()
-                            .iter_mut()
-                            .find(|t| t.id == todo_id)
-                        {
-                            t.completed = !t.completed;
-                        }
+                        let model = cx.global::<TodoState>().model.clone();
+                        model.update(cx, |model, cx| {
+                            if let Some(t) = model.todos.iter_mut().find(|t| t.id == todo_id) {
+                                t.completed = !t.completed;
+                                cx.notify();
+                            }
+                        });
                     }),
             )
             .child(label(&title))
@@ -117,35 +114,27 @@ impl TodoItem {
                         icon_button(format!("edit-{}", todo_id))
                             .icon(IconName::Pencil)
                             .on_click(move |_ev, _window, cx| {
-                                let entity_id = {
-                                    let state = cx.global::<TodoState>();
-                                    if let Some(t) =
-                                        state.todos.lock().unwrap().iter().find(|t| t.id == todo_id)
-                                    {
-                                        *state.editing_todo.lock().unwrap() = Some(todo_id);
-                                        *state.edit_title.lock().unwrap() = t.title.clone();
-                                        *state.edit_category.lock().unwrap() = t.category.clone();
-                                        *state.edit_needs_init.lock().unwrap() = true;
+                                let model = cx.global::<TodoState>().model.clone();
+                                model.update(cx, |model, cx| {
+                                    if let Some(t) = model.todos.iter().find(|t| t.id == todo_id) {
+                                        model.editing_todo = Some(todo_id);
+                                        model.edit_title = t.title.clone();
+                                        model.edit_category = t.category.clone();
+                                        model.edit_needs_init = true;
+                                        cx.notify();
                                     }
-                                    state.notify_entity.lock().unwrap().clone()
-                                };
-                                if let Some(entity_id) = entity_id {
-                                    cx.notify(entity_id);
-                                }
+                                });
                             }),
                     )
                     .child(
                         icon_button(format!("delete-{}", todo_id))
                             .icon(IconName::Trash)
                             .on_click(move |_ev, _window, cx| {
-                                let entity_id = {
-                                    let state = cx.global::<TodoState>();
-                                    state.todos.lock().unwrap().retain(|t| t.id != todo_id);
-                                    state.notify_entity.lock().unwrap().clone()
-                                };
-                                if let Some(entity_id) = entity_id {
-                                    cx.notify(entity_id);
-                                }
+                                let model = cx.global::<TodoState>().model.clone();
+                                model.update(cx, |model, cx| {
+                                    model.todos.retain(|t| t.id != todo_id);
+                                    cx.notify();
+                                });
                             }),
                     ),
             )
@@ -168,16 +157,13 @@ impl TodoItem {
                 checkbox(format!("todo-check-{}", todo_id))
                     .checked(completed)
                     .on_toggle(move |_, _, _window, cx| {
-                        let state = cx.global::<TodoState>();
-                        if let Some(t) = state
-                            .todos
-                            .lock()
-                            .unwrap()
-                            .iter_mut()
-                            .find(|t| t.id == todo_id)
-                        {
-                            t.completed = !t.completed;
-                        }
+                        let model = cx.global::<TodoState>().model.clone();
+                        model.update(cx, |model, cx| {
+                            if let Some(t) = model.todos.iter_mut().find(|t| t.id == todo_id) {
+                                t.completed = !t.completed;
+                                cx.notify();
+                            }
+                        });
                     }),
             )
             .content(
@@ -201,35 +187,27 @@ impl TodoItem {
                         icon_button(format!("edit-btn-{}", todo_id))
                             .icon(IconName::Pencil)
                             .on_click(move |_ev, _window, cx| {
-                                let entity_id = {
-                                    let state = cx.global::<TodoState>();
-                                    if let Some(t) =
-                                        state.todos.lock().unwrap().iter().find(|t| t.id == todo_id)
-                                    {
-                                        *state.editing_todo.lock().unwrap() = Some(todo_id);
-                                        *state.edit_title.lock().unwrap() = t.title.clone();
-                                        *state.edit_category.lock().unwrap() = t.category.clone();
-                                        *state.edit_needs_init.lock().unwrap() = true;
+                                let model = cx.global::<TodoState>().model.clone();
+                                model.update(cx, |model, cx| {
+                                    if let Some(t) = model.todos.iter().find(|t| t.id == todo_id) {
+                                        model.editing_todo = Some(todo_id);
+                                        model.edit_title = t.title.clone();
+                                        model.edit_category = t.category.clone();
+                                        model.edit_needs_init = true;
+                                        cx.notify();
                                     }
-                                    state.notify_entity.lock().unwrap().clone()
-                                };
-                                if let Some(entity_id) = entity_id {
-                                    cx.notify(entity_id);
-                                }
+                                });
                             }),
                     )
                     .child(
                         icon_button(format!("delete-btn-{}", todo_id))
                             .icon(IconName::Trash)
                             .on_click(move |_ev, _window, cx| {
-                                let entity_id = {
-                                    let state = cx.global::<TodoState>();
-                                    state.todos.lock().unwrap().retain(|t| t.id != todo_id);
-                                    state.notify_entity.lock().unwrap().clone()
-                                };
-                                if let Some(entity_id) = entity_id {
-                                    cx.notify(entity_id);
-                                }
+                                let model = cx.global::<TodoState>().model.clone();
+                                model.update(cx, |model, cx| {
+                                    model.todos.retain(|t| t.id != todo_id);
+                                    cx.notify();
+                                });
                             }),
                     ),
             )

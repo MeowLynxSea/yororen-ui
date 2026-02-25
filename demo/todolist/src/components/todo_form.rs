@@ -69,8 +69,11 @@ impl TodoForm {
                     .placeholder(add_placeholder)
                     .on_change(|text, _window, cx| {
                         // Store value in global state for persistence
-                        let state = cx.global::<TodoState>();
-                        *state.new_todo_title.lock().unwrap() = text.to_string();
+                        let model = cx.global::<TodoState>().model.clone();
+                        model.update(cx, |model, cx| {
+                            model.new_todo_title = text.to_string();
+                            cx.notify();
+                        });
                     }),
             )
             // Pattern 2: Dropdown with on_change handler
@@ -80,9 +83,12 @@ impl TodoForm {
                     .value(&category_label)
                     .options(category_options.clone())
                     .on_change(|value, _ev, _window, cx| {
-                        let state = cx.global::<TodoState>();
                         if let Some(cat) = TodoCategory::all().into_iter().find(|c| c.code() == value) {
-                            *state.new_todo_category.lock().unwrap() = cat;
+                            let model = cx.global::<TodoState>().model.clone();
+                            model.update(cx, |model, cx| {
+                                model.new_todo_category = cat;
+                                cx.notify();
+                            });
                         }
                     }),
             )
@@ -93,23 +99,21 @@ impl TodoForm {
                     .variant(ActionVariantKind::Primary)  // Use Primary for main action
                     .child(add_label)
                     .on_click(|_ev, _window, cx| {
-                        let state = cx.global::<TodoState>();
-                        let title = state.new_todo_title.lock().unwrap().clone();
-                        if !title.trim().is_empty() {
-                            // Perform action
-                            let category = state.new_todo_category.lock().unwrap().clone();
-                            let todo = Todo::new(title.trim().to_string(), category);
-                            state.todos.lock().unwrap().insert(0, todo);
-
-                            // Reset form
-                            *state.new_todo_title.lock().unwrap() = String::new();
-
-                            // IMPORTANT: Notify root component to re-render
-                            let entity_id = state.notify_entity.lock().unwrap().clone();
-                            if let Some(id) = entity_id {
-                                cx.notify(id);
+                        let model = cx.global::<TodoState>().model.clone();
+                        model.update(cx, |model, cx| {
+                            let title = model.new_todo_title.clone();
+                            if title.trim().is_empty() {
+                                return;
                             }
-                        }
+
+                            let todo = Todo::new(
+                                title.trim().to_string(),
+                                model.new_todo_category.clone(),
+                            );
+                            model.todos.insert(0, todo);
+                            model.new_todo_title.clear();
+                            cx.notify();
+                        });
                     }),
             )
     }

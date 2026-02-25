@@ -62,6 +62,11 @@ impl TodoModal {
         let cancel_key = cx.t("common.cancel");
         let save_key = cx.t("common.save");
 
+        let edit_needs_init = {
+            let model = cx.global::<TodoState>().model.clone();
+            model.read(cx).edit_needs_init
+        };
+
         let category_options: Vec<ComboBoxOption> = TodoCategory::all()
             .iter()
             .map(|c| ComboBoxOption::new(c.code(), cx.t(c.key())))
@@ -101,15 +106,11 @@ impl TodoModal {
                             .closable(true)
                             // Handle modal close (via X button)
                             .on_close(|_, cx| {
-                                // Clear editing state when modal closes
-                                let entity_id = {
-                                    let state = cx.global::<TodoState>();
-                                    *state.editing_todo.lock().unwrap() = None;
-                                    state.notify_entity.lock().unwrap().clone()
-                                };
-                                if let Some(entity_id) = entity_id {
-                                    cx.notify(entity_id);
-                                }
+                                let model = cx.global::<TodoState>().model.clone();
+                                model.update(cx, |model, cx| {
+                                    model.editing_todo = None;
+                                    cx.notify();
+                                });
                             })
                             // Modal content: title input and category dropdown
                             .content(
@@ -119,23 +120,16 @@ impl TodoModal {
                                     .child(
                                         text_input("edit-title")
                                             .placeholder(task_title_key)
-                                            .when(
-                                                {
-                                                    let state = cx.global::<TodoState>();
-                                                    let mut needs_init =
-                                                        state.edit_needs_init.lock().unwrap();
-                                                    let do_init = *needs_init;
-                                                    if do_init {
-                                                        *needs_init = false;
-                                                    }
-                                                    do_init
-                                                },
-                                                |this| this.set_content(edit_title.clone()),
-                                            )
+                                            .when(edit_needs_init, |this| {
+                                                this.set_content(edit_title.clone())
+                                            })
                                             .on_change(|text, _window, cx| {
-                                                let state = cx.global::<TodoState>();
-                                                *state.edit_title.lock().unwrap() =
-                                                    text.to_string();
+                                                let model = cx.global::<TodoState>().model.clone();
+                                                model.update(cx, |model, cx| {
+                                                    model.edit_title = text.to_string();
+                                                    model.edit_needs_init = false;
+                                                    cx.notify();
+                                                });
                                             }),
                                     )
                                     .child(
@@ -143,12 +137,15 @@ impl TodoModal {
                                             .value(&category_value)
                                             .options(category_options)
                                             .on_change(|value, _ev, _window, cx| {
-                                                let state = cx.global::<TodoState>();
+                                                let model = cx.global::<TodoState>().model.clone();
                                                 if let Some(cat) = TodoCategory::all()
                                                     .into_iter()
                                                     .find(|c| c.code() == value)
                                                 {
-                                                    *state.edit_category.lock().unwrap() = cat;
+                                                    model.update(cx, |model, cx| {
+                                                        model.edit_category = cat;
+                                                        cx.notify();
+                                                    });
                                                 }
                                             }),
                                     ),
@@ -162,14 +159,11 @@ impl TodoModal {
                                     // Cancel button - closes modal without saving
                                     .child(button("cancel-edit").child(cancel_key).on_click(
                                         |_ev, _window, cx| {
-                                            let entity_id = {
-                                                let state = cx.global::<TodoState>();
-                                                *state.editing_todo.lock().unwrap() = None;
-                                                state.notify_entity.lock().unwrap().clone()
-                                            };
-                                            if let Some(entity_id) = entity_id {
-                                                cx.notify(entity_id);
-                                            }
+                                            let model = cx.global::<TodoState>().model.clone();
+                                            model.update(cx, |model, cx| {
+                                                model.editing_todo = None;
+                                                cx.notify();
+                                            });
                                         },
                                     ))
                                     // Save button - persists changes
@@ -178,52 +172,24 @@ impl TodoModal {
                                             .variant(ActionVariantKind::Primary)
                                             .child(save_key)
                                             .on_click(|_ev, _window, cx| {
-                                                // IMPORTANT: Lock ordering
-                                                // First get the id and new values, release lock
-                                                // This avoids deadlocks by not holding multiple locks
-                                                let (id, title, category) = {
-                                                    let state = cx.global::<TodoState>();
-                                                    if let Some(id) =
-                                                        *state.editing_todo.lock().unwrap()
-                                                    {
-                                                        let title = state
-                                                            .edit_title
-                                                            .lock()
-                                                            .unwrap()
-                                                            .clone();
-                                                        let category = state
-                                                            .edit_category
-                                                            .lock()
-                                                            .unwrap()
-                                                            .clone();
-                                                        (Some(id), title, category)
-                                                    } else {
-                                                        (None, String::new(), TodoCategory::Other)
-                                                    }
-                                                };
-
-                                                // Then update the todo (after releasing first lock)
-                                                if let Some(id) = id {
-                                                    let entity_id = {
-                                                        let state = cx.global::<TodoState>();
-                                                        if let Some(todo) = state
-                                                            .todos
-                                                            .lock()
-                                                            .unwrap()
-                                                            .iter_mut()
-                                                            .find(|t| t.id == id)
-                                                        {
-                                                            todo.title = title;
-                                                            todo.category = category;
-                                                        }
-                                                        // Clear editing state
-                                                        *state.editing_todo.lock().unwrap() = None;
-                                                        state.notify_entity.lock().unwrap().clone()
+                                                let model = cx.global::<TodoState>().model.clone();
+                                                model.update(cx, |model, cx| {
+                                                    let Some(id) = model.editing_todo else {
+                                                        return;
                                                     };
-                                                    if let Some(entity_id) = entity_id {
-                                                        cx.notify(entity_id);
+                                                    let title = model.edit_title.clone();
+                                                    let category = model.edit_category.clone();
+
+                                                    if let Some(todo) =
+                                                        model.todos.iter_mut().find(|t| t.id == id)
+                                                    {
+                                                        todo.title = title;
+                                                        todo.category = category;
                                                     }
-                                                }
+
+                                                    model.editing_todo = None;
+                                                    cx.notify();
+                                                });
                                             }),
                                     ),
                             ),

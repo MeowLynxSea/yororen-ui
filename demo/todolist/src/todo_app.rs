@@ -70,10 +70,7 @@ impl TodoApp {
     ///
     /// IMPORTANT: Store your entity_id in global state for notification purposes.
     /// This allows other components to trigger re-renders of this component.
-    pub fn new(cx: &mut Context<Self>) -> Self {
-        // Store our entity_id so other components can notify us of changes
-        let state = cx.global::<TodoState>();
-        *state.notify_entity.lock().unwrap() = Some(cx.entity().entity_id());
+    pub fn new(_cx: &mut Context<Self>) -> Self {
         Self
     }
 }
@@ -92,19 +89,20 @@ impl Render for TodoApp {
         let state = cx.global::<TodoState>();
         let theme = cx.theme();
 
-        // Step 2: Lock and read state fields
-        let todos = state.todos.lock().unwrap();
-        let search_query = state.search_query.lock().unwrap();
-        let selected_category = state.selected_category.lock().unwrap();
-        let compact_mode = *state.compact_mode.lock().unwrap();
-        let editing_todo = *state.editing_todo.lock().unwrap();
-        let new_todo_category = state.new_todo_category.lock().unwrap().clone();
-        let edit_title = state.edit_title.lock().unwrap().clone();
-        let edit_category = state.edit_category.lock().unwrap().clone();
+        // Step 2: Read model fields (no locks)
+        let model = state.model.read(app);
+        let compact_mode = model.compact_mode;
+        let editing_todo = model.editing_todo;
+        let new_todo_category = model.new_todo_category.clone();
+        let edit_title = model.edit_title.clone();
+        let edit_category = model.edit_category.clone();
+        let search_query = model.search_query.clone();
+        let selected_category = model.selected_category.clone();
+        let todos = model.todos.clone();
 
         // Step 3: Derive UI state (filtering, sorting, etc.)
         let filtered_todos: Vec<Todo> = todos
-            .iter()
+            .into_iter()
             .filter(|todo| {
                 let matches_search = search_query.is_empty()
                     || todo.title.to_lowercase().contains(&search_query.to_lowercase());
@@ -114,7 +112,6 @@ impl Render for TodoApp {
                     .unwrap_or(true);
                 matches_search && matches_category
             })
-            .cloned()
             .collect();
 
         // Step 4: Build UI tree using fluent builder pattern

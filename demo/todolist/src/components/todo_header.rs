@@ -64,9 +64,11 @@ impl TodoHeader {
                         switch("compact-mode")
                             .checked(compact_mode)
                             .on_toggle(|value, _, _window, cx| {
-                                // Update global state
-                                let state = cx.global::<TodoState>();
-                                *state.compact_mode.lock().unwrap() = value;
+                                let model = cx.global::<TodoState>().model.clone();
+                                model.update(cx, |model, cx| {
+                                    model.compact_mode = value;
+                                    cx.notify();
+                                });
                             }),
                     ),
             )

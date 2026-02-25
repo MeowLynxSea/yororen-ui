@@ -79,8 +79,11 @@ impl TodoToolbar {
                     .w(px(200.))
                     .placeholder(search_placeholder)
                     .on_change(|text, _window, cx| {
-                        let state = cx.global::<TodoState>();
-                        *state.search_query.lock().unwrap() = text.to_string();
+                        let model = cx.global::<TodoState>().model.clone();
+                        model.update(cx, |model, cx| {
+                            model.search_query = text.to_string();
+                            cx.notify();
+                        });
                     }),
             )
             // Category filter dropdown
@@ -90,13 +93,16 @@ impl TodoToolbar {
                     .value(&selected_value)
                     .options(search_options)
                     .on_change(|value, _ev, _window, cx| {
-                        let state = cx.global::<TodoState>();
                         let category = if value == "all" {
                             None
                         } else {
                             TodoCategory::all().into_iter().find(|c| c.code() == value)
                         };
-                        *state.selected_category.lock().unwrap() = category;
+                        let model = cx.global::<TodoState>().model.clone();
+                        model.update(cx, |model, cx| {
+                            model.selected_category = category;
+                            cx.notify();
+                        });
                     }),
             )
     }

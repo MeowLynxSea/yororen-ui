@@ -43,7 +43,7 @@
 //! A typical yororen-ui application should be organized as follows:
 //!
 //! - `main.rs` - Application entry point and framework initialization
-//! - `state.rs` - Global state management using the Arc<Mutex<T>> pattern
+//! - `state.rs` - Global state management using `gpui::Entity<T>`
 //! - `*_app.rs` - Root component implementing the gpui `Render` trait
 //! - `components/` - Directory containing reusable UI components
 //! - `*.rs` - Domain model files with no UI dependencies
@@ -105,8 +105,9 @@ fn main() {
         cx.set_global(i18n::load_demo_i18n(Locale::new("en").unwrap()).unwrap());
 
         // RECOMMENDED: Set up global application state
-        // Use Global trait + Arc<Mutex<T>> for shared state
-        cx.set_global(state::TodoState::default());
+        // This demo stores mutable state in a gpui Entity.
+        let todo_state = state::TodoState::new(cx);
+        cx.set_global(todo_state);
 
         // Step 3: Create main window
         let options = WindowOptions {
