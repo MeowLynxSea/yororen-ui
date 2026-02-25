@@ -59,24 +59,20 @@ pub fn render(
                         .child("Copy"),
                 )
                 .on_click(move |_ev, window, cx| {
-                    let entity_id = {
-                        let state = cx.global::<FileBrowserState>();
-                        let Some(path) = state.context_path.lock().unwrap().clone() else {
+                    let model = cx.global::<FileBrowserState>().model.clone();
+                    model.update(cx, |model, cx| {
+                        let Some(path) = model.context_path.clone() else {
                             return;
                         };
 
-                        *state.clipboard.lock().unwrap() = Some(FileClipboard {
+                        model.clipboard = Some(FileClipboard {
                             op: ClipboardOp::Copy,
                             src: path,
                         });
-                        *state.menu_open.lock().unwrap() = false;
-                        *state.menu_position.lock().unwrap() = None;
-                        *state.notify_entity.lock().unwrap()
-                    };
-
-                    if let Some(id) = entity_id {
-                        cx.notify(id);
-                    }
+                        model.menu_open = false;
+                        model.menu_position = None;
+                        cx.notify();
+                    });
                     window.refresh();
                 }),
         )
@@ -97,13 +93,13 @@ pub fn render(
                         .child("Paste"),
                 )
                 .on_click(move |_ev, window, cx| {
-                    let (entity_id, result) = {
-                        let state = cx.global::<FileBrowserState>();
-                        let Some(clip) = state.clipboard.lock().unwrap().clone() else {
-                            return;
+                    let model = cx.global::<FileBrowserState>().model.clone();
+                    let (root, did_paste) = model.update(cx, |model, cx| {
+                        let Some(clip) = model.clipboard.clone() else {
+                            return (model.root.clone(), false);
                         };
-                        let Some(target) = state.context_path.lock().unwrap().clone() else {
-                            return;
+                        let Some(target) = model.context_path.clone() else {
+                            return (model.root.clone(), false);
                         };
 
                         let dst_dir = if target.is_dir() {
@@ -121,18 +117,14 @@ pub fn render(
                         let dst = fs_ops::unique_child_path(&dst_dir, &file_name);
                         let result = fs_ops::copy_path(&clip.src, &dst);
 
-                        let root = state.root.lock().unwrap().clone();
+                        model.menu_open = false;
+                        model.menu_position = None;
+                        cx.notify();
+                        (model.root.clone(), result.is_ok())
+                    });
 
-                        *state.menu_open.lock().unwrap() = false;
-                        *state.menu_position.lock().unwrap() = None;
-                        ((root, *state.notify_entity.lock().unwrap()), result)
-                    };
-
-                    if let Ok(()) = result {
-                        if let (root, Some(id)) = entity_id {
-                            cx.notify(id);
-                            scan::start_scan(root, window, cx);
-                        }
+                    if did_paste {
+                        scan::start_scan(root, window, cx);
                     }
                     window.refresh();
                 }),
@@ -155,15 +147,12 @@ pub fn render(
                 .left(trigger_left)
                 .top(trigger_top)
                 .on_close(move |window, cx| {
-                    let entity_id = {
-                        let state = cx.global::<FileBrowserState>();
-                        *state.menu_open.lock().unwrap() = false;
-                        *state.menu_position.lock().unwrap() = None;
-                        *state.notify_entity.lock().unwrap()
-                    };
-                    if let Some(id) = entity_id {
-                        cx.notify(id);
-                    }
+                    let model = cx.global::<FileBrowserState>().model.clone();
+                    model.update(cx, |model, cx| {
+                        model.menu_open = false;
+                        model.menu_position = None;
+                        cx.notify();
+                    });
                     window.refresh();
                 })
                 .trigger(div().w(px(1.)).h(px(1.)))

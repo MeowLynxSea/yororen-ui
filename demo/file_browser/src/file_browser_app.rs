@@ -50,10 +50,7 @@ impl FileBrowserApp {
     ///
     /// IMPORTANT: Store your entity_id in global state for notification purposes.
     /// This allows other components to trigger re-renders of this component.
-    pub fn new(cx: &mut Context<Self>) -> Self {
-        // Store our entity_id so other components can notify us of changes
-        let state = cx.global::<FileBrowserState>();
-        *state.notify_entity.lock().unwrap() = Some(cx.entity().entity_id());
+    pub fn new(_cx: &mut Context<Self>) -> Self {
         Self
     }
 }
@@ -70,16 +67,16 @@ impl Render for FileBrowserApp {
         let state = cx.global::<FileBrowserState>();
         let theme = cx.theme().clone();
 
-        // Step 2: Lock and read state fields
-        let root = state.root.lock().unwrap().clone();
-        let selected_path = state.selected_path.lock().unwrap().clone();
-        let context_path = state.context_path.lock().unwrap().clone();
-        let clipboard = state.clipboard.lock().unwrap().clone();
-        let menu_open = *state.menu_open.lock().unwrap();
-        let menu_position = state.menu_position.lock().unwrap().clone();
-
-        let tree_nodes = state.tree_nodes.lock().unwrap().clone();
-        let is_scanning = *state.is_scanning.lock().unwrap();
+        // Step 2: Read model fields (no locks)
+        let model = state.model.read(cx);
+        let root = model.root.clone();
+        let selected_path = model.selected_path.clone();
+        let context_path = model.context_path.clone();
+        let clipboard = model.clipboard.clone();
+        let menu_open = model.menu_open;
+        let menu_position = model.menu_position;
+        let tree_nodes = model.tree_nodes.clone();
+        let is_scanning = model.is_scanning;
 
         // Step 3: Trigger initial scan if tree is empty and not already scanning
         if tree_nodes.is_empty() && !is_scanning {

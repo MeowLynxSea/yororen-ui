@@ -34,7 +34,8 @@ fn main() {
         component::init(cx);
         cx.set_global(GlobalTheme::new(cx.window_appearance()));
         cx.set_global(I18n::with_embedded(Locale::new("en").unwrap()));
-        cx.set_global(state::FileBrowserState::default());
+        let file_browser_state = state::FileBrowserState::new(cx);
+        cx.set_global(file_browser_state);
 
         let options = WindowOptions {
             window_bounds: Some(gpui::WindowBounds::Windowed(gpui::Bounds::centered(

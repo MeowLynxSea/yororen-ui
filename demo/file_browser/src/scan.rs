@@ -17,7 +17,7 @@ use gpui::Window;
 
 use yororen_ui::component::{ArcTreeNode, TreeCheckedState, TreeNode};
 
-use crate::state::{notify_file_browser, FileBrowserState};
+use crate::state::FileBrowserState;
 
 /// Recursively updates children of a tree node by its ID
 ///
@@ -102,16 +102,14 @@ fn read_dir_nodes(dir: &Path) -> Vec<(TreeNode, Option<PathBuf>)> {
 /// The generation counter ensures that if the root changes during scanning,
 /// older scan results are discarded.
 pub fn start_scan(root: PathBuf, window: &mut Window, cx: &mut gpui::App) {
-    let state = cx.global::<FileBrowserState>();
-    let generation = {
-        let mut generation_lock = state.scan_generation.lock().unwrap();
-        *generation_lock = generation_lock.wrapping_add(1);
-        *generation_lock
-    };
-
-    *state.is_scanning.lock().unwrap() = true;
-    state.tree_nodes.lock().unwrap().clear();
-    notify_file_browser(cx);
+    let model = cx.global::<FileBrowserState>().model.clone();
+    let generation = model.update(cx, |model, cx| {
+        model.scan_generation = model.scan_generation.wrapping_add(1);
+        model.is_scanning = true;
+        model.tree_nodes.clear();
+        cx.notify();
+        model.scan_generation
+    });
 
     window
         .spawn(cx, async move |cx| {
@@ -140,20 +138,20 @@ pub fn start_scan(root: PathBuf, window: &mut Window, cx: &mut gpui::App) {
 
                 let dir_id = dir.to_string_lossy().to_string();
                 let _ = cx.update(|_window, cx| {
-                    let state = cx.global::<FileBrowserState>();
-                    if *state.scan_generation.lock().unwrap() != generation {
-                        return;
-                    }
+                    let model = cx.global::<FileBrowserState>().model.clone();
+                    model.update(cx, |model, cx| {
+                        if model.scan_generation != generation {
+                            return;
+                        }
 
-                    let mut nodes = state.tree_nodes.lock().unwrap();
-                    if depth == 0 {
-                        *nodes = children;
-                    } else {
-                        let _ = set_children_by_id(&mut nodes, &dir_id, children);
-                    }
+                        if depth == 0 {
+                            model.tree_nodes = children;
+                        } else {
+                            let _ = set_children_by_id(&mut model.tree_nodes, &dir_id, children);
+                        }
+                        cx.notify();
+                    });
                 });
-
-                let _ = cx.update(|_window, cx| notify_file_browser(cx));
 
                 // Yield between directories so scrolling remains responsive.
                 cx.background_executor().timer(Duration::from_millis(8)).await;
@@ -164,15 +162,16 @@ pub fn start_scan(root: PathBuf, window: &mut Window, cx: &mut gpui::App) {
             }
 
             let _ = cx.update(|_window, cx| {
-                let state = cx.global::<FileBrowserState>();
-                if *state.scan_generation.lock().unwrap() != generation {
-                    return;
-                }
+                let model = cx.global::<FileBrowserState>().model.clone();
+                model.update(cx, |model, cx| {
+                    if model.scan_generation != generation {
+                        return;
+                    }
 
-                *state.is_scanning.lock().unwrap() = false;
-                notify_file_browser(cx);
+                    model.is_scanning = false;
+                    cx.notify();
+                });
             });
         })
         .detach();
 }
-

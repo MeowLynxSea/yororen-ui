@@ -23,7 +23,7 @@ use crate::state::FileBrowserState;
 pub fn refresh(window: &mut Window, cx: &mut gpui::App) {
     let root = {
         let state = cx.global::<FileBrowserState>();
-        state.root.lock().unwrap().clone()
+        state.model.read(cx).root.clone()
     };
 
     scan::start_scan(root, window, cx);
@@ -33,14 +33,15 @@ pub fn refresh(window: &mut Window, cx: &mut gpui::App) {
 ///
 /// Also clears selection and context menu state.
 pub fn set_root_and_rescan(new_root: PathBuf, window: &mut Window, cx: &mut gpui::App) {
-    {
-        let state = cx.global::<FileBrowserState>();
-        *state.root.lock().unwrap() = new_root;
-        *state.selected_path.lock().unwrap() = None;
-        *state.context_path.lock().unwrap() = None;
-        *state.menu_open.lock().unwrap() = false;
-        *state.menu_position.lock().unwrap() = None;
-    }
+    let model = cx.global::<FileBrowserState>().model.clone();
+    model.update(cx, |model, cx| {
+        model.root = new_root;
+        model.selected_path = None;
+        model.context_path = None;
+        model.menu_open = false;
+        model.menu_position = None;
+        cx.notify();
+    });
 
     refresh(window, cx);
 }
@@ -74,4 +75,3 @@ pub fn prompt_for_root(window: &mut Window, cx: &mut gpui::App) {
         })
         .detach();
 }
-

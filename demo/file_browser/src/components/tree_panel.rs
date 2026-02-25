@@ -69,26 +69,21 @@ impl FileBrowserTreePanel {
                 .selection_mode(SelectionMode::Single)
                 .on_item_click(|id, _ev, _window, cx| {
                     let path = PathBuf::from(id.to_string());
-                    let state = cx.global::<FileBrowserState>();
-                    *state.selected_path.lock().unwrap() = Some(path);
-
-                    let id = *state.notify_entity.lock().unwrap();
-                    if let Some(id) = id {
-                        cx.notify(id);
-                    }
+                    let model = cx.global::<FileBrowserState>().model.clone();
+                    model.update(cx, |model, cx| {
+                        model.selected_path = Some(path);
+                        cx.notify();
+                    });
                 })
                 .on_item_context_menu(|id, ev, _window, cx| {
                     let path = PathBuf::from(id.to_string());
-                    let state = cx.global::<FileBrowserState>();
-
-                    *state.context_path.lock().unwrap() = Some(path);
-                    *state.menu_position.lock().unwrap() = Some(ev.position);
-                    *state.menu_open.lock().unwrap() = true;
-
-                    let notify_id = *state.notify_entity.lock().unwrap();
-                    if let Some(notify_id) = notify_id {
-                        cx.notify(notify_id);
-                    }
+                    let model = cx.global::<FileBrowserState>().model.clone();
+                    model.update(cx, |model, cx| {
+                        model.context_path = Some(path);
+                        model.menu_position = Some(ev.position);
+                        model.menu_open = true;
+                        cx.notify();
+                    });
                 })
                 .into_any_element()
         };
@@ -105,17 +100,14 @@ impl FileBrowserTreePanel {
             .border_color(theme.border.divider)
             .p_2()
             .on_open(move |ev, _window, cx| {
-                let state = cx.global::<FileBrowserState>();
-
-                let selected = state.selected_path.lock().unwrap().clone();
-                *state.context_path.lock().unwrap() = Some(selected.unwrap_or_else(|| root.clone()));
-                *state.menu_position.lock().unwrap() = Some(ev.position);
-                *state.menu_open.lock().unwrap() = true;
-
-                let id = *state.notify_entity.lock().unwrap();
-                if let Some(id) = id {
-                    cx.notify(id);
-                }
+                let model = cx.global::<FileBrowserState>().model.clone();
+                model.update(cx, |model, cx| {
+                    let selected = model.selected_path.clone();
+                    model.context_path = Some(selected.unwrap_or_else(|| root.clone()));
+                    model.menu_position = Some(ev.position);
+                    model.menu_open = true;
+                    cx.notify();
+                });
             })
             .child(tree_view)
             .into_any_element()
