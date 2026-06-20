@@ -10,6 +10,7 @@ use gpui::{AppContext, Context, IntoElement, Render, Window};
 
 use crate::controller::Controller;
 use crate::state::StateRef;
+use yororen_ui::ActiveTheme;
 use yororen_ui::xml_file;
 
 pub struct ShowcaseApp {

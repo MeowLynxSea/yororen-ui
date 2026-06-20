@@ -162,6 +162,15 @@ impl VariantApp {
 
 impl Render for VariantApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        // Paint the root with the theme's surface color so the
+        // window background is opaque on all platforms (notably
+        // Windows, where an unset background shows through as
+        // transparent).
+        let surface = cx
+            .theme()
+            .get_color("surface.base")
+            .unwrap_or_else(|| hsla(0.0, 0.0, 0.98, 1.0));
+
         // Read Primary tokens once for the override example
         // below. Scoped to a block so the immutable borrow of
         // `cx` is released before we call the headless factories
@@ -275,5 +284,6 @@ impl Render for VariantApp {
                     .render(cx),
             )
             .render(cx)
+            .bg(surface)
     }
 }

@@ -34,7 +34,8 @@
   All identifiers referenced here are bound in the
   surrounding Rust scope - see `src/view.rs`.
 -->
-<Div overflow_y_scroll size_full flex_col p_4 gap_4>
+<Div overflow_y_scroll size_full flex_col p_4 gap_4
+     bg={cx.theme().get_color("surface.base").unwrap_or(gpui::hsla(0.0, 0.0, 0.98, 1.0))}>
 
     <!-- Header -->
     <Column flex col gap_1>

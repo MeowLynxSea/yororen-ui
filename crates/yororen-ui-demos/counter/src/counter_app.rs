@@ -8,6 +8,7 @@
 //! declarative and theme-aware.
 
 use gpui::{Context, IntoElement, ParentElement, Render, Styled, Window};
+use yororen_ui::ActiveTheme;
 use yororen_ui::headless::button::button;
 use yororen_ui::headless::label::label;
 use yororen_ui::headless::layout::{Inset, Spacing, center, column, row};
@@ -82,6 +83,20 @@ impl Render for CounterApp {
             )
             .render(cx);
 
-        center("root", cx).w_full().h_full().child(card).render(cx)
+        // Paint the root with the theme's surface color so the
+        // window background is opaque on all platforms (notably
+        // Windows, where an unset background shows through as
+        // transparent).
+        let surface = cx
+            .theme()
+            .get_color("surface.base")
+            .unwrap_or_else(|| gpui::hsla(0.0, 0.0, 0.98, 1.0));
+
+        center("root", cx)
+            .w_full()
+            .h_full()
+            .child(card)
+            .render(cx)
+            .bg(surface)
     }
 }
