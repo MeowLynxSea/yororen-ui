@@ -75,7 +75,20 @@ impl AvatarRenderer for TokenAvatarRenderer {
             props.name.as_ref().map(|n| initials_from_name(n.as_ref()))
         };
         let label_color: Hsla = theme.get_color("content.primary").unwrap_or_default();
-        let content = if let Some(text) = label_text {
+        // `src` wins over initials: while the image loads the `bg`
+        // placeholder shows through, then the image covers the box.
+        // The corner radius goes on the `img` itself — gpui paints
+        // images with their own style's corner radii, while a
+        // parent's `overflow_hidden` clips to a plain rectangle.
+        let content = if let Some(src) = &props.src {
+            div().size_full().child(
+                gpui::img(yororen_ui_core::headless::image::resolve_resource(
+                    src.as_ref(),
+                ))
+                .size_full()
+                .rounded(r),
+            )
+        } else if let Some(text) = label_text {
             div()
                 .text_size(font_size)
                 .text_color(label_color)

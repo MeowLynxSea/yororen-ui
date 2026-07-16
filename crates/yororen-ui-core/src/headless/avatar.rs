@@ -7,6 +7,11 @@ use gpui::{Div, ElementId, InteractiveElement, SharedString, Stateful};
 #[derive(Clone, Debug)]
 pub struct AvatarProps {
     pub id: ElementId,
+    /// Image shown inside the avatar. Resolved like
+    /// [`crate::headless::image::ImageSource::Resource`]: an
+    /// `http(s)://` URL is fetched remotely, any other string is a
+    /// filesystem path. When `None`, initials / name are rendered
+    /// instead.
     pub src: Option<SharedString>,
     pub initials: Option<String>,
     pub name: Option<SharedString>,

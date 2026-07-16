@@ -198,7 +198,19 @@ impl AvatarRenderer for BrutalAvatarRenderer {
         } else {
             props.name.as_ref().map(|n| initials_from_name(n.as_ref()))
         };
-        let content = if let Some(text) = label_text {
+        let content = if let Some(src) = &props.src {
+            // `src` wins over initials. The corner radius goes on
+            // the `img` itself — gpui paints images with their own
+            // style's corner radii, while a parent's
+            // `overflow_hidden` clips to a plain rectangle.
+            div().size_full().child(
+                gpui::img(yororen_ui_core::headless::image::resolve_resource(
+                    src.as_ref(),
+                ))
+                .size_full()
+                .rounded(r),
+            )
+        } else if let Some(text) = label_text {
             div()
                 .text_size(font_size)
                 .text_color(label_color)
@@ -422,8 +434,7 @@ impl CardRenderer for BrutalCardRenderer {
 pub use yororen_ui_core::renderer::image::{ImageRenderState, ImageRenderer};
 
 use gpui::Stateful;
-use std::sync::Arc;
-use yororen_ui_core::headless::image::{ImageProps, ImageSource};
+use yororen_ui_core::headless::image::ImageProps;
 
 pub struct BrutalImageRenderer;
 
@@ -439,12 +450,7 @@ impl ImageRenderer for BrutalImageRenderer {
         let theme = cx.theme();
         let state = ImageRenderState {};
         let bd = self.border(&state, theme);
-        let img = match &props.source {
-            ImageSource::Resource(path) => gpui::img(path.to_string()),
-            ImageSource::Handle(handle) => {
-                gpui::img(gpui::ImageSource::Image(Arc::new(handle.clone())))
-            }
-        };
+        let img = gpui::img(props.source.as_gpui_source());
         gpui::div()
             .id(props.id.clone())
             .border(px(BRUTAL_BORDER_WIDTH))

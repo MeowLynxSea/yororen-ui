@@ -1653,8 +1653,11 @@ pub fn yororen_ui_core::headless::icon_button::icon_button(impl core::convert::I
 pub type yororen_ui_core::headless::icon_button::ClickCallback = alloc::sync::Arc<(dyn core::ops::function::Fn(&gpui::interactive::ClickEvent, &mut gpui::window::Window, &mut gpui::app::App) + core::marker::Send + core::marker::Sync)>
 pub mod yororen_ui_core::headless::image
 pub enum yororen_ui_core::headless::image::ImageSource
+pub yororen_ui_core::headless::image::ImageSource::Embedded(gpui::shared_string::SharedString)
 pub yororen_ui_core::headless::image::ImageSource::Handle(gpui::platform::Image)
 pub yororen_ui_core::headless::image::ImageSource::Resource(gpui::shared_string::SharedString)
+impl yororen_ui_core::headless::image::ImageSource
+pub fn yororen_ui_core::headless::image::ImageSource::as_gpui_source(&self) -> gpui::elements::img::ImageSource
 impl core::clone::Clone for yororen_ui_core::headless::image::ImageSource
 pub fn yororen_ui_core::headless::image::ImageSource::clone(&self) -> yororen_ui_core::headless::image::ImageSource
 impl core::fmt::Debug for yororen_ui_core::headless::image::ImageSource
@@ -1686,6 +1689,7 @@ impl core::marker::UnsafeUnpin for yororen_ui_core::headless::image::ImageProps
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::image::ImageProps
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::image::ImageProps
 pub fn yororen_ui_core::headless::image::image(impl core::convert::Into<gpui::window::ElementId>, yororen_ui_core::headless::image::ImageSource, &mut gpui::app::App) -> yororen_ui_core::headless::image::ImageProps
+pub fn yororen_ui_core::headless::image::resolve_resource(&str) -> gpui::elements::img::ImageSource
 pub mod yororen_ui_core::headless::keybinding_display
 pub struct yororen_ui_core::headless::keybinding_display::KeybindingDisplayProps
 pub yororen_ui_core::headless::keybinding_display::KeybindingDisplayProps::id: gpui::window::ElementId
