@@ -407,8 +407,8 @@ gpui = { package = "gpui-ce", version = "0.3" }
 
 ## Star History
 
-<a href="https://www.star-history.com/#MeowLynxSea/yororen-ui&type=date&legend=top-left">
-  <img src="https://api.star-history.com/svg?repos=MeowLynxSea/yororen-ui&type=date&legend=top-left" alt="Star History Chart">
+<a href="https://star-history.dera.page/#MeowLynxSea/yororen-ui&type=date&legend=top-left">
+  <img src="https://star-history.dera.page/svg?repos=MeowLynxSea/yororen-ui&type=date&legend=top-left" alt="Star History Chart">
 </a>
 
 ---
