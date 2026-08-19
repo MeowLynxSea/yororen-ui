@@ -1220,7 +1220,7 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::escape(&mut self, &y
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_up(&mut self, &gpui::interactive::MouseUpEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::paste(&mut self, &yororen_ui_core::headless::text_input::Paste, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::right(&mut self, &yororen_ui_core::headless::text_input::Right, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5014,7 +5014,7 @@ pub fn yororen_ui_core::headless::text_input_core::TextInputCore::new(&mut gpui:
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::next_boundary(&str, usize) -> usize
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::offset_to_utf16(&str, usize) -> usize
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_down(&mut self, &str, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window)
-pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_move(&mut self, &str, &gpui::interactive::MouseMoveEvent)
+pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_move(&mut self, &str, &gpui::interactive::MouseMoveEvent) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_up(&mut self)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::paste(&mut self, &mut alloc::string::String, bool, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::prev_boundary(&str, usize) -> usize
@@ -5099,7 +5099,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::end(&mut self, &yo
 pub fn yororen_ui_core::headless::text_input::TextInputState::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_up(&mut self, &gpui::interactive::MouseUpEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::paste(&mut self, &yororen_ui_core::headless::text_input::Paste, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::right(&mut self, &yororen_ui_core::headless::text_input::Right, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5158,7 +5158,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::escape(&mut self, 
 pub fn yororen_ui_core::headless::text_input::TextInputState::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_up(&mut self, &gpui::interactive::MouseUpEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::paste(&mut self, &yororen_ui_core::headless::text_input::Paste, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::right(&mut self, &yororen_ui_core::headless::text_input::Right, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5201,7 +5201,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::escape(&mu
 pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::on_mouse_up(&mut self, &gpui::interactive::MouseUpEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::paste(&mut self, &yororen_ui_core::headless::text_input::Paste, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputActionHandler::right(&mut self, &yororen_ui_core::headless::text_input::Right, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5221,7 +5221,7 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::escape(&mut self, &y
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_mouse_up(&mut self, &gpui::interactive::MouseUpEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::paste(&mut self, &yororen_ui_core::headless::text_input::Paste, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::right(&mut self, &yororen_ui_core::headless::text_input::Right, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5241,7 +5241,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::escape(&mut self, 
 pub fn yororen_ui_core::headless::text_input::TextInputState::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_move(&mut self, &gpui::interactive::MouseMoveEvent, &mut gpui::window::Window, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_up(&mut self, &gpui::interactive::MouseUpEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::paste(&mut self, &yororen_ui_core::headless::text_input::Paste, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::right(&mut self, &yororen_ui_core::headless::text_input::Right, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5285,7 +5285,7 @@ pub fn yororen_ui_core::headless::text_input_core::TextInputCore::new(&mut gpui:
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::next_boundary(&str, usize) -> usize
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::offset_to_utf16(&str, usize) -> usize
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_down(&mut self, &str, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window)
-pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_move(&mut self, &str, &gpui::interactive::MouseMoveEvent)
+pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_move(&mut self, &str, &gpui::interactive::MouseMoveEvent) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::on_mouse_up(&mut self)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::paste(&mut self, &mut alloc::string::String, bool, &mut gpui::app::App) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::prev_boundary(&str, usize) -> usize

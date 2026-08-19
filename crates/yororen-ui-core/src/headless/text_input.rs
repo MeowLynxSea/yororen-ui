@@ -138,7 +138,14 @@ macro_rules! action_handler {
             if disabled {
                 return;
             }
-            let _ = state.update(cx, |s, app| s.$method(action, window, app));
+            let _ = state.update(cx, |s, cx| {
+                s.$method(action, window, cx);
+                // The handler methods take `&mut App`, so they
+                // can't notify themselves. Without this the edit
+                // wouldn't repaint until the blink task's next
+                // tick.
+                cx.notify();
+            });
         }
     }};
 }
@@ -153,9 +160,9 @@ macro_rules! action_handler {
 //
 // All methods take `&mut App` (not `&mut Context<Self>`) so the
 // trait is implementable by any state — the call site in the
-// macro updates the entity through `cx.update(|s, app| …)`.
-// `Entity::update` triggers a re-render automatically when the
-// state is mutated, so no explicit `cx.notify()` is needed.
+// macro updates the entity through `cx.update(|s, cx| …)` and
+// calls `cx.notify()` after the handler runs (gpui does NOT
+// repaint on `Entity::update` by itself).
 // =====================================================================
 
 /// The state-machine contract that the text-input keymap wires
@@ -215,8 +222,17 @@ pub trait TextInputActionHandler: 'static {
     }
     /// Mouse-up. Default: no-op.
     fn on_mouse_up(&mut self, _event: &gpui::MouseUpEvent, _w: &mut Window, _cx: &mut App) {}
-    /// Mouse-move (drag-select). Default: no-op.
-    fn on_mouse_move(&mut self, _event: &gpui::MouseMoveEvent, _w: &mut Window, _cx: &mut App) {}
+    /// Mouse-move (drag-select). Returns `true` when the drag
+    /// mutated the selection and a repaint is needed; plain
+    /// hovers return `false`.
+    fn on_mouse_move(
+        &mut self,
+        _event: &gpui::MouseMoveEvent,
+        _w: &mut Window,
+        _cx: &mut App,
+    ) -> bool {
+        false
+    }
 }
 
 // =====================================================================
@@ -612,9 +628,9 @@ impl Focusable for TextInputState {
 // =====================================================================
 // Action handlers. Each takes `(&Action, &mut Window, &mut App)`.
 // The `action_handler!` macro wires them into `.on_action` closures
-// in the renderer. `Entity::update` triggers a re-render
-// automatically when the state mutates, so no explicit
-// `cx.notify()` is needed.
+// in the renderer and calls `cx.notify()` after each handler —
+// `Entity::update` alone does NOT trigger a re-render in gpui,
+// so without that notify the edit waits for the next blink tick.
 //
 // Each method delegates the actual caret/value mutation to
 // `self.core.method(&mut self.value)` (or similar), then fires
@@ -724,8 +740,8 @@ impl TextInputState {
         event: &gpui::MouseMoveEvent,
         _window: &mut Window,
         _cx: &mut App,
-    ) {
-        self.core.on_mouse_move(&self.value, event);
+    ) -> bool {
+        self.core.on_mouse_move(&self.value, event)
     }
 }
 
@@ -797,8 +813,13 @@ impl TextInputActionHandler for TextInputState {
     fn on_mouse_up(&mut self, event: &gpui::MouseUpEvent, window: &mut Window, cx: &mut App) {
         self.on_mouse_up(event, window, cx);
     }
-    fn on_mouse_move(&mut self, event: &gpui::MouseMoveEvent, window: &mut Window, cx: &mut App) {
-        self.on_mouse_move(event, window, cx);
+    fn on_mouse_move(
+        &mut self,
+        event: &gpui::MouseMoveEvent,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> bool {
+        self.on_mouse_move(event, window, cx)
     }
 }
 

@@ -632,13 +632,18 @@ impl TextInputCore {
         window.focus(&self.focus_handle);
     }
 
-    /// Mouse-move (while drag-selecting).
-    pub fn on_mouse_move(&mut self, value: &str, event: &gpui::MouseMoveEvent) {
+    /// Mouse-move (while drag-selecting). Returns `true` when the
+    /// drag actually moved the caret / selection, so the caller
+    /// knows a repaint is needed (plain hovers return `false` to
+    /// avoid a repaint per mouse-move).
+    pub fn on_mouse_move(&mut self, value: &str, event: &gpui::MouseMoveEvent) -> bool {
         if self.is_selecting
             && let Some(utf16) = self.character_index_for_point_inner(value, event.position)
         {
             let byte = Self::utf16_to_offset(value, utf16);
             self.select_to(value, byte);
+            return true;
         }
+        false
     }
 }

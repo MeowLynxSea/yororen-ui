@@ -416,8 +416,9 @@ pub fn wire_input_keyboard<T: TextInputActionHandler>(
         if disabled {
             return;
         }
-        state_for_enter.update(cx, |s, app| {
-            s.enter(action, window, app);
+        state_for_enter.update(cx, |s, cx| {
+            s.enter(action, window, cx);
+            cx.notify();
         });
         let value = state_for_enter.read(cx).value();
         if let Some(cb) = on_submit_for_enter.as_ref() {
@@ -433,30 +434,37 @@ pub fn wire_input_keyboard<T: TextInputActionHandler>(
         .on_mouse_down(
             MouseButton::Left,
             move |event: &MouseDownEvent, window, cx| {
-                state_for_mouse.update(cx, |s, app| {
-                    s.on_mouse_down(event.position, window, app);
+                state_for_mouse.update(cx, |s, cx| {
+                    s.on_mouse_down(event.position, window, cx);
+                    cx.notify();
                 });
             },
         )
         .on_mouse_up(
             MouseButton::Left,
             move |event: &MouseUpEvent, window, cx| {
-                state_for_up.update(cx, |s, app| {
-                    s.on_mouse_up(event, window, app);
+                state_for_up.update(cx, |s, cx| {
+                    s.on_mouse_up(event, window, cx);
+                    cx.notify();
                 });
             },
         )
         .on_mouse_up_out(
             MouseButton::Left,
             move |event: &MouseUpEvent, window, cx| {
-                state_for_up_out.update(cx, |s, app| {
-                    s.on_mouse_up(event, window, app);
+                state_for_up_out.update(cx, |s, cx| {
+                    s.on_mouse_up(event, window, cx);
+                    cx.notify();
                 });
             },
         )
+        // High-frequency: only repaint when the drag actually
+        // moved the selection, not on every hover move.
         .on_mouse_move(move |event: &MouseMoveEvent, window, cx| {
-            state_for_move.update(cx, |s, app| {
-                s.on_mouse_move(event, window, app);
+            state_for_move.update(cx, |s, cx| {
+                if s.on_mouse_move(event, window, cx) {
+                    cx.notify();
+                }
             });
         });
 
@@ -529,7 +537,7 @@ pub(crate) fn hsla_default() -> Hsla {
 }
 
 #[cfg(test)]
-mod blink_tests {
+mod input_interaction_tests {
     use super::*;
     use gpui::{AppContext, TestAppContext};
 
@@ -594,5 +602,54 @@ mod blink_tests {
         cx.run_until_parked();
         assert!(state.read_with(cx, |s, _| s.core.cursor_visible));
         assert!(!state.read_with(cx, |s, _| s.core.cursor_blink_running));
+    }
+
+    /// Keymap-driven edits (backspace, delete, arrows, selection,
+    /// cut, paste…) must repaint the moment the action runs.
+    ///
+    /// Regression test: the `action_handler!` macro used to
+    /// mutate the state without calling `cx.notify()`, so the
+    /// edit only reached the screen when the blink task's next
+    /// tick happened to trigger a repaint — text appeared to be
+    /// deleted "when the caret blinked off".
+    #[gpui::test]
+    fn keymap_actions_notify_without_waiting_for_blink_tick(cx: &mut TestAppContext) {
+        let state = cx.update(|cx| {
+            cx.new(|cx| {
+                let mut s = TextInputState::new(cx);
+                s.value = "hello".to_string();
+                s.core.end(&s.value);
+                s
+            })
+        });
+        let cx = cx.add_empty_window();
+
+        let notified = std::rc::Rc::new(std::cell::Cell::new(0_usize));
+        let counter = notified.clone();
+        cx.update(|_, cx| {
+            cx.observe(&state, move |_, _| counter.set(counter.get() + 1))
+                .detach();
+        });
+
+        let handler = crate::action_handler!(state, false, Backspace, backspace);
+        cx.update(|window, cx| handler(&Backspace, window, cx));
+
+        assert_eq!(state.read_with(cx, |s, _| s.value.clone()), "hell");
+        assert_eq!(
+            notified.get(),
+            1,
+            "backspace must notify (schedule a repaint) immediately"
+        );
+
+        // Selection actions go through the same macro; verify one
+        // representative case also notifies.
+        let handler = crate::action_handler!(state, false, SelectAll, select_all);
+        cx.update(|window, cx| handler(&SelectAll, window, cx));
+        assert!(state.read_with(cx, |s, _| s.core.has_selection()));
+        assert_eq!(
+            notified.get(),
+            2,
+            "select-all must notify (schedule a repaint) immediately"
+        );
     }
 }

@@ -323,8 +323,13 @@ impl TextInputActionHandler for ComboBoxState {
     fn on_mouse_up(&mut self, _event: &gpui::MouseUpEvent, _w: &mut Window, _cx: &mut App) {
         self.core.on_mouse_up();
     }
-    fn on_mouse_move(&mut self, event: &gpui::MouseMoveEvent, _w: &mut Window, _cx: &mut App) {
-        self.core.on_mouse_move(&self.text, event);
+    fn on_mouse_move(
+        &mut self,
+        event: &gpui::MouseMoveEvent,
+        _w: &mut Window,
+        _cx: &mut App,
+    ) -> bool {
+        self.core.on_mouse_move(&self.text, event)
     }
 }
 
