@@ -1231,7 +1231,7 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::show_character_palet
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::value(&self) -> alloc::string::String
 impl yororen_ui_core::headless::text_input_element::TextInputPainterHost for yororen_ui_core::headless::combo_box::ComboBoxState
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::caret(&self) -> usize
-pub fn yororen_ui_core::headless::combo_box::ComboBoxState::cursor_blink_epoch(&self) -> usize
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::cursor_blink_running(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::cursor_visible(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::display_value(&self) -> alloc::string::String
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::focus_handle(&self) -> gpui::window::FocusHandle
@@ -1242,7 +1242,7 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::marked_range(&self) 
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::placeholder(&self) -> gpui::shared_string::SharedString
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::scroll_x(&self) -> gpui::geometry::Pixels
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::selected_range(&self) -> core::ops::range::Range<usize>
-pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_cursor_blink_epoch(&mut self, usize)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_cursor_blink_running(&mut self, bool)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_cursor_visible(&mut self, bool)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::update_paint_state(&mut self, gpui::text_system::line::ShapedLine, gpui::geometry::Bounds<gpui::geometry::Pixels>, gpui::geometry::Pixels)
 impl core::marker::Freeze for yororen_ui_core::headless::combo_box::ComboBoxState
@@ -4985,7 +4985,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::text
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::text_input::ShowCharacterPalette
 pub struct yororen_ui_core::headless::text_input::TextInputCore
 pub yororen_ui_core::headless::text_input::TextInputCore::caret: usize
-pub yororen_ui_core::headless::text_input::TextInputCore::cursor_blink_epoch: usize
+pub yororen_ui_core::headless::text_input::TextInputCore::cursor_blink_running: bool
 pub yororen_ui_core::headless::text_input::TextInputCore::cursor_visible: bool
 pub yororen_ui_core::headless::text_input::TextInputCore::is_selecting: bool
 pub yororen_ui_core::headless::text_input::TextInputCore::last_bounds: core::option::Option<gpui::geometry::Bounds<gpui::geometry::Pixels>>
@@ -5006,7 +5006,6 @@ pub fn yororen_ui_core::headless::text_input_core::TextInputCore::cut(&mut self,
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::delete(&mut self, &mut alloc::string::String) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::end(&mut self, &str)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::focus_handle(&self) -> gpui::window::FocusHandle
-pub fn yororen_ui_core::headless::text_input_core::TextInputCore::focus_in(&mut self)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::has_selection(&self) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::home(&mut self)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::left(&mut self, &str)
@@ -5097,7 +5096,6 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::copy(&mut self, &y
 pub fn yororen_ui_core::headless::text_input::TextInputState::cut(&mut self, &yororen_ui_core::headless::text_input::Cut, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::delete(&mut self, &yororen_ui_core::headless::text_input::Delete, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::end(&mut self, &yororen_ui_core::headless::text_input::End, &mut gpui::window::Window, &mut gpui::app::App)
-pub fn yororen_ui_core::headless::text_input::TextInputState::focus_in(&mut self, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::home(&mut self, &yororen_ui_core::headless::text_input::Home, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::left(&mut self, &yororen_ui_core::headless::text_input::Left, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::text_input::TextInputState::on_mouse_down(&mut self, gpui::geometry::Point<gpui::geometry::Pixels>, &mut gpui::window::Window, &mut gpui::app::App)
@@ -5171,7 +5169,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::show_character_pal
 pub fn yororen_ui_core::headless::text_input::TextInputState::value(&self) -> alloc::string::String
 impl yororen_ui_core::headless::text_input_element::TextInputPainterHost for yororen_ui_core::headless::text_input::TextInputState
 pub fn yororen_ui_core::headless::text_input::TextInputState::caret(&self) -> usize
-pub fn yororen_ui_core::headless::text_input::TextInputState::cursor_blink_epoch(&self) -> usize
+pub fn yororen_ui_core::headless::text_input::TextInputState::cursor_blink_running(&self) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::cursor_visible(&self) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::display_value(&self) -> alloc::string::String
 pub fn yororen_ui_core::headless::text_input::TextInputState::focus_handle(&self) -> gpui::window::FocusHandle
@@ -5182,7 +5180,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::marked_range(&self
 pub fn yororen_ui_core::headless::text_input::TextInputState::placeholder(&self) -> gpui::shared_string::SharedString
 pub fn yororen_ui_core::headless::text_input::TextInputState::scroll_x(&self) -> gpui::geometry::Pixels
 pub fn yororen_ui_core::headless::text_input::TextInputState::selected_range(&self) -> core::ops::range::Range<usize>
-pub fn yororen_ui_core::headless::text_input::TextInputState::set_cursor_blink_epoch(&mut self, usize)
+pub fn yororen_ui_core::headless::text_input::TextInputState::set_cursor_blink_running(&mut self, bool)
 pub fn yororen_ui_core::headless::text_input::TextInputState::set_cursor_visible(&mut self, bool)
 pub fn yororen_ui_core::headless::text_input::TextInputState::update_paint_state(&mut self, gpui::text_system::line::ShapedLine, gpui::geometry::Bounds<gpui::geometry::Pixels>, gpui::geometry::Pixels)
 impl core::marker::Freeze for yororen_ui_core::headless::text_input::TextInputState
@@ -5258,7 +5256,7 @@ pub type yororen_ui_core::headless::text_input::TextChangeCallback = alloc::sync
 pub mod yororen_ui_core::headless::text_input_core
 pub struct yororen_ui_core::headless::text_input_core::TextInputCore
 pub yororen_ui_core::headless::text_input_core::TextInputCore::caret: usize
-pub yororen_ui_core::headless::text_input_core::TextInputCore::cursor_blink_epoch: usize
+pub yororen_ui_core::headless::text_input_core::TextInputCore::cursor_blink_running: bool
 pub yororen_ui_core::headless::text_input_core::TextInputCore::cursor_visible: bool
 pub yororen_ui_core::headless::text_input_core::TextInputCore::is_selecting: bool
 pub yororen_ui_core::headless::text_input_core::TextInputCore::last_bounds: core::option::Option<gpui::geometry::Bounds<gpui::geometry::Pixels>>
@@ -5279,7 +5277,6 @@ pub fn yororen_ui_core::headless::text_input_core::TextInputCore::cut(&mut self,
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::delete(&mut self, &mut alloc::string::String) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::end(&mut self, &str)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::focus_handle(&self) -> gpui::window::FocusHandle
-pub fn yororen_ui_core::headless::text_input_core::TextInputCore::focus_in(&mut self)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::has_selection(&self) -> bool
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::home(&mut self)
 pub fn yororen_ui_core::headless::text_input_core::TextInputCore::left(&mut self, &str)
@@ -5363,7 +5360,7 @@ impl<T> !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::tex
 pub const yororen_ui_core::headless::text_input_element::CURSOR_BLINK_INTERVAL: core::time::Duration
 pub trait yororen_ui_core::headless::text_input_element::TextInputPainterHost: 'static
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::caret(&self) -> usize
-pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::cursor_blink_epoch(&self) -> usize
+pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::cursor_blink_running(&self) -> bool
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::cursor_visible(&self) -> bool
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::display_value(&self) -> alloc::string::String
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::focus_handle(&self) -> gpui::window::FocusHandle
@@ -5374,12 +5371,12 @@ pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::mark
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::placeholder(&self) -> gpui::shared_string::SharedString
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::scroll_x(&self) -> gpui::geometry::Pixels
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::selected_range(&self) -> core::ops::range::Range<usize>
-pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::set_cursor_blink_epoch(&mut self, usize)
+pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::set_cursor_blink_running(&mut self, bool)
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::set_cursor_visible(&mut self, bool)
 pub fn yororen_ui_core::headless::text_input_element::TextInputPainterHost::update_paint_state(&mut self, gpui::text_system::line::ShapedLine, gpui::geometry::Bounds<gpui::geometry::Pixels>, gpui::geometry::Pixels)
 impl yororen_ui_core::headless::text_input_element::TextInputPainterHost for yororen_ui_core::headless::combo_box::ComboBoxState
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::caret(&self) -> usize
-pub fn yororen_ui_core::headless::combo_box::ComboBoxState::cursor_blink_epoch(&self) -> usize
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::cursor_blink_running(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::cursor_visible(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::display_value(&self) -> alloc::string::String
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::focus_handle(&self) -> gpui::window::FocusHandle
@@ -5390,12 +5387,12 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::marked_range(&self) 
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::placeholder(&self) -> gpui::shared_string::SharedString
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::scroll_x(&self) -> gpui::geometry::Pixels
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::selected_range(&self) -> core::ops::range::Range<usize>
-pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_cursor_blink_epoch(&mut self, usize)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_cursor_blink_running(&mut self, bool)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_cursor_visible(&mut self, bool)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::update_paint_state(&mut self, gpui::text_system::line::ShapedLine, gpui::geometry::Bounds<gpui::geometry::Pixels>, gpui::geometry::Pixels)
 impl yororen_ui_core::headless::text_input_element::TextInputPainterHost for yororen_ui_core::headless::text_input::TextInputState
 pub fn yororen_ui_core::headless::text_input::TextInputState::caret(&self) -> usize
-pub fn yororen_ui_core::headless::text_input::TextInputState::cursor_blink_epoch(&self) -> usize
+pub fn yororen_ui_core::headless::text_input::TextInputState::cursor_blink_running(&self) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::cursor_visible(&self) -> bool
 pub fn yororen_ui_core::headless::text_input::TextInputState::display_value(&self) -> alloc::string::String
 pub fn yororen_ui_core::headless::text_input::TextInputState::focus_handle(&self) -> gpui::window::FocusHandle
@@ -5406,7 +5403,7 @@ pub fn yororen_ui_core::headless::text_input::TextInputState::marked_range(&self
 pub fn yororen_ui_core::headless::text_input::TextInputState::placeholder(&self) -> gpui::shared_string::SharedString
 pub fn yororen_ui_core::headless::text_input::TextInputState::scroll_x(&self) -> gpui::geometry::Pixels
 pub fn yororen_ui_core::headless::text_input::TextInputState::selected_range(&self) -> core::ops::range::Range<usize>
-pub fn yororen_ui_core::headless::text_input::TextInputState::set_cursor_blink_epoch(&mut self, usize)
+pub fn yororen_ui_core::headless::text_input::TextInputState::set_cursor_blink_running(&mut self, bool)
 pub fn yororen_ui_core::headless::text_input::TextInputState::set_cursor_visible(&mut self, bool)
 pub fn yororen_ui_core::headless::text_input::TextInputState::update_paint_state(&mut self, gpui::text_system::line::ShapedLine, gpui::geometry::Bounds<gpui::geometry::Pixels>, gpui::geometry::Pixels)
 pub fn yororen_ui_core::headless::text_input_element::start_cursor_blink<T: yororen_ui_core::headless::text_input_element::TextInputPainterHost>(gpui::app::entity_map::Entity<T>, &mut gpui::window::Window, &mut gpui::app::App)

@@ -77,12 +77,16 @@ pub struct TextInputCore {
     /// Toggled by the painter's mouse-down / mouse-up handlers.
     pub is_selecting: bool,
     /// Whether the caret quad is currently painted. Toggled by
-    /// the cursor-blink task in the renderer.
+    /// the cursor-blink task; every caret / text edit forces it
+    /// back to `true` so the caret stays solid while typing.
     pub cursor_visible: bool,
-    /// Monotonically increasing epoch for the cursor-blink
-    /// task. Each focus-in bumps this; the running task checks
-    /// it on each tick and exits if the epoch has changed.
-    pub cursor_blink_epoch: usize,
+    /// Whether the cursor-blink task spawned by
+    /// `start_cursor_blink` is currently running. The flag makes
+    /// that function idempotent — `compose` calls it on every
+    /// frame while focused, but the task must only be spawned
+    /// once per focus-in. It exits (and clears the flag) as soon
+    /// as focus moves elsewhere.
+    pub cursor_blink_running: bool,
     /// Active IME composition range, in **UTF-8 bytes**.
     pub marked_range: Option<Range<usize>>,
     /// Focus handle. Minted in `new`; private to keep the
@@ -106,7 +110,7 @@ impl TextInputCore {
             last_line_height: None,
             is_selecting: false,
             cursor_visible: true,
-            cursor_blink_epoch: 0,
+            cursor_blink_running: false,
             marked_range: None,
             focus_handle: cx.focus_handle(),
         }
@@ -131,13 +135,6 @@ impl TextInputCore {
     }
 
     // -- Lifecycle ---------------------------------------------------
-
-    /// Bump the cursor-blink epoch (focus-in). The blink task
-    /// checks this on each tick and exits if it changed.
-    pub fn focus_in(&mut self) {
-        self.cursor_blink_epoch = self.cursor_blink_epoch.wrapping_add(1);
-        self.cursor_visible = true;
-    }
 
     /// Mouse-up: end the drag-select.
     pub fn on_mouse_up(&mut self) {
@@ -233,6 +230,7 @@ impl TextInputCore {
         self.caret = clamped;
         self.selection_start = clamped;
         self.selection_end = clamped;
+        self.cursor_visible = true;
     }
 
     /// Extend the selection to a new offset (keeps
@@ -242,6 +240,7 @@ impl TextInputCore {
         let clamped = offset.min(value.len());
         self.caret = clamped;
         self.selection_end = clamped;
+        self.cursor_visible = true;
     }
 
     /// Replace the range `[start..end)` (UTF-8 bytes) with
@@ -255,6 +254,7 @@ impl TextInputCore {
         self.caret = new_caret;
         self.selection_start = new_caret;
         self.selection_end = new_caret;
+        self.cursor_visible = true;
     }
 
     /// Apply a `Range<usize>` (UTF-8) replacement. Used by the
@@ -343,6 +343,7 @@ impl TextInputCore {
         let marked_start = range_start;
         let marked_end = range_start + new_text.len();
         self.caret = marked_end;
+        self.cursor_visible = true;
         if !new_text.is_empty() {
             self.marked_range = Some(marked_start..marked_end);
         } else {
@@ -539,6 +540,7 @@ impl TextInputCore {
         self.caret = 0;
         self.selection_start = 0;
         self.selection_end = 0;
+        self.cursor_visible = true;
     }
 
     /// End.

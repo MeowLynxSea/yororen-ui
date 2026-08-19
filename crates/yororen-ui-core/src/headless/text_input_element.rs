@@ -50,10 +50,11 @@ pub trait TextInputPainterHost: 'static {
     /// Whether the caret quad should be painted.
     fn cursor_visible(&self) -> bool;
     fn set_cursor_visible(&mut self, visible: bool);
-    /// Cursor-blink epoch counter. The blink task exits when
-    /// this changes.
-    fn cursor_blink_epoch(&self) -> usize;
-    fn set_cursor_blink_epoch(&mut self, epoch: usize);
+    /// Whether the cursor-blink task is currently running.
+    /// `start_cursor_blink` claims the flag before spawning the
+    /// task; the task releases it when focus moves elsewhere.
+    fn cursor_blink_running(&self) -> bool;
+    fn set_cursor_blink_running(&mut self, running: bool);
     /// Active IME composition range, in bytes of `display_value()`.
     fn marked_range(&self) -> Option<Range<usize>>;
     /// Per-line shaped layouts (empty for single-line inputs).
@@ -121,11 +122,11 @@ impl TextInputPainterHost for TextInputState {
     fn set_cursor_visible(&mut self, visible: bool) {
         self.core.cursor_visible = visible;
     }
-    fn cursor_blink_epoch(&self) -> usize {
-        self.core.cursor_blink_epoch
+    fn cursor_blink_running(&self) -> bool {
+        self.core.cursor_blink_running
     }
-    fn set_cursor_blink_epoch(&mut self, epoch: usize) {
-        self.core.cursor_blink_epoch = epoch;
+    fn set_cursor_blink_running(&mut self, running: bool) {
+        self.core.cursor_blink_running = running;
     }
     fn marked_range(&self) -> Option<Range<usize>> {
         self.core.marked_range.clone()
@@ -462,19 +463,30 @@ pub fn wire_input_keyboard<T: TextInputActionHandler>(
     wrapper
 }
 
-/// Start the cursor-blink task. The state has a
-/// `cursor_blink_epoch` counter; the running task checks it on
-/// each tick and exits if it changed (i.e. focus moved
-/// elsewhere).
+/// Start the cursor-blink task unless one is already running.
+///
+/// `compose` calls this on **every frame** while the input is
+/// focused, so it must be idempotent: the `cursor_blink_running`
+/// flag is claimed before spawning and released when the task
+/// exits, and the task itself keeps running across re-renders.
+/// Restarting the task per frame (the old epoch-based scheme)
+/// constantly reset its 500ms timer, and the dying task forced
+/// `cursor_visible` back on just as the replacement toggled it
+/// off — so the caret never actually blinked.
+///
+/// The task toggles `cursor_visible` every
+/// [`CURSOR_BLINK_INTERVAL`] and notifies to repaint. It exits
+/// (restoring a visible caret) as soon as focus has moved
+/// elsewhere or the state entity is gone.
 pub fn start_cursor_blink<T: TextInputPainterHost>(
     state: gpui::Entity<T>,
     window: &mut Window,
     cx: &mut App,
 ) {
-    state.update(cx, |s, _cx| {
-        s.set_cursor_blink_epoch(s.cursor_blink_epoch().wrapping_add(1));
-    });
-    let epoch = state.read(cx).cursor_blink_epoch();
+    if state.read(cx).cursor_blink_running() {
+        return;
+    }
+    state.update(cx, |s, _cx| s.set_cursor_blink_running(true));
     let state_weak = state.downgrade();
     window
         .spawn(cx, async move |async_cx| {
@@ -487,13 +499,9 @@ pub fn start_cursor_blink<T: TextInputPainterHost>(
                     .update(|window, cx| {
                         state_weak
                             .update(cx, |s, cx| {
-                                if s.cursor_blink_epoch() != epoch {
-                                    s.set_cursor_visible(true);
-                                    cx.notify();
-                                    return false;
-                                }
                                 if !s.focus_handle().is_focused(window) {
                                     s.set_cursor_visible(true);
+                                    s.set_cursor_blink_running(false);
                                     cx.notify();
                                     return false;
                                 }
@@ -518,4 +526,73 @@ pub fn start_cursor_blink<T: TextInputPainterHost>(
 #[allow(dead_code)]
 pub(crate) fn hsla_default() -> Hsla {
     hsla(0.0, 0.0, 0.0, 1.0)
+}
+
+#[cfg(test)]
+mod blink_tests {
+    use super::*;
+    use gpui::{AppContext, TestAppContext};
+
+    /// The blink task must spawn once per focus-in (not once per
+    /// render frame), keep toggling the caret every
+    /// [`CURSOR_BLINK_INTERVAL`] across the re-renders its own
+    /// `notify()` triggers, and — once focus moves elsewhere —
+    /// restore a solid caret and release the running flag so the
+    /// next focus-in can respawn it.
+    ///
+    /// Regression test: `compose` calls `start_cursor_blink` on
+    /// every frame while focused. Under the old epoch-based
+    /// scheme each call respawned the task and reset its 500ms
+    /// timer, and the dying task forced `cursor_visible` back on
+    /// just as the replacement toggled it off — so the caret
+    /// never actually blinked. The loop below simulates the
+    /// per-frame re-render between ticks to pin that down.
+    #[gpui::test]
+    fn cursor_blink_task_survives_per_frame_restarts_and_releases_on_blur(cx: &mut TestAppContext) {
+        let state = cx.update(|cx| cx.new(|cx| TextInputState::new(cx)));
+        let cx = cx.add_empty_window();
+        // The blink task parks on its interval timer between
+        // ticks; run_until_parked would otherwise panic.
+        cx.executor().allow_parking();
+
+        // Focus-in frame: spawns the task.
+        cx.update(|window, cx| {
+            let focus_handle = state.read(cx).focus_handle();
+            window.focus(&focus_handle);
+            assert!(focus_handle.is_focused(window));
+            start_cursor_blink(state.clone(), window, cx);
+        });
+        assert!(state.read_with(cx, |s, _| s.core.cursor_blink_running));
+
+        for cycle in 0..3 {
+            cx.executor().advance_clock(CURSOR_BLINK_INTERVAL);
+            cx.run_until_parked();
+            let visible = state.read_with(cx, |s, _| s.core.cursor_visible);
+            assert_eq!(
+                visible,
+                cycle % 2 == 1,
+                "caret must alternate every interval"
+            );
+
+            // Simulate the repaint that the tick's `notify()`
+            // schedules: `compose` runs again while focused and
+            // re-calls `start_cursor_blink`. This must be a
+            // no-op, not a respawn.
+            cx.update(|window, cx| {
+                let focus_handle = state.read(cx).focus_handle();
+                if focus_handle.is_focused(window) {
+                    start_cursor_blink(state.clone(), window, cx);
+                }
+            });
+        }
+
+        // Cycle 2 ended with the caret hidden; after blur the
+        // task's next tick restores a solid caret and releases
+        // the flag so a later focus-in can respawn.
+        cx.update(|window, _| window.blur());
+        cx.executor().advance_clock(CURSOR_BLINK_INTERVAL);
+        cx.run_until_parked();
+        assert!(state.read_with(cx, |s, _| s.core.cursor_visible));
+        assert!(!state.read_with(cx, |s, _| s.core.cursor_blink_running));
+    }
 }

@@ -626,13 +626,6 @@ impl Focusable for TextInputState {
 // =====================================================================
 
 impl TextInputState {
-    /// The renderer calls this when the user focuses the input
-    /// via mouse / tab. Bumps the cursor-blink epoch so any
-    /// previous blink task exits.
-    pub fn focus_in(&mut self, _window: &mut Window, _cx: &mut App) {
-        self.core.focus_in();
-    }
-
     pub fn left(&mut self, _: &Left, _window: &mut Window, _cx: &mut App) {
         self.core.left(&self.value);
     }
@@ -982,7 +975,7 @@ mod tests {
             (*ptr).core.scroll_x = Pixels::ZERO;
             (*ptr).core.is_selecting = false;
             (*ptr).core.cursor_visible = true;
-            (*ptr).core.cursor_blink_epoch = 0;
+            (*ptr).core.cursor_blink_running = false;
             (*ptr).core.marked_range = None;
             // Fields on TextInputState directly:
             (*ptr).placeholder = SharedString::new_static("");

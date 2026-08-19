@@ -209,11 +209,11 @@ impl TextInputPainterHost for ComboBoxState {
     fn set_cursor_visible(&mut self, visible: bool) {
         self.core.cursor_visible = visible;
     }
-    fn cursor_blink_epoch(&self) -> usize {
-        self.core.cursor_blink_epoch
+    fn cursor_blink_running(&self) -> bool {
+        self.core.cursor_blink_running
     }
-    fn set_cursor_blink_epoch(&mut self, epoch: usize) {
-        self.core.cursor_blink_epoch = epoch;
+    fn set_cursor_blink_running(&mut self, running: bool) {
+        self.core.cursor_blink_running = running;
     }
     fn marked_range(&self) -> Option<Range<usize>> {
         self.core.marked_range.clone()
