@@ -254,7 +254,7 @@ fn build_modal_overlay(app: &GalleryApp, cx: &mut Context<GalleryApp>) -> gpui::
 ///
 /// Layout (horizontal, gap 12px):
 /// ```
-/// [title] | [Default | Brutalism]  [Light | Dark]  [EN | 中文 | العربية]  [Show toast]
+/// [title] | [Default | Brutalism | WinUI]  [Light | Dark]  [EN | 中文 | العربية]  [Show toast]
 /// ```
 fn build_toolbar(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> Stateful<Div> {
     let entity = cx.entity().clone();
@@ -267,7 +267,7 @@ fn build_toolbar(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> Stateful
                 .mr(px(8.)),
         );
 
-    // RendererKind toggle: 2 toggle_buttons, mutually exclusive via
+    // RendererKind toggle: 3 toggle_buttons, mutually exclusive via
     // state.current_renderer.
     let entity_for_renderer = entity.clone();
     toolbar = toolbar.child(
@@ -294,6 +294,19 @@ fn build_toolbar(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> Stateful
             })
             .render(cx)
             .child(cx.t("demo.renderer_brutalism")),
+    );
+    let entity_for_renderer = entity.clone();
+    toolbar = toolbar.child(
+        toggle_button("renderer-winui", cx)
+            .selected(app.current_renderer == RendererKind::WinUI)
+            .variant(ActionVariantKind::Primary)
+            .on_toggle(move |_selected, _ev, _window, cx| {
+                entity_for_renderer.update(cx, |s, _cx| {
+                    s.current_renderer = RendererKind::WinUI;
+                });
+            })
+            .render(cx)
+            .child(cx.t("demo.renderer_winui")),
     );
 
     // Dark mode toggle (2 toggle_buttons).

@@ -3,6 +3,7 @@
     "title": "yororen-ui 画廊",
     "renderer_default": "默认",
     "renderer_brutalism": "野兽派",
+    "renderer_winui": "WinUI",
     "theme_light": "浅色",
     "theme_dark": "深色",
     "show_toast": "显示 Toast",

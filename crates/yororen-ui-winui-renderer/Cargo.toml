@@ -1,0 +1,16 @@
+[package]
+name = "yororen_ui_winui_renderer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "WinUI-style renderer for yororen-ui headless primitives. Ships the 55 XxxRenderer traits + WinUIXxxRenderer implementations, WinUI light/dark JSON themes, and a one-call install helper."
+readme = "../../README.md"
+repository.workspace = true
+
+[dependencies]
+yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.3" }
+gpui = { package = "gpui-ce", version = "0.3" }
+serde_json = "1"
+
+[lints]
+workspace = true

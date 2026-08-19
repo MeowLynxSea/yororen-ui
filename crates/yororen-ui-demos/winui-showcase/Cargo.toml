@@ -1,5 +1,5 @@
 [package]
-name = "gallery-demo"
+name = "winui-showcase"
 version = "0.1.0"
 edition.workspace = true
 # Demo / example binary — never published to crates.io.
@@ -7,10 +7,7 @@ publish = false
 
 [dependencies]
 gpui = { package = "gpui-ce", version = "0.3" }
-serde_json = "1"
 yororen-ui = { package = "yororen_ui", path = "../../yororen-ui" }
-yororen-ui-default-renderer = { package = "yororen_ui_default_renderer", path = "../../yororen-ui-default-renderer" }
-yororen-ui-brutalism-renderer = { package = "yororen_ui_brutalism_renderer", path = "../../yororen-ui-brutalism-renderer" }
 yororen-ui-winui-renderer = { package = "yororen_ui_winui_renderer", path = "../../yororen-ui-winui-renderer" }
 
 [lints]

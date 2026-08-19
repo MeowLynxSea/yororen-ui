@@ -1,0 +1,130 @@
+{
+  "surface": {
+    "base": "#FFFFFF",
+    "canvas": "#F4F4F6",
+    "raised": "#FBFBFD",
+    "sunken": "#EFEFF2",
+    "hover": "#E6E6EA",
+    "popover": "#EFEFF2"
+  },
+  "content": {
+    "primary": "#141416",
+    "secondary": "#3E3E45",
+    "tertiary": "#6B6B73",
+    "disabled": "#9A9AA2",
+    "on_primary": "#FFFFFF",
+    "on_status": "#0B0B0D"
+  },
+  "border": {
+    "default": "#D8D8DD",
+    "muted": "#E3E3E8",
+    "focus": "#2F63FF",
+    "divider": "#E3E3E8"
+  },
+  "action": {
+    "neutral": {
+      "bg": "#F1F1F3",
+      "hover_bg": "#E6E6EA",
+      "active_bg": "#DADADF",
+      "fg": "#141416",
+      "disabled_bg": "#E7E7EA",
+      "disabled_fg": "#9A9AA2"
+    },
+    "primary": {
+      "bg": "#121214",
+      "hover_bg": "#2A2A2E",
+      "active_bg": "#404045",
+      "fg": "#FFFFFF",
+      "disabled_bg": "#2A2A2E",
+      "disabled_fg": "#D0D0D6"
+    },
+    "danger": {
+      "bg": "#FFB4AE",
+      "hover_bg": "#FFA099",
+      "active_bg": "#FF8A82",
+      "fg": "#0B0B0D",
+      "disabled_bg": "#F0CBC7",
+      "disabled_fg": "#9A9AA2"
+    }
+  },
+  "status": {
+    "neutral":  { "bg": "#E7E7EA", "fg": "#0B0B0D" },
+    "success":  { "bg": "#B9F5C9", "fg": "#0B0B0D" },
+    "warning":  { "bg": "#FFE1A6", "fg": "#0B0B0D" },
+    "danger":   { "bg": "#FFB4AE", "fg": "#0B0B0D" },
+    "error":    { "bg": "#FFB4AE", "fg": "#0B0B0D" },
+    "info":     { "bg": "#B6D9FF", "fg": "#0B0B0D" }
+  },
+  "shadow": {
+    "elevation_1": "rgba(0,0,0,0.18)",
+    "elevation_2": "rgba(0,0,0,0.30)"
+  },
+  "tokens": {
+    "sizes": {
+      "control_h_xxs": 20, "control_h_xs": 24, "control_h_sm": 28, "control_h_md": 32, "control_h_lg": 36, "control_h_xl": 40,
+      "icon_xxs": 8, "icon_xs": 10, "icon_sm": 12, "icon_md": 14, "icon_lg": 16, "icon_xl": 20,
+      "avatar_xs": 20, "avatar_sm": 28, "avatar_md": 36, "avatar_lg": 44, "avatar_xl": 56,
+      "status_dot": 12
+    },
+    "radii":      { "none": 0, "xs": 2, "sm": 4, "md": 6, "lg": 8, "xl": 12, "pill": 9999 },
+    "spacing":    { "gap_0": 0, "gap_1": 4, "gap_2": 8, "gap_3": 12, "gap_4": 16, "gap_5": 20, "gap_6": 24, "gap_7": 32,
+                     "inset_xs": 4, "inset_sm": 8, "inset_md": 12, "inset_lg": 16, "inset_xl": 24,
+                     "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24 },
+    "typography": {
+      "font_size_xxs": 10, "font_size_xs": 11, "font_size_sm": 12, "font_size_md": 14, "font_size_lg": 16, "font_size_xl": 20, "font_size_2xl": 24,
+      "line_height_tight": 1.2, "line_height_normal": 1.5, "line_height_loose": 1.8,
+      "weight_regular": 400, "weight_medium": 500, "weight_semibold": 600, "weight_bold": 700,
+      "family_default": "system-ui",
+      "family_mono": "ui-monospace"
+    },
+    "motion":     {
+      "duration_instant": 0, "duration_very_fast": 100, "duration_fast": 150, "duration_normal": 200, "duration_slow": 300, "duration_very_slow": 400,
+      "duration_cursor_blink": 500, "duration_skeleton_pulse": 1100,
+      "duration_skeleton_pulse_1": 1100, "duration_skeleton_pulse_2": 1200,
+      "duration_progress_spinner": 850, "duration_progress_circle": 900, "duration_progress_bar": 1500,
+      "duration_modal_fade": 200, "duration_modal_slide_up": 250,
+      "duration_menu_open": 160, "duration_menu_open_fast": 100, "duration_menu_open_slow": 250,
+      "duration_tooltip_show": 150, "duration_tooltip_hide": 100,
+      "duration_navigator_slider": 200, "duration_tab_switch": 150,
+      "pulse_min_opacity": 0.55, "pulse_max_opacity": 0.95,
+      "slide_distance": 10, "bounce_distance": 8
+    },
+    "control": {
+      "button":          { "min_height": 36, "icon_button_min_size": 32, "horizontal_padding": 16, "vertical_padding": 6,  "icon_gap": 8, "radius": 6 },
+      "button_group":    { "gap": 2 },
+      "input":           { "min_height": 32, "horizontal_padding": 12, "vertical_padding": 8,  "cursor_thickness": 1, "focus_ring_thickness": 2, "icon_gap": 8, "spinner_size": 14, "text_area_min_h": 120, "radius": 4 },
+      "switch":          { "track_w": 34, "track_h": 18, "knob_size": 14, "padding": 2, "border_w": 1, "focus_border_w": 2, "duration": 100, "disabled_opacity": 0.5 },
+      "checkbox":        { "size": 16, "box_size": 16, "check_size": 12, "border_w": 1, "focus_border_w": 2, "radius": 4, "border_radius": 4 },
+      "radio":           { "size": 16, "ring_size": 16, "dot_size": 8, "border_w": 1, "radius": 9999, "border_radius": 9999 },
+      "select":          { "min_height": 32, "horizontal_padding": 12, "chevron_size": 14, "menu_min_width": 120, "menu_width": 240, "menu_max_height": 260, "item_padding_y": 6, "item_padding_x": 12 },
+      "combo_box":       { "min_height": 32, "horizontal_padding": 12, "menu_width": 420, "menu_max_height": 520, "search_gap": 8, "item_padding_y": 6, "item_padding_x": 12, "icon_size": 14 },
+      "slider":          { "track_h": 6, "thumb_size": 16, "hit_padding": 8, "focus_ring": 2 },
+      "toast":           { "min_width": 220, "max_width": 420, "horizontal_padding": 16, "vertical_padding": 12, "gap": 12, "close_icon_size": 14 },
+      "modal":           { "min_width": 320, "max_width": 520, "padding": 24, "header_gap": 12, "footer_gap": 12, "scrim_blur": 0, "border_radius": 12 },
+      "popover":         { "padding_x": 12, "padding_y": 8, "min_width": 120, "max_width": 360, "max_height": 320, "arrow_size": 8, "offset": 8 },
+      "dropdown":        { "padding_x": 12, "padding_y": 6, "min_width": 140, "max_width": 280, "max_height": 320, "item_gap": 8, "icon_size": 14 },
+      "badge":           { "min_height": 20, "horizontal_padding": 8, "gap": 4, "icon_size": 10, "radius": 9999 },
+      "tag":             { "min_height": 26, "horizontal_padding": 8, "gap": 4, "close_button_size": 16, "close_icon_size": 10, "radius": 4 },
+      "skeleton":        { "line_h": 12, "line_min_w": 80, "block_min_h": 64, "border_radius": 6 },
+      "progress":        { "bar_h_sm": 1.5, "bar_h_md": 2, "bar_h_lg": 2.5, "bar_default_h": 10, "spinner_size_sm": 12, "spinner_size_md": 16, "spinner_size_lg": 20, "circle_size_sm": 16, "circle_size_md": 24, "circle_size_lg": 32, "track_radius": 9999, "steps_gap": 2 },
+      "avatar":          { "border_w": 2, "status_inset": 2, "status_dot_size": 12, "fallback_font_size": 14, "size": 32 },
+      "tooltip":         { "padding_x": 8, "padding_y": 6, "max_width": 240, "arrow_size": 6, "offset": 6 },
+      "disclosure":      { "icon_size": 12, "chevron_size": 12 },
+      "keybinding_input":{ "kbd_padding_x": 6, "kbd_padding_y": 2, "kbd_min_width": 24, "separator_gap": 6, "icon_size": 14 },
+      "split_button":    { "min_height": 32, "chevron_width": 24, "separator_w": 1 },
+      "search_input":    { "min_height": 32, "horizontal_padding": 12, "icon_size": 14, "clear_icon_size": 12, "spinner_size": 14, "input_gap": 8 },
+      "number_input":    { "min_height": 32, "stepper_button_size": 24, "stepper_icon_size": 10, "stepper_gap": 2, "horizontal_padding": 12 },
+      "file_path_input": { "min_height": 32, "horizontal_padding": 12, "icon_size": 14, "action_button_size": 24, "action_gap": 6 },
+      "icon_button":     { "min_size": 32, "icon_size": 14 },
+      "toggle_button":   { "min_height": 32, "horizontal_padding": 16, "icon_gap": 8, "radius": 6 },
+      "empty_state":     { "icon_size": 40, "title_font_size": 16, "description_font_size": 14, "action_gap": 12, "vertical_padding": 24 },
+      "list_item":       { "min_height": 36, "horizontal_padding": 12, "gap": 8, "icon_size": 14, "chevron_size": 14 },
+      "tree_item":       { "min_height": 28, "horizontal_padding": 8, "indent": 16, "chevron_size": 18, "icon_size": 14, "drag_handle_w": 4, "drop_indicator_h": 2 },
+      "card":            { "padding": 16, "gap": 12, "border_radius": 12 },
+      "divider":         { "thickness": 1, "margin_x": 0, "margin_y": 4 },
+      "form":            { "field_gap": 12, "label_gap": 4, "helper_gap": 4, "error_gap": 4, "group_gap": 24, "horizontal_field_gap": 16, "horizontal_label_width": 120 },
+      "notification":    { "min_width": 280, "max_width": 420, "horizontal_padding": 16, "vertical_padding": 12, "gap": 12, "icon_size": 16, "close_icon_size": 14, "host_padding": 16, "host_gap": 12 },
+      "focus_ring":      { "thickness": 2, "offset": 2 }
+    }
+  }
+}

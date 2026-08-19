@@ -12,6 +12,7 @@ members = [
     "crates/yororen-ui-core",
     "crates/yororen-ui-default-renderer",
     "crates/yororen-ui-brutalism-renderer",
+    "crates/yororen-ui-winui-renderer",
     "crates/yororen-ui-xml",
     "crates/yororen-ui-xml-macro",
     "crates/yororen-ui-locale-en",
@@ -25,6 +26,7 @@ members = [
     "crates/yororen-ui-demos/layers_demo",
     "crates/yororen-ui-demos/theme_showcase",
     "crates/yororen-ui-demos/variant_showcase",
+    "crates/yororen-ui-demos/winui-showcase",
 ]
 
 [workspace.package]
