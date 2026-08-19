@@ -1,0 +1,40 @@
+name: Public API Diff
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  public-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system dependencies (GPUI / X11)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-xcb-dev \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libwayland-dev \
+            libfontconfig1-dev \
+            libssl-dev
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-public-api
+        run: cargo install cargo-public-api
+      - name: Regenerate baselines and diff against committed upstream/
+        run: |
+          bash scripts/regen-public-api.sh --all
+          git diff --exit-code -- upstream/ \
+            || { echo "Public API diff detected."; \
+                 echo "The committed upstream/*.api.txt baselines are out of sync with the source."; \
+                 echo "Fix the code or refresh the baselines with:"; \
+                 echo "  bash scripts/regen-public-api.sh --all"; \
+                 echo "then review the diff; every changed line is a breaking-change candidate for MIGRATION.md."; \
+                 exit 1; }

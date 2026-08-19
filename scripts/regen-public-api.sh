@@ -24,12 +24,16 @@ fi
 
 # Crate package name -> baseline filename. The published
 # crates are listed here. Phase J crates (yororen-ui-{virtual,form,command,table})
-# will be added when they ship.
+# will be added when they ship. `yororen_ui_xml_macro` is intentionally
+# absent: as a proc-macro crate its only public surface is a handful of
+# `proc macro` declarations, so a baseline adds no signal.
 declare -A pkg_to_baseline=(
     [yororen_ui_core]="upstream/yororen_ui_core.api.txt"
     [yororen_ui]="upstream/yororen_ui.api.txt"
     [yororen_ui_default_renderer]="upstream/yororen_ui_default_renderer.api.txt"
     [yororen_ui_brutalism_renderer]="upstream/yororen_ui_brutalism_renderer.api.txt"
+    [yororen_ui_winui_renderer]="upstream/yororen_ui_winui_renderer.api.txt"
+    [yororen_ui_xml]="upstream/yororen_ui_xml.api.txt"
 )
 
 if [ "$#" -eq 0 ] || [ "$1" = "--all" ]; then

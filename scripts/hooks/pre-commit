@@ -32,6 +32,8 @@ declare -A dir_to_pkg=(
     [yororen-ui]=yororen_ui
     [yororen-ui-default-renderer]=yororen_ui_default_renderer
     [yororen-ui-brutalism-renderer]=yororen_ui_brutalism_renderer
+    [yororen-ui-winui-renderer]=yororen_ui_winui_renderer
+    [yororen-ui-xml]=yororen_ui_xml
 )
 
 # Collect modified files: staged + working tree. Tolerate the
@@ -72,6 +74,8 @@ for pkg in "${packages[@]}"; do
         yororen_ui)                       f="upstream/yororen_ui.api.txt" ;;
         yororen_ui_default_renderer)      f="upstream/yororen_ui_default_renderer.api.txt" ;;
         yororen_ui_brutalism_renderer)    f="upstream/yororen_ui_brutalism_renderer.api.txt" ;;
+        yororen_ui_winui_renderer)        f="upstream/yororen_ui_winui_renderer.api.txt" ;;
+        yororen_ui_xml)                   f="upstream/yororen_ui_xml.api.txt" ;;
         *) continue ;;
     esac
     if ! git diff --quiet -- "$f" 2>/dev/null; then

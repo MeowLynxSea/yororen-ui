@@ -1,0 +1,414 @@
+pub mod yororen_ui_xml
+pub use yororen_ui_xml::inventory
+pub mod yororen_ui_xml::ast
+pub enum yororen_ui_xml::ast::AstNode
+pub yororen_ui_xml::ast::AstNode::Element(yororen_ui_xml::ast::AstElement)
+pub yororen_ui_xml::ast::AstNode::Expr
+pub yororen_ui_xml::ast::AstNode::Expr::byte_offset: usize
+pub yororen_ui_xml::ast::AstNode::Expr::expr: alloc::string::String
+pub yororen_ui_xml::ast::AstNode::Expr::span: proc_macro2::Span
+pub yororen_ui_xml::ast::AstNode::Text
+pub yororen_ui_xml::ast::AstNode::Text::byte_offset: usize
+pub yororen_ui_xml::ast::AstNode::Text::span: proc_macro2::Span
+pub yororen_ui_xml::ast::AstNode::Text::text: alloc::string::String
+impl core::clone::Clone for yororen_ui_xml::ast::AstNode
+pub fn yororen_ui_xml::ast::AstNode::clone(&self) -> yororen_ui_xml::ast::AstNode
+impl core::fmt::Debug for yororen_ui_xml::ast::AstNode
+pub fn yororen_ui_xml::ast::AstNode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_xml::ast::AstNode
+impl !core::marker::Send for yororen_ui_xml::ast::AstNode
+impl !core::marker::Sync for yororen_ui_xml::ast::AstNode
+impl core::marker::Unpin for yororen_ui_xml::ast::AstNode
+impl core::marker::UnsafeUnpin for yororen_ui_xml::ast::AstNode
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::ast::AstNode
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::ast::AstNode
+pub struct yororen_ui_xml::ast::AstAttribute
+pub yororen_ui_xml::ast::AstAttribute::byte_offset: usize
+pub yororen_ui_xml::ast::AstAttribute::expr: core::option::Option<alloc::string::String>
+pub yororen_ui_xml::ast::AstAttribute::name: alloc::string::String
+pub yororen_ui_xml::ast::AstAttribute::raw: alloc::string::String
+pub yororen_ui_xml::ast::AstAttribute::span: proc_macro2::Span
+impl core::clone::Clone for yororen_ui_xml::ast::AstAttribute
+pub fn yororen_ui_xml::ast::AstAttribute::clone(&self) -> yororen_ui_xml::ast::AstAttribute
+impl core::fmt::Debug for yororen_ui_xml::ast::AstAttribute
+pub fn yororen_ui_xml::ast::AstAttribute::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_xml::ast::AstAttribute
+impl !core::marker::Send for yororen_ui_xml::ast::AstAttribute
+impl !core::marker::Sync for yororen_ui_xml::ast::AstAttribute
+impl core::marker::Unpin for yororen_ui_xml::ast::AstAttribute
+impl core::marker::UnsafeUnpin for yororen_ui_xml::ast::AstAttribute
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::ast::AstAttribute
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::ast::AstAttribute
+pub struct yororen_ui_xml::ast::AstElement
+pub yororen_ui_xml::ast::AstElement::attributes: alloc::vec::Vec<yororen_ui_xml::ast::AstAttribute>
+pub yororen_ui_xml::ast::AstElement::byte_offset: usize
+pub yororen_ui_xml::ast::AstElement::children: alloc::vec::Vec<yororen_ui_xml::ast::AstNode>
+pub yororen_ui_xml::ast::AstElement::span: proc_macro2::Span
+pub yororen_ui_xml::ast::AstElement::tag: alloc::string::String
+impl core::clone::Clone for yororen_ui_xml::ast::AstElement
+pub fn yororen_ui_xml::ast::AstElement::clone(&self) -> yororen_ui_xml::ast::AstElement
+impl core::fmt::Debug for yororen_ui_xml::ast::AstElement
+pub fn yororen_ui_xml::ast::AstElement::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_xml::ast::AstElement
+impl !core::marker::Send for yororen_ui_xml::ast::AstElement
+impl !core::marker::Sync for yororen_ui_xml::ast::AstElement
+impl core::marker::Unpin for yororen_ui_xml::ast::AstElement
+impl core::marker::UnsafeUnpin for yororen_ui_xml::ast::AstElement
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::ast::AstElement
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::ast::AstElement
+pub mod yororen_ui_xml::codegen
+pub fn yororen_ui_xml::codegen::codegen(&str, proc_macro2::Span, core::option::Option<proc_macro2::TokenStream>, core::option::Option<&str>, &[yororen_ui_xml::schema::ComponentDef]) -> core::result::Result<proc_macro2::TokenStream, yororen_ui_xml::error::XmlError>
+pub fn yororen_ui_xml::codegen::codegen_with_includes(&str, proc_macro2::Span, core::option::Option<proc_macro2::TokenStream>, core::option::Option<&str>, &[yororen_ui_xml::schema::ComponentDef]) -> core::result::Result<(proc_macro2::TokenStream, alloc::vec::Vec<std::path::PathBuf>), yororen_ui_xml::error::XmlError>
+pub mod yororen_ui_xml::error
+pub enum yororen_ui_xml::error::XmlErrorKind
+pub yororen_ui_xml::error::XmlErrorKind::InvalidExpression
+pub yororen_ui_xml::error::XmlErrorKind::ParseError
+pub yororen_ui_xml::error::XmlErrorKind::UnknownAttribute
+pub yororen_ui_xml::error::XmlErrorKind::UnknownTag
+pub yororen_ui_xml::error::XmlErrorKind::Unsupported
+impl core::clone::Clone for yororen_ui_xml::error::XmlErrorKind
+pub fn yororen_ui_xml::error::XmlErrorKind::clone(&self) -> yororen_ui_xml::error::XmlErrorKind
+impl core::fmt::Debug for yororen_ui_xml::error::XmlErrorKind
+pub fn yororen_ui_xml::error::XmlErrorKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_xml::error::XmlErrorKind
+impl core::marker::Send for yororen_ui_xml::error::XmlErrorKind
+impl core::marker::Sync for yororen_ui_xml::error::XmlErrorKind
+impl core::marker::Unpin for yororen_ui_xml::error::XmlErrorKind
+impl core::marker::UnsafeUnpin for yororen_ui_xml::error::XmlErrorKind
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::error::XmlErrorKind
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::error::XmlErrorKind
+pub struct yororen_ui_xml::error::XmlError
+pub yororen_ui_xml::error::XmlError::kind: yororen_ui_xml::error::XmlErrorKind
+pub yororen_ui_xml::error::XmlError::message: alloc::string::String
+pub yororen_ui_xml::error::XmlError::offset: core::option::Option<usize>
+pub yororen_ui_xml::error::XmlError::rendered: core::option::Option<alloc::string::String>
+pub yororen_ui_xml::error::XmlError::span: proc_macro2::Span
+impl yororen_ui_xml::error::XmlError
+pub fn yororen_ui_xml::error::XmlError::at(self, usize) -> Self
+pub fn yororen_ui_xml::error::XmlError::new(yororen_ui_xml::error::XmlErrorKind, proc_macro2::Span, impl core::convert::Into<alloc::string::String>) -> Self
+pub fn yororen_ui_xml::error::XmlError::render(&self) -> alloc::string::String
+pub fn yororen_ui_xml::error::XmlError::render_with(&self, core::option::Option<&yororen_ui_xml::parser::LocationTracker<'_>>) -> alloc::string::String
+pub fn yororen_ui_xml::error::XmlError::rendered(self, impl core::convert::Into<alloc::string::String>) -> Self
+impl core::clone::Clone for yororen_ui_xml::error::XmlError
+pub fn yororen_ui_xml::error::XmlError::clone(&self) -> yororen_ui_xml::error::XmlError
+impl core::error::Error for yororen_ui_xml::error::XmlError
+impl core::fmt::Debug for yororen_ui_xml::error::XmlError
+pub fn yororen_ui_xml::error::XmlError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for yororen_ui_xml::error::XmlError
+pub fn yororen_ui_xml::error::XmlError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_xml::error::XmlError
+impl !core::marker::Send for yororen_ui_xml::error::XmlError
+impl !core::marker::Sync for yororen_ui_xml::error::XmlError
+impl core::marker::Unpin for yororen_ui_xml::error::XmlError
+impl core::marker::UnsafeUnpin for yororen_ui_xml::error::XmlError
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::error::XmlError
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::error::XmlError
+pub mod yororen_ui_xml::parser
+pub struct yororen_ui_xml::parser::LocationTracker<'a>
+pub yororen_ui_xml::parser::LocationTracker::line_starts: &'a [usize]
+pub yororen_ui_xml::parser::LocationTracker::outer_span: proc_macro2::Span
+pub yororen_ui_xml::parser::LocationTracker::xml: &'a str
+impl<'a> yororen_ui_xml::parser::LocationTracker<'a>
+pub fn yororen_ui_xml::parser::LocationTracker<'a>::line_col(&self, usize) -> (usize, usize)
+pub fn yororen_ui_xml::parser::LocationTracker<'a>::snippet(&self, usize) -> alloc::string::String
+pub fn yororen_ui_xml::parser::LocationTracker<'a>::span_outer(&self) -> proc_macro2::Span
+impl<'a> core::marker::Freeze for yororen_ui_xml::parser::LocationTracker<'a>
+impl<'a> !core::marker::Send for yororen_ui_xml::parser::LocationTracker<'a>
+impl<'a> !core::marker::Sync for yororen_ui_xml::parser::LocationTracker<'a>
+impl<'a> core::marker::Unpin for yororen_ui_xml::parser::LocationTracker<'a>
+impl<'a> core::marker::UnsafeUnpin for yororen_ui_xml::parser::LocationTracker<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::parser::LocationTracker<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::parser::LocationTracker<'a>
+pub fn yororen_ui_xml::parser::line_starts(&str) -> alloc::vec::Vec<usize>
+pub fn yororen_ui_xml::parser::parse(&str, proc_macro2::Span, &yororen_ui_xml::parser::LocationTracker<'_>) -> core::result::Result<yororen_ui_xml::ast::AstElement, yororen_ui_xml::error::XmlError>
+pub mod yororen_ui_xml::runtime
+pub struct yororen_ui_xml::runtime::ComponentDescriptor
+pub yororen_ui_xml::runtime::ComponentDescriptor::factory: fn(alloc::string::String, &mut gpui::app::App) -> gpui::element::AnyElement
+pub yororen_ui_xml::runtime::ComponentDescriptor::tag: &'static str
+impl core::clone::Clone for yororen_ui_xml::runtime::ComponentDescriptor
+pub fn yororen_ui_xml::runtime::ComponentDescriptor::clone(&self) -> yororen_ui_xml::runtime::ComponentDescriptor
+impl inventory::Collect for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::marker::Freeze for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::marker::Send for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::marker::Sync for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::marker::Unpin for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::marker::UnsafeUnpin for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::runtime::ComponentDescriptor
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::runtime::ComponentDescriptor
+pub fn yororen_ui_xml::runtime::load_xml(&str, &mut gpui::app::App) -> alloc::vec::Vec<gpui::element::AnyElement>
+pub fn yororen_ui_xml::runtime::lookup(&str) -> core::option::Option<&'static yororen_ui_xml::runtime::ComponentDescriptor>
+pub fn yororen_ui_xml::runtime::render_or_empty(&str, alloc::string::String, &mut gpui::app::App) -> gpui::element::AnyElement
+pub mod yororen_ui_xml::schema
+pub enum yororen_ui_xml::schema::ComponentKind
+pub yororen_ui_xml::schema::ComponentKind::Container(yororen_ui_xml::schema::ContainerDef)
+pub yororen_ui_xml::schema::ComponentKind::ControlFlow(yororen_ui_xml::schema::ControlFlowDef)
+pub yororen_ui_xml::schema::ComponentKind::Leaf(yororen_ui_xml::schema::LeafDef)
+pub yororen_ui_xml::schema::ComponentKind::RuntimeLeaf
+impl core::clone::Clone for yororen_ui_xml::schema::ComponentKind
+pub fn yororen_ui_xml::schema::ComponentKind::clone(&self) -> yororen_ui_xml::schema::ComponentKind
+impl core::cmp::Eq for yororen_ui_xml::schema::ComponentKind
+impl core::cmp::PartialEq for yororen_ui_xml::schema::ComponentKind
+pub fn yororen_ui_xml::schema::ComponentKind::eq(&self, &yororen_ui_xml::schema::ComponentKind) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::ComponentKind
+pub fn yororen_ui_xml::schema::ComponentKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::ComponentKind
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::ComponentKind
+impl core::marker::Freeze for yororen_ui_xml::schema::ComponentKind
+impl core::marker::Send for yororen_ui_xml::schema::ComponentKind
+impl core::marker::Sync for yororen_ui_xml::schema::ComponentKind
+impl core::marker::Unpin for yororen_ui_xml::schema::ComponentKind
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::ComponentKind
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::ComponentKind
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::ComponentKind
+pub enum yororen_ui_xml::schema::ControlFlowDef
+pub yororen_ui_xml::schema::ControlFlowDef::Case
+pub yororen_ui_xml::schema::ControlFlowDef::Else
+pub yororen_ui_xml::schema::ControlFlowDef::ElseIf
+pub yororen_ui_xml::schema::ControlFlowDef::For
+pub yororen_ui_xml::schema::ControlFlowDef::Fragment
+pub yororen_ui_xml::schema::ControlFlowDef::If
+pub yororen_ui_xml::schema::ControlFlowDef::Include
+pub yororen_ui_xml::schema::ControlFlowDef::Match
+pub yororen_ui_xml::schema::ControlFlowDef::Slot
+pub yororen_ui_xml::schema::ControlFlowDef::State
+pub yororen_ui_xml::schema::ControlFlowDef::Template
+pub yororen_ui_xml::schema::ControlFlowDef::UniformVirtualList
+pub yororen_ui_xml::schema::ControlFlowDef::VirtualList
+impl core::clone::Clone for yororen_ui_xml::schema::ControlFlowDef
+pub fn yororen_ui_xml::schema::ControlFlowDef::clone(&self) -> yororen_ui_xml::schema::ControlFlowDef
+impl core::cmp::Eq for yororen_ui_xml::schema::ControlFlowDef
+impl core::cmp::PartialEq for yororen_ui_xml::schema::ControlFlowDef
+pub fn yororen_ui_xml::schema::ControlFlowDef::eq(&self, &yororen_ui_xml::schema::ControlFlowDef) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::ControlFlowDef
+pub fn yororen_ui_xml::schema::ControlFlowDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::ControlFlowDef
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::ControlFlowDef
+impl core::marker::Freeze for yororen_ui_xml::schema::ControlFlowDef
+impl core::marker::Send for yororen_ui_xml::schema::ControlFlowDef
+impl core::marker::Sync for yororen_ui_xml::schema::ControlFlowDef
+impl core::marker::Unpin for yororen_ui_xml::schema::ControlFlowDef
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::ControlFlowDef
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::ControlFlowDef
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::ControlFlowDef
+pub enum yororen_ui_xml::schema::ExtraArgKind
+pub yororen_ui_xml::schema::ExtraArgKind::Borrow
+pub yororen_ui_xml::schema::ExtraArgKind::Callback
+pub yororen_ui_xml::schema::ExtraArgKind::Color
+pub yororen_ui_xml::schema::ExtraArgKind::Custom
+pub yororen_ui_xml::schema::ExtraArgKind::HeadingLevel
+pub yororen_ui_xml::schema::ExtraArgKind::IconSource
+pub yororen_ui_xml::schema::ExtraArgKind::ImageSource
+pub yororen_ui_xml::schema::ExtraArgKind::KeybindingInputMode
+pub yororen_ui_xml::schema::ExtraArgKind::StringList
+pub yororen_ui_xml::schema::ExtraArgKind::Text
+pub yororen_ui_xml::schema::ExtraArgKind::UInt
+impl core::clone::Clone for yororen_ui_xml::schema::ExtraArgKind
+pub fn yororen_ui_xml::schema::ExtraArgKind::clone(&self) -> yororen_ui_xml::schema::ExtraArgKind
+impl core::cmp::Eq for yororen_ui_xml::schema::ExtraArgKind
+impl core::cmp::PartialEq for yororen_ui_xml::schema::ExtraArgKind
+pub fn yororen_ui_xml::schema::ExtraArgKind::eq(&self, &yororen_ui_xml::schema::ExtraArgKind) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::ExtraArgKind
+pub fn yororen_ui_xml::schema::ExtraArgKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::ExtraArgKind
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::ExtraArgKind
+impl core::marker::Freeze for yororen_ui_xml::schema::ExtraArgKind
+impl core::marker::Send for yororen_ui_xml::schema::ExtraArgKind
+impl core::marker::Sync for yororen_ui_xml::schema::ExtraArgKind
+impl core::marker::Unpin for yororen_ui_xml::schema::ExtraArgKind
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::ExtraArgKind
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::ExtraArgKind
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::ExtraArgKind
+pub enum yororen_ui_xml::schema::PropValue
+pub yororen_ui_xml::schema::PropValue::AlignItems
+pub yororen_ui_xml::schema::PropValue::BadgeVariant
+pub yororen_ui_xml::schema::PropValue::Bool
+pub yororen_ui_xml::schema::PropValue::Color
+pub yororen_ui_xml::schema::PropValue::Custom
+pub yororen_ui_xml::schema::PropValue::Flag
+pub yororen_ui_xml::schema::PropValue::Float32
+pub yororen_ui_xml::schema::PropValue::Float64
+pub yororen_ui_xml::schema::PropValue::HeadingLevel
+pub yororen_ui_xml::schema::PropValue::IconSource
+pub yororen_ui_xml::schema::PropValue::ImageSource
+pub yororen_ui_xml::schema::PropValue::Inset
+pub yororen_ui_xml::schema::PropValue::JustifyContent
+pub yororen_ui_xml::schema::PropValue::KeybindingInputMode
+pub yororen_ui_xml::schema::PropValue::Length
+pub yororen_ui_xml::schema::PropValue::Spacing
+pub yororen_ui_xml::schema::PropValue::String
+pub yororen_ui_xml::schema::PropValue::UInt
+pub yororen_ui_xml::schema::PropValue::Unknown
+pub yororen_ui_xml::schema::PropValue::Variant
+impl core::clone::Clone for yororen_ui_xml::schema::PropValue
+pub fn yororen_ui_xml::schema::PropValue::clone(&self) -> yororen_ui_xml::schema::PropValue
+impl core::cmp::Eq for yororen_ui_xml::schema::PropValue
+impl core::cmp::PartialEq for yororen_ui_xml::schema::PropValue
+pub fn yororen_ui_xml::schema::PropValue::eq(&self, &yororen_ui_xml::schema::PropValue) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::PropValue
+pub fn yororen_ui_xml::schema::PropValue::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::PropValue
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::PropValue
+impl core::marker::Freeze for yororen_ui_xml::schema::PropValue
+impl core::marker::Send for yororen_ui_xml::schema::PropValue
+impl core::marker::Sync for yororen_ui_xml::schema::PropValue
+impl core::marker::Unpin for yororen_ui_xml::schema::PropValue
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::PropValue
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::PropValue
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::PropValue
+pub enum yororen_ui_xml::schema::RenderMode
+pub yororen_ui_xml::schema::RenderMode::Apply
+pub yororen_ui_xml::schema::RenderMode::Default
+impl core::clone::Clone for yororen_ui_xml::schema::RenderMode
+pub fn yororen_ui_xml::schema::RenderMode::clone(&self) -> yororen_ui_xml::schema::RenderMode
+impl core::cmp::Eq for yororen_ui_xml::schema::RenderMode
+impl core::cmp::PartialEq for yororen_ui_xml::schema::RenderMode
+pub fn yororen_ui_xml::schema::RenderMode::eq(&self, &yororen_ui_xml::schema::RenderMode) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::RenderMode
+pub fn yororen_ui_xml::schema::RenderMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::RenderMode
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::RenderMode
+impl core::marker::Freeze for yororen_ui_xml::schema::RenderMode
+impl core::marker::Send for yororen_ui_xml::schema::RenderMode
+impl core::marker::Sync for yororen_ui_xml::schema::RenderMode
+impl core::marker::Unpin for yororen_ui_xml::schema::RenderMode
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::RenderMode
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::RenderMode
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::RenderMode
+pub struct yororen_ui_xml::schema::ComponentDef
+pub yororen_ui_xml::schema::ComponentDef::doc: &'static str
+pub yororen_ui_xml::schema::ComponentDef::kind: yororen_ui_xml::schema::ComponentKind
+pub yororen_ui_xml::schema::ComponentDef::tag: &'static str
+impl yororen_ui_xml::schema::ComponentDef
+pub fn yororen_ui_xml::schema::ComponentDef::lookup(&str) -> core::option::Option<&'static yororen_ui_xml::schema::ComponentDef>
+impl core::clone::Clone for yororen_ui_xml::schema::ComponentDef
+pub fn yororen_ui_xml::schema::ComponentDef::clone(&self) -> yororen_ui_xml::schema::ComponentDef
+impl core::fmt::Debug for yororen_ui_xml::schema::ComponentDef
+pub fn yororen_ui_xml::schema::ComponentDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_xml::schema::ComponentDef
+impl core::marker::Send for yororen_ui_xml::schema::ComponentDef
+impl core::marker::Sync for yororen_ui_xml::schema::ComponentDef
+impl core::marker::Unpin for yororen_ui_xml::schema::ComponentDef
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::ComponentDef
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::ComponentDef
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::ComponentDef
+pub struct yororen_ui_xml::schema::ContainerDef
+pub yororen_ui_xml::schema::ContainerDef::fixed_methods: &'static [(&'static str, &'static str)]
+pub yororen_ui_xml::schema::ContainerDef::style_hint: &'static str
+impl core::clone::Clone for yororen_ui_xml::schema::ContainerDef
+pub fn yororen_ui_xml::schema::ContainerDef::clone(&self) -> yororen_ui_xml::schema::ContainerDef
+impl core::cmp::Eq for yororen_ui_xml::schema::ContainerDef
+impl core::cmp::PartialEq for yororen_ui_xml::schema::ContainerDef
+pub fn yororen_ui_xml::schema::ContainerDef::eq(&self, &yororen_ui_xml::schema::ContainerDef) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::ContainerDef
+pub fn yororen_ui_xml::schema::ContainerDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::ContainerDef
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::ContainerDef
+impl core::marker::Freeze for yororen_ui_xml::schema::ContainerDef
+impl core::marker::Send for yororen_ui_xml::schema::ContainerDef
+impl core::marker::Sync for yororen_ui_xml::schema::ContainerDef
+impl core::marker::Unpin for yororen_ui_xml::schema::ContainerDef
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::ContainerDef
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::ContainerDef
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::ContainerDef
+pub struct yororen_ui_xml::schema::ExtraArg
+pub yororen_ui_xml::schema::ExtraArg::attr: &'static str
+pub yororen_ui_xml::schema::ExtraArg::kind: yororen_ui_xml::schema::ExtraArgKind
+impl core::clone::Clone for yororen_ui_xml::schema::ExtraArg
+pub fn yororen_ui_xml::schema::ExtraArg::clone(&self) -> yororen_ui_xml::schema::ExtraArg
+impl core::cmp::Eq for yororen_ui_xml::schema::ExtraArg
+impl core::cmp::PartialEq for yororen_ui_xml::schema::ExtraArg
+pub fn yororen_ui_xml::schema::ExtraArg::eq(&self, &yororen_ui_xml::schema::ExtraArg) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::ExtraArg
+pub fn yororen_ui_xml::schema::ExtraArg::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::ExtraArg
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::ExtraArg
+impl core::marker::Freeze for yororen_ui_xml::schema::ExtraArg
+impl core::marker::Send for yororen_ui_xml::schema::ExtraArg
+impl core::marker::Sync for yororen_ui_xml::schema::ExtraArg
+impl core::marker::Unpin for yororen_ui_xml::schema::ExtraArg
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::ExtraArg
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::ExtraArg
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::ExtraArg
+pub struct yororen_ui_xml::schema::LeafDef
+pub yororen_ui_xml::schema::LeafDef::children_before_render: bool
+pub yororen_ui_xml::schema::LeafDef::events: &'static [(&'static str, &'static str)]
+pub yororen_ui_xml::schema::LeafDef::extra_args: &'static [yororen_ui_xml::schema::ExtraArg]
+pub yororen_ui_xml::schema::LeafDef::factory: &'static str
+pub yororen_ui_xml::schema::LeafDef::needs_app: bool
+pub yororen_ui_xml::schema::LeafDef::needs_window: bool
+pub yororen_ui_xml::schema::LeafDef::props: &'static [yororen_ui_xml::schema::PropDef]
+pub yororen_ui_xml::schema::LeafDef::render: yororen_ui_xml::schema::RenderMode
+pub yororen_ui_xml::schema::LeafDef::slots: &'static [yororen_ui_xml::schema::SlotDef]
+pub yororen_ui_xml::schema::LeafDef::supports_text_child: bool
+pub yororen_ui_xml::schema::LeafDef::unwrap_children: bool
+impl core::clone::Clone for yororen_ui_xml::schema::LeafDef
+pub fn yororen_ui_xml::schema::LeafDef::clone(&self) -> yororen_ui_xml::schema::LeafDef
+impl core::cmp::Eq for yororen_ui_xml::schema::LeafDef
+impl core::cmp::PartialEq for yororen_ui_xml::schema::LeafDef
+pub fn yororen_ui_xml::schema::LeafDef::eq(&self, &yororen_ui_xml::schema::LeafDef) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::LeafDef
+pub fn yororen_ui_xml::schema::LeafDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::LeafDef
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::LeafDef
+impl core::marker::Freeze for yororen_ui_xml::schema::LeafDef
+impl core::marker::Send for yororen_ui_xml::schema::LeafDef
+impl core::marker::Sync for yororen_ui_xml::schema::LeafDef
+impl core::marker::Unpin for yororen_ui_xml::schema::LeafDef
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::LeafDef
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::LeafDef
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::LeafDef
+pub struct yororen_ui_xml::schema::PropDef
+pub yororen_ui_xml::schema::PropDef::name: &'static str
+pub yororen_ui_xml::schema::PropDef::setter: &'static str
+pub yororen_ui_xml::schema::PropDef::value: yororen_ui_xml::schema::PropValue
+impl core::clone::Clone for yororen_ui_xml::schema::PropDef
+pub fn yororen_ui_xml::schema::PropDef::clone(&self) -> yororen_ui_xml::schema::PropDef
+impl core::cmp::Eq for yororen_ui_xml::schema::PropDef
+impl core::cmp::PartialEq for yororen_ui_xml::schema::PropDef
+pub fn yororen_ui_xml::schema::PropDef::eq(&self, &yororen_ui_xml::schema::PropDef) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::PropDef
+pub fn yororen_ui_xml::schema::PropDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::PropDef
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::PropDef
+impl core::marker::Freeze for yororen_ui_xml::schema::PropDef
+impl core::marker::Send for yororen_ui_xml::schema::PropDef
+impl core::marker::Sync for yororen_ui_xml::schema::PropDef
+impl core::marker::Unpin for yororen_ui_xml::schema::PropDef
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::PropDef
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::PropDef
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::PropDef
+pub struct yororen_ui_xml::schema::SlotDef
+pub yororen_ui_xml::schema::SlotDef::name: &'static str
+pub yororen_ui_xml::schema::SlotDef::setter: &'static str
+impl core::clone::Clone for yororen_ui_xml::schema::SlotDef
+pub fn yororen_ui_xml::schema::SlotDef::clone(&self) -> yororen_ui_xml::schema::SlotDef
+impl core::cmp::Eq for yororen_ui_xml::schema::SlotDef
+impl core::cmp::PartialEq for yororen_ui_xml::schema::SlotDef
+pub fn yororen_ui_xml::schema::SlotDef::eq(&self, &yororen_ui_xml::schema::SlotDef) -> bool
+impl core::fmt::Debug for yororen_ui_xml::schema::SlotDef
+pub fn yororen_ui_xml::schema::SlotDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_xml::schema::SlotDef
+impl core::marker::StructuralPartialEq for yororen_ui_xml::schema::SlotDef
+impl core::marker::Freeze for yororen_ui_xml::schema::SlotDef
+impl core::marker::Send for yororen_ui_xml::schema::SlotDef
+impl core::marker::Sync for yororen_ui_xml::schema::SlotDef
+impl core::marker::Unpin for yororen_ui_xml::schema::SlotDef
+impl core::marker::UnsafeUnpin for yororen_ui_xml::schema::SlotDef
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_xml::schema::SlotDef
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_xml::schema::SlotDef
+pub const yororen_ui_xml::schema::NUMERIC_SPACING_SUFFIX: &[&str]
+pub const yororen_ui_xml::schema::RESERVED_ATTRS: &[&str]
+pub const yororen_ui_xml::schema::TEXTUAL_SPACING_SUFFIX: &[&str]
+pub static yororen_ui_xml::schema::BUILTINS: &[yororen_ui_xml::schema::ComponentDef]
+pub fn yororen_ui_xml::schema::builtin_tags() -> alloc::vec::Vec<&'static str>
+pub fn yororen_ui_xml::schema::is_known_shorthand_method(&str) -> bool
+pub fn yororen_ui_xml::schema::is_spacing_prefix(&str) -> bool
+pub fn yororen_ui_xml::schema::is_spacing_shorthand(&str) -> bool
+pub fn yororen_ui_xml::schema::is_stateful_interactive_method(&str) -> bool
+pub fn yororen_ui_xml::schema::lookup_component<'a>(&str, &'a [yororen_ui_xml::schema::ComponentDef]) -> core::option::Option<&'a yororen_ui_xml::schema::ComponentDef>
+pub fn yororen_ui_xml::schema::lookup_component_owned(&str, &[yororen_ui_xml::schema::ComponentDef]) -> core::option::Option<yororen_ui_xml::schema::ComponentDef>
+pub fn yororen_ui_xml::schema::parse_user_schema(&str) -> core::result::Result<alloc::vec::Vec<yororen_ui_xml::schema::ComponentDef>, alloc::string::String>
+pub mod yororen_ui_xml::schema_generated
+pub static yororen_ui_xml::schema_generated::BUILTINS_GENERATED: &[yororen_ui_xml::schema::ComponentDef]
+pub static yororen_ui_xml::schema_generated::BUILTINS_OVERRIDES: &[yororen_ui_xml::schema::ComponentDef]
+pub macro yororen_ui_xml::register_xml_component!

@@ -1,7 +1,7 @@
 # `upstream/` — public-API baselines
 
 This directory contains `cargo public-api` baselines for the
-4 published crates in the workspace. They are the source of
+6 published crates in the workspace. They are the source of
 truth for what the public surface of each crate looks like.
 
 ## Format
@@ -13,7 +13,14 @@ One `.api.txt` per published crate:
 | `yororen_ui_core.api.txt` | `yororen_ui_core` (`yororen-ui-core`) |
 | `yororen_ui_default_renderer.api.txt` | `yororen_ui_default_renderer` (`yororen-ui-default-renderer`) |
 | `yororen_ui_brutalism_renderer.api.txt` | `yororen_ui_brutalism_renderer` (`yororen-ui-brutalism-renderer`) |
+| `yororen_ui_winui_renderer.api.txt` | `yororen_ui_winui_renderer` (`yororen-ui-winui-renderer`) |
+| `yororen_ui_xml.api.txt` | `yororen_ui_xml` (`yororen-ui-xml`) |
 | `yororen_ui.api.txt` | `yororen_ui` (`yororen-ui` meta-crate) |
+
+The `yororen_ui_xml_macro` proc-macro crate is **not** tracked by a
+baseline: its only public surface is a handful of `proc macro`
+declarations, so a baseline would add no diff signal. If it ever gains
+real public items (re-exported types or functions), add it here.
 
 Each file is the `--simplified` output of `cargo public-api` —
 flat, one-public-item-per-line, no type bodies. That makes
@@ -38,22 +45,12 @@ change to the public surface. Concretely:
 
 ## Local baseline generation
 
+The fastest path is `scripts/regen-public-api.sh --all`, which updates
+every tracked baseline in one pass and is what the pre-commit hook and
+CI both call. To regenerate the baseline for one crate by hand:
+
 ```bash
-# All 4 published crates
-for pair in \
-    "yororen_ui_core:yororen-ui-core" \
-    "yororen_ui_default_renderer:yororen-ui-default-renderer" \
-    "yororen_ui_brutalism_renderer:yororen-ui-brutalism-renderer" \
-    "yororen_ui:yororen-ui"; do
-  crate="${pair%%:*}"
-  case "$crate" in
-    yororen_ui_core)                    fn="upstream/yororen_ui_core.api.txt" ;;
-    yororen_ui_default_renderer)        fn="upstream/yororen_ui_default_renderer.api.txt" ;;
-    yororen_ui_brutalism_renderer)      fn="upstream/yororen_ui_brutalism_renderer.api.txt" ;;
-    yororen_ui)                         fn="upstream/yororen_ui.api.txt" ;;
-  esac
-  cargo public-api -p "${crate}" --simplified >| "$fn"
-done
+cargo public-api -p yororen_ui_winui_renderer --simplified >| upstream/yororen_ui_winui_renderer.api.txt
 ```
 
 Note: the `>|` redirect (not `>`) is required when `setopt
@@ -64,11 +61,17 @@ haven't.
 
 ## CI
 
-The `public-api diff` job in `.github/workflows/ci.yml` runs
-the same generation on every push to `dev` / `main` and every
-PR, then `diff -u`s against the committed baseline. A
-non-empty diff fails the job. The error message tells the
-contributor to either fix the code or update the baseline.
+The `Public API Diff` job in `.github/workflows/public-api.yml`
+generates every baseline via `scripts/regen-public-api.sh --all` on
+every push to `main` / `master` and every PR, then runs
+`git diff --exit-code -- upstream/` against the committed baseline. A
+non-empty diff fails the job. The error message tells the contributor
+to either fix the code or refresh `upstream/*.api.txt` via
+`scripts/regen-public-api.sh --all`.
+
+Locally, the pre-commit hook (`scripts/hooks/pre-commit`) runs the same
+regeneration for any modified crate before a commit lands, so a stale
+baseline fails the commit before it ever reaches CI.
 
 ## What counts as "public"?
 
