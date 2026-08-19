@@ -16,14 +16,12 @@
 //! - `tokens.control.button.{min_height,horizontal_padding,vertical_padding,radius,icon_gap}` for geometry
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, ElementId, FocusHandle, Hsla, InteractiveElement, MouseButton,
     ParentElement, Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::button::ButtonProps;
 use yororen_ui_core::headless::icon::IconProps;
 use yororen_ui_core::renderer::spec::{BorderSpec, Edges, ShadowSpec};
@@ -32,7 +30,8 @@ use yororen_ui_core::theme::ActiveTheme;
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered, set_interaction_pressed,
+    AnimatedStateElement, control_config, lerp_hsla, set_interaction_hovered,
+    set_interaction_pressed,
 };
 use crate::themes::default_font;
 
@@ -95,15 +94,62 @@ impl WinUIButtonRenderer {
             .unwrap_or(6.0) as f32)
     }
 
-    /// WinUI buttons draw a 1px control stroke. The brutalism
-    /// renderer uses a thicker black border instead.
+    /// WinUI's "elevation border": the base 1px stroke is the darker
+    /// bottom family (`ctrl_border_accent` on neutral, the accent
+    /// pair on primary/danger), with a lighter 1px overlay drawn on
+    /// the top edge by `border_top` — approximating the reference's
+    /// `linear-gradient(180deg, ctrl-border, ctrl-border-accent)`.
     pub fn border(&self, state: &ButtonRenderState, theme: &Theme) -> Option<BorderSpec> {
-        let color = if state.disabled {
-            theme.get_color("border.muted").unwrap_or_default()
+        let color = if state.variant == ActionVariantKind::Neutral {
+            theme
+                .get_color("winui.ctrl_border_accent")
+                .or_else(|| theme.get_color("border.default"))
+                .unwrap_or_default()
         } else {
-            theme.get_color("border.default").unwrap_or_default()
+            theme
+                .get_color("winui.accent_border_accent")
+                .or_else(|| theme.get_color("border.default"))
+                .unwrap_or_default()
         };
         Some(BorderSpec::new(px(1.0), color))
+    }
+
+    /// The lighter top edge of the elevation border (see [`border`]).
+    pub fn border_top(&self, state: &ButtonRenderState, theme: &Theme) -> Hsla {
+        if state.variant == ActionVariantKind::Neutral {
+            theme
+                .get_color("winui.ctrl_border")
+                .or_else(|| theme.get_color("border.muted"))
+                .unwrap_or_default()
+        } else {
+            theme
+                .get_color("winui.accent_border")
+                .or_else(|| theme.get_color("border.muted"))
+                .unwrap_or_default()
+        }
+    }
+
+    /// WinUI dims pressed button text: default buttons fall back to
+    /// `--text-secondary`, accent buttons to `--accent-text-secondary`.
+    pub fn pressed_fg(&self, state: &ButtonRenderState, theme: &Theme) -> Hsla {
+        if state.variant == ActionVariantKind::Neutral {
+            theme
+                .get_color("winui.text_secondary")
+                .or_else(|| theme.get_color("content.secondary"))
+                .unwrap_or_default()
+        } else {
+            theme
+                .get_color("winui.accent_text_secondary")
+                .or_else(|| theme.get_color("content.secondary"))
+                .unwrap_or_default()
+        }
+    }
+
+    /// WinUI body text on controls: 14px.
+    pub fn font_size(&self, _state: &ButtonRenderState, theme: &Theme) -> Pixels {
+        px(theme
+            .get_number("tokens.typography.font_size_md")
+            .unwrap_or(14.0) as f32)
     }
 
     /// WinUI buttons do not use a drop shadow by default; only
@@ -176,7 +222,10 @@ impl ButtonRenderer for WinUIButtonRenderer {
         };
         let hover_bg = self.hover_bg(&state, theme);
         let active_bg = self.active_bg(&state, theme);
+        let pressed_fg = self.pressed_fg(&state, theme);
         let border = self.border(&state, theme);
+        let border_top = self.border_top(&state, theme);
+        let font_size = self.font_size(&state, theme);
         let icon_gap = theme
             .get_number("tokens.control.button.icon_gap")
             .unwrap_or(8.0) as f32;
@@ -185,12 +234,13 @@ impl ButtonRenderer for WinUIButtonRenderer {
             .id(props.id.clone())
             .relative()
             .font_family(default_font(theme))
+            .text_size(font_size)
+            .line_height(px(20.0))
             .text_color(fg)
             .min_h(min_h)
             .rounded(radius)
             .px(padding.left)
             .py(padding.top)
-            .gap(px(icon_gap))
             .opacity(opacity)
             .flex()
             .items_center()
@@ -201,14 +251,16 @@ impl ButtonRenderer for WinUIButtonRenderer {
             el = el.border_1().border_color(border.color);
         }
 
+        // WinUI state transition: 167ms `cubic-bezier(0, 0, 0, 1)`.
+        let config = control_config(theme);
+
         // Animated fill layer (rest → hover → pressed).
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
         let fill = AnimatedStateElement::new(
             (props.id.clone(), "fill"),
             props.id.clone(),
             false,
             div().absolute().inset_0().rounded(radius),
-            config,
+            config.clone(),
             move |d: Div, hover, pressed, _checked| {
                 let mut next = lerp_hsla(bg, hover_bg, hover);
                 if pressed > 0.0 {
@@ -219,6 +271,22 @@ impl ButtonRenderer for WinUIButtonRenderer {
         );
         el = el.child(fill);
 
+        // Elevation border: lighter 1px line across the top edge.
+        if !props.disabled {
+            el = el.child(
+                div()
+                    .absolute()
+                    .top_0()
+                    .left_0()
+                    .right_0()
+                    .h(px(1.0))
+                    .rounded_t(radius)
+                    .bg(border_top),
+            );
+        }
+
+        // Content (icon + caption) with pressed text dimming.
+        let mut content = div().flex().items_center().gap(px(icon_gap));
         if let Some(source) = props.icon.clone() {
             let icon_id: ElementId = format!("{:?}-icon", props.id).into();
             let icon_el = IconProps {
@@ -228,11 +296,26 @@ impl ButtonRenderer for WinUIButtonRenderer {
                 color: Some(fg),
             }
             .render(cx);
-            el = el.child(icon_el);
+            content = content.child(icon_el);
         }
         if let Some(caption) = props.caption.clone() {
-            el = el.child(caption);
+            content = content.child(caption);
         }
+        let content = AnimatedStateElement::new(
+            (props.id.clone(), "fg"),
+            props.id.clone(),
+            false,
+            content,
+            config,
+            move |d: Div, _hover, pressed, _checked| {
+                if pressed > 0.0 {
+                    d.text_color(lerp_hsla(fg, pressed_fg, pressed))
+                } else {
+                    d.text_color(fg)
+                }
+            },
+        );
+        el = el.child(content);
 
         if props.disabled {
             el = el.cursor(CursorStyle::OperationNotAllowed);

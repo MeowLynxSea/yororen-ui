@@ -26,11 +26,19 @@ impl WinUIEmptyStateRenderer {
     }
     pub fn padding(&self, _state: &EmptyStateRenderState, theme: &Theme) -> Edges<Pixels> {
         Edges::all(gpui::px(
-            theme.get_number("tokens.spacing.inset_lg").unwrap_or(0.0) as f32,
+            theme
+                .get_number("tokens.control.empty_state.vertical_padding")
+                .or_else(|| theme.get_number("tokens.spacing.inset_lg"))
+                .unwrap_or(24.0) as f32,
         ))
     }
     pub fn icon_size(&self, _state: &EmptyStateRenderState, theme: &Theme) -> Pixels {
-        gpui::px(theme.get_number("tokens.sizes.icon_xl").unwrap_or(0.0) as f32)
+        gpui::px(
+            theme
+                .get_number("tokens.control.empty_state.icon_size")
+                .or_else(|| theme.get_number("tokens.sizes.icon_xl"))
+                .unwrap_or(40.0) as f32,
+        )
     }
     pub fn gap(&self, _state: &EmptyStateRenderState, theme: &Theme) -> Pixels {
         gpui::px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(0.0) as f32)

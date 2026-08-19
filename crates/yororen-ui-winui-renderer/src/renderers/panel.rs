@@ -21,10 +21,16 @@ pub struct WinUIPanelRenderer;
 // Inherent helpers — *not* part of the trait surface.
 impl WinUIPanelRenderer {
     pub fn bg(&self, _state: &PanelRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("surface.raised").unwrap_or_default()
+        theme
+            .get_color("winui.card_bg")
+            .or_else(|| theme.get_color("surface.raised"))
+            .unwrap_or_default()
     }
     pub fn border(&self, _state: &PanelRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("border.default").unwrap_or_default()
+        theme
+            .get_color("winui.card_stroke")
+            .or_else(|| theme.get_color("border.default"))
+            .unwrap_or_default()
     }
     pub fn padding(&self, _state: &PanelRenderState, theme: &Theme) -> Edges<Pixels> {
         Edges::all(gpui::px(
@@ -32,7 +38,12 @@ impl WinUIPanelRenderer {
         ))
     }
     pub fn border_radius(&self, _state: &PanelRenderState, theme: &Theme) -> Pixels {
-        gpui::px(theme.get_number("tokens.radii.lg").unwrap_or(0.0) as f32)
+        gpui::px(
+            theme
+                .get_number("tokens.control.panel.radius")
+                .or_else(|| theme.get_number("tokens.radii.sm"))
+                .unwrap_or(4.0) as f32,
+        )
     }
     pub fn shadow_alpha(&self, _state: &PanelRenderState, theme: &Theme) -> f32 {
         theme.get_color("shadow.elevation_2").unwrap_or_default().a

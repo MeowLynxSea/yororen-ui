@@ -18,7 +18,6 @@
 //! surface.
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, KeyDownEvent, ParentElement,
@@ -26,12 +25,11 @@ use gpui::{
 };
 
 use gpui::prelude::FluentBuilder;
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::list_navigable::ListNavigable;
 use yororen_ui_core::headless::listbox::ListboxProps;
 use yororen_ui_core::renderer::spec::Edges;
 
-use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
+use crate::animation::{AnimatedStateElement, control_config, lerp_hsla, set_interaction_hovered};
 use yororen_ui_core::theme::Theme;
 
 pub use yororen_ui_core::renderer::listbox::{ListboxRenderState, ListboxRenderer};
@@ -47,13 +45,19 @@ impl WinUIListboxRenderer {
         theme.get_color("surface.hover").unwrap_or_default()
     }
     pub fn selected_bg(&self, _state: &ListboxRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("action.primary.bg").unwrap_or_default()
+        // WinUI list selection is a subtle highlight, not an accent
+        // fill (`--subtle-secondary` in the reference).
+        theme
+            .get_color("winui.subtle_fill_secondary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default()
     }
     pub fn fg(&self, _state: &ListboxRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.primary").unwrap_or_default()
     }
     pub fn selected_fg(&self, _state: &ListboxRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("action.primary.fg").unwrap_or_default()
+        // Text keeps its primary brush on a subtle selected row.
+        theme.get_color("content.primary").unwrap_or_default()
     }
     pub fn disabled_fg(&self, _state: &ListboxRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.disabled").unwrap_or_default()
@@ -144,6 +148,10 @@ impl ListboxRenderer for WinUIListboxRenderer {
                 gpui::hsla(0.0, 0.0, 0.0, 0.0)
             };
             let value_for_click = opt.value.clone();
+            let selected_hover_bg = theme
+                .get_color("winui.subtle_fill_tertiary")
+                .or_else(|| theme.get_color("surface.hover"))
+                .unwrap_or_default();
             let row_id = ElementId::Name(format!("listbox-row-{}", i).into());
             let mut row: Stateful<Div> = div()
                 .id(row_id.clone())
@@ -163,15 +171,24 @@ impl ListboxRenderer for WinUIListboxRenderer {
                 row = row.on_hover(move |hovered, _win, cx| {
                     set_interaction_hovered(cx, hov_id.clone(), *hovered);
                 });
-                let config = AnimationConfig::default().with_duration(Duration::from_millis(100));
+                let config = control_config(theme);
                 let fill = AnimatedStateElement::new(
                     (row_id.clone(), "fill"),
                     row_id.clone(),
-                    false,
+                    is_selected,
                     div().absolute().inset_0().rounded(r),
                     config,
-                    move |d: Div, hover, _pressed, _checked| {
-                        d.bg(lerp_hsla(row_bg, hover_bg, hover))
+                    move |d: Div, hover, _pressed, checked| {
+                        // Crossfade the selected subtle fill in, then
+                        // layer the hover fill on top.
+                        let base = lerp_hsla(gpui::hsla(0.0, 0.0, 0.0, 0.0), selected_bg, checked);
+                        let next = if is_selected && hover > 0.0 {
+                            // selected:hover -> subtle-tertiary
+                            lerp_hsla(base, selected_hover_bg, hover)
+                        } else {
+                            lerp_hsla(base, hover_bg, hover)
+                        };
+                        d.bg(next)
                     },
                 );
                 row = row.child(fill);

@@ -6,6 +6,7 @@
 //! top of subsequent sibling cells in the gallery.
 
 use std::sync::Arc;
+use std::time::Duration;
 
 use gpui::{App, Div, Hsla, InteractiveElement, ParentElement, Pixels, Styled, div, px};
 
@@ -13,7 +14,7 @@ use yororen_ui_core::animation::SlideDirection;
 use yororen_ui_core::headless::popover::PopoverProps;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::AnimatedPresenceElement;
+use crate::animation::{AnimatedPresenceElement, flyout_in, flyout_out, motion_ms};
 
 pub use yororen_ui_core::renderer::popover::{PopoverRenderState, PopoverRenderer};
 
@@ -23,18 +24,26 @@ pub struct WinUIPopoverRenderer;
 impl WinUIPopoverRenderer {
     pub fn bg(&self, _state: &PopoverRenderState, theme: &Theme) -> Hsla {
         theme
-            .get_color("surface.popover")
-            .or_else(|| theme.get_color("surface.raised"))
+            .get_color("winui.flyout_bg")
+            .or_else(|| theme.get_color("surface.popover"))
             .unwrap_or_default()
     }
     pub fn border(&self, _state: &PopoverRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("border.muted").unwrap_or_default()
+        theme
+            .get_color("winui.flyout_stroke")
+            .or_else(|| theme.get_color("border.muted"))
+            .unwrap_or_default()
     }
     pub fn shadow_alpha(&self, _state: &PopoverRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_2").unwrap_or_default().a
+        theme
+            .get_color("shadow.flyout")
+            .or_else(|| theme.get_color("shadow.elevation_2"))
+            .unwrap_or_default()
+            .a
     }
+    /// Flyouts use the 8px OverlayCornerRadius.
     pub fn border_radius(&self, _state: &PopoverRenderState, theme: &Theme) -> Pixels {
-        gpui::px(theme.get_number("tokens.radii.md").unwrap_or(0.0) as f32)
+        gpui::px(theme.get_number("tokens.radii.lg").unwrap_or(8.0) as f32)
     }
     pub fn offset(&self, _state: &PopoverRenderState, theme: &Theme) -> Pixels {
         gpui::px(
@@ -87,6 +96,16 @@ impl PopoverRenderer for WinUIPopoverRenderer {
                 .absolute()
                 .top(offset_px)
                 .left_0()
+                // Absolute panels don't inherit an intrinsic width
+                // from the trigger — floor it so text content never
+                // collapses to a character-wide column (reference
+                // flyouts are `width: max-content; min-width: 120px`).
+                .min_w(px(theme
+                    .get_number("tokens.control.popover.min_width")
+                    .unwrap_or(180.0) as f32))
+                .max_w(px(theme
+                    .get_number("tokens.control.popover.max_width")
+                    .unwrap_or(360.0) as f32))
                 .bg(bg)
                 .text_color(theme.get_color("content.primary").unwrap_or_default())
                 .border_1()
@@ -94,29 +113,47 @@ impl PopoverRenderer for WinUIPopoverRenderer {
                 .rounded(r)
                 .shadow(vec![gpui::BoxShadow {
                     color: gpui::hsla(0.0, 0.0, 0.0, alpha),
-                    blur_radius: gpui::px(12.0),
+                    blur_radius: gpui::px(15.0),
                     spread_radius: gpui::px(0.0),
                     offset: gpui::Point {
                         x: gpui::px(0.0),
-                        y: gpui::px(4.0),
+                        y: gpui::px(5.0),
                     },
                 }])
                 .occlude()
                 .child(c);
             let distance = px(theme.get_number("motion.slide_distance").unwrap_or(10.0) as f32);
+            // WinUI flyout open/close: 250ms in / 100ms out.
+            let enter = yororen_ui_core::animation::AnimationConfig::new()
+                .with_duration(Duration::from_millis(motion_ms(
+                    theme,
+                    "duration_menu_open_slow",
+                    250.0,
+                )))
+                .with_easing(flyout_in);
+            let exit = yororen_ui_core::animation::AnimationConfig::new()
+                .with_duration(Duration::from_millis(motion_ms(
+                    theme,
+                    "duration_menu_open_fast",
+                    100.0,
+                )))
+                .with_easing(flyout_out);
             // The animation wrapper is absolutely positioned at the
             // top-left of the outer relative container so the panel
             // inside keeps its original `top/left` offset.
             outer = outer.child(
-                gpui::deferred(div().absolute().top_0().left_0().child(
-                    AnimatedPresenceElement::new(
-                        props.state.clone(),
-                        (props.id.clone(), "content"),
-                        SlideDirection::Down,
-                        distance,
-                        panel,
+                gpui::deferred(
+                    div().absolute().top_0().left_0().child(
+                        AnimatedPresenceElement::new(
+                            props.state.clone(),
+                            (props.id.clone(), "content"),
+                            SlideDirection::Down,
+                            distance,
+                            panel,
+                        )
+                        .with_configs(enter, exit),
                     ),
-                ))
+                )
                 .with_priority(1),
             );
         }

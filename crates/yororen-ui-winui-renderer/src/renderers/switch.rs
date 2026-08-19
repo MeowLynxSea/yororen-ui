@@ -1,20 +1,18 @@
 //! `WinUISwitchRenderer` — default `SwitchRenderer` impl.
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement,
     Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::switch::SwitchProps;
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedMarginElement, AnimatedStateElement, lerp_f32, lerp_hsla, set_interaction_hovered,
-    set_interaction_pressed,
+    AnimatedMarginElement, AnimatedStateElement, control_config, lerp_f32, lerp_hsla,
+    set_interaction_hovered, set_interaction_pressed,
 };
 
 pub use yororen_ui_core::renderer::switch::{SwitchRenderState, SwitchRenderer};
@@ -55,7 +53,16 @@ impl WinUISwitchRenderer {
 
     pub fn track_bg(&self, state: &SwitchRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
-            gpui::hsla(0.0, 0.0, 0.0, 0.0)
+            // WinUI: a disabled ON switch keeps a visible
+            // accent-disabled fill; only the OFF track goes clear.
+            if state.checked {
+                theme
+                    .get_color("winui.accent_fill_disabled")
+                    .or_else(|| theme.get_color("action.primary.disabled_bg"))
+                    .unwrap_or_default()
+            } else {
+                gpui::hsla(0.0, 0.0, 0.0, 0.0)
+            }
         } else if state.checked {
             if state.has_custom_tone {
                 state.custom_tone.unwrap_or_default()
@@ -150,7 +157,9 @@ impl WinUISwitchRenderer {
         theme.get_color("border.focus").unwrap_or_default()
     }
     pub fn disabled_opacity(&self, _state: &SwitchRenderState, _theme: &Theme) -> f32 {
-        0.5
+        // WinUI relies on the disabled track/thumb brushes and does
+        // not additionally dim the control.
+        1.0
     }
 }
 
@@ -200,9 +209,8 @@ impl SwitchRenderer for WinUISwitchRenderer {
             theme,
         );
 
-        // Fast hover transition (~167ms in WinUI), faster still for
-        // press feedback (~83ms).
-        let fast_config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        // WinUI state transition: 167ms `cubic-bezier(0, 0, 0, 1)`.
+        let fast_config = control_config(theme);
 
         // The thumb: 12px at rest, 14px on hover, 17x14 while
         // pressed; colour interpolates between checked / unchecked and
@@ -222,9 +230,12 @@ impl SwitchRenderer for WinUISwitchRenderer {
                 let mut th = lerp_f32(12.0, 14.0, hover);
                 tw = lerp_f32(tw, 17.0, pressed);
                 th = lerp_f32(th, 14.0, pressed);
+                // Pressing nudges the thumb 1.5px toward the engaged
+                // direction: right while turning on, left while on.
+                let nudge = lerp_f32(1.5, -1.5, checked) * pressed;
                 let off_color = lerp_hsla(unchecked_knob_color, unchecked_knob_hover_color, hover);
                 let color = lerp_hsla(off_color, checked_knob_color, checked);
-                d.left(px((knob_size_f - tw) / 2.0))
+                d.left(px((knob_size_f - tw) / 2.0 + nudge))
                     .top(px((knob_size_f - th) / 2.0))
                     .w(px(tw))
                     .h(px(th))
@@ -246,7 +257,8 @@ impl SwitchRenderer for WinUISwitchRenderer {
             props.checked,
             slide_distance,
             knob_inner,
-        );
+        )
+        .with_config(control_config(theme));
 
         // Track: animated background + border between
         // rest / hover / pressed (WinUI's `.track` transition).
@@ -387,7 +399,7 @@ mod tests {
         };
         let _ = r.track_bg(&state, &theme);
         let _ = r.knob_bg(&state, &theme);
-        assert_eq!(r.disabled_opacity(&state, &theme), 0.5);
+        assert_eq!(r.disabled_opacity(&state, &theme), 1.0);
     }
 
     #[test]

@@ -89,6 +89,12 @@ impl KeybindingInputRenderer for WinUIKeybindingInputRenderer {
         }
 
         let theme = cx.theme().clone();
+        let kbd_pad_x = px(theme
+            .get_number("tokens.control.keybinding_input.kbd_padding_x")
+            .unwrap_or(6.0) as f32);
+        let kbd_pad_y = px(theme
+            .get_number("tokens.control.keybinding_input.kbd_padding_y")
+            .unwrap_or(2.0) as f32);
         let render_state = KeybindingInputRenderState {
             capturing: mode == KeybindingInputMode::Capturing,
             disabled,
@@ -117,7 +123,10 @@ impl KeybindingInputRenderer for WinUIKeybindingInputRenderer {
             .get_color("winui.accent")
             .unwrap_or_else(|| self.border(&render_state, &theme));
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
         let font = default_font(&theme);
         drop(theme);
 
@@ -233,8 +242,8 @@ impl KeybindingInputRenderer for WinUIKeybindingInputRenderer {
                 div()
                     .bg(kbd_bg)
                     .rounded(px(4.0))
-                    .px(px(8.))
-                    .py(px(2.))
+                    .px(kbd_pad_x)
+                    .py(kbd_pad_y)
                     .text_color(kbd_fg)
                     .child(display_text),
             );

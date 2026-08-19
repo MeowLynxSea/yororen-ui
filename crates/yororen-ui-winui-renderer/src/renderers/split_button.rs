@@ -17,19 +17,23 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use gpui::{
-    App, BoxShadow, ClickEvent, CursorStyle, Div, ElementId, InteractiveElement, ParentElement,
-    Pixels, Stateful, StatefulInteractiveElement, Styled, Window, deferred, div, point, px,
+    App, BoxShadow, ClickEvent, CursorStyle, Div, ElementId, InteractiveElement, MouseButton,
+    ParentElement, Pixels, Stateful, StatefulInteractiveElement, Styled, Window, deferred, div,
+    point, px,
 };
 
-use yororen_ui_core::animation::{AnimationConfig, SlideDirection};
+use yororen_ui_core::animation::SlideDirection;
 use yororen_ui_core::headless::dropdown_menu::DropdownItem;
+use yororen_ui_core::headless::icon::IconProps;
 use yororen_ui_core::headless::list_item::ListItemProps;
 use yororen_ui_core::headless::split_button::{ClickCallback, SplitButtonProps};
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedPresenceElement, AnimatedStateElement, lerp_hsla, set_interaction_hovered,
+    AnimatedPresenceElement, AnimatedStateElement, control_config, flyout_in, flyout_out, lerp_f32,
+    lerp_hsla, motion_ms, set_interaction_hovered, set_interaction_pressed,
 };
+use crate::renderers::button::WinUIButtonRenderer;
 use crate::themes::default_font;
 
 pub use yororen_ui_core::renderer::split_button::{SplitButtonRenderState, SplitButtonRenderer};
@@ -48,7 +52,11 @@ impl WinUISplitButtonRenderer {
         theme.get_color("action.neutral.bg").unwrap_or_default()
     }
     pub fn chevron_fg(&self, _state: &SplitButtonRenderState, theme: &Theme) -> gpui::Hsla {
-        theme.get_color("action.neutral.fg").unwrap_or_default()
+        // WinUI chevrons use the secondary text brush.
+        theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default()
     }
     pub fn chevron_hover_bg(&self, _state: &SplitButtonRenderState, theme: &Theme) -> gpui::Hsla {
         theme
@@ -104,7 +112,6 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
         // separate button blocks.
         let primary_id: ElementId = format!("{:?}-primary", props.id).into();
         let chevron_id: ElementId = format!("{:?}-chevron", props.id).into();
-        let chevron_label = if open { "▴" } else { "▾" };
         let chevron_w = self.chevron_width(&state, theme);
         let min_h = self.min_height(&state, theme);
         let radius = self.border_radius(&state, theme);
@@ -116,16 +123,30 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
         let active_bg = theme
             .get_color("action.neutral.active_bg")
             .unwrap_or(hover_bg);
-        let border_color = theme.get_color("border.default").unwrap_or_default();
+        // WinUI elevation border (neutral pair — the split button
+        // uses DefaultButtonStyle).
+        let button_state = yororen_ui_core::renderer::button::ButtonRenderState {
+            variant: yororen_ui_core::renderer::variant::ActionVariantKind::Neutral,
+            disabled: props.disabled,
+            ..Default::default()
+        };
+        let border_color = WinUIButtonRenderer
+            .border(&button_state, theme)
+            .map(|b| b.color)
+            .unwrap_or_default();
+        let border_top = WinUIButtonRenderer.border_top(&button_state, theme);
         let divider_color = theme.get_color("border.divider").unwrap_or(border_color);
         let divider_h = {
             let mh: f32 = min_h.into();
             px((mh * 0.6).clamp(8.0, 20.0))
         };
+        let font_size = px(theme
+            .get_number("tokens.typography.font_size_md")
+            .unwrap_or(14.0) as f32);
 
         // Whole-pill hover/press state, keyed by `props.id`, driven
         // by either half reporting in.
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        let config = control_config(theme);
         let pill_fill = AnimatedStateElement::new(
             (props.id.clone(), "split-fill"),
             props.id.clone(),
@@ -147,10 +168,12 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
             .flex_1()
             .min_w(px(0.))
             .h(min_h)
-            .px(px(12.))
+            .px(px(11.))
             .flex()
             .items_center()
             .font_family(default_font(theme))
+            .text_size(font_size)
+            .line_height(px(20.0))
             .text_color(fg)
             .track_focus(&props.primary_focus)
             .cursor(if props.disabled {
@@ -176,8 +199,39 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                     s.update(cx, |st, _cx| st.toggle());
                 }
             });
+
+        // Chevron glyph: 12px Fluent chevron in the secondary text
+        // brush. On press it dips down 1.875px (the reference's
+        // `chevron-press` keyframe) and eases back on release.
+        let chevron_size = px(theme
+            .get_number("tokens.control.combo_box.chevron_size")
+            .unwrap_or(12.0) as f32);
+        let chevron_fg = self.chevron_fg(&state, theme);
+        let chevron_icon = IconProps {
+            id: (chevron_id.clone(), "icon").into(),
+            source: yororen_ui_core::headless::icon::IconSource::Builtin("arrow-down".into()),
+            size: Some(chevron_size),
+            color: Some(chevron_fg),
+        }
+        .render(cx);
+        let chevron_glyph = AnimatedStateElement::new(
+            (chevron_id.clone(), "dip"),
+            chevron_id.clone(),
+            false,
+            div()
+                .flex()
+                .items_center()
+                .justify_center()
+                .child(chevron_icon),
+            control_config(theme),
+            move |d: Div, _hover, pressed, _checked| {
+                let dip = lerp_f32(0.0, 1.875, pressed);
+                d.mt(px(dip))
+            },
+        );
+
         let mut chevron: Stateful<Div> = div()
-            .id(chevron_id)
+            .id(chevron_id.clone())
             .w(chevron_w)
             .h(min_h)
             .flex()
@@ -195,12 +249,21 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                 let id = props.id.clone();
                 move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
             })
-            .child(chevron_label);
+            .child(chevron_glyph);
         if !props.disabled {
-            chevron = chevron.on_click(move |_ev, window, cx| {
-                let cb = chevron_click.as_ref();
-                cb(_ev, window, cx);
-            });
+            chevron = chevron
+                .on_mouse_down(MouseButton::Left, {
+                    let id = chevron_id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = chevron_id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                })
+                .on_click(move |_ev, window, cx| {
+                    let cb = chevron_click.as_ref();
+                    cb(_ev, window, cx);
+                });
         }
 
         let trigger_row = div()
@@ -214,6 +277,21 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
             .border_color(border_color)
             .overflow_hidden()
             .child(pill_fill)
+            .child(
+                // Elevation border: lighter 1px line across the top.
+                div()
+                    .absolute()
+                    .top_0()
+                    .left_0()
+                    .right_0()
+                    .h(px(1.0))
+                    .rounded_t(radius)
+                    .bg(if props.disabled {
+                        gpui::hsla(0., 0., 0., 0.)
+                    } else {
+                        border_top
+                    }),
+            )
             .child(caption)
             .child(div().w(px(1.)).h(divider_h).bg(divider_color).mx(px(2.)))
             .child(chevron);
@@ -248,19 +326,27 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
             });
         }
         if visible {
-            // Dropdown bg prefers `surface.popover` (a dedicated
-            // contrast colour the JSON theme can override) and
-            // falls back to `surface.raised` so older theme
-            // packages still render with a sensible elevation.
+            // Flyout surface: `winui.flyout_bg`/`flyout_stroke` on an
+            // 8px OverlayCornerRadius with the reference flyout
+            // shadow (0 5px 15px ~20% black).
             let panel_bg = theme
-                .get_color("surface.popover")
-                .or_else(|| theme.get_color("surface.raised"))
+                .get_color("winui.flyout_bg")
+                .or_else(|| theme.get_color("surface.popover"))
                 .unwrap_or_default();
-            let panel_border = theme.get_color("border.default").unwrap_or_default();
+            let panel_border = theme
+                .get_color("winui.flyout_stroke")
+                .or_else(|| theme.get_color("border.default"))
+                .unwrap_or_default();
             let panel_radius = px(theme.get_number("tokens.radii.lg").unwrap_or(8.0) as f32);
             let panel_pad = px(theme.get_number("tokens.spacing.inset_xs").unwrap_or(4.0) as f32);
-            let item_hover_bg = theme.get_color("surface.hover").unwrap_or_default();
-            let shadow_color = theme.get_color("shadow.elevation_2").unwrap_or_default();
+            let item_hover_bg = theme
+                .get_color("winui.subtle_fill_secondary")
+                .or_else(|| theme.get_color("surface.hover"))
+                .unwrap_or_default();
+            let shadow_color = theme
+                .get_color("shadow.flyout")
+                .or_else(|| theme.get_color("shadow.elevation_2"))
+                .unwrap_or_default();
             let divider_color = theme.get_color("border.divider").unwrap_or_default();
             let menu_w = self.menu_width(&state, theme);
             let min_h = self.min_height(&state, theme);
@@ -282,8 +368,8 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                 .gap(px(2.))
                 .shadow(vec![BoxShadow {
                     color: shadow_color,
-                    offset: point(px(0.), px(4.)),
-                    blur_radius: px(12.),
+                    offset: point(px(0.), px(5.)),
+                    blur_radius: px(15.),
                     spread_radius: px(0.),
                 }])
                 // popover pattern: occlude (the
@@ -338,13 +424,12 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                                         cb(item_id_for_callback.clone(), window, cx);
                                     }
                                 });
-                            let config = AnimationConfig::default()
-                                .with_duration(Duration::from_millis(100));
+                            let config = control_config(theme);
                             let fill = AnimatedStateElement::new(
                                 (fill_id.clone(), "fill"),
                                 wrapper_id.clone(),
                                 false,
-                                div().absolute().inset_0().rounded(px(4.)),
+                                div().absolute().inset_0().rounded(px(3.)),
                                 config,
                                 move |d: Div, hover, _pressed, _checked| {
                                     d.bg(lerp_hsla(panel_bg, item_hover_bg, hover))
@@ -371,22 +456,37 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                 .state
                 .clone()
                 .expect("visible implies state is present");
+            // WinUI flyout open/close: 250ms `cubic-bezier(0.1, 0.9,
+            // 0.2, 1)` in, 100ms `cubic-bezier(0.7, 0, 1, 0.5)` out.
+            let enter = yororen_ui_core::animation::AnimationConfig::new()
+                .with_duration(Duration::from_millis(motion_ms(
+                    theme,
+                    "duration_menu_open_slow",
+                    250.0,
+                )))
+                .with_easing(flyout_in);
+            let exit = yororen_ui_core::animation::AnimationConfig::new()
+                .with_duration(Duration::from_millis(motion_ms(
+                    theme,
+                    "duration_menu_open_fast",
+                    100.0,
+                )))
+                .with_easing(flyout_out);
             // The animation wrapper is absolutely positioned at the
             // top-left of the root relative container so the menu
             // inside keeps its original `top/left` offset.
             root.child(
                 deferred(
-                    div()
-                        .absolute()
-                        .top_0()
-                        .left_0()
-                        .child(AnimatedPresenceElement::new(
+                    div().absolute().top_0().left_0().child(
+                        AnimatedPresenceElement::new(
                             state_entity,
                             (props.id.clone(), "menu"),
                             SlideDirection::Down,
                             distance,
                             div().child(menu),
-                        )),
+                        )
+                        .with_configs(enter, exit),
+                    ),
                 )
                 .with_priority(1),
             )

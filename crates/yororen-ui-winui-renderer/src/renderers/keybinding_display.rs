@@ -40,8 +40,10 @@ impl WinUIKeybindingDisplayRenderer {
             .get_number("tokens.control.keybinding_input.separator_gap")
             .unwrap_or(4.0) as f32)
     }
-    pub fn font_size(&self, _state: &KeybindingDisplayRenderState, _theme: &Theme) -> Pixels {
-        px(12.)
+    pub fn font_size(&self, _state: &KeybindingDisplayRenderState, theme: &Theme) -> Pixels {
+        px(theme
+            .get_number("tokens.typography.font_size_sm")
+            .unwrap_or(12.0) as f32)
     }
 }
 

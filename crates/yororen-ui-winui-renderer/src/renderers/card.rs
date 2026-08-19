@@ -2,9 +2,7 @@
 
 use std::sync::Arc;
 
-use gpui::{
-    App, BoxShadow, CursorStyle, Div, Hsla, InteractiveElement, Pixels, Styled, div, point, px,
-};
+use gpui::{App, BoxShadow, CursorStyle, Div, Hsla, InteractiveElement, Pixels, Styled, div};
 
 use yororen_ui_core::headless::card::CardProps;
 use yororen_ui_core::renderer::spec::Edges;
@@ -39,11 +37,13 @@ impl WinUICardRenderer {
         ))
     }
     pub fn border_radius(&self, _state: &CardRenderState, theme: &Theme) -> Pixels {
+        // WinUI SettingsCard uses the 4px ControlCornerRadius (not
+        // the 8px overlay radius).
         gpui::px(
             theme
                 .get_number("tokens.control.card.radius")
-                .or_else(|| theme.get_number("tokens.radii.lg"))
-                .unwrap_or(12.0) as f32,
+                .or_else(|| theme.get_number("tokens.radii.sm"))
+                .unwrap_or(4.0) as f32,
         )
     }
     pub fn hover_bg(&self, _state: &CardRenderState, theme: &Theme) -> Hsla {
@@ -52,15 +52,9 @@ impl WinUICardRenderer {
             .or_else(|| theme.get_color("surface.hover"))
             .unwrap_or_default()
     }
-    pub fn shadow(&self, _state: &CardRenderState, theme: &Theme) -> Option<BoxShadow> {
-        theme
-            .get_color("shadow.elevation_2")
-            .map(|color| BoxShadow {
-                color,
-                offset: point(px(0.), px(4.)),
-                blur_radius: px(20.),
-                spread_radius: px(0.),
-            })
+    pub fn shadow(&self, _state: &CardRenderState, _theme: &Theme) -> Option<BoxShadow> {
+        // The reference SettingsCard is flat — hairline stroke only.
+        None
     }
     pub fn gap(&self, _state: &CardRenderState, theme: &Theme) -> Pixels {
         gpui::px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(8.0) as f32)
@@ -82,6 +76,18 @@ impl CardRenderer for WinUICardRenderer {
         let shadow = self.shadow(&state, theme);
         let hover_bg = self.hover_bg(&state, theme);
 
+        let hover_stroke = theme
+            .get_color("winui.ctrl_border_accent")
+            .or_else(|| theme.get_color("border.default"))
+            .unwrap_or_default();
+
+        // NOTE: the headless layer stamps `.id(props.id)` onto the
+        // returned container and callers append content to that SAME
+        // element — so compose must return the content container
+        // itself (single flex column), never an outer wrapper.
+        // Interactive hover therefore uses the instant `.hover()`
+        // refinement (the reference's 83ms fill transition is below
+        // perception at this duration).
         let mut el = div()
             .flex()
             .flex_col()
@@ -100,7 +106,14 @@ impl CardRenderer for WinUICardRenderer {
             el = el.shadow(vec![shadow]);
         }
         if props.interactive {
-            el = el.hover(move |s| s.bg(hover_bg));
+            // Hover: fill lightens AND the stroke deepens, per the
+            // reference SettingsCard "clickable" state.
+            el = el.hover(move |s| {
+                s.bg(hover_bg).border_color(gpui::Hsla {
+                    a: 1.0,
+                    ..hover_stroke
+                })
+            });
         }
         el
     }

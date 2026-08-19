@@ -3,13 +3,16 @@
 use std::sync::Arc;
 
 use gpui::{
-    App, CursorStyle, Div, Hsla, InteractiveElement, ParentElement, Pixels, Styled, div, px,
+    App, CursorStyle, Div, Hsla, InteractiveElement, ParentElement, Pixels,
+    StatefulInteractiveElement, Styled, div, px,
 };
 
 use yororen_ui_core::headless::icon::{IconProps, IconSource};
 use yororen_ui_core::headless::list_item::ListItemProps;
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
+
+use crate::animation::{AnimatedStateElement, control_config, lerp_hsla, set_interaction_hovered};
 
 pub use yororen_ui_core::renderer::list_item::{ListItemRenderState, ListItemRenderer};
 
@@ -21,16 +24,22 @@ impl WinUIListItemRenderer {
         theme.get_color("surface.base").unwrap_or_default()
     }
     pub fn hover_bg(&self, _state: &ListItemRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("surface.hover").unwrap_or_default()
+        theme
+            .get_color("winui.subtle_fill_secondary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default()
     }
     pub fn selected_bg(&self, _state: &ListItemRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("action.primary.bg").unwrap_or_default()
+        // WinUI selection is a subtle highlight; text keeps its
+        // primary brush.
+        theme
+            .get_color("winui.subtle_fill_secondary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default()
     }
     pub fn fg(&self, state: &ListItemRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
             theme.get_color("content.disabled").unwrap_or_default()
-        } else if state.selected {
-            theme.get_color("action.primary.fg").unwrap_or_default()
         } else {
             theme.get_color("content.primary").unwrap_or_default()
         }
@@ -69,11 +78,7 @@ impl ListItemRenderer for WinUIListItemRenderer {
             disabled: props.disabled,
             hovered: false,
         };
-        let bg = if state.selected {
-            self.selected_bg(&state, theme)
-        } else {
-            self.bg(&state, theme)
-        };
+        let bg = self.selected_bg(&state, theme);
         let hover_bg = self.hover_bg(&state, theme);
         let fg = self.fg(&state, theme);
         let pad = self.padding(&state, theme);
@@ -81,11 +86,38 @@ impl ListItemRenderer for WinUIListItemRenderer {
         let r = self.border_radius(&state, theme);
         let clickable = props.on_click.is_some() && !props.disabled;
 
-        let mut el: Div = div()
+        let selected_hover_bg = theme
+            .get_color("winui.subtle_fill_tertiary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default();
+        let is_selected = state.selected;
+
+        let fill = AnimatedStateElement::new(
+            (props.id.clone(), "fill"),
+            props.id.clone(),
+            is_selected,
+            div().absolute().inset_0().rounded(r),
+            control_config(theme),
+            move |d: Div, hover, _pressed, checked| {
+                let base = lerp_hsla(gpui::hsla(0.0, 0.0, 0.0, 0.0), bg, checked);
+                let next = if is_selected && hover > 0.0 {
+                    lerp_hsla(base, selected_hover_bg, hover)
+                } else {
+                    lerp_hsla(base, hover_bg, hover)
+                };
+                d.bg(next)
+            },
+        );
+
+        // The row needs an element id for the hover listener, so the
+        // interactive row is a `Stateful<Div>` wrapped in the `Div`
+        // the trait returns.
+        let mut row: gpui::Stateful<Div> = div()
+            .id(props.id.clone())
+            .relative()
             .flex()
             .items_center()
             .gap(px(8.0))
-            .bg(bg)
             .text_color(fg)
             .px(pad.left)
             .py(pad.top)
@@ -101,20 +133,22 @@ impl ListItemRenderer for WinUIListItemRenderer {
 
         if let Some(lead) = &props.leading_icon {
             let id = format!("{:?}-leading", props.id).into();
-            el = el.child(
+            row = row.child(
                 IconProps {
                     id,
                     source: IconSource::Builtin(lead.clone()),
-                    size: Some(px(16.0)),
+                    size: Some(px(theme
+                        .get_number("tokens.control.list_item.icon_size")
+                        .unwrap_or(14.0) as f32)),
                     color: Some(fg),
                 }
                 .render(cx),
             );
         }
-        el = el.child(props.title.to_string());
+        row = row.child(props.title.to_string());
         if let Some(trail) = &props.trailing_icon {
             let id = format!("{:?}-trailing", props.id).into();
-            el = el.child(
+            row = row.child(
                 IconProps {
                     id,
                     source: IconSource::Builtin(trail.clone()),
@@ -125,9 +159,20 @@ impl ListItemRenderer for WinUIListItemRenderer {
             );
         }
         if clickable {
-            el = el.hover(move |s| s.bg(hover_bg));
+            row = row
+                .on_hover({
+                    let id = props.id.clone();
+                    move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
+                })
+                .child(fill);
+        } else {
+            row = row.bg(if is_selected {
+                bg
+            } else {
+                gpui::hsla(0., 0., 0., 0.)
+            });
         }
-        el
+        div().child(row)
     }
 }
 

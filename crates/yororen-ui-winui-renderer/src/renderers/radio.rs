@@ -1,19 +1,18 @@
 //! `WinUIRadioRenderer` — default `RadioRenderer` impl.
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement,
     Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::radio::RadioProps;
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedStateElement, lerp_f32, lerp_hsla, set_interaction_hovered, set_interaction_pressed,
+    AnimatedStateElement, control_config, lerp_f32, lerp_hsla, set_interaction_hovered,
+    set_interaction_pressed,
 };
 
 pub use yororen_ui_core::renderer::radio::{RadioRenderState, RadioRenderer};
@@ -140,7 +139,9 @@ impl WinUIRadioRenderer {
         theme.get_color("border.focus").unwrap_or_default()
     }
     pub fn disabled_opacity(&self, _state: &RadioRenderState, _theme: &Theme) -> f32 {
-        0.5
+        // WinUI relies on the disabled fill/stroke brushes and does
+        // not additionally dim the control.
+        1.0
     }
 }
 
@@ -164,7 +165,7 @@ impl RadioRenderer for WinUIRadioRenderer {
         let active_bg = self.ring_active_bg(&state, theme);
         let hover_border = self.ring_border_hover(&state, theme);
 
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        let config = control_config(theme);
         let dot_size_f: f32 = dot_size.into();
 
         // Inner dot: always mounted; `checked` scales it 0 → 1, hover
@@ -176,8 +177,7 @@ impl RadioRenderer for WinUIRadioRenderer {
             div(),
             config.clone(),
             move |d: Div, hover, pressed, checked| {
-                let size =
-                    dot_size_f * checked * lerp_f32(1.0, lerp_f32(1.15, 0.8, pressed), hover);
+                let size = dot_size_f * checked * lerp_f32(1.0, lerp_f32(1.2, 0.8, pressed), hover);
                 d.w(px(size))
                     .h(px(size))
                     .rounded(pill_radius)

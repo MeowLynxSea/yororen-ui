@@ -26,7 +26,10 @@ pub struct WinUIPasswordInputRenderer;
 impl WinUIPasswordInputRenderer {
     pub fn bg(&self, state: &PasswordInputRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
-            theme.get_color("surface.sunken").unwrap_or_default()
+            theme
+                .get_color("winui.ctrl_fill_disabled")
+                .or_else(|| theme.get_color("surface.sunken"))
+                .unwrap_or_default()
         } else if state.has_custom_bg {
             state
                 .custom_bg
@@ -79,14 +82,7 @@ impl WinUIPasswordInputRenderer {
             .unwrap_or(0.0) as f32)
     }
     pub fn padding(&self, _state: &PasswordInputRenderState, theme: &Theme) -> Edges<Pixels> {
-        Edges::symmetric(
-            px(theme
-                .get_number("tokens.control.input.horizontal_padding")
-                .unwrap_or(0.0) as f32),
-            px(theme
-                .get_number("tokens.control.input.vertical_padding")
-                .unwrap_or(0.0) as f32),
-        )
+        crate::themes::input_field_padding(theme)
     }
     pub fn border_radius(&self, _state: &PasswordInputRenderState, theme: &Theme) -> Pixels {
         px(theme.get_number("tokens.radii.md").unwrap_or(0.0) as f32)
@@ -155,8 +151,14 @@ impl PasswordInputRenderer for WinUIPasswordInputRenderer {
             .get_color("winui.accent")
             .unwrap_or_else(|| self.border(&render_state, &theme));
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
-        let hint_color = theme.get_color("content.tertiary").unwrap_or_default();
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
+        let hint_color = theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default();
         let font = default_font(&theme);
         drop(theme);
 
@@ -182,8 +184,10 @@ impl PasswordInputRenderer for WinUIPasswordInputRenderer {
             .border_color(border_color)
             .min_h(min_h)
             .rounded(radius)
-            .px(padding.left)
-            .py(padding.top)
+            .pl(padding.left)
+            .pr(padding.right)
+            .pt(padding.top)
+            .pb(padding.bottom)
             .flex()
             .items_center()
             .font_family(font.clone())
@@ -196,10 +200,6 @@ impl PasswordInputRenderer for WinUIPasswordInputRenderer {
             })
             .child(inner)
             .track_focus(&focus_handle);
-
-        if focused {
-            base = base.border_2();
-        }
 
         if !disabled {
             base = base

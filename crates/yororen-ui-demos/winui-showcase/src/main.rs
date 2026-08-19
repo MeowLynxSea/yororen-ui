@@ -46,7 +46,36 @@ fn main() {
             ))),
             ..Default::default()
         };
-        let app_entity = cx.new(app::WinuiApp::new);
+        let app_entity = cx.new(|cx| {
+            let mut app = app::WinuiApp::new(cx);
+            if let Some(page) = initial_page_from_env() {
+                app.page = page;
+            }
+            app
+        });
         let _ = cx.open_window(window_options, |_, _cx| app_entity);
     });
+}
+
+/// Debug hook: boot straight to a page by its sidebar label via the
+/// `WINUI_PAGE` env var (e.g. `WINUI_PAGE="Status & Feedback"`).
+/// Used by smoke tests to first-frame every page without clicking.
+#[allow(dead_code)]
+fn initial_page_from_env() -> Option<app::WinuiPage> {
+    let raw = std::env::var("WINUI_PAGE").ok()?;
+    let wanted = raw.trim().to_lowercase();
+    [
+        app::WinuiPage::Home,
+        app::WinuiPage::Buttons,
+        app::WinuiPage::Inputs,
+        app::WinuiPage::Toggles,
+        app::WinuiPage::Lists,
+        app::WinuiPage::Status,
+        app::WinuiPage::Dialogs,
+        app::WinuiPage::Text,
+        app::WinuiPage::Data,
+        app::WinuiPage::Surfaces,
+    ]
+    .into_iter()
+    .find(|p| p.label().to_lowercase() == wanted)
 }

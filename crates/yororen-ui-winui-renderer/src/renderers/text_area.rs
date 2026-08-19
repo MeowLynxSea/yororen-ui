@@ -30,7 +30,10 @@ pub struct WinUITextAreaRenderer;
 impl WinUITextAreaRenderer {
     pub fn bg(&self, state: &TextAreaRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
-            theme.get_color("surface.sunken").unwrap_or_default()
+            theme
+                .get_color("winui.ctrl_fill_disabled")
+                .or_else(|| theme.get_color("surface.sunken"))
+                .unwrap_or_default()
         } else {
             state
                 .custom_bg
@@ -75,9 +78,7 @@ impl WinUITextAreaRenderer {
             .unwrap_or(0.0) as f32)
     }
     pub fn padding(&self, _state: &TextAreaRenderState, theme: &Theme) -> Edges<Pixels> {
-        Edges::all(px(theme
-            .get_number("tokens.control.input.vertical_padding")
-            .unwrap_or(0.0) as f32))
+        crate::themes::input_field_padding(theme)
     }
     pub fn border_radius(&self, _state: &TextAreaRenderState, theme: &Theme) -> Pixels {
         px(theme.get_number("tokens.radii.md").unwrap_or(0.0) as f32)
@@ -143,8 +144,14 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             .get_color("winui.accent")
             .unwrap_or_else(|| self.border(&render_state, &theme));
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
-        let hint_color = theme.get_color("content.tertiary").unwrap_or_default();
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
+        let hint_color = theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default();
         let cursor_color = if props.has_custom_focus_border {
             props
                 .custom_focus_border
@@ -177,7 +184,10 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             .border_color(border_color)
             .min_h(min_h)
             .rounded(radius)
-            .p(padding.top)
+            .pl(padding.left)
+            .pr(padding.right)
+            .pt(padding.top)
+            .pb(padding.bottom)
             .font_family(font.clone())
             .text_color(text_color)
             .overflow_hidden()
@@ -188,10 +198,6 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             })
             .child(inner)
             .track_focus(&focus_handle);
-
-        if focused {
-            base = base.border_2();
-        }
 
         if !disabled {
             base = base

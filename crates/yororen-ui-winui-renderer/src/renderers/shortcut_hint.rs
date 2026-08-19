@@ -43,8 +43,10 @@ impl WinUIShortcutHintRenderer {
     pub fn label_gap(&self, _state: &ShortcutHintRenderState, theme: &Theme) -> Pixels {
         px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(8.0) as f32)
     }
-    pub fn font_size(&self, _state: &ShortcutHintRenderState, _theme: &Theme) -> Pixels {
-        px(12.)
+    pub fn font_size(&self, _state: &ShortcutHintRenderState, theme: &Theme) -> Pixels {
+        px(theme
+            .get_number("tokens.typography.font_size_sm")
+            .unwrap_or(12.0) as f32)
     }
 }
 

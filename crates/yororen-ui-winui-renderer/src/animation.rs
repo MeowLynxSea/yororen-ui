@@ -14,6 +14,94 @@ use gpui::{
     Stateful, Styled, Window, div, px,
 };
 use yororen_ui_core::animation::{AnimatedPresenceState, AnimationConfig, SlideDirection};
+use yororen_ui_core::theme::Theme;
+
+// =====================================================================
+// WinUI standard easing curves.
+//
+// WinUI/Fluent motion does not use the generic `ease_out_quad`; every
+// control-state transition in the reference implementation
+// (WinUIonWeb `theme.css` / `animations.css`) uses one of the
+// cubic-bézier curves below. `EasingFn` is a plain `fn(f32) -> f32`,
+// so each curve is exposed as a named function with its control
+// points baked in.
+// =====================================================================
+
+/// Evaluate one axis of the cubic Bézier with control values
+/// `(0, a, b, 1)` at parameter `t`.
+fn bezier_axis(t: f32, a: f32, b: f32) -> f32 {
+    let s = 1.0 - t;
+    3.0 * s * s * t * a + 3.0 * s * t * t * b + t * t * t
+}
+
+/// Derivative of [`bezier_axis`] with respect to `t`.
+fn bezier_axis_slope(t: f32, a: f32, b: f32) -> f32 {
+    let s = 1.0 - t;
+    3.0 * s * s * a + 6.0 * s * t * (b - a) + 3.0 * t * t * (1.0 - b)
+}
+
+/// Solve a CSS-style `cubic-bezier(x1, y1, x2, y2)` easing curve at
+/// progress `x` (Newton–Raphson with a clamped fallback).
+fn cubic_bezier(x1: f32, y1: f32, x2: f32, y2: f32, x: f32) -> f32 {
+    if x <= 0.0 {
+        return 0.0;
+    }
+    if x >= 1.0 {
+        return 1.0;
+    }
+    let mut t = x;
+    for _ in 0..8 {
+        let err = bezier_axis(t, x1, x2) - x;
+        if err.abs() < 1e-5 {
+            break;
+        }
+        let slope = bezier_axis_slope(t, x1, x2);
+        if slope.abs() < 1e-6 {
+            break;
+        }
+        t = (t - err / slope).clamp(0.0, 1.0);
+    }
+    bezier_axis(t, y1, y2)
+}
+
+/// `cubic-bezier(0, 0, 0, 1)` — WinUI's `--fast-out-slow-in`, the
+/// default curve for every hover/pressed state transition (167ms).
+pub fn fast_out_slow_in(x: f32) -> f32 {
+    cubic_bezier(0.0, 0.0, 0.0, 1.0, x)
+}
+
+/// `cubic-bezier(0.1, 0.9, 0.2, 1)` — flyout / navigation *enter*
+/// curve (`win-flyout-open-down`, picker flyouts).
+pub fn flyout_in(x: f32) -> f32 {
+    cubic_bezier(0.1, 0.9, 0.2, 1.0, x)
+}
+
+/// `cubic-bezier(0.7, 0, 1, 0.5)` — flyout *exit* curve.
+pub fn flyout_out(x: f32) -> f32 {
+    cubic_bezier(0.7, 0.0, 1.0, 0.5, x)
+}
+
+/// Read a `tokens.motion.<key>` duration (milliseconds) from the
+/// theme, falling back to `fallback` when the token is absent.
+pub fn motion_ms(theme: &Theme, key: &str, fallback: f64) -> u64 {
+    theme
+        .get_number(&format!("tokens.motion.{key}"))
+        .unwrap_or(fallback) as u64
+}
+
+/// The standard control-state animation config: WinUI
+/// `--fast-duration` (167ms) with the `--fast-out-slow-in` curve.
+/// Every hover/pressed color transition in the reference uses this
+/// exact pairing.
+pub fn control_config(theme: &Theme) -> AnimationConfig {
+    AnimationConfig::new()
+        .with_duration(Duration::from_millis(motion_ms(
+            theme,
+            "duration_fast",
+            167.0,
+        )))
+        .with_easing(fast_out_slow_in)
+}
 
 /// Renderer-scoped interaction state shared by WinUI controls.
 ///
@@ -88,17 +176,41 @@ pub fn interaction_pressed(cx: &App, id: &ElementId) -> bool {
         .unwrap_or(false)
 }
 
-/// Linear interpolation in RGBA space (avoids hue-wrapping artifacts
-/// that plain HSLA lerping would produce).
+/// Linear interpolation in **premultiplied** RGBA space.
+///
+/// Interpolating straight RGBA between an opaque rest colour and
+/// a translucent fill (every `winui.*_fill_*` token is
+/// translucent) races the rgb channels toward the fill colour
+/// while alpha is still halved, producing a mid-transition
+/// colour that composits far lighter than either endpoint — a
+/// visible flash on the way in and out of hover (dark → very
+/// bright → subtly bright). Premultiplied interpolation keeps
+/// each channel's *contribution* linear, so the composite over
+/// any fixed backdrop moves monotonically between the endpoint
+/// composites, and it also avoids the hue-wrapping artifacts of
+/// plain HSLA lerping.
 pub(crate) fn lerp_hsla(a: Hsla, b: Hsla, t: f32) -> Hsla {
     let t = t.clamp(0.0, 1.0);
     let a = Rgba::from(a);
     let b = Rgba::from(b);
+    // Premultiply both endpoints, lerp, then un-premultiply.
+    let r = a.r * a.a + (b.r * b.a - a.r * a.a) * t;
+    let g = a.g * a.a + (b.g * b.a - a.g * a.a) * t;
+    let bl = a.b * a.a + (b.b * b.a - a.b * a.a) * t;
+    let alpha = a.a + (b.a - a.a) * t;
+    if alpha <= f32::EPSILON {
+        return Hsla::from(Rgba {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+            a: 0.0,
+        });
+    }
     Hsla::from(Rgba {
-        r: a.r + (b.r - a.r) * t,
-        g: a.g + (b.g - a.g) * t,
-        b: a.b + (b.b - a.b) * t,
-        a: a.a + (b.a - a.a) * t,
+        r: (r / alpha).clamp(0.0, 1.0),
+        g: (g / alpha).clamp(0.0, 1.0),
+        b: (bl / alpha).clamp(0.0, 1.0),
+        a: alpha,
     })
 }
 
@@ -164,15 +276,19 @@ pub fn animated_input_border(
     // rest background so the animation stays between two opaque,
     // monotonic colours.
     let hover_bg = bg_rest.blend(bg_hover);
+    // WinUI TextBox state transition: 167ms `cubic-bezier(0,0,0,1)`.
+    let config = AnimationConfig::new()
+        .with_duration(Duration::from_millis(167))
+        .with_easing(fast_out_slow_in);
     let wrapper = AnimatedStateElement::new(
         (id.clone(), "input-border"),
         hover_id,
         false,
         keyed,
-        AnimationConfig::default().with_duration(Duration::from_millis(150)),
+        config,
         move |d: Stateful<Div>, hover, _pressed, _checked| {
             // Only the background animates: inactive hover lightens,
-            // focused uses a darker fixed background with no hover.
+            // focused uses the input-active fill with no hover.
             let bg = if focused {
                 bg_focused
             } else {
@@ -198,6 +314,12 @@ pub struct AnimatedPresenceElement<S: AnimatedPresenceState> {
     /// while exiting).
     pub direction: SlideDirection,
     pub distance: Pixels,
+    /// Renderer-supplied overrides for the headless state's default
+    /// enter/exit configs. WinUI reference timings differ per surface
+    /// (flyout 250ms in / 100ms out, ContentDialog 250ms/167ms), so
+    /// the renderer — not the headless state — owns the final curve.
+    enter_override: Option<AnimationConfig>,
+    exit_override: Option<AnimationConfig>,
     child: Option<Div>,
 }
 
@@ -214,8 +336,18 @@ impl<S: AnimatedPresenceState> AnimatedPresenceElement<S> {
             id: id.into(),
             direction,
             distance,
+            enter_override: None,
+            exit_override: None,
             child: Some(child),
         }
+    }
+
+    /// Override both the enter and exit animation configs (WinUI
+    /// flyout/dialog timings).
+    pub fn with_configs(mut self, enter: AnimationConfig, exit: AnimationConfig) -> Self {
+        self.enter_override = Some(enter);
+        self.exit_override = Some(exit);
+        self
     }
 }
 
@@ -309,7 +441,11 @@ impl<S: AnimatedPresenceState> Element for AnimatedPresenceElement<S> {
         // Save the element-local clock back.
         window.with_element_state(global_id.unwrap(), |_state, _window| ((), el_state));
 
-        let config = if target { enter_config } else { exit_config };
+        let config = if target {
+            self.enter_override.clone().unwrap_or(enter_config)
+        } else {
+            self.exit_override.clone().unwrap_or(exit_config)
+        };
         let eased = (config.easing)(progress);
 
         // Apply fade + slide transform based on the current phase.
@@ -356,6 +492,206 @@ impl<S: AnimatedPresenceState> Element for AnimatedPresenceElement<S> {
         cx: &mut App,
     ) {
         element.paint(window, cx);
+    }
+}
+
+/// A custom element that reveals its child by animating the
+/// container height between 0 and the child's natural height — the
+/// Rust analogue of the reference Expander's
+/// `grid-template-rows: 0fr → 1fr` transition (200ms
+/// `cubic-bezier(0, 0, 0, 1)`).
+///
+/// The child keeps its natural layout height at all times (CSS
+/// `height: auto` semantics); this element merely clamps and clips
+/// the visible container, measuring the child's laid-out bounds each
+/// frame to know the target height. Keep the child mounted on both
+/// expand and collapse so both directions animate.
+pub struct AnimatedRevealElement {
+    pub id: ElementId,
+    /// Whether the content should be revealed. Toggle this flag;
+    /// do not unmount the child, or the collapse direction will
+    /// not animate.
+    pub open: bool,
+    child: Option<Div>,
+    pub config: AnimationConfig,
+}
+
+impl AnimatedRevealElement {
+    pub fn new(id: impl Into<ElementId>, open: bool, child: Div) -> Self {
+        Self {
+            id: id.into(),
+            open,
+            child: Some(child),
+            // Reference Expander: --normal-duration (200ms) with
+            // --fast-out-slow-in.
+            config: AnimationConfig::new()
+                .with_duration(Duration::from_millis(200))
+                .with_easing(fast_out_slow_in),
+        }
+    }
+
+    pub fn with_config(mut self, config: AnimationConfig) -> Self {
+        self.config = config;
+        self
+    }
+}
+
+impl IntoElement for AnimatedRevealElement {
+    type Element = Self;
+
+    fn into_element(self) -> Self::Element {
+        self
+    }
+}
+
+#[derive(Clone)]
+struct RevealElementState {
+    /// Current visible height in px.
+    current: f32,
+    /// Natural content height measured during the last prepaint.
+    target_h: f32,
+    /// When the current open→target transition started.
+    start: Instant,
+    /// Height at the moment the transition started.
+    start_value: f32,
+    /// The `open` flag the active transition began from.
+    previous_open: bool,
+}
+
+pub struct RevealRequestLayoutState {
+    element: AnyElement,
+    child_layout: LayoutId,
+}
+
+impl Element for AnimatedRevealElement {
+    type RequestLayoutState = RevealRequestLayoutState;
+    type PrepaintState = ();
+
+    fn id(&self) -> Option<ElementId> {
+        Some(self.id.clone())
+    }
+
+    fn source_location(&self) -> Option<&'static core::panic::Location<'static>> {
+        None
+    }
+
+    fn request_layout(
+        &mut self,
+        global_id: Option<&GlobalElementId>,
+        _inspector_id: Option<&InspectorElementId>,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> (LayoutId, Self::RequestLayoutState) {
+        // The tween clock lives in prepaint (where the natural
+        // height is known); layout only needs the current value.
+        let current: f32 = window.with_element_state(
+            global_id.unwrap(),
+            |state: Option<RevealElementState>, _window| {
+                let state = state.unwrap_or(RevealElementState {
+                    current: 0.0,
+                    target_h: 0.0,
+                    start: Instant::now(),
+                    start_value: 0.0,
+                    previous_open: false,
+                });
+                (state.current, state)
+            },
+        );
+
+        let child = self
+            .child
+            .take()
+            .expect("AnimatedRevealElement::request_layout called once");
+        let mut child_element = child.into_any_element();
+        let child_layout = child_element.request_layout(window, cx);
+
+        let mut style = gpui::Style::default();
+        style.size.width = gpui::relative(1.0).into();
+        style.size.height = px(current.max(0.0)).into();
+        style.overflow = gpui::Point {
+            x: gpui::Overflow::Hidden,
+            y: gpui::Overflow::Hidden,
+        };
+        if current <= 0.0 {
+            style.visibility = gpui::Visibility::Hidden;
+        }
+        let layout = window.request_layout(style, [child_layout], cx);
+
+        (
+            layout,
+            RevealRequestLayoutState {
+                element: child_element,
+                child_layout,
+            },
+        )
+    }
+
+    fn prepaint(
+        &mut self,
+        id: Option<&GlobalElementId>,
+        _inspector_id: Option<&InspectorElementId>,
+        bounds: gpui::Bounds<Pixels>,
+        state: &mut Self::RequestLayoutState,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> Self::PrepaintState {
+        // Measure the child's natural (unclamped) height and
+        // advance the tween: on an open/close flip we snapshot the
+        // start value and ease toward the target from there.
+        let now = Instant::now();
+        let natural: f32 = window.layout_bounds(state.child_layout).size.height.into();
+        let open = self.open;
+        let config = self.config.clone();
+        let animating =
+            window.with_element_state(id.unwrap(), |state: Option<RevealElementState>, _window| {
+                let mut state = state.unwrap_or(RevealElementState {
+                    current: 0.0,
+                    target_h: natural,
+                    start: now,
+                    start_value: 0.0,
+                    previous_open: open,
+                });
+                state.target_h = natural;
+                if state.previous_open != open {
+                    state.previous_open = open;
+                    state.start = now;
+                    state.start_value = state.current;
+                }
+                let target = if open { natural } else { 0.0 };
+                let duration_secs = config.duration.as_secs_f32();
+                let p = if duration_secs > 0.0 {
+                    (state.start.elapsed().as_secs_f32() / duration_secs).min(1.0)
+                } else {
+                    1.0
+                };
+                let eased = (config.easing)(p);
+                state.current = state.start_value + (target - state.start_value) * eased;
+                let animating = (state.current - target).abs() > 0.25
+                    || (p < 1.0 && state.start_value != target);
+                (animating, state)
+            });
+        if animating {
+            window.request_animation_frame();
+        }
+
+        window.with_content_mask(Some(gpui::ContentMask { bounds }), |window| {
+            state.element.prepaint(window, cx)
+        });
+    }
+
+    fn paint(
+        &mut self,
+        _id: Option<&GlobalElementId>,
+        _inspector_id: Option<&InspectorElementId>,
+        bounds: gpui::Bounds<Pixels>,
+        state: &mut Self::RequestLayoutState,
+        _prepaint: &mut Self::PrepaintState,
+        window: &mut Window,
+        cx: &mut App,
+    ) {
+        window.with_content_mask(Some(gpui::ContentMask { bounds }), |window| {
+            state.element.paint(window, cx)
+        });
     }
 }
 
@@ -875,11 +1211,46 @@ mod tests {
     fn lerp_hsla_interpolates_rgba_endpoints() {
         let a = hsla(0., 0., 0., 0.);
         let b = hsla(0., 0., 1., 1.);
+        // Premultiplied midpoint of transparent-black → opaque-white
+        // is a half-strength white: rgb stays 1, alpha halves.
         let mid = lerp_hsla(a, b, 0.5);
-        assert!((mid.l - 0.5).abs() < 0.02);
+        assert!((mid.l - 1.0).abs() < 0.02);
         assert!((mid.a - 0.5).abs() < 0.02);
         assert_eq!(lerp_hsla(a, b, 0.0), a);
         assert_eq!(lerp_hsla(a, b, 1.0), b);
+        // Opaque↔opaque pairs behave like straight RGBA lerping.
+        let c = hsla(0., 0., 0., 1.);
+        let d = hsla(0., 0., 1., 1.);
+        let mid = lerp_hsla(c, d, 0.5);
+        assert!((mid.l - 0.5).abs() < 0.01);
+        assert!((mid.a - 1.0).abs() < 0.001);
+    }
+
+    /// Regression test for the Expander / TreeItem hover flash:
+    /// tweening an opaque rest colour toward a translucent fill
+    /// must stay monotonic when composited over a fixed backdrop.
+    /// Straight RGBA lerping produced a mid-transition colour
+    /// brighter than either endpoint (dark → very bright →
+    /// subtly bright, and the same flash on the way out).
+    #[test]
+    fn lerp_hsla_premultiplied_avoids_midtransition_flash() {
+        let base = hsla(0., 0., 0.173, 1.0); // surface.base-ish
+        let fill = hsla(0., 0., 1.0, 0.06); // subtle_fill_secondary
+        let backdrop = 0.12_f32; // page behind the control
+        let composite = |c: gpui::Hsla| c.a * c.l + (1.0 - c.a) * backdrop;
+
+        let rest = composite(base);
+        let hovered = composite(fill);
+        let lo = rest.min(hovered) - 1e-3;
+        let hi = rest.max(hovered) + 1e-3;
+        for i in 0..=20 {
+            let t = i as f32 / 20.0;
+            let mid = composite(lerp_hsla(base, fill, t));
+            assert!(
+                (lo..=hi).contains(&mid),
+                "flash at t={t}: composite {mid} outside [{lo:.4}, {hi:.4}]"
+            );
+        }
     }
 
     #[test]
@@ -903,5 +1274,42 @@ mod tests {
         assert_eq!(lerp_f32(0.0, 10.0, -1.0), 0.0);
         assert_eq!(lerp_f32(0.0, 10.0, 2.0), 10.0);
         assert_eq!(lerp_f32(0.0, 10.0, 0.5), 5.0);
+    }
+
+    #[test]
+    fn cubic_bezier_endpoints_are_exact() {
+        for f in [fast_out_slow_in, flyout_in, flyout_out] {
+            assert_eq!(f(0.0), 0.0);
+            assert_eq!(f(1.0), 1.0);
+            // monotonic-ish: midpoints stay within [0, 1]
+            for i in 1..10 {
+                let v = f(i as f32 / 10.0);
+                assert!((0.0..=1.0).contains(&v), "curve out of range at {v}");
+            }
+        }
+    }
+
+    #[test]
+    fn fast_out_slow_in_starts_fast_ends_slow() {
+        // cubic-bezier(0,0,0,1): nearly all progress in the first
+        // third, almost none in the last third.
+        let early = fast_out_slow_in(0.25);
+        let mid = fast_out_slow_in(0.5);
+        let late = fast_out_slow_in(0.75);
+        assert!(early > 0.5, "expected fast start, got {early}");
+        assert!(mid > 0.8, "expected fast middle, got {mid}");
+        assert!(late > 0.95, "expected near-complete by 0.75, got {late}");
+        // The tail segment advances less than the opening segment.
+        assert!(
+            (1.0 - late) < (mid - early),
+            "tail should be the slowest part"
+        );
+    }
+
+    #[test]
+    fn motion_ms_reads_token_and_falls_back() {
+        let theme = Theme::from_json(r#"{"tokens":{"motion":{"duration_fast":167}}}"#).unwrap();
+        assert_eq!(motion_ms(&theme, "duration_fast", 83.0), 167);
+        assert_eq!(motion_ms(&theme, "duration_missing", 83.0), 83);
     }
 }

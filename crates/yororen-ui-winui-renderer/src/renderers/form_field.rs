@@ -19,8 +19,9 @@ impl WinUIFormFieldRenderer {
     }
     pub fn error_color(&self, _state: &FormFieldRenderState, theme: &Theme) -> Hsla {
         theme
-            .get_color("content.error")
-            .unwrap_or_else(|| theme.get_color("status.danger").unwrap_or_default())
+            .get_color("status.error.fg")
+            .or_else(|| theme.get_color("status.danger.fg"))
+            .unwrap_or_default()
     }
     pub fn helper_color(&self, _state: &FormFieldRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.tertiary").unwrap_or_default()

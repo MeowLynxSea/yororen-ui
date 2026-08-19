@@ -34,7 +34,10 @@ pub struct WinUITextInputRenderer;
 impl WinUITextInputRenderer {
     pub fn bg(&self, state: &TextInputRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
-            theme.get_color("surface.sunken").unwrap_or_default()
+            theme
+                .get_color("winui.ctrl_fill_disabled")
+                .or_else(|| theme.get_color("surface.sunken"))
+                .unwrap_or_default()
         } else if state.has_custom_bg {
             state
                 .custom_bg
@@ -98,7 +101,10 @@ impl WinUITextInputRenderer {
         }
     }
     pub fn hint_color(&self, _state: &TextInputRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("content.tertiary").unwrap_or_default()
+        theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default()
     }
     pub fn cursor_color(&self, state: &TextInputRenderState, theme: &Theme) -> Hsla {
         // With `has_custom_focus_border: true` the focus border
@@ -125,14 +131,7 @@ impl WinUITextInputRenderer {
             .unwrap_or(0.0) as f32)
     }
     pub fn padding(&self, _state: &TextInputRenderState, theme: &Theme) -> Edges<Pixels> {
-        Edges::symmetric(
-            px(theme
-                .get_number("tokens.control.input.horizontal_padding")
-                .unwrap_or(0.0) as f32),
-            px(theme
-                .get_number("tokens.control.input.vertical_padding")
-                .unwrap_or(0.0) as f32),
-        )
+        crate::themes::input_field_padding(theme)
     }
     pub fn border_radius(&self, _state: &TextInputRenderState, theme: &Theme) -> Pixels {
         px(theme.get_number("tokens.radii.md").unwrap_or(0.0) as f32)
@@ -219,7 +218,10 @@ impl TextInputRenderer for WinUITextInputRenderer {
             .unwrap_or(border_color);
         let bottom_focused = theme.get_color("winui.accent").unwrap_or(border_color);
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
         let font = default_font(&theme);
         drop(theme);
 
@@ -232,8 +234,10 @@ impl TextInputRenderer for WinUITextInputRenderer {
             .min_h(min_h)
             .rounded(radius)
             .opacity(opacity)
-            .px(padding.left)
-            .py(padding.top)
+            .pl(padding.left)
+            .pr(padding.right)
+            .pt(padding.top)
+            .pb(padding.bottom)
             .flex()
             .items_center()
             .font_family(font.clone())

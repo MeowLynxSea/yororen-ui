@@ -62,6 +62,26 @@ pub fn default_font(theme: &Theme) -> SharedString {
         .unwrap_or_else(|| SharedString::from("system-ui"))
 }
 
+/// WinUI TextBox field padding: `5px 6px 6px 10px` (top / right /
+/// bottom / left) — the asymmetric padding the reference applies to
+/// the field inside the 32px border box.
+pub fn input_field_padding(theme: &Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::Pixels> {
+    use yororen_ui_core::renderer::spec::Edges;
+    let get = |key: &str, fallback: f64| {
+        gpui::px(
+            theme
+                .get_number(&format!("tokens.control.input.{key}"))
+                .unwrap_or(fallback) as f32,
+        )
+    };
+    Edges {
+        top: get("padding_top", 5.0),
+        right: get("padding_right", 6.0),
+        bottom: get("padding_bottom", 6.0),
+        left: get("padding_left", 10.0),
+    }
+}
+
 /// Pick a WinUI theme based on OS appearance.
 pub fn winui_for(appearance: WindowAppearance) -> Theme {
     match appearance {

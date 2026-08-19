@@ -8,18 +8,17 @@
 //! (or just `on_select` for menus without highlight tracking).
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, ParentElement, Pixels, Stateful,
     StatefulInteractiveElement, Styled, div, px,
 };
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::dropdown_menu::DropdownItem;
 use yororen_ui_core::headless::menu::MenuProps;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
+use crate::animation::{AnimatedStateElement, control_config, lerp_hsla, set_interaction_hovered};
+use crate::themes::default_font;
 
 pub use yororen_ui_core::renderer::menu::{MenuRenderState, MenuRenderer};
 
@@ -28,18 +27,22 @@ pub struct WinUIMenuRenderer;
 impl WinUIMenuRenderer {
     pub fn bg(&self, _state: &MenuRenderState, theme: &Theme) -> Hsla {
         theme
-            .get_color("surface.popover")
-            .or_else(|| theme.get_color("surface.raised"))
+            .get_color("winui.flyout_bg")
+            .or_else(|| theme.get_color("surface.popover"))
             .unwrap_or_default()
     }
     pub fn border(&self, _state: &MenuRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("border.default").unwrap_or_default()
+        theme
+            .get_color("winui.flyout_stroke")
+            .or_else(|| theme.get_color("border.default"))
+            .unwrap_or_default()
     }
+    /// WinUI menus are flyouts: 8px OverlayCornerRadius.
     pub fn border_radius(&self, _state: &MenuRenderState, theme: &Theme) -> Pixels {
-        px(theme.get_number("tokens.radii.md").unwrap_or(6.0) as f32)
+        px(theme.get_number("tokens.radii.lg").unwrap_or(8.0) as f32)
     }
     pub fn padding(&self, _state: &MenuRenderState, theme: &Theme) -> Pixels {
-        px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(4.0) as f32)
+        px(theme.get_number("tokens.spacing.inset_xs").unwrap_or(4.0) as f32)
     }
     pub fn min_width(&self, _state: &MenuRenderState, theme: &Theme) -> Pixels {
         // Floor the menu shell so an `absolute()` panel
@@ -54,11 +57,18 @@ impl WinUIMenuRenderer {
             .get_number("tokens.control.menu.min_width")
             .unwrap_or(180.0) as f32)
     }
-    pub fn shadow_alpha(&self, _state: &MenuRenderState, _theme: &Theme) -> f32 {
-        0.12
+    pub fn shadow_alpha(&self, _state: &MenuRenderState, theme: &Theme) -> f32 {
+        theme
+            .get_color("shadow.flyout")
+            .or_else(|| theme.get_color("shadow.elevation_2"))
+            .unwrap_or_default()
+            .a
     }
     pub fn item_hover_bg(&self, _state: &MenuRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("surface.hover").unwrap_or_default()
+        theme
+            .get_color("winui.subtle_fill_secondary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default()
     }
 }
 
@@ -91,17 +101,35 @@ impl MenuRenderer for WinUIMenuRenderer {
                     let row_id = ElementId::Name(format!("menu-item-{}", i).into());
                     let hover_row_id = row_id.clone();
                     let row_hover = item_hover;
-                    let row_base = theme.get_color("surface.base").unwrap_or_default();
-                    let config =
-                        AnimationConfig::default().with_duration(Duration::from_millis(100));
+                    let row_base = gpui::hsla(0.0, 0.0, 0.0, 0.0);
+                    let config = control_config(theme);
 
                     let mut row: Stateful<Div> = div()
                         .id(row_id.clone())
                         .relative()
                         .w_full()
-                        .px(px(8.0))
-                        .py(px(6.0))
-                        .rounded(px(4.0))
+                        .min_h(px(theme
+                            .get_number("tokens.control.dropdown.item_min_h")
+                            .unwrap_or(32.0) as f32))
+                        .pt(px(theme
+                            .get_number("tokens.control.dropdown.item_padding_top")
+                            .unwrap_or(5.0) as f32))
+                        .pr(px(theme
+                            .get_number("tokens.control.dropdown.item_padding_right")
+                            .unwrap_or(11.0) as f32))
+                        .pb(px(theme
+                            .get_number("tokens.control.dropdown.item_padding_bottom")
+                            .unwrap_or(7.0) as f32))
+                        .pl(px(theme
+                            .get_number("tokens.control.dropdown.item_padding_left")
+                            .unwrap_or(11.0) as f32))
+                        .rounded(px(theme
+                            .get_number("tokens.control.dropdown.item_radius")
+                            .unwrap_or(3.0) as f32))
+                        .text_size(px(theme
+                            .get_number("tokens.typography.font_size_md")
+                            .unwrap_or(14.0) as f32))
+                        .line_height(px(20.0))
                         .cursor(CursorStyle::PointingHand)
                         .on_hover(move |hovered, _win, cx| {
                             set_interaction_hovered(cx, hover_row_id.clone(), *hovered)
@@ -111,7 +139,7 @@ impl MenuRenderer for WinUIMenuRenderer {
                         (row_id.clone(), "fill"),
                         row_id.clone(),
                         is_highlighted,
-                        div().absolute().inset_0().rounded(px(4.0)),
+                        div().absolute().inset_0().rounded(px(3.0)),
                         config,
                         move |d: Div, hover, _pressed, checked| {
                             let base = lerp_hsla(row_base, row_hover, checked);
@@ -151,7 +179,9 @@ impl MenuRenderer for WinUIMenuRenderer {
                         .px(px(8.0))
                         .py(px(4.0))
                         .text_color(theme.get_color("content.tertiary").unwrap_or_default())
-                        .text_size(px(11.0))
+                        .text_size(px(theme
+                            .get_number("tokens.typography.font_size_xs")
+                            .unwrap_or(11.0) as f32))
                         .child(group_label);
                     body = body.child(header);
                 }
@@ -161,6 +191,7 @@ impl MenuRenderer for WinUIMenuRenderer {
         div()
             .id(props.id.clone())
             .min_w(min_w)
+            .font_family(default_font(theme))
             .bg(bg)
             .text_color(theme.get_color("content.primary").unwrap_or_default())
             .border_1()
@@ -169,11 +200,11 @@ impl MenuRenderer for WinUIMenuRenderer {
             .p(pad)
             .shadow(vec![gpui::BoxShadow {
                 color: gpui::hsla(0.0, 0.0, 0.0, alpha),
-                blur_radius: px(12.0),
+                blur_radius: px(15.0),
                 spread_radius: px(0.0),
                 offset: gpui::Point {
                     x: px(0.0),
-                    y: px(4.0),
+                    y: px(5.0),
                 },
             }])
             .child(body)

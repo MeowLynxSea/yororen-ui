@@ -6,14 +6,12 @@
 //! paths.
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, ElementId, FocusHandle, Hsla, InteractiveElement, MouseButton,
-    ParentElement, Pixels, Stateful, StatefulInteractiveElement, Styled, div,
+    ParentElement, Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::icon::IconProps;
 use yororen_ui_core::headless::icon_button::IconButtonProps;
 use yororen_ui_core::renderer::variant::ActionVariantKind;
@@ -21,8 +19,10 @@ use yororen_ui_core::theme::ActiveTheme;
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered, set_interaction_pressed,
+    AnimatedStateElement, control_config, lerp_hsla, set_interaction_hovered,
+    set_interaction_pressed,
 };
+use crate::renderers::button::WinUIButtonRenderer;
 
 pub use yororen_ui_core::renderer::icon_button::{IconButtonRenderState, IconButtonRenderer};
 
@@ -107,18 +107,33 @@ impl IconButtonRenderer for WinUIIconButtonRenderer {
         let active_bg = self.active_bg(&state, theme);
         let side = self.size(&state, theme);
 
+        // WinUI icon buttons share the standard button chrome,
+        // including the elevation border pair.
+        let button_state = yororen_ui_core::renderer::button::ButtonRenderState {
+            variant: props.variant,
+            disabled: props.disabled,
+            ..Default::default()
+        };
+        let border = WinUIButtonRenderer
+            .border(&button_state, theme)
+            .map(|b| b.color)
+            .unwrap_or_default();
+        let border_top = WinUIButtonRenderer.border_top(&button_state, theme);
+
         let mut el: Stateful<Div> = div()
             .id(props.id.clone())
             .relative()
             .rounded(radius)
             .size(side)
+            .border_1()
+            .border_color(border)
             .opacity(opacity)
             .flex()
             .items_center()
             .justify_center()
             .track_focus(focus_handle);
 
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        let config = control_config(theme);
         let fill = AnimatedStateElement::new(
             (props.id.clone(), "fill"),
             props.id.clone(),
@@ -134,6 +149,19 @@ impl IconButtonRenderer for WinUIIconButtonRenderer {
             },
         );
         el = el.child(fill);
+
+        if !props.disabled {
+            el = el.child(
+                div()
+                    .absolute()
+                    .top_0()
+                    .left_0()
+                    .right_0()
+                    .h(px(1.0))
+                    .rounded_t(radius)
+                    .bg(border_top),
+            );
+        }
 
         if let Some(source) = props.icon.clone() {
             let icon_id: ElementId = format!("{:?}-icon", props.id).into();

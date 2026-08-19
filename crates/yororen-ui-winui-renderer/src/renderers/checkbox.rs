@@ -8,14 +8,14 @@ use gpui::{
     Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::checkbox::CheckboxProps;
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedOpacityElement, AnimatedStateElement, lerp_hsla, set_interaction_hovered,
+    AnimatedStateElement, control_config, lerp_f32, lerp_hsla, set_interaction_hovered,
     set_interaction_pressed,
 };
+use yororen_ui_core::animation::AnimationConfig;
 
 pub use yororen_ui_core::renderer::checkbox::{CheckboxRenderState, CheckboxRenderer};
 
@@ -40,6 +40,14 @@ impl WinUICheckboxRenderer {
     }
     pub fn box_bg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
+            // WinUI: a checked-but-disabled box keeps the accent
+            // disabled fill, not the neutral control fill.
+            if state.checked {
+                return theme
+                    .get_color("winui.accent_fill_disabled")
+                    .or_else(|| theme.get_color("action.primary.disabled_bg"))
+                    .unwrap_or_default();
+            }
             theme
                 .get_color("winui.ctrl_fill_disabled")
                 .or_else(|| theme.get_color("surface.sunken"))
@@ -112,10 +120,9 @@ impl WinUICheckboxRenderer {
                 .or_else(|| theme.get_color("action.primary.hover_bg"))
                 .unwrap_or_default()
         } else {
-            theme
-                .get_color("content.primary")
-                .or_else(|| theme.get_color("border.strong"))
-                .unwrap_or_default()
+            // The reference keeps the strong stroke on hover for
+            // unchecked boxes — only the fill lightens.
+            self.box_border(state, theme)
         }
     }
     pub fn check_fg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
@@ -135,7 +142,10 @@ impl WinUICheckboxRenderer {
         theme.get_color("border.focus").unwrap_or_default()
     }
     pub fn disabled_opacity(&self, _state: &CheckboxRenderState, _theme: &Theme) -> f32 {
-        0.5
+        // WinUI relies on the disabled fill/stroke brushes
+        // (`ctrl_fill_disabled`, `ctrl_strong_stroke_disabled`) and
+        // does not additionally dim the control.
+        1.0
     }
 }
 
@@ -162,17 +172,39 @@ impl CheckboxRenderer for WinUICheckboxRenderer {
         let active_bg = self.box_active_bg(&state, theme);
         let hover_border = self.box_border_hover(&state, theme);
 
-        // The checkmark is always mounted and faded in/out so the
-        // checked state transition is animated.
+        // The checkmark is always mounted; it is revealed by
+        // expanding a clipping window from the top-left corner —
+        // matching the reference's `clip-path` polygon animation
+        // (0.2s ease-in-out).
         let check_color = self.check_fg(&state, theme);
-        let check = div()
+        let check_f: f32 = check_size.into();
+        let check_glyph = div()
+            .absolute()
+            .top_0()
+            .left_0()
             .text_color(check_color)
             .text_size(check_size)
             .child("✓");
-        let animated_check =
-            AnimatedOpacityElement::new((props.id.clone(), "check"), props.checked, check);
+        let check_window = div()
+            .relative()
+            .overflow_hidden()
+            .size(check_size)
+            .child(check_glyph);
+        let animated_check = AnimatedStateElement::new(
+            (props.id.clone(), "check"),
+            props.id.clone(),
+            props.checked,
+            check_window,
+            AnimationConfig::new()
+                .with_duration(Duration::from_millis(200))
+                .with_easing(yororen_ui_core::animation::ease_in_out),
+            move |d: Div, _hover, _pressed, checked| {
+                let s = lerp_f32(0.0, check_f, checked);
+                d.w(px(s)).h(px(s))
+            },
+        );
 
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        let config = control_config(theme);
 
         // Box: animated fill + stroke between rest / hover / pressed.
         let box_animated = AnimatedStateElement::new(

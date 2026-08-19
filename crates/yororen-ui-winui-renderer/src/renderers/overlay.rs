@@ -27,7 +27,8 @@ impl WinUIOverlayRenderer {
     pub fn scrim_color(&self, _state: &OverlayRenderState, theme: &Theme) -> Hsla {
         theme
             .get_color("surface.scrim")
-            .unwrap_or_else(|| gpui::hsla(0.0, 0.0, 0.0, 0.5))
+            // Reference dialog overlay: rgba(0, 0, 0, 0.30).
+            .unwrap_or_else(|| gpui::hsla(0.0, 0.0, 0.0, 0.30))
     }
 }
 
@@ -54,7 +55,7 @@ impl OverlayRenderer for WinUIOverlayRenderer {
             scrim_el,
             props.id.clone(),
             std::time::Duration::from_millis(duration_ms),
-            yororen_ui_core::animation::ease_out_quad,
+            crate::animation::fast_out_slow_in,
         );
         div().id(props.id.clone()).child(el)
     }

@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use gpui::{
     App, AppContext, Context, Div, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
-    Render, StatefulInteractiveElement, Styled, Window, div,
+    Render, StatefulInteractiveElement, Styled, Window, div, px,
 };
 
 use yororen_ui_core::headless::tooltip::TooltipProps;
@@ -32,9 +32,13 @@ struct TooltipView {
     fg: Hsla,
     border: Hsla,
     pad_top: Pixels,
+    pad_right: Pixels,
+    pad_bottom: Pixels,
+    pad_left: Pixels,
     font_size: Pixels,
     border_radius: Pixels,
     max_width: Pixels,
+    shadow: Vec<gpui::BoxShadow>,
 }
 
 impl Render for TooltipView {
@@ -44,10 +48,16 @@ impl Render for TooltipView {
             .text_color(self.fg)
             .border_1()
             .border_color(self.border)
-            .p(self.pad_top)
+            // WinUI ToolTip padding: 6px top, 9px sides, 8px bottom.
+            .pt(self.pad_top)
+            .pr(self.pad_right)
+            .pb(self.pad_bottom)
+            .pl(self.pad_left)
             .text_size(self.font_size)
+            .line_height(px(16.0))
             .rounded(self.border_radius)
             .max_w(self.max_width)
+            .shadow(std::mem::take(&mut self.shadow))
             .child(self.text.clone())
     }
 }
@@ -64,10 +74,19 @@ impl WinUITooltipRenderer {
         theme.get_color("action.neutral.fg").unwrap_or_default()
     }
     pub fn padding(&self, _state: &TooltipRenderState, theme: &Theme) -> Edges<Pixels> {
-        Edges::symmetric(
-            gpui::px(theme.get_number("tokens.spacing.inset_md").unwrap_or(0.0) as f32),
-            gpui::px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(0.0) as f32),
-        )
+        let get = |key: &str, fallback: f64| {
+            gpui::px(
+                theme
+                    .get_number(&format!("tokens.control.tooltip.{key}"))
+                    .unwrap_or(fallback) as f32,
+            )
+        };
+        Edges {
+            top: get("padding_top", 6.0),
+            right: get("padding_right", 9.0),
+            bottom: get("padding_bottom", 8.0),
+            left: get("padding_left", 9.0),
+        }
     }
     pub fn font_size(&self, _state: &TooltipRenderState, theme: &Theme) -> Pixels {
         gpui::px(
@@ -101,8 +120,30 @@ impl TooltipRenderer for WinUITooltipRenderer {
         let max_w = gpui::px(
             theme
                 .get_number("tokens.control.tooltip.max_width")
-                .unwrap_or(240.0) as f32,
+                .unwrap_or(320.0) as f32,
         );
+        // Reference tooltip shadow: `0 8px 16px rgba(0,0,0,.14)`
+        // plus a tight `0 0 2px rgba(0,0,0,.18)` halo.
+        let shadow_shadow = theme
+            .get_color("shadow.tooltip")
+            .unwrap_or_else(|| gpui::hsla(0., 0., 0., 0.14));
+        let halo_shadow = theme
+            .get_color("shadow.tooltip_halo")
+            .unwrap_or_else(|| gpui::hsla(0., 0., 0., 0.18));
+        let shadow = vec![
+            gpui::BoxShadow {
+                color: shadow_shadow,
+                offset: gpui::Point::new(px(0.), px(8.)),
+                blur_radius: px(16.),
+                spread_radius: px(0.),
+            },
+            gpui::BoxShadow {
+                color: halo_shadow,
+                offset: gpui::Point::new(px(0.), px(0.)),
+                blur_radius: px(2.),
+                spread_radius: px(0.),
+            },
+        ];
 
         let mut outer = div().flex().flex_col().items_start();
 
@@ -120,9 +161,13 @@ impl TooltipRenderer for WinUITooltipRenderer {
                         fg,
                         border,
                         pad_top: pad.top,
+                        pad_right: pad.right,
+                        pad_bottom: pad.bottom,
+                        pad_left: pad.left,
                         font_size: fs,
                         border_radius: r,
                         max_width: max_w,
+                        shadow: shadow.clone(),
                     })
                     .into()
                 },

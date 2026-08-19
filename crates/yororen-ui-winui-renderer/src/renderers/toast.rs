@@ -19,8 +19,16 @@ impl ToastRenderer for WinUIToastRenderer {
     }
     fn padding(&self, _state: &ToastRenderState, theme: &Theme) -> Edges<Pixels> {
         Edges::symmetric(
-            gpui::px(theme.get_number("tokens.spacing.inset_md").unwrap_or(0.0) as f32),
-            gpui::px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(0.0) as f32),
+            gpui::px(
+                theme
+                    .get_number("tokens.control.toast.horizontal_padding")
+                    .unwrap_or(16.0) as f32,
+            ),
+            gpui::px(
+                theme
+                    .get_number("tokens.control.toast.vertical_padding")
+                    .unwrap_or(12.0) as f32,
+            ),
         )
     }
     fn border_radius(&self, _state: &ToastRenderState, theme: &Theme) -> Pixels {

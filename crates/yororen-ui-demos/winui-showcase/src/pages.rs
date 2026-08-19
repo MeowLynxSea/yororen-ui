@@ -52,6 +52,11 @@ pub fn build(
         WinuiPage::Inputs => inputs_page(app, window, cx),
         WinuiPage::Toggles => toggles_page(app, cx),
         WinuiPage::Lists => lists_page(app, window, cx),
+        WinuiPage::Status => status_page(app, cx),
+        WinuiPage::Dialogs => dialogs_page(app, window, cx),
+        WinuiPage::Text => text_page(app, window, cx),
+        WinuiPage::Data => data_page(app, window, cx),
+        WinuiPage::Surfaces => surfaces_page(app, window, cx),
     }
 }
 
@@ -138,6 +143,41 @@ fn home_page(app: &mut WinuiApp, cx: &mut Context<WinuiApp>) -> gpui::AnyElement
             "Lists & Menus",
             "Select, combo box, listbox and dropdown menus.",
             WinuiPage::Lists,
+            cx,
+        ))
+        .child(feature_card(
+            "home-card-status",
+            "Status & Feedback",
+            "Progress, skeleton, badges, tags, tooltip and avatars.",
+            WinuiPage::Status,
+            cx,
+        ))
+        .child(feature_card(
+            "home-card-dialogs",
+            "Dialogs & Flyouts",
+            "Modal dialog, popover and disclosure surfaces.",
+            WinuiPage::Dialogs,
+            cx,
+        ))
+        .child(feature_card(
+            "home-card-text",
+            "Text & Typography",
+            "Headings, labels, dividers and keyboard shortcuts.",
+            WinuiPage::Text,
+            cx,
+        ))
+        .child(feature_card(
+            "home-card-data",
+            "Data & Tables",
+            "Tables, trees and virtualized lists.",
+            WinuiPage::Data,
+            cx,
+        ))
+        .child(feature_card(
+            "home-card-surfaces",
+            "Surfaces & Layout",
+            "Cards, panels, images, segmented groups and forms.",
+            WinuiPage::Surfaces,
             cx,
         ))
         .render(cx);
@@ -672,6 +712,801 @@ fn lists_page(
                     ),
                     cx,
                 ))
+                .render(cx),
+            cx,
+        ))
+        .render(cx)
+        .into_any_element()
+}
+
+// ---------------------------------------------------------------------
+// Status & Feedback
+// ---------------------------------------------------------------------
+
+/// Section heading inside a card (H3).
+fn section(
+    id: impl std::fmt::Display,
+    title: &str,
+    child: impl IntoElement,
+    cx: &mut Context<WinuiApp>,
+) -> gpui::AnyElement {
+    column(format!("winui-section-{id}"), cx)
+        .gap(Spacing::Md)
+        .child(heading(format!("winui-section-{id}-t"), HeadingLevel::H3, title, cx).render(cx))
+        .child(child)
+        .render(cx)
+        .into_any_element()
+}
+
+fn status_page(app: &mut WinuiApp, cx: &mut Context<WinuiApp>) -> gpui::AnyElement {
+    use yororen_ui::headless::avatar::avatar;
+    use yororen_ui::headless::badge::{BadgeVariant, badge};
+    use yororen_ui::headless::empty_state::empty_state;
+    use yororen_ui::headless::progress::progress;
+    use yororen_ui::headless::skeleton::skeleton;
+    use yororen_ui::headless::tag::tag;
+    use yororen_ui::headless::tooltip::tooltip;
+
+    let entity = cx.entity().clone();
+    let header = page_header(WinuiPage::Status, cx);
+
+    // Determinate progress driven by a slider + an indeterminate bar.
+    let entity_prog = entity.clone();
+    let prog_slider = slider("ws-prog-slider", cx)
+        .value(app.progress)
+        .range(0.0, 1.0)
+        .step(0.01)
+        .on_change(move |v, _w, cx| {
+            entity_prog.update(cx, |s, _cx| s.progress = v);
+        })
+        .render(cx);
+    let det = progress("ws-progress", cx)
+        .value(app.progress)
+        .max(1.0)
+        .render(cx);
+    let indet = progress("ws-indeterminate", cx)
+        .indeterminate(true)
+        .render(cx);
+    let progress_section = column("ws-prog-col", cx)
+        .gap(Spacing::Md)
+        .child(
+            column("ws-det-col", cx)
+                .gap(Spacing::Sm)
+                .child(
+                    label(
+                        "ws-det-lbl",
+                        format!("Determinate — {:.0}%", app.progress * 100.0),
+                        cx,
+                    )
+                    .render(cx),
+                )
+                .child(det)
+                .child(prog_slider)
+                .render(cx),
+        )
+        .child(
+            column("ws-indet-col", cx)
+                .gap(Spacing::Sm)
+                .child(label("ws-indet-lbl", "Indeterminate", cx).render(cx))
+                .child(indet)
+                .render(cx),
+        )
+        .render(cx);
+
+    // Skeletons: line, block, avatar-shaped.
+    let skeletons = row("ws-skel-row", cx)
+        .items(AlignItems::Center)
+        .gap(Spacing::Lg)
+        .child(
+            skeleton("ws-sk-line", cx)
+                .w(px(180.0))
+                .h(px(12.0))
+                .render(cx),
+        )
+        .child(
+            skeleton("ws-sk-block", cx)
+                .block(true)
+                .w(px(200.0))
+                .h(px(64.0))
+                .render(cx),
+        )
+        .child(
+            skeleton("ws-sk-avatar", cx)
+                .block(true)
+                .w(px(36.0))
+                .h(px(36.0))
+                .render(cx),
+        )
+        .render(cx);
+
+    // Badges: one per variant.
+    let badges = wrap("ws-badges", cx)
+        .items(AlignItems::Center)
+        .gap(Spacing::Sm)
+        .child(badge("ws-b-neutral", "Neutral", cx).render(cx))
+        .child(
+            badge("ws-b-success", "Success", cx)
+                .variant(BadgeVariant::Success)
+                .render(cx),
+        )
+        .child(
+            badge("ws-b-warning", "Warning", cx)
+                .variant(BadgeVariant::Warning)
+                .render(cx),
+        )
+        .child(
+            badge("ws-b-danger", "Danger", cx)
+                .variant(BadgeVariant::Danger)
+                .render(cx),
+        )
+        .child(
+            badge("ws-b-info", "Info", cx)
+                .variant(BadgeVariant::Info)
+                .render(cx),
+        )
+        .render(cx);
+
+    // Tags: normal, selected (click to toggle), closable, disabled.
+    let entity_tag = entity.clone();
+    let tags = wrap("ws-tags", cx)
+        .items(AlignItems::Center)
+        .gap(Spacing::Sm)
+        .child(tag("ws-t-plain", "rust", cx).render(cx))
+        .child(
+            tag("ws-t-sel", "selected", cx)
+                .selected(app.tag_selected)
+                .on_click(move |_ev, _w, cx| {
+                    entity_tag.update(cx, |s, _cx| s.tag_selected = !s.tag_selected);
+                })
+                .render(cx),
+        )
+        .child(
+            tag("ws-t-close", "closable", cx)
+                .closable(true)
+                .on_close(|_, _, _| {})
+                .render(cx),
+        )
+        .child(
+            tag("ws-t-disabled", "disabled", cx)
+                .disabled(true)
+                .render(cx),
+        )
+        .render(cx);
+
+    // Tooltip on a button trigger.
+    let tip_trigger = button("ws-tip-btn", cx)
+        .on_click(|_, _, _| {})
+        .render(cx)
+        .child("Hover me");
+    let tip = tooltip(
+        "ws-tip",
+        "A WinUI-styled tooltip with flyout shadow.",
+        app.tooltip_state.clone(),
+    )
+    .trigger(tip_trigger.into_any_element())
+    .render(cx);
+
+    // Empty state.
+    let empty = empty_state("ws-empty", cx)
+        .icon(IconSource::Builtin("folder".into()))
+        .title("Nothing here yet")
+        .description("Add a project or pick a different folder to get started.")
+        .render(cx);
+
+    // Avatars: initials, name-derived, status dot, sizes.
+    let avatars = wrap("ws-avatars", cx)
+        .items(AlignItems::Center)
+        .gap(Spacing::Md)
+        .child(avatar("ws-av-1", cx).initials("MS").render(cx))
+        .child(avatar("ws-av-2", cx).name("Ada Lovelace").render(cx))
+        .child(
+            avatar("ws-av-3", cx)
+                .name("Grace Hopper")
+                .has_status(true)
+                .render(cx),
+        )
+        .child(
+            avatar("ws-av-4", cx)
+                .name("Alan Turing")
+                .size(px(48.0))
+                .render(cx),
+        )
+        .child(
+            avatar("ws-av-5", cx)
+                .initials("XL")
+                .size(px(56.0))
+                .circle(false)
+                .render(cx),
+        )
+        .render(cx);
+
+    column("winui-status", cx)
+        .p(px(32.0))
+        .gap(Spacing::Lg)
+        .child(header)
+        .child(card(
+            "status",
+            column("winui-status-inner", cx)
+                .gap(Spacing::Xl)
+                .child(section("status-progress", "Progress", progress_section, cx))
+                .child(section(
+                    "status-skeleton",
+                    "Skeleton loading",
+                    skeletons,
+                    cx,
+                ))
+                .child(section("status-badges", "Badges", badges, cx))
+                .child(section("status-tags", "Tags", tags, cx))
+                .child(section("status-tooltip", "Tooltip", tip, cx))
+                .child(section("status-avatars", "Avatars", avatars, cx))
+                .child(section("status-empty", "Empty state", empty, cx))
+                .render(cx),
+            cx,
+        ))
+        .render(cx)
+        .into_any_element()
+}
+
+// ---------------------------------------------------------------------
+// Dialogs & Flyouts
+// ---------------------------------------------------------------------
+
+fn dialogs_page(
+    app: &mut WinuiApp,
+    window: &mut Window,
+    cx: &mut Context<WinuiApp>,
+) -> gpui::AnyElement {
+    use yororen_ui::headless::disclosure::disclosure;
+    use yororen_ui::headless::popover::popover;
+
+    let entity = cx.entity().clone();
+    let header = page_header(WinuiPage::Dialogs, cx);
+
+    // Modal: buttons toggle the global modal layer mounted in the
+    // app root (see `WinuiApp::build_modal_overlay`).
+    let modal_state_open = app.modal_state.clone();
+    let open_btn = button("wd-open-modal", cx)
+        .variant(ActionVariantKind::Primary)
+        .caption("Open dialog")
+        .on_click(move |_, _, cx| {
+            modal_state_open.update(cx, |st, _cx| st.open());
+        })
+        .render(cx);
+
+    // Popover with a small flyout content.
+    let popover_state = app.popover_state.clone();
+    let popover_trigger = button("wd-pop-trigger", cx)
+        .on_click({
+            let st = popover_state.clone();
+            move |_, _, cx| {
+                st.update(cx, |s, _cx| s.toggle());
+            }
+        })
+        .render(cx)
+        .child("Toggle popover");
+    let popover_content = column("wd-pop-body", cx)
+        .gap(Spacing::Sm)
+        .p(px(12.0))
+        .child(
+            label("wd-pop-t", "A flyout surface", cx)
+                .strong(true)
+                .render(cx),
+        )
+        .child(
+            label(
+                "wd-pop-d",
+                "Acrylic-tinted fill, hairline stroke and an 8px overlay corner.",
+                cx,
+            )
+            .muted(true)
+            .render(cx),
+        )
+        .render(cx);
+    let pop = popover("wd-popover", popover_state.clone())
+        .trigger(popover_trigger.into_any_element())
+        .content(popover_content.into_any_element())
+        .render(cx);
+
+    // Disclosure: an Expander-style header; the expanded body is
+    // appended as a child by the caller.
+    let entity_disc = entity.clone();
+    let disc_body = div()
+        .flex()
+        .flex_col()
+        .pl(px(48.0))
+        .pr(px(16.0))
+        .pb(px(16.0))
+        .gap(px(4.0))
+        .child(
+            label(
+                "wd-disc-l1",
+                "The header is a 48px row with a 32px chevron box.",
+                cx,
+            )
+            .muted(true)
+            .render(cx),
+        )
+        .child(
+            label(
+                "wd-disc-l2",
+                "Chevron swaps between the right and down Fluent arrows.",
+                cx,
+            )
+            .muted(true)
+            .render(cx),
+        );
+    // The body stays mounted in both directions so the reveal
+    // element can animate expand AND collapse (200ms
+    // `cubic-bezier(0,0,0,1)`, matching the reference Expander).
+    let disc_body_reveal = yororen_ui_winui_renderer::animation::AnimatedRevealElement::new(
+        "wd-disclosure-reveal",
+        app.disclosure_open,
+        disc_body,
+    );
+    let disc = disclosure("wd-disclosure", "Expander", cx)
+        .open(app.disclosure_open)
+        .on_toggle(move |_ev, _w, cx| {
+            entity_disc.update(cx, |s, _cx| s.disclosure_open = !s.disclosure_open);
+        })
+        .render(cx)
+        .child(disc_body_reveal);
+
+    let _ = window;
+    column("winui-dialogs", cx)
+        .p(px(32.0))
+        .gap(Spacing::Lg)
+        .child(header)
+        .child(card(
+            "dialogs",
+            column("winui-dialogs-inner", cx)
+                .gap(Spacing::Xl)
+                .child(section("dialogs-modal", "Content dialog", open_btn, cx))
+                .child(section("dialogs-popover", "Popover / flyout", pop, cx))
+                .child(section("dialogs-disclosure", "Expander", disc, cx))
+                .render(cx),
+            cx,
+        ))
+        .render(cx)
+        .into_any_element()
+}
+
+// ---------------------------------------------------------------------
+// Text & Typography
+// ---------------------------------------------------------------------
+
+fn text_page(
+    app: &mut WinuiApp,
+    window: &mut Window,
+    cx: &mut Context<WinuiApp>,
+) -> gpui::AnyElement {
+    use yororen_ui::headless::divider::divider;
+    use yororen_ui::headless::keybinding_display::keybinding_display;
+    use yororen_ui::headless::keybinding_input::keybinding_input;
+    use yororen_ui::headless::shortcut_hint::shortcut_hint;
+    use yororen_ui::headless::text::text;
+
+    let entity = cx.entity().clone();
+    let header = page_header(WinuiPage::Text, cx);
+
+    // Heading ramp H1–H6.
+    let headings = column("wt-headings", cx)
+        .gap(Spacing::Xs)
+        .child(heading("wt-h1", HeadingLevel::H1, "Heading 1 — 28px", cx).render(cx))
+        .child(heading("wt-h2", HeadingLevel::H2, "Heading 2 — 20px", cx).render(cx))
+        .child(heading("wt-h3", HeadingLevel::H3, "Heading 3 — 16px", cx).render(cx))
+        .child(heading("wt-h4", HeadingLevel::H4, "Heading 4 — 14px", cx).render(cx))
+        .child(heading("wt-h5", HeadingLevel::H5, "Heading 5 — 12px", cx).render(cx))
+        .child(heading("wt-h6", HeadingLevel::H6, "Heading 6 — 11px", cx).render(cx))
+        .render(cx);
+
+    // Label variants + plain text.
+    let labels = column("wt-labels", cx)
+        .gap(Spacing::Xs)
+        .child(label("wt-l-plain", "Plain label — body text", cx).render(cx))
+        .child(
+            label("wt-l-muted", "Muted label — secondary brush", cx)
+                .muted(true)
+                .render(cx),
+        )
+        .child(
+            label("wt-l-strong", "Strong label — semibold", cx)
+                .strong(true)
+                .render(cx),
+        )
+        .child(
+            label("wt-l-mono", "Mono label — Cascadia Mono", cx)
+                .mono(true)
+                .render(cx),
+        )
+        .child(text("wt-text", "Text spans use the same 14px body ramp.", cx).render(cx))
+        .render(cx);
+
+    // Dividers.
+    let dividers = column("wt-dividers", cx)
+        .gap(Spacing::Md)
+        .child(divider("wt-div-1", cx).render(cx))
+        .child(
+            label("wt-div-note", "Hairline divider — 6% surface stroke", cx)
+                .muted(true)
+                .render(cx),
+        )
+        .child(divider("wt-div-2", cx).render(cx))
+        .render(cx);
+
+    // Keybinding display + shortcut hint + keybinding input.
+    let entity_kbd = entity.clone();
+    let kbd_input = keybinding_input("wt-kbd-input")
+        .placeholder("Click, then press a chord…")
+        .on_change(move |chord: &str, _w, cx| {
+            entity_kbd.update(cx, |s, _cx| s.kbd = chord.to_string());
+        })
+        .render(cx, window);
+    let kbd_row = column("wt-kbd-col", cx)
+        .gap(Spacing::Md)
+        .child(
+            row("wt-kbd-row", cx)
+                .items(AlignItems::Center)
+                .gap(Spacing::Lg)
+                .child(keybinding_display("wt-kbd-1", ["ctrl", "shift", "p"], cx).render(cx))
+                .child(
+                    shortcut_hint("wt-kbd-2", "Command palette", ["ctrl", "shift", "p"], cx)
+                        .render(cx),
+                )
+                .child(shortcut_hint("wt-kbd-3", "Settings", ["ctrl", ","], cx).render(cx))
+                .render(cx),
+        )
+        .child(kbd_input)
+        .child(status_line(
+            "kbd",
+            format!("Captured chord: {:?}", app.kbd),
+            cx,
+        ))
+        .render(cx);
+
+    column("winui-text", cx)
+        .p(px(32.0))
+        .gap(Spacing::Lg)
+        .child(header)
+        .child(card(
+            "text",
+            column("winui-text-inner", cx)
+                .gap(Spacing::Xl)
+                .child(section("text-headings", "Headings", headings, cx))
+                .child(section("text-labels", "Labels & text", labels, cx))
+                .child(section("text-dividers", "Dividers", dividers, cx))
+                .child(section("text-kbd", "Keyboard chords", kbd_row, cx))
+                .render(cx),
+            cx,
+        ))
+        .render(cx)
+        .into_any_element()
+}
+
+// ---------------------------------------------------------------------
+// Data & Tables
+// ---------------------------------------------------------------------
+
+fn data_page(
+    app: &mut WinuiApp,
+    window: &mut Window,
+    cx: &mut Context<WinuiApp>,
+) -> gpui::AnyElement {
+    use yororen_ui::headless::list_item::list_item;
+    use yororen_ui::headless::table::{TableColumn, table};
+    use yororen_ui::headless::tree::tree;
+    use yororen_ui::headless::tree_item::tree_item;
+    use yororen_ui::headless::uniform_virtual_list;
+    use yororen_ui::headless::virtual_list;
+
+    let entity = cx.entity().clone();
+    let header = page_header(WinuiPage::Data, cx);
+
+    // Table with row selection.
+    let entity_table = entity.clone();
+    let table_el = table("wd-table", cx)
+        .columns(vec![
+            TableColumn::new("name", "Name").width(140.0),
+            TableColumn::new("lang", "Language").width(110.0),
+            TableColumn::new("stars", "Stars").width(80.0),
+        ])
+        .rows(vec![
+            vec!["yororen-ui".into(), "Rust".into(), "1.2k".into()],
+            vec!["WinUIonWeb".into(), "TypeScript".into(), "860".into()],
+            vec!["gpui-ce".into(), "Rust".into(), "3.4k".into()],
+            vec!["fluent-icons".into(), "SVG".into(), "210".into()],
+        ])
+        .selected(app.table_selected)
+        .on_select(move |i, _w, cx| {
+            entity_table.update(cx, |s, _cx| s.table_selected = i);
+        })
+        .render(cx);
+
+    // List items: plain, selected, with icons, disabled.
+    let entity_li = entity.clone();
+    let list_items = column("wd-lis", cx)
+        .gap(Spacing::Xs)
+        .child(
+            list_item("wd-li-1", "Documents", cx)
+                .description("12 files · modified today")
+                .leading_icon("folder")
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .child(
+            list_item("wd-li-2", "Projects", cx)
+                .description("4 files · modified yesterday")
+                .leading_icon("folder")
+                .trailing_icon("arrow-right")
+                .selected(true)
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .child(
+            list_item("wd-li-3", "Trash", cx)
+                .leading_icon("trash")
+                .disabled(true)
+                .render(cx),
+        )
+        .render(cx);
+    let _ = entity_li;
+
+    // Tree: flatten the visible rows from app state.
+    let tree_data = app.tree_data.clone();
+    let tree_expanded = app.tree_expanded.clone();
+    let tree_selected = app.tree_selected.clone();
+    let mut tree_el = tree("wd-tree", cx)
+        .data(tree_data.clone())
+        .render(cx)
+        .w(px(320.0));
+    let visible = tree_data.flatten(&tree_expanded);
+    for (id, depth) in visible {
+        let has_children = !tree_data.children_of(&id).is_empty();
+        let label_text = tree_data.label_of(&id).unwrap_or("").to_string();
+        let is_expanded = tree_expanded.contains(&id);
+        let is_selected = tree_selected.as_ref() == Some(&id);
+
+        let entity_toggle = entity.clone();
+        let entity_select = entity.clone();
+        let toggle_id = id.clone();
+        let select_id = id.clone();
+        let row_id: gpui::ElementId = format!("wd-tree-row-{}", id.0).into();
+        tree_el = tree_el.child(
+            tree_item(row_id, id.clone(), label_text, cx)
+                .depth(depth)
+                .has_children(has_children)
+                .expanded(is_expanded)
+                .selected(is_selected)
+                .on_toggle(move |_, _, cx| {
+                    let tid = toggle_id.clone();
+                    entity_toggle.update(cx, |s, _cx| {
+                        if !s.tree_expanded.remove(&tid) {
+                            s.tree_expanded.insert(tid);
+                        }
+                    });
+                })
+                .on_click(move |_, _, cx| {
+                    entity_select.update(cx, |s, _cx| s.tree_selected = Some(select_id.clone()));
+                })
+                .render(cx, window),
+        );
+    }
+
+    // Virtualized lists: 10k mixed rows + 1k uniform rows.
+    let vl = virtual_list("wd-vl", &app.vl_controller, cx)
+        .item_count(10_000)
+        .row(move |ix, _w, cx| {
+            let row_id: gpui::ElementId = format!("wd-vl-row-{ix}").into();
+            list_item(row_id, format!("Virtual row #{ix}"), cx)
+                .render(cx)
+                .into_any_element()
+        })
+        .render(cx)
+        .h(px(220.0));
+    let uvl = uniform_virtual_list("wd-uvl", 1_000, &app.uvl_controller, cx)
+        .row(move |ix, _w, cx| {
+            let row_id: gpui::ElementId = format!("wd-uvl-row-{ix}").into();
+            list_item(row_id, format!("Uniform row #{ix}"), cx)
+                .render(cx)
+                .into_any_element()
+        })
+        .render(cx)
+        .h(px(220.0));
+
+    column("winui-data", cx)
+        .p(px(32.0))
+        .gap(Spacing::Lg)
+        .child(header)
+        .child(card(
+            "data",
+            column("winui-data-inner", cx)
+                .gap(Spacing::Xl)
+                .child(section("data-table", "Table — click a row", table_el, cx))
+                .child(section("data-list-items", "List items", list_items, cx))
+                .child(section("data-tree", "Tree view", tree_el, cx))
+                .child(section("data-vl", "Virtual list — 10,000 rows", vl, cx))
+                .child(section(
+                    "data-uvl",
+                    "Uniform virtual list — 1,000 rows",
+                    uvl,
+                    cx,
+                ))
+                .render(cx),
+            cx,
+        ))
+        .render(cx)
+        .into_any_element()
+}
+
+// ---------------------------------------------------------------------
+// Surfaces & Layout
+// ---------------------------------------------------------------------
+
+fn surfaces_page(
+    app: &mut WinuiApp,
+    window: &mut Window,
+    cx: &mut Context<WinuiApp>,
+) -> gpui::AnyElement {
+    use yororen_ui::headless::button_group::button_group;
+    use yororen_ui::headless::form::form;
+    use yororen_ui::headless::form_field::form_field;
+    use yororen_ui::headless::image::{ImageSource, image};
+    use yororen_ui::headless::panel::panel;
+
+    let entity = cx.entity().clone();
+    let header = page_header(WinuiPage::Surfaces, cx);
+    let _ = app;
+
+    // Cards: static + interactive (animated hover).
+    let cards = row("wsv-cards", cx)
+        .items(AlignItems::Stretch)
+        .gap(Spacing::Md)
+        .child(
+            card_props("wsv-card-static", cx)
+                .render(cx)
+                .w(px(220.0))
+                .child(
+                    column("wsv-card-static-body", cx)
+                        .gap(Spacing::Xs)
+                        .child(
+                            heading("wsv-card-static-t", HeadingLevel::H4, "Static card", cx)
+                                .render(cx),
+                        )
+                        .child(
+                            label(
+                                "wsv-card-static-d",
+                                "4px corners, 16px padding, hairline stroke.",
+                                cx,
+                            )
+                            .muted(true)
+                            .render(cx),
+                        )
+                        .render(cx),
+                ),
+        )
+        .child(
+            card_props("wsv-card-hover", cx)
+                .interactive(true)
+                .render(cx)
+                .w(px(220.0))
+                .child(
+                    column("wsv-card-hover-body", cx)
+                        .gap(Spacing::Xs)
+                        .child(
+                            heading("wsv-card-hover-t", HeadingLevel::H4, "Clickable card", cx)
+                                .render(cx),
+                        )
+                        .child(
+                            label(
+                                "wsv-card-hover-d",
+                                "Hover: fill lightens and the stroke deepens (83ms).",
+                                cx,
+                            )
+                            .muted(true)
+                            .render(cx),
+                        )
+                        .render(cx),
+                ),
+        )
+        .render(cx);
+
+    // Panel with a title.
+    let panel_el = panel("wsv-panel", cx)
+        .title("Panel")
+        .render(cx)
+        .w(px(320.0))
+        .child(
+            label(
+                "wsv-panel-body",
+                "A card-family surface for grouped content.",
+                cx,
+            )
+            .muted(true)
+            .render(cx),
+        );
+
+    // Image (any asset; use an embedded icon-derived resource).
+    let image_el = image(
+        "wsv-image",
+        ImageSource::Resource("icons/user.svg".into()),
+        cx,
+    )
+    .render(cx)
+    .w(px(96.0))
+    .h(px(96.0));
+
+    // Button groups: attached segmented + detached cluster.
+    let segmented = button_group("wsv-segmented", cx)
+        .child(
+            button("wsv-seg-day", cx)
+                .caption("Day")
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .child(
+            button("wsv-seg-week", cx)
+                .caption("Week")
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .child(
+            button("wsv-seg-month", cx)
+                .caption("Month")
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .render(cx);
+    let detached = button_group("wsv-detached", cx)
+        .attached(false)
+        .child(
+            icon_button("wsv-det-bold", cx)
+                .icon(IconSource::Builtin("pencil".into()))
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .child(
+            icon_button("wsv-det-user", cx)
+                .icon(IconSource::Builtin("user".into()))
+                .on_click(|_, _, _| {})
+                .render(cx),
+        )
+        .render(cx);
+    let groups_row = row("wsv-groups", cx)
+        .items(AlignItems::Center)
+        .gap(Spacing::Lg)
+        .child(segmented)
+        .child(detached)
+        .render(cx);
+
+    // Form with labeled field, helper and error text.
+    let entity_form = entity.clone();
+    let name_input = text_input("wsv-form-name")
+        .placeholder("Project name")
+        .on_change(move |new: &str, _w, cx| {
+            entity_form.update(cx, |s, _cx| s.text = new.to_string());
+        })
+        .render(cx, window);
+    let form_el = form("wsv-form", cx).render(cx).w(px(320.0)).child(
+        form_field("wsv-form-field", "Name", cx)
+            .help("Shown on your profile page.")
+            .required(true)
+            .error("Name is already taken.")
+            .input(name_input)
+            .render(cx),
+    );
+
+    column("winui-surfaces", cx)
+        .p(px(32.0))
+        .gap(Spacing::Lg)
+        .child(header)
+        .child(card(
+            "surfaces",
+            column("winui-surfaces-inner", cx)
+                .gap(Spacing::Xl)
+                .child(section("surfaces-cards", "Cards", cards, cx))
+                .child(section("surfaces-panel", "Panel", panel_el, cx))
+                .child(section("surfaces-image", "Image", image_el, cx))
+                .child(section("surfaces-groups", "Button groups", groups_row, cx))
+                .child(section("surfaces-form", "Form", form_el, cx))
                 .render(cx),
             cx,
         ))

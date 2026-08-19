@@ -1,14 +1,12 @@
 //! `ToggleButtonRenderer` — visual side of `ToggleButton`.
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
     App, CursorStyle, Div, ElementId, FocusHandle, Hsla, InteractiveElement, MouseButton,
     ParentElement, Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::icon::IconProps;
 use yororen_ui_core::headless::toggle_button::ToggleButtonProps;
 use yororen_ui_core::theme::ActiveTheme;
@@ -17,8 +15,10 @@ use yororen_ui_core::theme::Theme;
 use yororen_ui_core::renderer::variant::VariantState;
 
 use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered, set_interaction_pressed,
+    AnimatedStateElement, control_config, lerp_hsla, set_interaction_hovered,
+    set_interaction_pressed,
 };
+use crate::renderers::button::WinUIButtonRenderer;
 use crate::themes::default_font;
 
 pub use yororen_ui_core::renderer::toggle_button::{ToggleButtonRenderState, ToggleButtonRenderer};
@@ -43,6 +43,13 @@ impl WinUIToggleButtonRenderer {
             });
         }
         if state.disabled {
+            // WinUI: a checked-but-disabled toggle uses the accent
+            // disabled fill, not the neutral one.
+            if state.selected {
+                return theme
+                    .get_color("action.primary.disabled_bg")
+                    .unwrap_or_default();
+            }
             theme
                 .get_color("action.neutral.disabled_bg")
                 .unwrap_or_default()
@@ -61,6 +68,11 @@ impl WinUIToggleButtonRenderer {
                 disabled: state.disabled,
             });
         }
+        if state.disabled {
+            return theme
+                .get_color("action.neutral.disabled_fg")
+                .unwrap_or_default();
+        }
         if state.selected {
             theme.get_color("action.primary.fg").unwrap_or_default()
         } else {
@@ -69,9 +81,7 @@ impl WinUIToggleButtonRenderer {
     }
     pub fn hover_bg(&self, state: &ToggleButtonRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
-            return theme
-                .get_color("action.neutral.disabled_bg")
-                .unwrap_or_default();
+            return self.bg(state, theme);
         }
         if state.selected {
             return theme
@@ -84,9 +94,7 @@ impl WinUIToggleButtonRenderer {
     }
     pub fn active_bg(&self, state: &ToggleButtonRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
-            return theme
-                .get_color("action.neutral.disabled_bg")
-                .unwrap_or_default();
+            return self.bg(state, theme);
         }
         if state.selected {
             return theme
@@ -140,21 +148,50 @@ impl ToggleButtonRenderer for WinUIToggleButtonRenderer {
         };
         let hover_bg = self.hover_bg(&state, theme);
         let active_bg = self.active_bg(&state, theme);
-        let border_color = theme.get_color("border.default").unwrap_or_default();
         let icon_gap = theme
             .get_number("tokens.control.toggle_button.icon_gap")
             .unwrap_or(8.0) as f32;
+        let horizontal_padding = theme
+            .get_number("tokens.control.toggle_button.horizontal_padding")
+            .unwrap_or(11.0) as f32;
+        let font_size = px(theme
+            .get_number("tokens.typography.font_size_md")
+            .unwrap_or(14.0) as f32);
+
+        // WinUI elevation border (same pair as the plain button):
+        // checked toggles are accent-styled, unchecked ones use the
+        // neutral pair — mirroring Accent/Default button styles.
+        let button_state = yororen_ui_core::renderer::button::ButtonRenderState {
+            variant: if state.selected {
+                yororen_ui_core::renderer::variant::ActionVariantKind::Primary
+            } else {
+                yororen_ui_core::renderer::variant::ActionVariantKind::Neutral
+            },
+            disabled: props.disabled,
+            ..Default::default()
+        };
+        let border = WinUIButtonRenderer
+            .border(&button_state, theme)
+            .unwrap_or_else(|| {
+                yororen_ui_core::renderer::spec::BorderSpec::new(
+                    px(1.0),
+                    theme.get_color("border.default").unwrap_or_default(),
+                )
+            });
+        let border_top = WinUIButtonRenderer.border_top(&button_state, theme);
 
         let mut el: Stateful<Div> = div()
             .id(props.id.clone())
             .relative()
             .font_family(default_font(theme))
+            .text_size(font_size)
+            .line_height(px(20.0))
             .text_color(fg)
             .min_h(min_h)
             .rounded(radius)
             .border_1()
-            .border_color(border_color)
-            .px(px(12.))
+            .border_color(border.color)
+            .px(px(horizontal_padding))
             .py(px(0.))
             .gap(px(icon_gap))
             .opacity(opacity)
@@ -163,7 +200,7 @@ impl ToggleButtonRenderer for WinUIToggleButtonRenderer {
             .justify_center()
             .track_focus(focus_handle);
 
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        let config = control_config(theme);
         let fill = AnimatedStateElement::new(
             (props.id.clone(), "fill"),
             props.id.clone(),
@@ -179,6 +216,19 @@ impl ToggleButtonRenderer for WinUIToggleButtonRenderer {
             },
         );
         el = el.child(fill);
+
+        if !props.disabled {
+            el = el.child(
+                div()
+                    .absolute()
+                    .top_0()
+                    .left_0()
+                    .right_0()
+                    .h(px(1.0))
+                    .rounded_t(radius)
+                    .bg(border_top),
+            );
+        }
 
         if let Some(source) = props.icon.clone() {
             let icon_id: ElementId = format!("{:?}-icon", props.id).into();

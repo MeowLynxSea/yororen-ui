@@ -17,7 +17,7 @@ pub struct WinUIHeadingRenderer;
 impl WinUIHeadingRenderer {
     pub fn size(&self, state: &HeadingRenderState, theme: &Theme) -> Pixels {
         let path = match state.level {
-            HeadingLevel::H1 => "tokens.typography.font_size_2xl",
+            HeadingLevel::H1 => "tokens.typography.font_size_3xl",
             HeadingLevel::H2 => "tokens.typography.font_size_xl",
             HeadingLevel::H3 => "tokens.typography.font_size_lg",
             HeadingLevel::H4 => "tokens.typography.font_size_md",
@@ -28,8 +28,10 @@ impl WinUIHeadingRenderer {
     }
 
     pub fn weight(&self, state: &HeadingRenderState, theme: &Theme) -> FontWeight {
+        // WinUI title treatment: the page header (28px) is
+        // semibold, matching the reference typography ramp.
         let (path, default) = match state.level {
-            HeadingLevel::H1 => ("tokens.typography.weight_bold", 700.0),
+            HeadingLevel::H1 => ("tokens.typography.weight_semibold", 600.0),
             _ => ("tokens.typography.weight_semibold", 600.0),
         };
         FontWeight(theme.get_number(path).unwrap_or(default) as f32)
@@ -80,12 +82,12 @@ mod tests {
         let h6 = HeadingRenderState {
             level: HeadingLevel::H6,
         };
-        // H1 should read tokens.typography.font_size_2xl (24).
+        // H1 should read tokens.typography.font_size_3xl (28).
         assert_eq!(
             r.size(&h1, &theme),
             gpui::px(
                 theme
-                    .get_number("tokens.typography.font_size_2xl")
+                    .get_number("tokens.typography.font_size_3xl")
                     .unwrap_or(0.0) as f32
             ),
         );
@@ -110,13 +112,14 @@ mod tests {
         let h2 = HeadingRenderState {
             level: HeadingLevel::H2,
         };
-        // H1 reads weight_bold (700).
+        // The whole ramp is semibold, matching the reference
+        // page-header treatment.
         assert_eq!(
             r.weight(&h1, &theme),
             FontWeight(
                 theme
-                    .get_number("tokens.typography.weight_bold")
-                    .unwrap_or(700.0) as f32
+                    .get_number("tokens.typography.weight_semibold")
+                    .unwrap_or(600.0) as f32
             ),
         );
         // H2 reads weight_semibold (600).

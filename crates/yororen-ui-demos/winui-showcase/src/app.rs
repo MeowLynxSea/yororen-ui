@@ -23,13 +23,18 @@ use yororen_ui::headless::icon::{IconSource, icon};
 use yororen_ui::headless::label::label;
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
 use yororen_ui::headless::menu::MenuState;
+use yororen_ui::headless::modal::ModalState;
+use yororen_ui::headless::popover::PopoverState;
 use yororen_ui::headless::search_input::search_input;
 use yororen_ui::headless::select::{SelectOption, SelectState};
+use yororen_ui::headless::tree::TreeData;
+use yororen_ui::headless::tree_item::TreeNodeId;
+use yororen_ui::headless::virtual_list::{UniformVirtualListController, VirtualListController};
 use yororen_ui::theme::ActiveTheme;
 
 use crate::pages;
 
-/// The five pages reachable from the sidebar.
+/// The pages reachable from the sidebar.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum WinuiPage {
     #[default]
@@ -38,6 +43,11 @@ pub enum WinuiPage {
     Inputs,
     Toggles,
     Lists,
+    Status,
+    Dialogs,
+    Text,
+    Data,
+    Surfaces,
 }
 
 impl WinuiPage {
@@ -48,17 +58,16 @@ impl WinuiPage {
             WinuiPage::Inputs => "Inputs",
             WinuiPage::Toggles => "Toggles & Sliders",
             WinuiPage::Lists => "Lists & Menus",
+            WinuiPage::Status => "Status & Feedback",
+            WinuiPage::Dialogs => "Dialogs & Flyouts",
+            WinuiPage::Text => "Text & Typography",
+            WinuiPage::Data => "Data & Tables",
+            WinuiPage::Surfaces => "Surfaces & Layout",
         }
     }
 
     pub fn title(self) -> &'static str {
-        match self {
-            WinuiPage::Home => "WinUI on Rust Gallery",
-            WinuiPage::Buttons => "Buttons & Actions",
-            WinuiPage::Inputs => "Inputs",
-            WinuiPage::Toggles => "Toggles & Sliders",
-            WinuiPage::Lists => "Lists & Menus",
-        }
+        self.label()
     }
 
     pub fn subtitle(self) -> &'static str {
@@ -68,6 +77,13 @@ impl WinuiPage {
             WinuiPage::Inputs => "Text, password, number, search, path and multiline inputs.",
             WinuiPage::Toggles => "Checkbox, switch, radio and slider — all live.",
             WinuiPage::Lists => "Select, combo box, listbox and dropdown menus.",
+            WinuiPage::Status => {
+                "Progress, skeleton, badges, tags, tooltip, empty state and avatars."
+            }
+            WinuiPage::Dialogs => "Modal dialog, popover and disclosure flyouts.",
+            WinuiPage::Text => "Headings, labels, dividers and keyboard shortcuts.",
+            WinuiPage::Data => "Table, tree, list items and virtualized lists.",
+            WinuiPage::Surfaces => "Cards, panels, images, segmented groups and forms.",
         }
     }
 
@@ -78,9 +94,50 @@ impl WinuiPage {
             WinuiPage::Inputs => "pencil",
             WinuiPage::Toggles => "arrow-left",
             WinuiPage::Lists => "folder",
+            WinuiPage::Status => "info",
+            WinuiPage::Dialogs => "window-close",
+            WinuiPage::Text => "pencil",
+            WinuiPage::Data => "arrow-down",
+            WinuiPage::Surfaces => "maximize-on",
         }
     }
 }
+
+/// One sidebar group: a collapsible header plus its pages.
+struct NavGroup {
+    key: &'static str,
+    title: &'static str,
+    pages: &'static [WinuiPage],
+}
+
+/// The gallery navigation, mirroring the WinUI Gallery categories.
+const NAV_GROUPS: &[NavGroup] = &[
+    NavGroup {
+        key: "basic",
+        title: "Basic input",
+        pages: &[WinuiPage::Buttons, WinuiPage::Inputs, WinuiPage::Toggles],
+    },
+    NavGroup {
+        key: "collections",
+        title: "Collections",
+        pages: &[WinuiPage::Lists, WinuiPage::Data],
+    },
+    NavGroup {
+        key: "dialogs",
+        title: "Dialogs & flyouts",
+        pages: &[WinuiPage::Dialogs],
+    },
+    NavGroup {
+        key: "status",
+        title: "Status & info",
+        pages: &[WinuiPage::Status],
+    },
+    NavGroup {
+        key: "text",
+        title: "Text & layout",
+        pages: &[WinuiPage::Text, WinuiPage::Surfaces],
+    },
+];
 
 /// All interactive state for the demo app.
 #[allow(dead_code)]
@@ -91,7 +148,7 @@ pub struct WinuiApp {
     pub sidebar_collapsed: bool,
     /// Live text of the title-bar search box (filters the sidebar).
     pub nav_search: String,
-    /// Which sidebar groups are expanded (`"basic"`).
+    /// Which sidebar groups are expanded.
     pub groups_open: std::collections::HashSet<&'static str>,
 
     // ---- composite `Entity<XxxState>` ----
@@ -101,6 +158,18 @@ pub struct WinuiApp {
     pub dropdown_state: Entity<DropdownMenuState>,
     pub split_dd_state: Entity<DropdownMenuState>,
     pub listbox_state: Entity<ListboxState>,
+    pub modal_state: Entity<ModalState>,
+    pub popover_state: Entity<PopoverState>,
+    pub tooltip_state: Entity<yororen_ui::headless::tooltip::TooltipState>,
+
+    // ---- virtual lists ----
+    pub vl_controller: VirtualListController,
+    pub uvl_controller: UniformVirtualListController,
+
+    // ---- tree ----
+    pub tree_data: TreeData,
+    pub tree_expanded: std::collections::BTreeSet<TreeNodeId>,
+    pub tree_selected: Option<TreeNodeId>,
 
     // ---- plain values ----
     pub text: String,
@@ -122,6 +191,12 @@ pub struct WinuiApp {
     pub combo_value: String,
     pub listbox_value: String,
     pub dropdown_value: String,
+
+    pub progress: f32,
+    pub disclosure_open: bool,
+    pub tag_selected: bool,
+    pub kbd: String,
+    pub table_selected: usize,
 }
 
 impl WinuiApp {
@@ -133,6 +208,9 @@ impl WinuiApp {
         let dropdown_state = DropdownMenuState::new(&mut **cx);
         let split_dd_state = DropdownMenuState::new(&mut **cx);
         let listbox_state = ListboxState::new(&mut **cx);
+        let modal_state = ModalState::new(&mut **cx);
+        let popover_state = PopoverState::new(&mut **cx);
+        let tooltip_state = yororen_ui::headless::tooltip::TooltipState::new(&mut **cx);
 
         select_state.update(cx, |s, _cx| {
             s.set_options(vec![
@@ -167,9 +245,57 @@ impl WinuiApp {
                 ListboxOption::new("durian", "Durian"),
             ]);
         });
+        modal_state.update(cx, |s, _cx| {
+            s.set_dismiss_on_escape(true);
+            s.set_dismiss_on_scrim(true);
+            s.set_title("Confirm");
+        });
+        popover_state.update(cx, |s, _cx| {
+            s.set_dismiss_on_escape(true);
+            s.set_dismiss_on_outside_click(true);
+        });
+
+        let mut tree_data = TreeData::new();
+        tree_data.add(
+            None,
+            yororen_ui::headless::tree::node_id("docs"),
+            "Documents",
+        );
+        tree_data.add(
+            Some(yororen_ui::headless::tree::node_id("docs")),
+            yororen_ui::headless::tree::node_id("projects"),
+            "Projects",
+        );
+        tree_data.add(
+            Some(yororen_ui::headless::tree::node_id("docs")),
+            yororen_ui::headless::tree::node_id("media"),
+            "Media",
+        );
+        tree_data.add(
+            Some(yororen_ui::headless::tree::node_id("projects")),
+            yororen_ui::headless::tree::node_id("yororen"),
+            "yororen-ui",
+        );
+        tree_data.add(
+            Some(yororen_ui::headless::tree::node_id("projects")),
+            yororen_ui::headless::tree::node_id("winui"),
+            "winui-renderer",
+        );
+        tree_data.add(
+            Some(yororen_ui::headless::tree::node_id("media")),
+            yororen_ui::headless::tree::node_id("shots"),
+            "screenshots",
+        );
+        let mut tree_expanded = std::collections::BTreeSet::new();
+        tree_expanded.insert(yororen_ui::headless::tree::node_id("docs"));
+        tree_expanded.insert(yororen_ui::headless::tree::node_id("projects"));
 
         let mut groups_open = std::collections::HashSet::new();
         groups_open.insert("basic");
+        groups_open.insert("collections");
+        groups_open.insert("dialogs");
+        groups_open.insert("status");
+        groups_open.insert("text");
 
         Self {
             page: WinuiPage::Home,
@@ -183,6 +309,14 @@ impl WinuiApp {
             dropdown_state,
             split_dd_state,
             listbox_state,
+            modal_state,
+            popover_state,
+            tooltip_state,
+            vl_controller: VirtualListController::new(10_000, gpui::ListAlignment::Top, px(64.0)),
+            uvl_controller: UniformVirtualListController::new(),
+            tree_data,
+            tree_expanded,
+            tree_selected: None,
             text: String::new(),
             password: String::new(),
             number: 40.0,
@@ -200,7 +334,105 @@ impl WinuiApp {
             combo_value: String::new(),
             listbox_value: String::new(),
             dropdown_value: String::new(),
+            progress: 0.45,
+            disclosure_open: true,
+            tag_selected: false,
+            kbd: String::new(),
+            table_selected: 0,
         }
+    }
+
+    // -----------------------------------------------------------------
+    // Modal overlay
+    // -----------------------------------------------------------------
+
+    /// Scrim + centered dialog, deferred above all page content. The
+    /// panel visuals (ContentDialog spec: 24px padding, 8px radius,
+    /// deep shadow, fade + slide-up) belong to the modal renderer.
+    fn build_modal_overlay(&self, cx: &mut Context<Self>) -> gpui::Deferred {
+        use yororen_ui::headless::modal::modal;
+
+        let is_visible = self.modal_state.read(cx).is_visible();
+        if !is_visible {
+            return gpui::deferred(div()).with_priority(2);
+        }
+
+        let modal_state_for_close = self.modal_state.clone();
+        let modal_state_for_primary = self.modal_state.clone();
+        let entity = cx.entity().clone();
+
+        let panel = modal("winui-modal", self.modal_state.clone())
+            .child(
+                yororen_ui::headless::label::label("winui-modal-title", "Confirm changes", cx)
+                    .strong(true)
+                    .render(cx)
+                    .text_size(px(20.0)),
+            )
+            .child(
+                yororen_ui::headless::label::label(
+                    "winui-modal-body",
+                    "Discard unsaved changes and close the editor? This cannot be undone.",
+                    cx,
+                )
+                .muted(true)
+                .render(cx),
+            )
+            .child(
+                div()
+                    .flex()
+                    .flex_row()
+                    .gap(px(8.0))
+                    .child(
+                        yororen_ui::headless::button::button("winui-modal-primary", cx)
+                            .variant(yororen_ui::ActionVariantKind::Primary)
+                            .on_click(move |_, _, cx| {
+                                modal_state_for_primary.update(cx, |st, _cx| st.close());
+                                entity.update(cx, |s, _cx| s.primary_clicks += 1);
+                            })
+                            .render(cx)
+                            .child("Confirm"),
+                    )
+                    .child(
+                        yororen_ui::headless::button::button("winui-modal-close", cx)
+                            .on_click(move |_, _, cx| {
+                                modal_state_for_close.update(cx, |st, _cx| st.close());
+                            })
+                            .render(cx)
+                            .child("Cancel"),
+                    ),
+            )
+            .render(cx)
+            .w(px(360.0));
+
+        let scrim = {
+            let t = cx.theme();
+            t.get_color("surface.scrim")
+                .unwrap_or_else(|| gpui::hsla(0., 0., 0., 0.30))
+        };
+
+        // Scrim fades in with the dialog (reference ContentDialog
+        // overlay opacity 83ms→250ms fast-out-slow-in family).
+        let fade_ms = {
+            let t = cx.theme();
+            t.get_number("tokens.motion.duration_modal_fade")
+                .unwrap_or(200.0) as u64
+        };
+        let scrim_inner = div()
+            .absolute()
+            .inset_0()
+            .bg(scrim)
+            .flex()
+            .items_center()
+            .justify_center()
+            .child(panel);
+        let scrim_el = yororen_ui_winui_renderer::animation::fade_in_on_mount(
+            scrim_inner,
+            "winui-modal-scrim-fade",
+            std::time::Duration::from_millis(fade_ms),
+            yororen_ui_winui_renderer::animation::fast_out_slow_in,
+        );
+
+        gpui::deferred(scrim_el).with_priority(2)
     }
 
     // -----------------------------------------------------------------
@@ -354,17 +586,26 @@ impl WinuiApp {
 
         // Single animated selected rail (moves between items). Its
         // horizontal position tracks the ICON column (left = 12px nav
-        // padding + item indent), so the bar hugs the left side of the
-        // selected item's icon, and indented children sit to its right.
-        let rail = div()
-            .absolute()
-            .left_0()
-            .w(px(3.0))
-            .h(px(18.0))
-            .rounded(px(2.0))
-            .bg(accent);
-        let (rail_top, rail_left) = self.nav_rail_target();
-        let rail_animated = AnimatedRail::new("winui-rail", rail_top, rail_left, rail);
+        // padding + item indent), so the bar hugs the left side of
+        // the selected item's icon. When the selected page's row is
+        // not visible (its group collapsed, or filtered out by the
+        // search box) the rail is hidden entirely.
+        let rail_el: gpui::AnyElement = match self.nav_rail_target() {
+            Some((rail_top, rail_left)) => AnimatedRail::new(
+                "winui-rail",
+                rail_top,
+                rail_left,
+                div()
+                    .absolute()
+                    .left_0()
+                    .w(px(3.0))
+                    .h(px(18.0))
+                    .rounded(px(2.0))
+                    .bg(accent),
+            )
+            .into_any_element(),
+            None => div().into_any_element(),
+        };
 
         // Home item.
         nav_list = nav_list.child(
@@ -372,24 +613,23 @@ impl WinuiApp {
                 .into_any_element(),
         );
 
-        // "Basic input" group.
-        nav_list = nav_list.child(self.render_group_header("basic", "Basic input", cx));
-        if self.groups_open.contains("basic") {
-            for page in self.visible_group_pages() {
-                let item_id = format!("winui-nav-{:?}-fade", page);
-                let item: Stateful<Div> = self.build_nav_item(page, 24, cx);
-                let anim = item.with_animation(
-                    item_id,
-                    gpui::Animation::new(Duration::from_millis(180))
-                        .with_easing(|t: f32| 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t)),
-                    |this, p| this.opacity(p),
-                );
-                nav_list = nav_list.child(anim);
+        // Collapsible groups (WinUI Gallery categories).
+        for group in NAV_GROUPS {
+            nav_list = nav_list.child(self.render_group_header(group.key, group.title, cx));
+            if self.groups_open.contains(group.key) {
+                for page in self.visible_group_pages(group) {
+                    let item_id = format!("winui-nav-{:?}-fade", page);
+                    let item: Stateful<Div> = self.build_nav_item(page, 24, cx);
+                    let anim = item.with_animation(
+                        item_id,
+                        gpui::Animation::new(Duration::from_millis(180))
+                            .with_easing(|t: f32| 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t)),
+                        |this, p| this.opacity(p),
+                    );
+                    nav_list = nav_list.child(anim);
+                }
             }
         }
-
-        // "Settings" group (collapsed).
-        nav_list = nav_list.child(self.render_group_header("settings", "Settings", cx));
 
         // Footer in its own fixed bottom slot (not absolute): it is
         // always visible, on every page, independent of item height.
@@ -417,7 +657,7 @@ impl WinuiApp {
             .bg(nav_bg)
             .flex()
             .flex_col()
-            .child(rail_animated)
+            .child(rail_el)
             .child(nav_list)
             .child(footer)
             .into_any_element()
@@ -549,54 +789,63 @@ impl WinuiApp {
         })
     }
 
-    /// The nav rows currently visible under the "Basic input" group
-    /// (respecting the title-bar search filter).
-    fn visible_group_pages(&self) -> Vec<WinuiPage> {
-        [
-            WinuiPage::Buttons,
-            WinuiPage::Inputs,
-            WinuiPage::Toggles,
-            WinuiPage::Lists,
-        ]
-        .into_iter()
-        .filter(|p| {
-            self.nav_search.is_empty()
-                || p.label()
-                    .to_lowercase()
-                    .contains(&self.nav_search.to_lowercase())
-        })
-        .collect()
+    /// The nav rows currently visible under `group` (respecting the
+    /// title-bar search filter).
+    fn visible_group_pages(&self, group: &NavGroup) -> Vec<WinuiPage> {
+        group
+            .pages
+            .iter()
+            .copied()
+            .filter(|p| {
+                self.nav_search.is_empty()
+                    || p.label()
+                        .to_lowercase()
+                        .contains(&self.nav_search.to_lowercase())
+            })
+            .collect()
     }
 
     /// (top, left) offsets of the selected rail, in navbar-shell
-    /// coordinates. `top` is vertically centred on the selected row;
-    /// `left` hugs the icon column = 12px nav padding + item indent,
-    /// so the bar sits at the LEFT of each item's icon.
-    fn nav_rail_target(&self) -> (f32, f32) {
+    /// coordinates. Walks the same static group structure the
+    /// renderer uses, accumulating row heights: the rail lands
+    /// vertically centred on the selected row, hugging the icon
+    /// column.
+    /// `(top, left)` offsets of the selected rail, or `None` when
+    /// the selected row is not currently visible (its group is
+    /// collapsed, or the title-bar search filtered it out) — in
+    /// which case the rail is hidden rather than parked somewhere
+    /// misleading.
+    fn nav_rail_target(&self) -> Option<(f32, f32)> {
         const TOP_PAD: f32 = 16.0;
         const ITEM_H: f32 = 40.0;
         const GROUP_H: f32 = 32.0;
         const GAP: f32 = 4.0;
         const NAV_PAD_X: f32 = 12.0;
-        const ICON_LEFT_FROM_ITEM: f32 = 0.0; // icon starts at item's pl
-        const GAP_BEFORE_ICON: f32 = 7.0; // breathing room rail → icon
+        const GAP_BEFORE_ICON: f32 = 10.0;
 
         let rail_y = |item_top: f32| item_top + (ITEM_H - 18.0) / 2.0;
-        let rail_left = |indent: f32| NAV_PAD_X + ICON_LEFT_FROM_ITEM + indent - GAP_BEFORE_ICON;
+        let rail_left = |indent: f32| NAV_PAD_X + indent - GAP_BEFORE_ICON;
 
         if self.page == WinuiPage::Home {
-            return (rail_y(TOP_PAD), rail_left(12.0));
+            return Some((rail_y(TOP_PAD), rail_left(12.0)));
         }
+
         let mut y = TOP_PAD + ITEM_H + GAP;
-        y += GROUP_H + GAP;
-        let pages = self.visible_group_pages();
-        if !self.groups_open.contains("basic") {
-            return (rail_y(TOP_PAD + ITEM_H + GAP), rail_left(12.0));
+        for group in NAV_GROUPS {
+            y += GROUP_H + GAP;
+            if !self.groups_open.contains(group.key) {
+                continue;
+            }
+            let pages = self.visible_group_pages(group);
+            if let Some(idx) = pages.iter().position(|p| *p == self.page) {
+                return Some((rail_y(y + (idx as f32) * (ITEM_H + GAP)), rail_left(24.0)));
+            }
+            y += pages.len() as f32 * (ITEM_H + GAP);
         }
-        if let Some(idx) = pages.iter().position(|p| *p == self.page) {
-            return (rail_y(y + (idx as f32) * (ITEM_H + GAP)), rail_left(24.0));
-        }
-        (rail_y(TOP_PAD + ITEM_H + GAP), rail_left(12.0))
+
+        // The selected page's group is collapsed or the row is
+        // filtered out — nothing visible to point at.
+        None
     }
 }
 
@@ -614,6 +863,11 @@ impl Render for WinuiApp {
         };
 
         let titlebar = self.render_titlebar(window, cx);
+
+        // Global modal overlay: scrim + centered dialog, painted via
+        // `deferred` above the page content (priority 2 keeps it
+        // below toasts and above popover/dropdown panels).
+        let modal_layer = self.build_modal_overlay(cx);
 
         // Sidebar is always mounted; its width animates between 260
         // and 0 so collapse / expand is a smooth motion.
@@ -665,6 +919,7 @@ impl Render for WinuiApp {
                     .bg(stroke),
             )
             .child(body)
+            .child(modal_layer)
     }
 }
 

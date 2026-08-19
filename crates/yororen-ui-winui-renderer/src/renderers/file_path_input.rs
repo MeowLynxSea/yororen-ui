@@ -125,7 +125,10 @@ impl FilePathInputRenderer for WinUIFilePathInputRenderer {
             self.border(&render_state, &theme)
         };
         let text_color = theme.get_color("content.primary").unwrap_or_default();
-        let hint_color = theme.get_color("content.tertiary").unwrap_or_default();
+        let hint_color = theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default();
         let button_fg = self.button_fg(&render_state, &theme);
         let button_bg = self.button_bg(&render_state, &theme);
         let min_h = self.min_height(&render_state, &theme);
@@ -143,7 +146,10 @@ impl FilePathInputRenderer for WinUIFilePathInputRenderer {
             .get_color("winui.accent")
             .unwrap_or_else(|| self.border(&render_state, &theme));
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
         let font = default_font(&theme);
         drop(theme);
 
@@ -166,8 +172,10 @@ impl FilePathInputRenderer for WinUIFilePathInputRenderer {
             .border_color(border_color)
             .min_h(min_h)
             .rounded(radius)
-            .px(padding.left)
-            .py(padding.top)
+            .pl(padding.left)
+            .pr(padding.right)
+            .pt(padding.top)
+            .pb(padding.bottom)
             .flex()
             .items_center()
             .gap(action_gap)
@@ -180,10 +188,6 @@ impl FilePathInputRenderer for WinUIFilePathInputRenderer {
                 CursorStyle::IBeam
             })
             .track_focus(&focus_handle);
-
-        if focused {
-            base = base.border_2();
-        }
 
         if !disabled {
             base = base

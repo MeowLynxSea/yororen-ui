@@ -65,7 +65,13 @@ impl AvatarRenderer for WinUIAvatarRenderer {
         };
         let bg = self.default_bg(&state, theme);
         let r = self.border_radius(&state, theme);
-        let size = props.size.unwrap_or(gpui::px(40.0));
+        let size = props.size.unwrap_or_else(|| {
+            gpui::px(
+                theme
+                    .get_number("tokens.control.avatar.size")
+                    .unwrap_or(32.0) as f32,
+            )
+        });
         // Initials font sized at ~40% of avatar height so 2-letter
         // initials always fit inside the circle/square.
         let font_size = size * 0.4;
@@ -118,7 +124,10 @@ impl AvatarRenderer for WinUIAvatarRenderer {
                     .rounded(dot / 2.)
                     .border(bw)
                     .border_color(bc)
-                    .bg(theme.get_color("status.success.bg").unwrap_or_default()),
+                    .bg(theme
+                        .get_color("status.success.fg")
+                        .or_else(|| theme.get_color("status.success.bg"))
+                        .unwrap_or_default()),
             );
         }
         el

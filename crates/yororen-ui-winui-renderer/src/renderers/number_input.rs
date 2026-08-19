@@ -130,7 +130,10 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
             self.border(&render_state, &theme)
         };
         let text_color = theme.get_color("content.primary").unwrap_or_default();
-        let hint_color = theme.get_color("content.tertiary").unwrap_or_default();
+        let hint_color = theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default();
         let min_h = self.min_height(&render_state, &theme);
         let padding = self.padding(&render_state, &theme);
         let radius = self.border_radius(&render_state, &theme);
@@ -145,7 +148,10 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
             .get_color("winui.accent")
             .unwrap_or_else(|| self.border(&render_state, &theme));
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
         let font = default_font(&theme);
         drop(theme);
 
@@ -168,8 +174,10 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
             .border_color(border_color)
             .min_h(min_h)
             .rounded(radius)
-            .px(padding.left)
-            .py(padding.top)
+            .pl(padding.left)
+            .pr(padding.right)
+            .pt(padding.top)
+            .pb(padding.bottom)
             .flex()
             .items_center()
             .font_family(font.clone())
@@ -181,10 +189,6 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
                 CursorStyle::IBeam
             })
             .track_focus(&focus_handle);
-
-        if focused {
-            base = base.border_2();
-        }
 
         if !disabled {
             base = base
@@ -215,9 +219,20 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
                 div()
                     .id("number-input-decrement")
                     .size(stepper_size)
+                    .rounded(px(3.0))
                     .flex()
                     .items_center()
                     .justify_center()
+                    // WinUI action slot: subtle fill on hover.
+                    .hover({
+                        let t = cx.theme().clone();
+                        move |s| {
+                            s.bg(t
+                                .get_color("winui.subtle_fill_secondary")
+                                .or_else(|| t.get_color("surface.hover"))
+                                .unwrap_or_default())
+                        }
+                    })
                     .cursor(CursorStyle::PointingHand)
                     .on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
                         let next = value - step;
@@ -246,9 +261,20 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
                 div()
                     .id("number-input-increment")
                     .size(stepper_size)
+                    .rounded(px(3.0))
                     .flex()
                     .items_center()
                     .justify_center()
+                    // WinUI action slot: subtle fill on hover.
+                    .hover({
+                        let t = cx.theme().clone();
+                        move |s| {
+                            s.bg(t
+                                .get_color("winui.subtle_fill_secondary")
+                                .or_else(|| t.get_color("surface.hover"))
+                                .unwrap_or_default())
+                        }
+                    })
                     .cursor(CursorStyle::PointingHand)
                     .on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
                         let next = value + step;

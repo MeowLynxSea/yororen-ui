@@ -10,7 +10,6 @@ use gpui::{
     point, px, size,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::slider::SliderProps;
 use yororen_ui_core::renderer::slider::{SliderRenderOutput, SliderRenderState, SliderRenderer};
 use yororen_ui_core::theme::Theme;
@@ -75,9 +74,25 @@ impl WinUISliderRenderer {
 
     pub fn knob_outer(&self, _state: &SliderRenderState, theme: &Theme) -> Hsla {
         theme
-            .get_color("winui.solid_bg")
+            .get_color("winui.slider_thumb_bg")
+            .or_else(|| theme.get_color("winui.solid_bg"))
             .or_else(|| theme.get_color("surface.raised"))
             .unwrap_or_default()
+    }
+
+    /// Inner accent dot base diameter (12px in the reference),
+    /// scaled 0.86 / 1.167 / 0.71 across rest / hover / press.
+    pub fn inner_dot(&self, _state: &SliderRenderState, theme: &Theme) -> f32 {
+        theme
+            .get_number("tokens.control.slider.inner_dot")
+            .unwrap_or(12.0) as f32
+    }
+
+    /// Thumb drop shadow (`0 1px 3px rgba(0, 0, 0, 0.08)`).
+    pub fn thumb_shadow(&self, _state: &SliderRenderState, theme: &Theme) -> Hsla {
+        theme
+            .get_color("shadow.slider_thumb")
+            .unwrap_or_else(|| gpui::hsla(0., 0., 0., 0.08))
     }
 }
 
@@ -123,6 +138,8 @@ impl SliderRenderer for WinUISliderRenderer {
             knob_outer_bg,
             knob_hover_bg,
             knob_pressed_bg,
+            inner_dot: self.inner_dot(&state, theme),
+            thumb_shadow: self.thumb_shadow(&state, theme),
             hover_progress: 0.0,
             pressed_progress: 0.0,
         };
@@ -130,7 +147,7 @@ impl SliderRenderer for WinUISliderRenderer {
         let mut visual: gpui::Stateful<gpui::Div> = div()
             .id(props.id.clone())
             .w(track_w)
-            .h(px(24.0))
+            .h(px(32.0))
             .child(track_element);
 
         if props.disabled {
@@ -177,6 +194,8 @@ struct SliderTrackElement {
     knob_outer_bg: Hsla,
     knob_hover_bg: Hsla,
     knob_pressed_bg: Hsla,
+    inner_dot: f32,
+    thumb_shadow: Hsla,
     hover_progress: f32,
     pressed_progress: f32,
 }
@@ -211,7 +230,10 @@ impl Element for SliderTrackElement {
         let now = Instant::now();
         let hovered = interaction_hovered(cx, &self.interaction_id);
         let pressed = interaction_pressed(cx, &self.interaction_id);
-        let config = AnimationConfig::default().with_duration(Duration::from_millis(150));
+        // WinUI state transition: 167ms `cubic-bezier(0, 0, 0, 1)`.
+        let config = yororen_ui_core::animation::AnimationConfig::new()
+            .with_duration(Duration::from_millis(167))
+            .with_easing(crate::animation::fast_out_slow_in);
 
         let (hover_progress, pressed_progress, is_animating) = window.with_element_state(
             global_id.unwrap(),
@@ -240,7 +262,7 @@ impl Element for SliderTrackElement {
 
         let mut style = Style::default();
         style.size.width = gpui::relative(1.0).into();
-        style.size.height = px(24.0).into();
+        style.size.height = px(32.0).into();
         (window.request_layout(style, [], cx), ())
     }
 
@@ -266,8 +288,8 @@ impl Element for SliderTrackElement {
         window: &mut Window,
         _cx: &mut App,
     ) {
-        let track_y = bounds.top() + px((24.0 - self.track_h) / 2.0);
-        let knob_y = bounds.top() + px((24.0 - self.knob_size) / 2.0);
+        let track_y = bounds.top() + px((32.0 - self.track_h) / 2.0);
+        let knob_y = bounds.top() + px((32.0 - self.knob_size) / 2.0);
         let track_w: f32 = bounds.size.width.into();
         let fill_w = px(self.pct * (track_w - self.knob_size));
         let knob_x = bounds.left() + px(self.pct * (track_w - self.knob_size));
@@ -314,10 +336,25 @@ impl Element for SliderTrackElement {
             knob_y + px(self.knob_size / 2.0),
         );
         let outer_radius = px(self.knob_size / 2.0);
+        // Thumb drop shadow: 0 1px 3px rgba(0, 0, 0, 0.08).
+        let knob_bounds = Bounds::new(
+            point(knob_x, knob_y),
+            size(px(self.knob_size), px(self.knob_size)),
+        );
+        window.paint_shadows(
+            knob_bounds,
+            Corners::all(outer_radius),
+            &[gpui::BoxShadow {
+                color: self.thumb_shadow,
+                offset: point(px(0.), px(1.)),
+                blur_radius: px(3.),
+                spread_radius: px(0.),
+            }],
+        );
         let outer_path = circle_path(knob_center, outer_radius);
         window.paint_path(outer_path, self.knob_outer_bg);
 
-        let base_inner = (self.knob_size / 2.0 - 4.0).max(2.0);
+        let base_inner = (self.inner_dot / 2.0).max(2.0);
         let mut scale = lerp_f32(0.86, 1.167, self.hover_progress);
         scale = lerp_f32(scale, 0.71, self.pressed_progress);
         let inner_radius = px(base_inner * scale);

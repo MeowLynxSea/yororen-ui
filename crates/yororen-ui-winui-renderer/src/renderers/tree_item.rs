@@ -23,15 +23,12 @@
 //! toggle.
 
 use std::sync::Arc;
-use std::time::Duration;
 
 use gpui::{
-    App, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
-    SharedString, Stateful, StatefulInteractiveElement, Styled, Window, div,
-    prelude::FluentBuilder, px,
+    App, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels, Stateful,
+    StatefulInteractiveElement, Styled, Window, div, prelude::FluentBuilder, px,
 };
 
-use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::tree_item::{DOUBLE_CLICK_THRESHOLD, LastClick, TreeItemProps};
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
@@ -39,6 +36,8 @@ use yororen_ui_core::theme::Theme;
 use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
 
 pub use yororen_ui_core::renderer::tree_item::{TreeItemRenderState, TreeItemRenderer};
+
+use crate::animation::control_config;
 
 pub struct WinUITreeItemRenderer;
 
@@ -48,17 +47,21 @@ impl WinUITreeItemRenderer {
         theme.get_color("surface.base").unwrap_or_default()
     }
     pub fn hover_bg(&self, _state: &TreeItemRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("surface.hover").unwrap_or_default()
+        theme
+            .get_color("winui.subtle_fill_secondary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default()
     }
     pub fn selected_bg(&self, _state: &TreeItemRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("action.primary.bg").unwrap_or_default()
+        // WinUI tree selection is a subtle highlight; text keeps its
+        // primary brush.
+        theme
+            .get_color("winui.subtle_fill_secondary")
+            .or_else(|| theme.get_color("surface.hover"))
+            .unwrap_or_default()
     }
-    pub fn fg(&self, state: &TreeItemRenderState, theme: &Theme) -> Hsla {
-        if state.selected {
-            theme.get_color("action.primary.fg").unwrap_or_default()
-        } else {
-            theme.get_color("content.primary").unwrap_or_default()
-        }
+    pub fn fg(&self, _state: &TreeItemRenderState, theme: &Theme) -> Hsla {
+        theme.get_color("content.primary").unwrap_or_default()
     }
     pub fn disabled_fg(&self, _state: &TreeItemRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.disabled").unwrap_or_default()
@@ -105,7 +108,7 @@ impl WinUITreeItemRenderer {
 impl TreeItemRenderer for WinUITreeItemRenderer {
     fn compose(&self, props: &TreeItemProps, cx: &mut App, window: &mut Window) -> Stateful<Div> {
         use yororen_ui_core::theme::ActiveTheme;
-        let theme = cx.theme();
+        let theme = cx.theme().clone();
         let state = TreeItemRenderState {
             selected: props.selected,
             expanded: props.expanded,
@@ -114,18 +117,18 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
         };
 
         let bg = if state.selected {
-            self.selected_bg(&state, theme)
+            self.selected_bg(&state, &theme)
         } else {
-            self.bg(&state, theme)
+            self.bg(&state, &theme)
         };
-        let hover_bg = self.hover_bg(&state, theme);
-        let fg = self.fg(&state, theme);
-        let pad = self.padding(&state, theme);
-        let h = self.min_height(&state, theme);
-        let indent = self.indent(&state, theme);
-        let chevron_size = self.chevron_size(&state, theme);
-        let gap = self.gap(&state, theme);
-        let radius = self.border_radius(&state, theme);
+        let hover_bg = self.hover_bg(&state, &theme);
+        let fg = self.fg(&state, &theme);
+        let pad = self.padding(&state, &theme);
+        let h = self.min_height(&state, &theme);
+        let indent = self.indent(&state, &theme);
+        let chevron_size = self.chevron_size(&state, &theme);
+        let gap = self.gap(&state, &theme);
+        let radius = self.border_radius(&state, &theme);
 
         // Chevron slot — always reserves space so labels at the
         // same depth align whether or not a row has children.
@@ -135,19 +138,30 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
         // underneath (which would otherwise fire the row's
         // `on_click`).
         let chevron_slot: gpui::AnyElement = if props.has_children {
-            let glyph: SharedString = if props.expanded {
-                "▾".into()
-            } else {
-                "▸".into()
-            };
+            // Fluent chevron: right-pointing when collapsed,
+            // down-pointing when expanded.
             let chevron_id: ElementId = format!("{}-chevron", props.id).into();
             let toggle_cb = props.on_toggle.clone();
             let disabled = props.disabled;
             let chevron_color = if props.disabled {
-                self.disabled_fg(&state, theme)
+                self.disabled_fg(&state, &theme)
             } else {
                 fg
             };
+            let chevron_icon = yororen_ui_core::headless::icon::IconProps {
+                id: (chevron_id.clone(), "icon").into(),
+                source: yororen_ui_core::headless::icon::IconSource::Builtin(
+                    if props.expanded {
+                        "arrow-down"
+                    } else {
+                        "arrow-right"
+                    }
+                    .into(),
+                ),
+                size: Some(chevron_size),
+                color: Some(chevron_color),
+            }
+            .render(cx);
             div()
                 .id(chevron_id)
                 .w(chevron_size)
@@ -158,7 +172,7 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
                 .text_color(chevron_color)
                 .when(!disabled, |s| s.cursor_pointer())
                 .occlude()
-                .child(glyph)
+                .child(chevron_icon)
                 .on_click(move |ev, window, cx| {
                     if disabled {
                         return;
@@ -177,7 +191,7 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
         };
 
         let label_color = if props.disabled {
-            self.disabled_fg(&state, theme)
+            self.disabled_fg(&state, &theme)
         } else {
             fg
         };
@@ -214,7 +228,7 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
         if !props.selected && !props.disabled {
             let row_id = props.id.clone();
             let hover_row_id = row_id.clone();
-            let config = AnimationConfig::default().with_duration(Duration::from_millis(100));
+            let config = control_config(&theme);
             let fill = AnimatedStateElement::new(
                 (row_id.clone(), "fill"),
                 hover_row_id,

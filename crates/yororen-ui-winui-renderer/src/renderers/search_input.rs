@@ -45,7 +45,10 @@ impl WinUISearchInputRenderer {
         theme.get_color("border.default").unwrap_or_default()
     }
     pub fn icon_color(&self, _state: &SearchInputRenderState, theme: &Theme) -> Hsla {
-        theme.get_color("content.tertiary").unwrap_or_default()
+        theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default()
     }
     pub fn fg(&self, _state: &SearchInputRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.primary").unwrap_or_default()
@@ -124,7 +127,10 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
             self.border(&render_state, &theme)
         };
         let text_color = self.fg(&render_state, &theme);
-        let hint_color = theme.get_color("content.tertiary").unwrap_or_default();
+        let hint_color = theme
+            .get_color("winui.text_secondary")
+            .or_else(|| theme.get_color("content.secondary"))
+            .unwrap_or_default();
         let icon_color = self.icon_color(&render_state, &theme);
         let min_h = self.min_height(&render_state, &theme);
         let padding = self.padding(&render_state, &theme);
@@ -141,7 +147,10 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
             .get_color("winui.accent")
             .unwrap_or_else(|| self.border(&render_state, &theme));
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
-        let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
+        let bg_focused = theme
+            .get_color("winui.ctrl_fill_input_active")
+            .or_else(|| theme.get_color("surface.sunken"))
+            .unwrap_or(bg);
         let font = default_font(&theme);
         drop(theme);
 
@@ -164,8 +173,10 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
             .border_color(border_color)
             .min_h(min_h)
             .rounded(radius)
-            .px(padding.left)
-            .py(padding.top)
+            .pl(padding.left)
+            .pr(padding.right)
+            .pt(padding.top)
+            .pb(padding.bottom)
             .flex()
             .items_center()
             .gap(input_gap)
@@ -178,10 +189,6 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
                 CursorStyle::IBeam
             })
             .track_focus(&focus_handle);
-
-        if focused {
-            base = base.border_2();
-        }
 
         if !disabled {
             base = base
@@ -249,10 +256,23 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
                     div()
                         .id("search-input-clear")
                         .size(icon_size)
+                        .rounded(px(3.0))
                         .flex()
                         .items_center()
                         .justify_center()
                         .text_color(icon_color)
+                        // WinUI action slot: transparent at rest,
+                        // subtle fill on hover (reference
+                        // `win-textbox-delete-button`).
+                        .hover({
+                            let t = cx.theme().clone();
+                            move |s| {
+                                s.bg(t
+                                    .get_color("winui.subtle_fill_secondary")
+                                    .or_else(|| t.get_color("surface.hover"))
+                                    .unwrap_or_default())
+                            }
+                        })
                         .cursor(CursorStyle::PointingHand)
                         .on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
                             state_for_clear.update(cx, |s, cx| {
