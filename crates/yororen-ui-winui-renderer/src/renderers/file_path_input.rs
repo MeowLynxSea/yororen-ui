@@ -18,9 +18,7 @@ use yororen_ui_core::renderer::file_path_input::{FilePathInputRenderState, FileP
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    animated_input_border, set_interaction_hovered, set_interaction_pressed,
-};
+use crate::animation::{animated_input_border, set_interaction_hovered, set_interaction_pressed};
 use crate::themes::default_font;
 
 pub struct WinUIFilePathInputRenderer;
@@ -193,20 +191,14 @@ impl FilePathInputRenderer for WinUIFilePathInputRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                );
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                });
         }
 
         let keyed = wire_input_keyboard(base, state.clone(), focus_handle.clone(), disabled, None);
@@ -216,7 +208,8 @@ impl FilePathInputRenderer for WinUIFilePathInputRenderer {
         let on_change_for_async = state.read(cx).on_change.clone();
         let state_for_browse = state.clone();
 
-        let assembled: Stateful<Div> = keyed.child(
+        let assembled: Stateful<Div> = keyed
+            .child(
                 icon(
                     "file-path-input-leading-icon",
                     IconSource::Builtin("folder".into()),

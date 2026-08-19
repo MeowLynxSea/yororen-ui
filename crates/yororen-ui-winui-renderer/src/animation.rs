@@ -61,13 +61,15 @@ impl Global for WinUIInteractions {}
 /// Mark an element as hovered / no-longer-hovered. Called from
 /// `.on_hover` listeners on renderer shells.
 pub fn set_interaction_hovered(cx: &mut App, id: ElementId, hovered: bool) {
-    cx.default_global::<WinUIInteractions>().set_hovered(id, hovered);
+    cx.default_global::<WinUIInteractions>()
+        .set_hovered(id, hovered);
 }
 
 /// Mark an element as pressed / released. Called from
 /// `.on_mouse_down` / `.on_mouse_up` listeners.
 pub fn set_interaction_pressed(cx: &mut App, id: ElementId, pressed: bool) {
-    cx.default_global::<WinUIInteractions>().set_pressed(id, pressed);
+    cx.default_global::<WinUIInteractions>()
+        .set_pressed(id, pressed);
 }
 
 /// Whether `id` is currently hovered (only meaningful while a
@@ -140,7 +142,9 @@ pub fn animated_input_border(
         .bottom_0()
         .h(px(2.0))
         .bg(bottom);
-    let keyed = keyed.bg(if focused { bg_focused } else { bg_rest }).border_color(side_border);
+    let keyed = keyed
+        .bg(if focused { bg_focused } else { bg_rest })
+        .border_color(side_border);
     let mut keyed = keyed.child(underline);
     {
         let style = keyed.style();
@@ -656,8 +660,8 @@ impl<E: Element + Styled + 'static> Element for AnimatedStateElement<E> {
         let hovered = interaction_hovered(cx, &self.hover_id);
         let pressed = interaction_pressed(cx, &self.hover_id);
 
-        let (hover_progress, pressed_progress, checked_progress, is_animating) =
-            window.with_element_state(
+        let (hover_progress, pressed_progress, checked_progress, is_animating) = window
+            .with_element_state(
                 global_id.unwrap(),
                 |state: Option<AnimatedStateElementState>, _window| {
                     let mut state = state.unwrap_or(AnimatedStateElementState {
@@ -692,8 +696,8 @@ impl<E: Element + Styled + 'static> Element for AnimatedStateElement<E> {
             .child
             .take()
             .expect("AnimatedStateElement::request_layout called once");
-        let mut element = (self.render)(child, eased_hover, eased_pressed, eased_checked)
-            .into_any_element();
+        let mut element =
+            (self.render)(child, eased_hover, eased_pressed, eased_checked).into_any_element();
         (element.request_layout(window, cx), element)
     }
 

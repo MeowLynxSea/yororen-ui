@@ -115,8 +115,10 @@ impl SelectRenderer for WinUISelectRenderer {
             state_read.placeholder.to_string()
         };
 
-let side_border = theme.get_color("winui.ctrl_stroke").unwrap_or(border);
-        let bottom_rest = theme.get_color("winui.ctrl_strong_stroke").unwrap_or(border);
+        let side_border = theme.get_color("winui.ctrl_stroke").unwrap_or(border);
+        let bottom_rest = theme
+            .get_color("winui.ctrl_strong_stroke")
+            .unwrap_or(border);
         let bottom_focused = theme.get_color("winui.accent").unwrap_or(border);
         let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
         let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
@@ -201,9 +203,7 @@ let side_border = theme.get_color("winui.ctrl_stroke").unwrap_or(border);
                     gpui::hsla(0.0, 0.0, 0.0, 0.0)
                 };
                 let hover_bg = theme.get_color("surface.hover").unwrap_or_default();
-                let item_fg = theme
-                    .get_color("content.primary")
-                    .unwrap_or_default();
+                let item_fg = theme.get_color("content.primary").unwrap_or_default();
                 let pill_color = if is_selected {
                     theme
                         .get_color("winui.accent")
@@ -229,8 +229,7 @@ let side_border = theme.get_color("winui.ctrl_stroke").unwrap_or(border);
                         set_interaction_hovered(cx, item_hover_id.clone(), *hovered)
                     });
 
-                let config =
-                    AnimationConfig::default().with_duration(Duration::from_millis(100));
+                let config = AnimationConfig::default().with_duration(Duration::from_millis(100));
                 let fill = AnimatedStateElement::new(
                     (item_id.clone(), "fill"),
                     item_id.clone(),
@@ -249,13 +248,7 @@ let side_border = theme.get_color("winui.ctrl_stroke").unwrap_or(border);
 
                 item = item
                     .child(fill)
-                    .child(
-                        div()
-                            .w(px(3.))
-                            .h(px(16.))
-                            .rounded(px(1.5))
-                            .bg(pill_color),
-                    )
+                    .child(div().w(px(3.)).h(px(16.)).rounded(px(1.5)).bg(pill_color))
                     .child(opt_label);
                 item = item.on_click(move |_ev, window, cx| {
                     // Headless data action: `pick` writes

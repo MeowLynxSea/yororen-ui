@@ -31,9 +31,7 @@ use yororen_ui_core::headless::list_navigable::ListNavigable;
 use yororen_ui_core::headless::listbox::ListboxProps;
 use yororen_ui_core::renderer::spec::Edges;
 
-use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered,
-};
+use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
 use yororen_ui_core::theme::Theme;
 
 pub use yororen_ui_core::renderer::listbox::{ListboxRenderState, ListboxRenderer};

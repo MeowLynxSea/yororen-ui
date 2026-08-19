@@ -16,9 +16,7 @@ use yororen_ui_core::renderer::keybinding_input::{
 };
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    animated_input_border, set_interaction_hovered, set_interaction_pressed,
-};
+use crate::animation::{animated_input_border, set_interaction_hovered, set_interaction_pressed};
 use crate::themes::default_font;
 
 pub struct WinUIKeybindingInputRenderer;
@@ -150,20 +148,14 @@ impl KeybindingInputRenderer for WinUIKeybindingInputRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                );
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                });
         }
 
         // In capturing mode we bypass `wire_input_keyboard` so that
@@ -231,20 +223,21 @@ impl KeybindingInputRenderer for WinUIKeybindingInputRenderer {
             state.read(cx).value.clone()
         };
 
-        let assembled = keyed.on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
-            if let Some(cb) = on_start_clone.as_ref() {
-                cb(window, cx);
-            }
-        })
-        .child(
-            div()
-                .bg(kbd_bg)
-                .rounded(px(4.0))
-                .px(px(8.))
-                .py(px(2.))
-                .text_color(kbd_fg)
-                .child(display_text),
-        );
+        let assembled = keyed
+            .on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
+                if let Some(cb) = on_start_clone.as_ref() {
+                    cb(window, cx);
+                }
+            })
+            .child(
+                div()
+                    .bg(kbd_bg)
+                    .rounded(px(4.0))
+                    .px(px(8.))
+                    .py(px(2.))
+                    .text_color(kbd_fg)
+                    .child(display_text),
+            );
 
         animated_input_border(
             assembled,

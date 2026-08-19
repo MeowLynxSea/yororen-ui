@@ -3,8 +3,8 @@
 use std::sync::Arc;
 
 use gpui::{
-    AnyElement, App, CursorStyle, Div, Hsla, InteractiveElement, MouseButton, ParentElement, Pixels,
-    SharedString, Stateful, StatefulInteractiveElement, Styled, Window, div, px,
+    AnyElement, App, CursorStyle, Div, Hsla, InteractiveElement, MouseButton, ParentElement,
+    Pixels, SharedString, Stateful, StatefulInteractiveElement, Styled, Window, div, px,
 };
 
 use yororen_ui_core::headless::number_input::NumberInputProps;
@@ -16,9 +16,7 @@ use yororen_ui_core::renderer::number_input::{NumberInputRenderState, NumberInpu
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    animated_input_border, set_interaction_hovered, set_interaction_pressed,
-};
+use crate::animation::{animated_input_border, set_interaction_hovered, set_interaction_pressed};
 use crate::themes::default_font;
 
 pub struct WinUINumberInputRenderer;
@@ -194,20 +192,14 @@ impl NumberInputRenderer for WinUINumberInputRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                );
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                });
         }
 
         let keyed = wire_input_keyboard(base, state.clone(), focus_handle.clone(), disabled, None);

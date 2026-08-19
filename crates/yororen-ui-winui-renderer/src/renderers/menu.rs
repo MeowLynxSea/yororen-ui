@@ -19,9 +19,7 @@ use yororen_ui_core::headless::dropdown_menu::DropdownItem;
 use yororen_ui_core::headless::menu::MenuProps;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered,
-};
+use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
 
 pub use yororen_ui_core::renderer::menu::{MenuRenderState, MenuRenderer};
 

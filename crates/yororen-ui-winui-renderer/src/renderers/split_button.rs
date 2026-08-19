@@ -338,8 +338,8 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                                         cb(item_id_for_callback.clone(), window, cx);
                                     }
                                 });
-                            let config =
-                                AnimationConfig::default().with_duration(Duration::from_millis(100));
+                            let config = AnimationConfig::default()
+                                .with_duration(Duration::from_millis(100));
                             let fill = AnimatedStateElement::new(
                                 (fill_id.clone(), "fill"),
                                 wrapper_id.clone(),

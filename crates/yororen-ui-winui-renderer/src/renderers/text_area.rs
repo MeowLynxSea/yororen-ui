@@ -19,9 +19,7 @@ use yororen_ui_core::headless::text_input_element::start_cursor_blink;
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::renderer::text_area::{TextAreaRenderState, TextAreaRenderer};
 
-use crate::animation::{
-    animated_input_border, set_interaction_hovered, set_interaction_pressed,
-};
+use crate::animation::{animated_input_border, set_interaction_hovered, set_interaction_pressed};
 use crate::themes::default_font;
 use yororen_ui_core::theme::Theme;
 
@@ -201,20 +199,14 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                );
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                });
         }
 
         let mut keyed: Stateful<Div> = base

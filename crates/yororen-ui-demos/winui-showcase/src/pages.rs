@@ -61,20 +61,19 @@ pub fn build(
 
 /// Page header: big title + subtitle + a hairline, like a WinUI
 /// Gallery sample page.
-fn page_header(
-    page: WinuiPage,
-    cx: &mut Context<WinuiApp>,
-) -> gpui::AnyElement {
+fn page_header(page: WinuiPage, cx: &mut Context<WinuiApp>) -> gpui::AnyElement {
     let stroke = cx
         .theme()
         .get_color("winui.card_stroke")
         .unwrap_or_else(|| cx.theme().get_color("border.default").unwrap_or_default());
     column("winui-page-header", cx)
         .gap(Spacing::Sm)
+        .child(heading("winui-page-title", HeadingLevel::H1, page.title(), cx).render(cx))
         .child(
-            heading("winui-page-title", HeadingLevel::H1, page.title(), cx).render(cx),
+            label("winui-page-subtitle", page.subtitle(), cx)
+                .muted(true)
+                .render(cx),
         )
-        .child(label("winui-page-subtitle", page.subtitle(), cx).muted(true).render(cx))
         .child(div().my(px(16.0)).h(px(1.0)).w_full().bg(stroke))
         .render(cx)
         .into_any_element()
@@ -92,7 +91,11 @@ fn card(
     el.w_full().child(child).into_any_element()
 }
 
-fn status_line(id: impl std::fmt::Display, text: String, cx: &mut Context<WinuiApp>) -> gpui::AnyElement {
+fn status_line(
+    id: impl std::fmt::Display,
+    text: String,
+    cx: &mut Context<WinuiApp>,
+) -> gpui::AnyElement {
     label(format!("winui-status-{id}"), text, cx)
         .muted(true)
         .render(cx)
@@ -161,12 +164,22 @@ fn hero_header(cx: &mut Context<WinuiApp>) -> gpui::AnyElement {
         .gap(Spacing::Sm)
         .child(label("winui-hero-version", "1.0.0-Insider", cx).render(cx))
         .child(
-            heading("winui-hero-title", HeadingLevel::H1, "WinUI on Web Gallery", cx).render(cx),
+            heading(
+                "winui-hero-title",
+                HeadingLevel::H1,
+                "WinUI on Web Gallery",
+                cx,
+            )
+            .render(cx),
         )
         .child(
-            label("winui-hero-subtitle", "Bring WinUI experience to the web.", cx)
-                .muted(true)
-                .render(cx),
+            label(
+                "winui-hero-subtitle",
+                "Bring WinUI experience to the web.",
+                cx,
+            )
+            .muted(true)
+            .render(cx),
         )
         .child(div().w(px(48.0)).h(px(3.0)).rounded(px(2.0)).bg(accent))
         .render(cx);
@@ -215,7 +228,11 @@ fn feature_card(
                     .render(cx),
                 ),
         )
-        .child(label(format!("winui-feature-{id}-d"), description, cx).muted(true).render(cx));
+        .child(
+            label(format!("winui-feature-{id}-d"), description, cx)
+                .muted(true)
+                .render(cx),
+        );
 
     card_props(format!("winui-feature-{id}"), cx)
         .interactive(true)

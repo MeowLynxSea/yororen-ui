@@ -36,9 +36,7 @@ use yororen_ui_core::headless::tree_item::{DOUBLE_CLICK_THRESHOLD, LastClick, Tr
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered,
-};
+use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
 
 pub use yororen_ui_core::renderer::tree_item::{TreeItemRenderState, TreeItemRenderer};
 
@@ -223,9 +221,7 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
                 false,
                 div().absolute().inset_0().rounded(radius),
                 config,
-                move |d: Div, hover, _pressed, _checked| {
-                    d.bg(lerp_hsla(bg, hover_bg, hover))
-                },
+                move |d: Div, hover, _pressed, _checked| d.bg(lerp_hsla(bg, hover_bg, hover)),
             );
             row = row.on_hover(move |hovered, _win, cx| {
                 set_interaction_hovered(cx, row_id.clone(), *hovered)

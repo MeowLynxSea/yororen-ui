@@ -14,9 +14,7 @@ use yororen_ui_core::animation::AnimationConfig;
 use yororen_ui_core::headless::disclosure::DisclosureProps;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    AnimatedStateElement, lerp_hsla, set_interaction_hovered,
-};
+use crate::animation::{AnimatedStateElement, lerp_hsla, set_interaction_hovered};
 
 pub use yororen_ui_core::renderer::disclosure::{DisclosureRenderState, DisclosureRenderer};
 
@@ -63,9 +61,11 @@ impl DisclosureRenderer for WinUIDisclosureRenderer {
 
         if !props.disabled {
             let id = props.id.clone();
-            container.interactivity().on_hover(move |hovered, _win, cx| {
-                set_interaction_hovered(cx, id.clone(), *hovered);
-            });
+            container
+                .interactivity()
+                .on_hover(move |hovered, _win, cx| {
+                    set_interaction_hovered(cx, id.clone(), *hovered);
+                });
         }
 
         let config = AnimationConfig::default().with_duration(Duration::from_millis(100));

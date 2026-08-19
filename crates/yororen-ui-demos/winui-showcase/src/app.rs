@@ -249,7 +249,9 @@ impl WinuiApp {
 
         // Back button — pops the page history.
         let can_back = !self.page_history.is_empty();
-        let back_color = if can_back { secondary } else {
+        let back_color = if can_back {
+            secondary
+        } else {
             theme_tertiary(cx)
         };
         let back = div()
@@ -306,7 +308,11 @@ impl WinuiApp {
             .child(toggle)
             .child(div().w(px(8.0)))
             .child(brand_tile)
-            .child(label("tb-brand", "WinUI", cx).render(cx).text_size(px(14.0)))
+            .child(
+                label("tb-brand", "WinUI", cx)
+                    .render(cx)
+                    .text_size(px(14.0)),
+            )
             .child(div().flex_1())
             .child(div().w(px(320.0)).child(search))
             .into_any_element()
@@ -361,7 +367,10 @@ impl WinuiApp {
         let rail_animated = AnimatedRail::new("winui-rail", rail_top, rail_left, rail);
 
         // Home item.
-        nav_list = nav_list.child(self.build_nav_item(WinuiPage::Home, 12, cx).into_any_element());
+        nav_list = nav_list.child(
+            self.build_nav_item(WinuiPage::Home, 12, cx)
+                .into_any_element(),
+        );
 
         // "Basic input" group.
         nav_list = nav_list.child(self.render_group_header("basic", "Basic input", cx));
@@ -391,9 +400,13 @@ impl WinuiApp {
             .flex()
             .items_center()
             .child(
-                label("winui-nav-footer-lbl", "WinUI renderer · v1.0.0-Insider", cx)
-                    .muted(true)
-                    .render(cx),
+                label(
+                    "winui-nav-footer-lbl",
+                    "WinUI renderer · v1.0.0-Insider",
+                    cx,
+                )
+                .muted(true)
+                .render(cx),
             );
 
         div()
@@ -412,10 +425,18 @@ impl WinuiApp {
 
     /// Group titles with WinUI *line* chevrons (SVG arrows, not the
     /// filled triangle glyphs). Clicking toggles the group.
-    fn render_group_header(&self, key: &'static str, title: &str, cx: &mut Context<Self>) -> gpui::AnyElement {
+    fn render_group_header(
+        &self,
+        key: &'static str,
+        title: &str,
+        cx: &mut Context<Self>,
+    ) -> gpui::AnyElement {
         let entity = cx.entity().clone();
         let open = self.groups_open.contains(key);
-        let hover_bg = { let t = cx.theme(); t.get_color("winui.ctrl_fill_hover").unwrap_or_default() };
+        let hover_bg = {
+            let t = cx.theme();
+            t.get_color("winui.ctrl_fill_hover").unwrap_or_default()
+        };
 
         div()
             .id(format!("winui-nav-group-{key}"))
@@ -434,7 +455,10 @@ impl WinuiApp {
                     IconSource::Builtin(if open { "arrow-down" } else { "arrow-right" }.into()),
                     cx,
                 )
-                .color({ let t = cx.theme(); t.get_color("content.secondary").unwrap_or_default() })
+                .color({
+                    let t = cx.theme();
+                    t.get_color("content.secondary").unwrap_or_default()
+                })
                 .size(px(10.0))
                 .render(cx),
             )
@@ -475,7 +499,8 @@ impl WinuiApp {
                 t.get_color("winui.accent")
                     .unwrap_or_else(|| t.get_color("action.primary.bg").unwrap_or_default()),
                 t.get_color("winui.ctrl_fill_hover").unwrap_or_default(),
-                t.get_color("winui.subtle_fill_secondary").unwrap_or_default(),
+                t.get_color("winui.subtle_fill_secondary")
+                    .unwrap_or_default(),
             )
         };
         let _ = accent;
@@ -569,10 +594,7 @@ impl WinuiApp {
             return (rail_y(TOP_PAD + ITEM_H + GAP), rail_left(12.0));
         }
         if let Some(idx) = pages.iter().position(|p| *p == self.page) {
-            return (
-                rail_y(y + (idx as f32) * (ITEM_H + GAP)),
-                rail_left(24.0),
-            );
+            return (rail_y(y + (idx as f32) * (ITEM_H + GAP)), rail_left(24.0));
         }
         (rail_y(TOP_PAD + ITEM_H + GAP), rail_left(12.0))
     }
@@ -674,12 +696,7 @@ struct AnimatedRail {
 }
 
 impl AnimatedRail {
-    fn new(
-        id: impl Into<ElementId>,
-        target_top: f32,
-        target_left: f32,
-        child: Div,
-    ) -> Self {
+    fn new(id: impl Into<ElementId>, target_top: f32, target_left: f32, child: Div) -> Self {
         Self {
             id: id.into(),
             target_top,
@@ -717,9 +734,8 @@ impl Element for AnimatedRail {
     ) -> (LayoutId, Self::RequestLayoutState) {
         let target_top = self.target_top;
         let target_left = self.target_left;
-        let (top, left, animating) = window.with_element_state(
-            global_id.unwrap(),
-            |state: Option<RailState>, _window| {
+        let (top, left, animating) =
+            window.with_element_state(global_id.unwrap(), |state: Option<RailState>, _window| {
                 let mut st = state.unwrap_or(RailState {
                     current_top: target_top,
                     current_left: target_left,
@@ -746,8 +762,7 @@ impl Element for AnimatedRail {
                     ),
                     st,
                 )
-            },
-        );
+            });
         if animating {
             window.request_animation_frame();
         }
@@ -844,7 +859,11 @@ impl Element for AnimatedWidthElement {
                 let mut st = state.unwrap_or(SidebarWidthState { current: target });
                 let diff = target - st.current;
                 let step = diff * 0.22;
-                st.current = if diff.abs() < 1.0 { target } else { st.current + step };
+                st.current = if diff.abs() < 1.0 {
+                    target
+                } else {
+                    st.current + step
+                };
                 ((st.current, (st.current - target).abs() > 1.0), st)
             },
         );

@@ -242,20 +242,14 @@ impl ButtonRenderer for WinUIButtonRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                )
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                })
                 .cursor(CursorStyle::PointingHand);
         }
 

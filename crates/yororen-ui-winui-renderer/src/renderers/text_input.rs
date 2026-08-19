@@ -22,9 +22,7 @@ use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::renderer::text_input::{TextInputRenderState, TextInputRenderer};
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    animated_input_border, set_interaction_hovered, set_interaction_pressed,
-};
+use crate::animation::{animated_input_border, set_interaction_hovered, set_interaction_pressed};
 use crate::themes::default_font;
 
 pub struct WinUITextInputRenderer;
@@ -215,16 +213,12 @@ impl TextInputRenderer for WinUITextInputRenderer {
         let opacity = self.disabled_opacity(&render_state, &theme);
         // Fluent TextBox colors: thin side border, brighter bottom
         // underline, rest/hover/focused backgrounds.
-        let side_border = theme
-            .get_color("winui.ctrl_stroke")
+        let side_border = theme.get_color("winui.ctrl_stroke").unwrap_or(border_color);
+        let bottom_rest = theme
+            .get_color("winui.ctrl_strong_stroke")
             .unwrap_or(border_color);
-        let bottom_rest = theme.get_color("winui.ctrl_strong_stroke").unwrap_or(border_color);
-        let bottom_focused = theme
-            .get_color("winui.accent")
-            .unwrap_or(border_color);
-        let bg_hover = theme
-            .get_color("winui.ctrl_fill_hover")
-            .unwrap_or(bg);
+        let bottom_focused = theme.get_color("winui.accent").unwrap_or(border_color);
+        let bg_hover = theme.get_color("winui.ctrl_fill_hover").unwrap_or(bg);
         let bg_focused = theme.get_color("surface.sunken").unwrap_or(bg);
         let font = default_font(&theme);
         drop(theme);
@@ -262,20 +256,14 @@ impl TextInputRenderer for WinUITextInputRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                );
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                });
         }
 
         // Inner text-painting element.

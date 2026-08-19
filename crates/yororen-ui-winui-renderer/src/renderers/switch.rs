@@ -4,8 +4,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use gpui::{
-    App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement, Pixels,
-    Stateful, StatefulInteractiveElement, Styled, div, px,
+    App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement,
+    Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
 use yororen_ui_core::animation::AnimationConfig;
@@ -13,8 +13,8 @@ use yororen_ui_core::headless::switch::SwitchProps;
 use yororen_ui_core::theme::Theme;
 
 use crate::animation::{
-    AnimatedMarginElement, AnimatedStateElement, lerp_f32, lerp_hsla,
-    set_interaction_hovered, set_interaction_pressed,
+    AnimatedMarginElement, AnimatedStateElement, lerp_f32, lerp_hsla, set_interaction_hovered,
+    set_interaction_pressed,
 };
 
 pub use yororen_ui_core::renderer::switch::{SwitchRenderState, SwitchRenderer};
@@ -233,10 +233,7 @@ impl SwitchRenderer for WinUISwitchRenderer {
             },
         );
 
-        let knob_inner = div()
-            .relative()
-            .size(knob_size)
-            .child(thumb);
+        let knob_inner = div().relative().size(knob_size).child(thumb);
 
         let slide_distance = {
             let w_f: f32 = w.into();
@@ -293,20 +290,14 @@ impl SwitchRenderer for WinUISwitchRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                )
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                })
                 .cursor(CursorStyle::PointingHand);
         }
 

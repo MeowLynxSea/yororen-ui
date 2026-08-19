@@ -53,12 +53,14 @@ impl WinUICardRenderer {
             .unwrap_or_default()
     }
     pub fn shadow(&self, _state: &CardRenderState, theme: &Theme) -> Option<BoxShadow> {
-        theme.get_color("shadow.elevation_2").map(|color| BoxShadow {
-            color,
-            offset: point(px(0.), px(4.)),
-            blur_radius: px(20.),
-            spread_radius: px(0.),
-        })
+        theme
+            .get_color("shadow.elevation_2")
+            .map(|color| BoxShadow {
+                color,
+                offset: point(px(0.), px(4.)),
+                blur_radius: px(20.),
+                spread_radius: px(0.),
+            })
     }
     pub fn gap(&self, _state: &CardRenderState, theme: &Theme) -> Pixels {
         gpui::px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(8.0) as f32)

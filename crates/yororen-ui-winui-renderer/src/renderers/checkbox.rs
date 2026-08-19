@@ -4,8 +4,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use gpui::{
-    App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement, Pixels,
-    Stateful, StatefulInteractiveElement, Styled, div, px,
+    App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement,
+    Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
 use yororen_ui_core::animation::AnimationConfig;
@@ -217,20 +217,14 @@ impl CheckboxRenderer for WinUICheckboxRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                )
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                })
                 .cursor(CursorStyle::PointingHand);
         }
 

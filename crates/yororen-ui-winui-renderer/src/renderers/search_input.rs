@@ -18,9 +18,7 @@ use yororen_ui_core::renderer::search_input::{SearchInputRenderState, SearchInpu
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
 
-use crate::animation::{
-    animated_input_border, set_interaction_hovered, set_interaction_pressed,
-};
+use crate::animation::{animated_input_border, set_interaction_hovered, set_interaction_pressed};
 use crate::themes::default_font;
 
 pub struct WinUISearchInputRenderer;
@@ -191,20 +189,14 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
                     let id = props.id.clone();
                     move |hovered, _win, cx| set_interaction_hovered(cx, id.clone(), *hovered)
                 })
-                .on_mouse_down(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
-                    },
-                )
-                .on_mouse_up(
-                    MouseButton::Left,
-                    {
-                        let id = props.id.clone();
-                        move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
-                    },
-                );
+                .on_mouse_down(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), true)
+                })
+                .on_mouse_up(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                });
         }
 
         let state_for_escape = state.clone();
@@ -240,7 +232,8 @@ impl SearchInputRenderer for WinUISearchInputRenderer {
         let on_change_for_clear = on_change.clone();
         let on_clear_clone = on_clear.clone();
 
-        let assembled: Stateful<Div> = keyed.child(
+        let assembled: Stateful<Div> = keyed
+            .child(
                 icon(
                     "search-input-leading-icon",
                     IconSource::Builtin("search".into()),
