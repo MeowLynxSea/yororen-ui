@@ -64,6 +64,7 @@
       "mode": "mode:",
       "file_path_hint": "File path input (click right icon to open dialog)",
       "keybinding_hint": "Keybinding input (click to start capture)",
+      "cell_combo_editable": "combo_box — editable (type a value and press Enter to commit)",
       "text_area_hint": "Text area (multi-line)",
       "placeholder_type_here": "Type here…",
       "placeholder_password": "Enter password…",
@@ -86,6 +87,11 @@
       "cell_icon_button_primary": "icon_button / Primary (check)",
       "cell_toggle_button": "toggle_button",
       "cell_split_button": "split_button",
+      "cell_toggle_split_button": "toggle split_button (click primary half to pin it on)",
+      "mute": "Mute",
+      "mute_mic": "Mute microphone",
+      "mute_speaker": "Mute speakers",
+      "unmute": "Unmute",
       "cell_button_group": "button_group (3 buttons)",
       "press_me": "Press me"
     },
@@ -204,6 +210,7 @@
       "listbox_selected": "selected: {}",
       "cell_table": "table (3 rows × 3 cols)",
       "cell_tree": "tree + tree_item (3-5 rows; click chevron or double-click row to expand, click row to select)",
+      "cell_tree_multi": "tree — multi-select (checkbox toggles the subtree; ctrl/cmd-click toggles one row; shift-click selects a range)",
       "cell_vl": "virtual_list (scroll_to_top/bottom + on_visible_range_change + infinite loading)",
       "cell_uvl": "uniform_virtual_list (1000 items; uniform-height fast path; scroll_to_top/bottom)",
       "cell_spacer": "spacer (16px tall)"

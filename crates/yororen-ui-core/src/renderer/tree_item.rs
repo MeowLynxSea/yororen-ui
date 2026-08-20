@@ -22,6 +22,10 @@ pub struct TreeItemRenderState {
     pub expanded: bool,
     pub depth: u8,
     pub is_leaf: bool,
+    /// Multi-select checkbox membership (`checkbox` rows only).
+    pub checked: bool,
+    /// Tri-state hint — some descendants are checked.
+    pub indeterminate: bool,
 }
 
 pub trait TreeItemRenderer: Any + Send + Sync {

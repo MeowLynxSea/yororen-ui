@@ -1359,6 +1359,7 @@ impl ComboBoxRenderer for BrutalComboBoxRenderer {
                 open: state_read.is_open(),
                 disabled: false,
                 has_value: state_read.value.is_some(),
+                editable: state_read.editable,
                 custom_bg: None,
                 custom_border: None,
                 custom_focus_border: None,
@@ -1389,12 +1390,18 @@ impl ComboBoxRenderer for BrutalComboBoxRenderer {
         // `TextInputState` entity is minted.
         let focus_handle = props.state.read(cx).core.focus_handle();
         let focused = focus_handle.is_focused(window);
-        if focused {
+        // Selection-only mode (`editable == false`) is
+        // display-only: no caret blink, pointing-hand cursor.
+        if focused && state.editable {
             start_cursor_blink(props.state.clone(), window, cx);
-        } else {
+        } else if state.editable {
             props
                 .state
                 .update(cx, |s, _cx| s.core.cursor_visible = true);
+        } else {
+            props
+                .state
+                .update(cx, |s, _cx| s.core.cursor_visible = false);
         }
 
         let display_str: String = if !text.is_empty() {
@@ -1445,7 +1452,11 @@ impl ComboBoxRenderer for BrutalComboBoxRenderer {
             .rounded(r)
             .id("brutal-combo-trigger")
             .track_focus(&focus_handle)
-            .cursor(CursorStyle::IBeam)
+            .cursor(if state.editable {
+                CursorStyle::IBeam
+            } else {
+                CursorStyle::PointingHand
+            })
             // The text input is the flex child that grows;
             // the chevron is the fixed-size child on the
             // right. Click anywhere on the trigger opens the

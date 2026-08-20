@@ -26,6 +26,9 @@ pub struct ComboBoxRenderState {
     pub open: bool,
     pub disabled: bool,
     pub has_value: bool,
+    /// Editable mode (WinUI `IsEditable`). Renderers use this to
+    /// swap the IBeam cursor / caret for a selection-only look.
+    pub editable: bool,
     pub custom_bg: Option<gpui::Hsla>,
     pub custom_border: Option<gpui::Hsla>,
     pub custom_focus_border: Option<gpui::Hsla>,

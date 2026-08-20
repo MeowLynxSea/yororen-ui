@@ -12,6 +12,8 @@ use crate::headless::tree::TreeProps;
 #[derive(Clone, Copy, Debug, Default)]
 pub struct TreeRenderState {
     pub has_selection: bool,
+    /// `true` when the tree runs in `TreeSelectionMode::Multiple`.
+    pub multi_select: bool,
 }
 
 pub trait TreeRenderer: Any + Send + Sync {

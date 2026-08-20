@@ -58,6 +58,7 @@
       "keybinding_status": "القيمة: {value}  الوضع: {mode}",
       "file_path_hint": "إدخال مسار ملف (انقر على الأيقونة اليمنى لفتح مربع الحوار)",
       "keybinding_hint": "إدخال ربط مفتاح (انقر لبدء الالتقاط)",
+      "cell_combo_editable": "combo_box — قابل للتحرير (اكتب قيمة واضغط Enter للتأكيد)",
       "text_area_hint": "منطقة نص (متعدد الأسطر)",
       "placeholder_type_here": "اكتب هنا…",
       "placeholder_password": "أدخل كلمة المرور…",
@@ -80,6 +81,11 @@
       "cell_icon_button_primary": "icon_button / رئيسي (check)",
       "cell_toggle_button": "toggle_button",
       "cell_split_button": "split_button",
+      "cell_toggle_split_button": "toggle split_button (انقر على الزر الرئيسي لتثبيته)",
+      "mute": "كتم",
+      "mute_mic": "كتم الميكروفون",
+      "mute_speaker": "كتم مكبرات الصوت",
+      "unmute": "إلغاء الكتم",
       "cell_button_group": "button_group (3 أزرار)",
       "press_me": "اضغطني"
     },
@@ -198,6 +204,7 @@
       "listbox_selected": "المحدد: {}",
       "cell_table": "table (3 صفوف × 3 أعمدة)",
       "cell_tree": "tree + tree_item (3-5 صفوف; انقر على chevron أو انقر مرتين للتوسيع، انقر للاختيار)",
+      "cell_tree_multi": "tree — تحديد متعدد (مربع الاختيار يبدل الشجرة الفرعية؛ Ctrl/Cmd+نقر يبدل صفًا واحدًا؛ Shift+نقر يحدد نطاقًا)",
       "cell_vl": "virtual_list (scroll_to_top/bottom + on_visible_range_change + تحميل لا نهائي)",
       "cell_uvl": "uniform_virtual_list (1000 عنصر; مسار سريع متساوي الارتفاع; scroll_to_top/bottom)",
       "cell_spacer": "spacer (ارتفاع 16px)"

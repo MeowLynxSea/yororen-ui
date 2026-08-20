@@ -363,7 +363,10 @@ fn buttons_page(app: &mut WinuiApp, cx: &mut Context<WinuiApp>) -> gpui::AnyElem
     let split = split_button(
         "wb-split",
         move |_, _, cx| {
-            entity_primary2.update(cx, |s, _cx| s.primary_clicks += 1);
+            entity_primary2.update(cx, |s, cx| {
+                s.primary_clicks += 1;
+                cx.notify();
+            });
         },
         cx,
     )
@@ -375,7 +378,47 @@ fn buttons_page(app: &mut WinuiApp, cx: &mut Context<WinuiApp>) -> gpui::AnyElem
         DropdownItem::Item(DropdownMenuItem::new("save_all", "Save all")),
     ])
     .on_select(move |_id, _w, cx| {
-        entity_select.update(cx, |s, _cx| s.split_action += 1);
+        entity_select.update(cx, |s, cx| {
+            s.split_action += 1;
+            cx.notify();
+        });
+    })
+    .render(cx);
+
+    // Toggle split button: the primary half pins an "on" state
+    // (accent fill) until clicked again — WinUI ToggleSplitButton.
+    let entity_toggle = entity.clone();
+    let entity_toggle_select = entity.clone();
+    let toggle_split = split_button(
+        "wb-split-toggle",
+        move |_, _, cx| {
+            entity_toggle.update(cx, |s, cx| {
+                s.split_toggle = !s.split_toggle;
+                // gpui does not repaint on `Entity::update` by
+                // itself — notify or the click appears lost.
+                cx.notify();
+            });
+        },
+        cx,
+    )
+    .state(app.split_toggle_dd_state.clone())
+    .toggled(app.split_toggle)
+    .selected_item(app.split_toggle_sel.clone())
+    .caption("Mute")
+    .items(vec![
+        DropdownItem::Item(DropdownMenuItem::new("mute", "Mute microphone")),
+        DropdownItem::Item(DropdownMenuItem::new("mute_speaker", "Mute speakers")),
+        DropdownItem::Item(DropdownMenuItem::new("unmute", "Unmute")),
+    ])
+    .on_select(move |id, _w, cx| {
+        // Picking a flyout option makes it the primary half's
+        // caption AND turns the toggle on (bullet-list pattern).
+        entity_toggle_select.update(cx, |s, cx| {
+            s.split_toggle_sel = Some(id);
+            s.split_toggle = true;
+            s.split_action += 1;
+            cx.notify();
+        });
     })
     .render(cx);
 
@@ -391,11 +434,12 @@ fn buttons_page(app: &mut WinuiApp, cx: &mut Context<WinuiApp>) -> gpui::AnyElem
                 .child(icon_row)
                 .child(toggle)
                 .child(split)
+                .child(toggle_split)
                 .child(status_line(
                     "split",
                     format!(
-                        "Primary clicked {}× · split menu used {}×",
-                        app.primary_clicks, app.split_action
+                        "Primary clicked {}× · split menu used {}× · toggle on: {}",
+                        app.primary_clicks, app.split_action, app.split_toggle
                     ),
                     cx,
                 ))
@@ -649,6 +693,20 @@ fn lists_page(
     });
     let combo_el = combo_box("wi-combo", combo_state.clone()).render(cx, &mut *window);
 
+    // Editable combo box: type free-form text and press Enter to
+    // commit it as the value (fires on_change); picking from the
+    // list still works as usual.
+    let entity_combo_edit = entity.clone();
+    let combo_edit_state = app.combo_edit_state.clone();
+    combo_edit_state.update(cx, |s, _cx| {
+        s.set_on_change(move |value, _w, cx| {
+            let v = value.to_string();
+            entity_combo_edit.update(cx, |s, _cx| s.combo_edit_value = v);
+        });
+    });
+    let combo_edit_el =
+        combo_box("wi-combo-edit", combo_edit_state.clone()).render(cx, &mut *window);
+
     // listbox
     let entity_lb = entity.clone();
     let listbox_state = app.listbox_state.clone();
@@ -702,13 +760,23 @@ fn lists_page(
                 .gap(Spacing::Lg)
                 .child(labeled("wi-lb-select", "Select", select_el, cx))
                 .child(labeled("wi-lb-combo", "Combo box", combo_el, cx))
+                .child(labeled(
+                    "wi-lb-combo-edit",
+                    "Combo box — editable",
+                    combo_edit_el,
+                    cx,
+                ))
                 .child(labeled("wi-lb-listbox", "List box", lb_el, cx))
                 .child(labeled("wi-lb-dd", "Menu", dd_el, cx))
                 .child(status_line(
                     "lists",
                     format!(
-                        "select={:?} · combo={:?} · listbox={:?} · menu={:?}",
-                        app.select_value, app.combo_value, app.listbox_value, app.dropdown_value
+                        "select={:?} · combo={:?} · combo (edited)={:?} · listbox={:?} · menu={:?}",
+                        app.select_value,
+                        app.combo_value,
+                        app.combo_edit_value,
+                        app.listbox_value,
+                        app.dropdown_value
                     ),
                     cx,
                 ))
@@ -1278,14 +1346,115 @@ fn data_page(
                 .selected(is_selected)
                 .on_toggle(move |_, _, cx| {
                     let tid = toggle_id.clone();
-                    entity_toggle.update(cx, |s, _cx| {
+                    entity_toggle.update(cx, |s, cx| {
                         if !s.tree_expanded.remove(&tid) {
                             s.tree_expanded.insert(tid);
                         }
+                        cx.notify();
                     });
                 })
                 .on_click(move |_, _, cx| {
-                    entity_select.update(cx, |s, _cx| s.tree_selected = Some(select_id.clone()));
+                    entity_select.update(cx, |s, cx| {
+                        s.tree_selected = Some(select_id.clone());
+                        cx.notify();
+                    });
+                })
+                .render(cx, window),
+        );
+    }
+
+    // Multi-select tree: checkboxes toggle a whole subtree;
+    // ctrl/cmd-click toggles one row; shift-click selects the
+    // visible range from the anchor row.
+    let tree_multi_selected = app.tree_multi_selected.clone();
+    let tree_multi_expanded = app.tree_multi_expanded.clone();
+    let mut tree_multi_el = tree("wd-tree-multi", cx)
+        .data(tree_data.clone())
+        .multi_select()
+        .selected_ids(tree_multi_selected.clone())
+        .render(cx)
+        .w(px(320.0));
+    let visible_multi = tree_data.flatten(&tree_multi_expanded);
+    for (id, depth) in visible_multi {
+        let has_children = !tree_data.children_of(&id).is_empty();
+        let label_text = tree_data.label_of(&id).unwrap_or("").to_string();
+        let is_expanded = tree_multi_expanded.contains(&id);
+        let checked = tree_multi_selected.contains(&id);
+        // Indeterminate = parent with some (but not all)
+        // descendants checked.
+        let indeterminate = {
+            let mut descendants = tree_data.subtree_ids(&id).into_iter().filter(|n| n != &id);
+            let some = descendants
+                .clone()
+                .any(|n| tree_multi_selected.contains(&n));
+            let all = descendants.all(|n| tree_multi_selected.contains(&n));
+            has_children && some && !all
+        };
+
+        let entity_check = entity.clone();
+        let entity_multi_click = entity.clone();
+        let entity_multi_toggle = entity.clone();
+        let check_id = id.clone();
+        let click_id = id.clone();
+        let toggle_multi_id = id.clone();
+        let row_multi_id: gpui::ElementId = format!("wd-tree-multi-row-{}", id.0).into();
+        tree_multi_el = tree_multi_el.child(
+            tree_item(row_multi_id, id.clone(), label_text, cx)
+                .depth(depth)
+                .has_children(has_children)
+                .expanded(is_expanded)
+                .selected(false)
+                .checkbox(true)
+                .checked(checked)
+                .indeterminate(indeterminate)
+                .on_check(move |_, _, cx| {
+                    entity_check.update(cx, |s, cx| {
+                        let subtree = s.tree_data.subtree_ids(&check_id);
+                        if subtree.iter().all(|n| s.tree_multi_selected.contains(n)) {
+                            for n in subtree {
+                                s.tree_multi_selected.remove(&n);
+                            }
+                        } else {
+                            for n in subtree {
+                                s.tree_multi_selected.insert(n);
+                            }
+                        }
+                        cx.notify();
+                    });
+                })
+                .on_click(move |ev, _, cx| {
+                    let mods = match ev {
+                        gpui::ClickEvent::Mouse(m) => m.down.modifiers,
+                        _ => gpui::Modifiers::default(),
+                    };
+                    entity_multi_click.update(cx, |s, cx| {
+                        if mods.shift
+                            && let Some(anchor) = s.tree_anchor.clone()
+                        {
+                            s.tree_multi_selected = s.tree_data.select_range(
+                                &s.tree_multi_expanded,
+                                &anchor,
+                                &click_id,
+                            );
+                        } else if mods.control || mods.platform {
+                            if !s.tree_multi_selected.remove(&click_id) {
+                                s.tree_multi_selected.insert(click_id.clone());
+                            }
+                        } else {
+                            s.tree_multi_selected =
+                                std::collections::BTreeSet::from([click_id.clone()]);
+                        }
+                        s.tree_anchor = Some(click_id.clone());
+                        cx.notify();
+                    });
+                })
+                .on_toggle(move |_, _, cx| {
+                    entity_multi_toggle.update(cx, |s, cx| {
+                        if !s.tree_multi_expanded.remove(&toggle_multi_id) {
+                            s.tree_multi_expanded.insert(toggle_multi_id.clone());
+                        }
+                        cx.notify();
+                    });
                 })
                 .render(cx, window),
         );
@@ -1323,6 +1492,12 @@ fn data_page(
                 .child(section("data-table", "Table — click a row", table_el, cx))
                 .child(section("data-list-items", "List items", list_items, cx))
                 .child(section("data-tree", "Tree view", tree_el, cx))
+                .child(section(
+                    "data-tree-multi",
+                    "Tree view — multi-select (checkbox toggles the subtree; ctrl/cmd-click toggles one row; shift-click selects a range)",
+                    tree_multi_el,
+                    cx,
+                ))
                 .child(section("data-vl", "Virtual list — 10,000 rows", vl, cx))
                 .child(section(
                     "data-uvl",

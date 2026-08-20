@@ -69,4 +69,10 @@
         <ComboBox id="cmb-combo" state={controller.combo_state(cx)} />
         <Slot name="status"><Label id="sta-combo" text={t_named!(cx, "demo.input.value", value => controller.combo_demo_value(cx))} muted /></Slot>
     </InputCell>
+
+    <InputCell>
+        <Slot name="name"><Label id="lbl-combo-edit" text={t!(cx, "demo.input.cell_combo_editable")} muted /></Slot>
+        <ComboBox id="cmb-combo-edit" state={controller.editable_combo_state(cx)} />
+        <Slot name="status"><Label id="sta-combo-edit" text={t_named!(cx, "demo.input.value", value => controller.editable_combo_value(cx))} muted /></Slot>
+    </InputCell>
 </Column>

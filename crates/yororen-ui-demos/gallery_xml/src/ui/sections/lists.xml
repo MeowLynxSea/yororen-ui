@@ -65,6 +65,31 @@
     </Cell>
 
     <Cell>
+        <Slot name="label"><Label id="lbl-tree-multi" text={t!(cx, "demo.lists.cell_tree_multi")} muted /></Slot>
+        <Tree id="lists-tree-multi" data={controller.tree_data(cx)}
+              selection_mode="multiple"
+              selected_ids={controller.tree_multi_selected(cx)} w={gpui::px(240.)}>
+            <For each={controller.tree_data(cx).flatten(&controller.tree_multi_expanded(cx))}
+                 let:item="entry" key={entry.0.to_string()}>
+                <TreeItem id={format!("lst-tre-mul-{}", entry.0)}
+                          node_id={entry.0.clone()}
+                          label={controller.tree_label(&entry.0, cx)}
+                          depth={entry.1}
+                          has_children={controller.tree_has_children(&entry.0, cx)}
+                          expanded={controller.tree_multi_expanded(cx).contains(&entry.0)}
+                          selected={false}
+                          checkbox={true}
+                          checked={controller.tree_multi_checked(&entry.0, cx)}
+                          indeterminate={controller.tree_multi_indeterminate(&entry.0, cx)}
+                          on_toggle={controller.toggle_tree_multi_node_for(entry.0.clone())}
+                          on_click={controller.select_tree_multi_for(entry.0.clone())}
+                          on_check={controller.toggle_tree_subtree_for(entry.0.clone())}
+                          on_double_click={controller.toggle_tree_multi_node_for(entry.0.clone())} />
+            </For>
+        </Tree>
+    </Cell>
+
+    <Cell>
         <Slot name="label"><Label id="lbl-vl" text={t!(cx, "demo.lists.cell_vl")} muted /></Slot>
         <VirtualList id="lists-vl"
                      item_count={controller.vl_item_count(cx)}

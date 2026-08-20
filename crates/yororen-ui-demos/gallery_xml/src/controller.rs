@@ -185,6 +185,10 @@ impl Controller {
     pub fn combo_demo_value(&self, cx: &App) -> SharedString {
         self.state.read(cx).combo_demo_value.clone().into()
     }
+
+    pub fn editable_combo_value(&self, cx: &App) -> SharedString {
+        self.state.read(cx).editable_combo_value.clone().into()
+    }
     pub fn listbox_demo_value(&self, cx: &App) -> SharedString {
         self.state.read(cx).listbox_demo_value.clone().into()
     }
@@ -234,6 +238,13 @@ impl Controller {
         self.state.read(cx).combo_state.clone()
     }
 
+    pub fn editable_combo_state(
+        &self,
+        cx: &App,
+    ) -> Entity<yororen_ui::headless::combo_box::ComboBoxState> {
+        self.state.read(cx).editable_combo_state.clone()
+    }
+
     pub fn listbox_state(&self, cx: &App) -> Entity<yororen_ui::headless::listbox::ListboxState> {
         self.state.read(cx).listbox_state.clone()
     }
@@ -263,6 +274,16 @@ impl Controller {
         cx: &App,
     ) -> Entity<yororen_ui::headless::dropdown_menu::DropdownMenuState> {
         self.state.read(cx).split_dropdown_state.clone()
+    }
+
+    /// Open/close state for the toggle split_button demo cell —
+    /// deliberately a separate `DropdownMenuState` so the two
+    /// split buttons open/close independently.
+    pub fn toggle_split_button_state(
+        &self,
+        cx: &App,
+    ) -> Entity<yororen_ui::headless::dropdown_menu::DropdownMenuState> {
+        self.state.read(cx).split_toggle_dropdown_state.clone()
     }
 
     pub fn popover_state(&self, cx: &App) -> Entity<yororen_ui::headless::popover::PopoverState> {
@@ -425,14 +446,73 @@ impl Controller {
     }
 
     pub fn split_button_primary(&self, _ev: &ClickEvent, _w: &mut Window, cx: &mut App) {
-        self.state.update(cx, |s, _cx| {
+        self.state.update(cx, |s, cx| {
             s.toast_count.value += 1;
+            // gpui does not repaint on `Entity::update` by
+            // itself — notify or the click appears lost.
+            cx.notify();
+        });
+    }
+
+    // -------- Toggle split_button (WinUI ToggleSplitButton) ----
+
+    pub fn split_button_toggled(&self, cx: &App) -> bool {
+        self.state.read(cx).split_toggle_on
+    }
+
+    /// Flyout item currently chosen on the toggle split_button;
+    /// its label replaces the primary half's caption.
+    pub fn split_button_selected_item(&self, cx: &App) -> Option<SharedString> {
+        self.state.read(cx).split_toggle_selected.clone()
+    }
+
+    pub fn toggle_split_button_items(&self, _cx: &App) -> Vec<DropdownItem> {
+        vec![
+            DropdownItem::Item(DropdownMenuItem::new(
+                "mute",
+                _cx.t("demo.actions.mute_mic"),
+            )),
+            DropdownItem::Item(DropdownMenuItem::new(
+                "mute_speaker",
+                _cx.t("demo.actions.mute_speaker"),
+            )),
+            DropdownItem::Item(DropdownMenuItem::new(
+                "unmute",
+                _cx.t("demo.actions.unmute"),
+            )),
+        ]
+    }
+
+    /// The primary half of a toggle split button flips the
+    /// caller-owned checked bit; the renderer paints the accent
+    /// fill while it is set.
+    pub fn toggle_split_button_primary(&self, _ev: &ClickEvent, _w: &mut Window, cx: &mut App) {
+        self.state.update(cx, |s, cx| {
+            s.split_toggle_on = !s.split_toggle_on;
+            cx.notify();
+        });
+    }
+
+    /// Picking a flyout option makes it the primary half's
+    /// caption AND turns the toggle on (the bullet-list
+    /// ToggleSplitButton pattern).
+    pub fn toggle_split_button_select(
+        &self,
+        id: gpui::SharedString,
+        _w: &mut Window,
+        cx: &mut App,
+    ) {
+        self.state.update(cx, |s, cx| {
+            s.split_toggle_selected = Some(id);
+            s.split_toggle_on = true;
+            cx.notify();
         });
     }
 
     pub fn split_button_select(&self, _id: gpui::SharedString, _w: &mut Window, cx: &mut App) {
-        self.state.update(cx, |s, _cx| {
+        self.state.update(cx, |s, cx| {
             s.toast_count.value += 1;
+            cx.notify();
         });
     }
 
@@ -686,10 +766,11 @@ impl Controller {
     ) -> impl Fn(&ClickEvent, &mut Window, &mut App) + Clone + 'static {
         let state = self.state.clone();
         move |_ev, _w, cx| {
-            state.update(cx, |s, _cx| {
+            state.update(cx, |s, cx| {
                 if !s.tree_expanded.remove(&id) {
                     s.tree_expanded.insert(id.clone());
                 }
+                cx.notify();
             });
         }
     }
@@ -700,8 +781,119 @@ impl Controller {
     ) -> impl Fn(&ClickEvent, &mut Window, &mut App) + Clone + 'static {
         let state = self.state.clone();
         move |_ev, _w, cx| {
-            state.update(cx, |s, _cx| {
+            state.update(cx, |s, cx| {
                 s.tree_selected = Some(id.clone());
+                cx.notify();
+            });
+        }
+    }
+
+    // -------- Multi-select tree helpers --------
+
+    pub fn tree_multi_selected(&self, cx: &App) -> BTreeSet<TreeNodeId> {
+        self.state.read(cx).tree_multi_selected.clone()
+    }
+
+    /// Expansion set for the multi-select tree — separate from
+    /// the single-select tree's so the two cells expand
+    /// independently.
+    pub fn tree_multi_expanded(&self, cx: &App) -> BTreeSet<TreeNodeId> {
+        self.state.read(cx).tree_multi_expanded.clone()
+    }
+
+    pub fn tree_multi_checked(&self, id: &TreeNodeId, cx: &App) -> bool {
+        self.state.read(cx).tree_multi_selected.contains(id)
+    }
+
+    /// Parent rows show the mixed dash while some (but not all)
+    /// descendants are checked.
+    pub fn tree_multi_indeterminate(&self, id: &TreeNodeId, cx: &App) -> bool {
+        let state = self.state.read(cx);
+        if state.tree_data.children_of(id).is_empty() {
+            return false;
+        }
+        let mut descendants = state
+            .tree_data
+            .subtree_ids(id)
+            .into_iter()
+            .filter(|n| n != id);
+        let some = descendants
+            .clone()
+            .any(|n| state.tree_multi_selected.contains(&n));
+        let all = descendants.all(|n| state.tree_multi_selected.contains(&n));
+        some && !all
+    }
+
+    /// Expansion toggler for the multi-select tree (its own
+    /// expansion set — see `tree_multi_expanded`).
+    pub fn toggle_tree_multi_node_for(
+        &self,
+        id: TreeNodeId,
+    ) -> impl Fn(&ClickEvent, &mut Window, &mut App) + Clone + 'static {
+        let state = self.state.clone();
+        move |_ev, _w, cx| {
+            state.update(cx, |s, cx| {
+                if !s.tree_multi_expanded.remove(&id) {
+                    s.tree_multi_expanded.insert(id.clone());
+                }
+                cx.notify();
+            });
+        }
+    }
+
+    /// `on_check` for a multi-select row: toggles the node's
+    /// whole subtree (`TreeData::subtree_ids`).
+    pub fn toggle_tree_subtree_for(
+        &self,
+        id: TreeNodeId,
+    ) -> impl Fn(&ClickEvent, &mut Window, &mut App) + Clone + 'static {
+        let state = self.state.clone();
+        move |_ev, _w, cx| {
+            state.update(cx, |s, cx| {
+                let subtree = s.tree_data.subtree_ids(&id);
+                if subtree.iter().all(|n| s.tree_multi_selected.contains(n)) {
+                    for n in subtree {
+                        s.tree_multi_selected.remove(&n);
+                    }
+                } else {
+                    for n in subtree {
+                        s.tree_multi_selected.insert(n);
+                    }
+                }
+                cx.notify();
+            });
+        }
+    }
+
+    /// `on_click` for a multi-select row: plain click selects
+    /// just the node, ctrl/cmd-click toggles it, shift-click
+    /// selects the visible range from the anchor.
+    pub fn select_tree_multi_for(
+        &self,
+        id: TreeNodeId,
+    ) -> impl Fn(&ClickEvent, &mut Window, &mut App) + Clone + 'static {
+        let state = self.state.clone();
+        move |ev: &ClickEvent, _w, cx| {
+            let mods = match ev {
+                gpui::ClickEvent::Mouse(m) => m.down.modifiers,
+                _ => gpui::Modifiers::default(),
+            };
+            state.update(cx, |s, cx| {
+                if mods.shift
+                    && let Some(anchor) = s.tree_anchor.clone()
+                {
+                    s.tree_multi_selected =
+                        s.tree_data
+                            .select_range(&s.tree_multi_expanded, &anchor, &id);
+                } else if mods.control || mods.platform {
+                    if !s.tree_multi_selected.remove(&id) {
+                        s.tree_multi_selected.insert(id.clone());
+                    }
+                } else {
+                    s.tree_multi_selected = BTreeSet::from([id.clone()]);
+                }
+                s.tree_anchor = Some(id.clone());
+                cx.notify();
             });
         }
     }
@@ -806,7 +998,21 @@ impl Controller {
             s.combo_state.update(cx, |st, _cx| {
                 st.set_on_change(move |value, _w, cx| {
                     let v = value.to_string();
-                    state_for_combo.update(cx, |s, _cx| s.combo_demo_value = v);
+                    state_for_combo.update(cx, |s, cx| {
+                        s.combo_demo_value = v;
+                        cx.notify();
+                    });
+                });
+            });
+
+            let state_for_editable_combo = state.clone();
+            s.editable_combo_state.update(cx, |st, _cx| {
+                st.set_on_change(move |value, _w, cx| {
+                    let v = value.to_string();
+                    state_for_editable_combo.update(cx, |s, cx| {
+                        s.editable_combo_value = v;
+                        cx.notify();
+                    });
                 });
             });
 

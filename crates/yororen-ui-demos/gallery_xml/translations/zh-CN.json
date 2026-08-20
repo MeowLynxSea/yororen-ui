@@ -58,6 +58,7 @@
       "keybinding_status": "值：{value}  模式：{mode}",
       "file_path_hint": "文件路径输入 (点击右侧图标打开对话框)",
       "keybinding_hint": "按键绑定输入 (点击开始捕获)",
+      "cell_combo_editable": "combo_box — 可编辑（输入任意值后回车提交）",
       "text_area_hint": "多行文本 (multi-line)",
       "placeholder_type_here": "在此输入…",
       "placeholder_password": "输入密码…",
@@ -80,6 +81,11 @@
       "cell_icon_button_primary": "icon_button / 主要 (check)",
       "cell_toggle_button": "toggle_button",
       "cell_split_button": "split_button",
+      "cell_toggle_split_button": "切换 split_button（点击主按钮锁定开启态）",
+      "mute": "静音",
+      "mute_mic": "静音麦克风",
+      "mute_speaker": "静音扬声器",
+      "unmute": "取消静音",
       "cell_button_group": "button_group (3 个按钮)",
       "press_me": "按我"
     },
@@ -198,6 +204,7 @@
       "listbox_selected": "已选择：{}",
       "cell_table": "table (3 行 × 3 列)",
       "cell_tree": "tree + tree_item (3-5 行; 点击 chevron 或双击行展开，点击行选中)",
+      "cell_tree_multi": "tree — 多选（复选框切换整个子树；Ctrl/Cmd+点击切换单行；Shift+点击选择范围）",
       "cell_vl": "virtual_list (scroll_to_top/bottom + on_visible_range_change + 无限加载)",
       "cell_uvl": "uniform_virtual_list (1000 项; 等高快速路径; scroll_to_top/bottom)",
       "cell_spacer": "spacer (16px 高)"

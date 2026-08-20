@@ -143,12 +143,31 @@ pub fn render(
     combo_state.update(cx, |s, _cx| {
         s.set_on_change(move |value, _w, cx| {
             let v = value.to_string();
-            entity_combo.update(cx, |s, _cx| {
+            entity_combo.update(cx, |s, cx| {
                 s.combo_demo_value = v;
+                cx.notify();
             });
         });
     });
     let combo_el = combo_box("cmb-combo", combo_state.clone()).render(cx, window);
+
+    // Editable combo box: `editable == true` lets the user type
+    // free-form values — Enter commits the typed text (or the
+    // highlighted option) and fires `on_change`, so values that
+    // are not in the option list are legal.
+    let entity_combo_edit = entity.clone();
+    let editable_combo_state = app.editable_combo_state.clone();
+    editable_combo_state.update(cx, |s, _cx| {
+        s.set_on_change(move |value, _w, cx| {
+            let v = value.to_string();
+            entity_combo_edit.update(cx, |s, cx| {
+                s.editable_combo_value = v;
+                cx.notify();
+            });
+        });
+    });
+    let editable_combo_el =
+        combo_box("cmb-combo-edit", editable_combo_state.clone()).render(cx, window);
 
     // assemble — each input goes in its own labelled cell,
     // followed by a status line that shows the live value.
@@ -206,6 +225,12 @@ pub fn render(
             cx.t("input.combo"),
             combo_el,
             &format!("{value_prefix} {}", app.combo_demo_value),
+            cx,
+        ))
+        .child(input_cell(
+            cx.t("demo.input.cell_combo_editable"),
+            editable_combo_el,
+            &format!("{value_prefix} {}", app.editable_combo_value),
             cx,
         ))
         .render(cx)

@@ -12,6 +12,16 @@
 //!   stores `open` + highlighted index. Caller mints it (typically
 //!   in `App::new`) so the toggle survives across re-paints.
 //! - `disabled`           — disables both primary + chevron.
+//! - `toggled`            — `Some(_)` turns the split button into
+//!   a *toggle* split button (WinUI `ToggleSplitButton`): the
+//!   whole trigger paints the accent "checked" look while the
+//!   value is `true`. The caller owns the bit — `primary` fires
+//!   as usual and the caller flips its state in response.
+//!   `None` (default) keeps the classic action split button.
+//! - `selected_item`      — id of the flyout item currently
+//!   chosen; the primary half's caption is replaced with that
+//!   item's label (the "pick a list style" WinUI pattern).
+//!   Picking an item usually sets this AND `toggled = true`.
 //!
 //! The factory mints two focus handles (`primary_focus` /
 //! `chevron_focus`) so the renderer can compose two underlying
@@ -52,6 +62,20 @@ pub struct SplitButtonProps {
     pub items: Vec<DropdownItem>,
     pub on_select: Option<SelectCallback>,
     pub state: Option<Entity<DropdownMenuState>>,
+    /// `Some(_)` opts the split button into *toggle* mode
+    /// (WinUI `ToggleSplitButton`): the whole trigger paints the
+    /// accent "checked" look while the contained value is `true`.
+    /// `None` (default) = classic action split button.
+    pub toggled: Option<bool>,
+    /// Id of the flyout item currently chosen (toggle split
+    /// buttons replace the primary half's caption with the
+    /// selected option's label — e.g. the WinUI bullet-list
+    /// ToggleSplitButton swaps its glyph when the user picks a
+    /// different list style from the flyout). `None` keeps the
+    /// static `caption`. Picking an item typically sets this AND
+    /// `toggled` to `Some(true)`; clicking the primary half only
+    /// flips the checked bit (the selection is retained).
+    pub selected_item: Option<SharedString>,
     /// Focus handle for the primary button (minted in factory).
     /// The renderer reuses this when composing the inner
     /// `ButtonProps` so the same id maps to a stable focus.
@@ -73,6 +97,8 @@ pub fn split_button(
         items: Vec::new(),
         on_select: None,
         state: None,
+        toggled: None,
+        selected_item: None,
         primary_focus: cx.focus_handle(),
         chevron_focus: cx.focus_handle(),
     }
@@ -101,6 +127,40 @@ impl SplitButtonProps {
     pub fn state(mut self, s: Entity<DropdownMenuState>) -> Self {
         self.state = Some(s);
         self
+    }
+    /// Turn the split button into a *toggle* split button with
+    /// the given on/off value. The trigger renders the accent
+    /// "checked" look while `v` is `true`; `primary` still fires
+    /// on click and the caller flips its own state in response
+    /// (same one-way data flow as `toggle_button`).
+    pub fn toggled(mut self, v: bool) -> Self {
+        self.toggled = Some(v);
+        self
+    }
+    /// Replace the primary half's caption with the label of the
+    /// chosen flyout item. Pass the item's id (see
+    /// [`SplitButtonProps::selected_item`]); when the id is not
+    /// found in `items` the static `caption` is kept.
+    pub fn selected_item(mut self, v: impl Into<Option<SharedString>>) -> Self {
+        self.selected_item = v.into();
+        self
+    }
+    /// The caption the renderer should paint on the primary
+    /// half: the selected item's label when set (and found in
+    /// `items`), else the static `caption`.
+    pub fn display_caption(&self) -> Option<SharedString> {
+        let from_item = self.selected_item.as_ref().and_then(|sel| {
+            self.items.iter().find_map(|it| match it {
+                DropdownItem::Item(i) if &i.id == sel => Some(i.label.clone()),
+                _ => None,
+            })
+        });
+        from_item.or_else(|| self.caption.clone())
+    }
+    /// `true` when the caller opted into toggle mode via
+    /// [`SplitButtonProps::toggled`].
+    pub fn is_toggle(&self) -> bool {
+        self.toggled.is_some()
     }
     pub fn apply(self, el: Div) -> Stateful<Div> {
         el.id(self.id)

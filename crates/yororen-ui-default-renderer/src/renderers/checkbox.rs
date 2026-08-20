@@ -36,7 +36,7 @@ impl TokenCheckboxRenderer {
     pub fn box_bg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
             theme.get_color("surface.sunken").unwrap_or_default()
-        } else if state.checked {
+        } else if state.checked || state.indeterminate {
             if state.has_custom_tone {
                 state.custom_tone.unwrap_or_default()
             } else {
@@ -47,7 +47,7 @@ impl TokenCheckboxRenderer {
         }
     }
     pub fn box_border(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
-        if state.checked {
+        if state.checked || state.indeterminate {
             if state.has_custom_tone {
                 state.custom_tone.unwrap_or_default()
             } else {
@@ -58,7 +58,7 @@ impl TokenCheckboxRenderer {
         }
     }
     pub fn box_hover_bg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
-        if state.checked {
+        if state.checked || state.indeterminate {
             theme
                 .get_color("action.primary.hover_bg")
                 .unwrap_or_default()
@@ -67,7 +67,7 @@ impl TokenCheckboxRenderer {
         }
     }
     pub fn box_active_bg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
-        if state.checked {
+        if state.checked || state.indeterminate {
             theme
                 .get_color("action.primary.active_bg")
                 .unwrap_or_default()
@@ -97,6 +97,7 @@ impl CheckboxRenderer for TokenCheckboxRenderer {
         let theme = cx.theme();
         let state = CheckboxRenderState {
             checked: props.checked,
+            indeterminate: props.indeterminate,
             disabled: props.disabled,
             has_custom_tone: props.has_custom_tone,
             custom_tone: props.custom_tone,
@@ -108,8 +109,9 @@ impl CheckboxRenderer for TokenCheckboxRenderer {
         let hover_bg = self.box_hover_bg(&state, theme);
         let active_bg = self.box_active_bg(&state, theme);
 
-        // The checkmark is always mounted and faded in/out so the
-        // checked state transition is animated.
+        // The glyph (checkmark or mixed-state dash) is always
+        // mounted and faded in/out so the state transition is
+        // animated.
         let check_color = self.box_border(
             &CheckboxRenderState {
                 checked: true,
@@ -117,9 +119,24 @@ impl CheckboxRenderer for TokenCheckboxRenderer {
             },
             theme,
         );
-        let check = div().bg(check_color).size(check_size).rounded(px(2.));
-        let animated_check =
-            AnimatedOpacityElement::new((props.id.clone(), "check"), props.checked, check);
+        // The indeterminate dash is wider and shorter than the
+        // checkmark square so the two states read apart at a
+        // glance.
+        let check_f: f32 = check_size.into();
+        let glyph = if props.indeterminate {
+            div()
+                .bg(check_color)
+                .w(px(check_f * 1.6))
+                .h(px((check_f * 0.35).max(2.0)))
+                .rounded(px(2.))
+        } else {
+            div().bg(check_color).size(check_size).rounded(px(2.))
+        };
+        let animated_check = AnimatedOpacityElement::new(
+            (props.id.clone(), "check"),
+            props.checked || props.indeterminate,
+            glyph,
+        );
 
         div()
             .id(props.id.clone())
@@ -164,6 +181,7 @@ mod tests {
         let custom = rgb(0xabcdef).into();
         let state = CheckboxRenderState {
             checked: true,
+            indeterminate: false,
             disabled: false,
             has_custom_tone: true,
             custom_tone: Some(custom),

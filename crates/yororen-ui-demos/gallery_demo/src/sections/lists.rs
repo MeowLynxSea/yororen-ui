@@ -288,29 +288,138 @@ pub fn render(
                 .selected(is_selected)
                 .on_toggle(move |_, _, cx| {
                     let toggle_id = toggle_id.clone();
-                    entity_for_toggle.update(cx, |s, _cx| {
+                    entity_for_toggle.update(cx, |s, cx| {
                         if !s.tree_expanded.remove(&toggle_id) {
                             s.tree_expanded.insert(toggle_id);
                         }
+                        cx.notify();
                     });
                 })
                 .on_click(move |_, _, cx| {
-                    entity_for_select.update(cx, |s, _cx| {
+                    entity_for_select.update(cx, |s, cx| {
                         s.tree_selected = Some(select_id.clone());
+                        cx.notify();
                     });
                 })
                 .on_double_click(move |_, _, cx| {
                     let double_id = double_id.clone();
-                    entity_for_double.update(cx, |s, _cx| {
+                    entity_for_double.update(cx, |s, cx| {
                         if !s.tree_expanded.remove(&double_id) {
                             s.tree_expanded.insert(double_id);
                         }
+                        cx.notify();
                     });
                 })
                 .render(cx, window),
         );
     }
     let tree_wrapped = cell(cx.t("demo.lists.cell_tree"), tree_el, cx);
+
+    // --- multi-select tree (checkboxes + modifier clicks) ---
+    // Same data as the single-select cell, running in
+    // `TreeSelectionMode::Multiple`:
+    //   * checkbox click toggles the node's whole subtree
+    //     (`TreeData::subtree_ids`) — parents show the
+    //     indeterminate dash while only some descendants are
+    //     checked;
+    //   * plain row click selects just that node, ctrl/cmd-click
+    //     toggles it, shift-click selects the visible range from
+    //     the anchor (`TreeData::select_range`).
+    let tree_multi_selected = app.tree_multi_selected.clone();
+    let tree_multi_expanded = app.tree_multi_expanded.clone();
+    let mut tree_multi_el = tree("lists-tree-multi", cx)
+        .data(tree_data_for_iter.clone())
+        .multi_select()
+        .selected_ids(tree_multi_selected.clone())
+        .render(cx)
+        .w(px(240.));
+    let visible_multi = tree_data_for_iter.flatten(&tree_multi_expanded);
+    for (id, depth) in visible_multi {
+        let has_children = !tree_data_for_iter.children_of(&id).is_empty();
+        let label_text = tree_data_for_iter.label_of(&id).unwrap_or("").to_string();
+        let is_expanded = tree_multi_expanded.contains(&id);
+        let checked = tree_multi_selected.contains(&id);
+        // Indeterminate = parent with some (but not all)
+        // descendants checked.
+        let indeterminate = {
+            let subtree = tree_data_for_iter.subtree_ids(&id);
+            let mut descendants = subtree.iter().filter(|n| *n != &id);
+            let some = descendants.clone().any(|n| tree_multi_selected.contains(n));
+            let all = descendants.all(|n| tree_multi_selected.contains(n));
+            has_children && some && !all
+        };
+
+        let entity_for_check = entity_tree.clone();
+        let check_id = id.clone();
+        let check_data = tree_data_for_iter.clone();
+        let entity_for_multi_click = entity_tree.clone();
+        let click_id = id.clone();
+        let click_data = tree_data_for_iter.clone();
+        // Double-click toggles expansion exactly like the
+        // single-select tree above.
+        let entity_for_multi_double = entity_tree.clone();
+        let double_multi_id = id.clone();
+        let row_multi_id: ElementId = format!("lists-tree-multi-row-{}", id.0).into();
+        tree_multi_el = tree_multi_el.child(
+            tree_item(row_multi_id, id.clone(), label_text, cx)
+                .depth(depth)
+                .has_children(has_children)
+                .expanded(is_expanded)
+                .selected(false)
+                .checkbox(true)
+                .checked(checked)
+                .indeterminate(indeterminate)
+                .on_check(move |_, _, cx| {
+                    let data = check_data.clone();
+                    entity_for_check.update(cx, |s, cx| {
+                        let subtree = data.subtree_ids(&check_id);
+                        if subtree.iter().all(|n| s.tree_multi_selected.contains(n)) {
+                            for n in subtree {
+                                s.tree_multi_selected.remove(&n);
+                            }
+                        } else {
+                            for n in subtree {
+                                s.tree_multi_selected.insert(n);
+                            }
+                        }
+                        cx.notify();
+                    });
+                })
+                .on_click(move |ev, _, cx| {
+                    let data = click_data.clone();
+                    let mods = match ev {
+                        gpui::ClickEvent::Mouse(m) => m.down.modifiers,
+                        _ => gpui::Modifiers::default(),
+                    };
+                    entity_for_multi_click.update(cx, |s, cx| {
+                        if mods.shift
+                            && let Some(anchor) = s.tree_anchor.clone()
+                        {
+                            s.tree_multi_selected =
+                                data.select_range(&s.tree_multi_expanded, &anchor, &click_id);
+                        } else if mods.control || mods.platform {
+                            if !s.tree_multi_selected.remove(&click_id) {
+                                s.tree_multi_selected.insert(click_id.clone());
+                            }
+                        } else {
+                            s.tree_multi_selected = BTreeSet::from([click_id.clone()]);
+                        }
+                        s.tree_anchor = Some(click_id.clone());
+                        cx.notify();
+                    });
+                })
+                .on_toggle(move |_, _, cx| {
+                    entity_for_multi_double.update(cx, |s, cx| {
+                        if !s.tree_multi_expanded.remove(&double_multi_id) {
+                            s.tree_multi_expanded.insert(double_multi_id.clone());
+                        }
+                        cx.notify();
+                    });
+                })
+                .render(cx, window),
+        );
+    }
+    let tree_multi_wrapped = cell(cx.t("demo.lists.cell_tree_multi"), tree_multi_el, cx);
 
     // --- virtual_list ---
     // 1000+ items (grows via infinite scroll), each rendered as
@@ -481,6 +590,7 @@ pub fn render(
         .child(form_wrapped)
         .child(table_wrapped)
         .child(tree_wrapped)
+        .child(tree_multi_wrapped)
         .child(vl_wrapped)
         .child(uvl_wrapped)
         .child(sp_wrapped)

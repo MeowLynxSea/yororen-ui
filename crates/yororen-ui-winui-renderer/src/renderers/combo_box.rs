@@ -97,6 +97,7 @@ impl ComboBoxRenderer for WinUIComboBoxRenderer {
                 open: state_read.is_open(),
                 disabled: false,
                 has_value: state_read.value.is_some(),
+                editable: state_read.editable,
                 custom_bg: None,
                 custom_border: None,
                 custom_focus_border: None,
@@ -128,12 +129,18 @@ impl ComboBoxRenderer for WinUIComboBoxRenderer {
         } else {
             border
         };
-        if focused {
+        // Selection-only mode (`editable == false`) is
+        // display-only: no caret blink, pointing-hand cursor.
+        if focused && state.editable {
             start_cursor_blink(props.state.clone(), window, cx);
-        } else {
+        } else if state.editable {
             props
                 .state
                 .update(cx, |s, _cx| s.core.cursor_visible = true);
+        } else {
+            props
+                .state
+                .update(cx, |s, _cx| s.core.cursor_visible = false);
         }
 
         let display_str: String = if !text.is_empty() {
@@ -238,7 +245,11 @@ impl ComboBoxRenderer for WinUIComboBoxRenderer {
             .rounded(r)
             .id("default-combo-trigger")
             .track_focus(&focus_handle)
-            .cursor(CursorStyle::IBeam)
+            .cursor(if state.editable {
+                CursorStyle::IBeam
+            } else {
+                CursorStyle::PointingHand
+            })
             .child(div().flex_1().min_w(px(0.)).child(ti_element))
             .child(
                 div()

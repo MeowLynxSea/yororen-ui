@@ -616,18 +616,30 @@ impl SplitButtonRenderer for BrutalSplitButtonRenderer {
         let state = SplitButtonRenderState {
             open,
             disabled: props.disabled,
+            toggled: props.toggled.unwrap_or(false),
         };
 
         // ---- Primary button ----
+        // The caption is the *selected* flyout item's label when
+        // set (the pick-a-list-style ToggleSplitButton pattern),
+        // else the static caption. Toggle mode paints both halves
+        // with the primary action variant while the toggled bit
+        // is set (mirrors how the brutal `toggle_button` renders
+        // selected).
         let primary_id: ElementId = format!("{:?}-primary", props.id).into();
+        let primary_variant = if state.toggled {
+            ActionVariantKind::Primary
+        } else {
+            ActionVariantKind::Neutral
+        };
         let primary = ButtonProps {
             id: primary_id,
             focus_handle: props.primary_focus.clone(),
             on_click: Some(props.primary.clone()),
             disabled: props.disabled,
             clickable: true,
-            variant: ActionVariantKind::Neutral,
-            caption: props.caption.clone(),
+            variant: primary_variant,
+            caption: props.display_caption(),
             icon: None,
             icon_size: px(16.),
         }
@@ -638,7 +650,12 @@ impl SplitButtonRenderer for BrutalSplitButtonRenderer {
         let chevron_click: ClickCallback = Arc::new(
             move |_ev: &gpui::ClickEvent, _w: &mut gpui::Window, cx: &mut App| {
                 if let Some(s) = state_for_chevron.as_ref() {
-                    s.update(cx, |st, _cx| st.toggle());
+                    // Notify so the open/close flip repaints even
+                    // when the caller's handlers don't notify.
+                    s.update(cx, |st, cx| {
+                        st.toggle();
+                        cx.notify();
+                    });
                 }
             },
         );
@@ -653,7 +670,7 @@ impl SplitButtonRenderer for BrutalSplitButtonRenderer {
             on_click: Some(chevron_click),
             disabled: props.disabled,
             clickable: true,
-            variant: ActionVariantKind::Neutral,
+            variant: primary_variant,
             caption: Some(chevron_label.into()),
             icon: None,
             icon_size: px(16.),
@@ -720,7 +737,10 @@ impl SplitButtonRenderer for BrutalSplitButtonRenderer {
                     let state_for_close = props.state.clone();
                     move |_ev, _window, cx| {
                         if let Some(st) = state_for_close.as_ref() {
-                            st.update(cx, |s, _cx| s.close());
+                            st.update(cx, |s, cx| {
+                                s.close();
+                                cx.notify();
+                            });
                         }
                     }
                 });
@@ -737,26 +757,40 @@ impl SplitButtonRenderer for BrutalSplitButtonRenderer {
 
                         let row_id: ElementId =
                             format!("{:?}-item-{}", props.id, item_id_str).into();
+                        let is_selected_item = props.selected_item.as_ref() == Some(&item_id_str);
                         let list_item_el = ListItemProps {
                             id: row_id,
                             title: item_label,
                             description: None,
                             leading_icon: None,
                             trailing_icon: None,
-                            selected: false,
+                            selected: is_selected_item,
                             disabled: item_disabled,
                             on_click: None,
                         }
                         .render(cx);
 
+                        // Hover on the selected item stays within the
+                        // primary pair instead of washing the solid
+                        // selected fill out.
+                        let item_hover_target = if is_selected_item {
+                            theme
+                                .get_color("action.primary.hover_bg")
+                                .unwrap_or(item_hover_bg)
+                        } else {
+                            item_hover_bg
+                        };
                         let item_el = if !item_disabled {
                             list_item_el
                                 .w_full()
                                 .cursor_pointer()
-                                .hover(move |s| s.bg(item_hover_bg))
+                                .hover(move |s| s.bg(item_hover_target))
                                 .on_click(move |_ev, window, cx| {
                                     if let Some(st) = state_for_click.as_ref() {
-                                        st.update(cx, |s, _cx| s.close());
+                                        st.update(cx, |s, cx| {
+                                            s.close();
+                                            cx.notify();
+                                        });
                                     }
                                     if let Some(cb) = on_select_for_click.as_ref() {
                                         cb(item_id_for_callback.clone(), window, cx);

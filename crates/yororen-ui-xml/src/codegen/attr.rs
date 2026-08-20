@@ -105,6 +105,15 @@ pub(crate) const KEYBINDING_INPUT_MODE_VARIANTS: &[(&str, &str)] = &[
     ("capturing", "Capturing"),
 ];
 
+pub(crate) const TREE_SELECTION_MODE_VARIANTS: &[(&str, &str)] = &[
+    ("None", "None"),
+    ("none", "None"),
+    ("Single", "Single"),
+    ("single", "Single"),
+    ("Multiple", "Multiple"),
+    ("multiple", "Multiple"),
+];
+
 pub(crate) const SPACING_VARIANTS: &[(&str, &str)] = &[
     ("xs", "Xs"),
     ("sm", "Sm"),
@@ -181,6 +190,7 @@ pub(crate) fn prop_value_tokens(
             | PropValue::IconSource
             | PropValue::ImageSource
             | PropValue::KeybindingInputMode
+            | PropValue::TreeSelectionMode
             | PropValue::Spacing
             | PropValue::Inset
             | PropValue::AlignItems
@@ -253,6 +263,16 @@ pub(crate) fn prop_value_tokens(
             )?;
             let variant = format_ident!("{variant}");
             Ok(quote! { ::yororen_ui::headless::keybinding_input::KeybindingInputMode::#variant })
+        }
+        PropValue::TreeSelectionMode => {
+            let variant = parse_enum_variant(
+                attr,
+                raw,
+                TREE_SELECTION_MODE_VARIANTS,
+                "`none`, `single`, or `multiple`",
+            )?;
+            let variant = format_ident!("{variant}");
+            Ok(quote! { ::yororen_ui::headless::tree::TreeSelectionMode::#variant })
         }
         PropValue::Spacing => {
             if let Ok(n) = raw.parse::<f32>() {

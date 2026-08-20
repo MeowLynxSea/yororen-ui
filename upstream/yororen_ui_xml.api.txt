@@ -236,6 +236,7 @@ pub yororen_ui_xml::schema::PropValue::KeybindingInputMode
 pub yororen_ui_xml::schema::PropValue::Length
 pub yororen_ui_xml::schema::PropValue::Spacing
 pub yororen_ui_xml::schema::PropValue::String
+pub yororen_ui_xml::schema::PropValue::TreeSelectionMode
 pub yororen_ui_xml::schema::PropValue::UInt
 pub yororen_ui_xml::schema::PropValue::Unknown
 pub yororen_ui_xml::schema::PropValue::Variant

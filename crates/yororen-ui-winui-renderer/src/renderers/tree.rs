@@ -31,7 +31,9 @@ impl TreeRenderer for WinUITreeRenderer {
     fn compose(&self, props: &TreeProps, cx: &App) -> Stateful<Div> {
         let theme = cx.theme();
         let state = TreeRenderState {
-            has_selection: props.selected.is_some(),
+            has_selection: props.selected.is_some() || !props.selected_ids.is_empty(),
+            multi_select: props.selection_mode
+                == yororen_ui_core::headless::tree::TreeSelectionMode::Multiple,
         };
         let border = self.border_color(&state, theme);
         let gap = self.gap(&state, theme);

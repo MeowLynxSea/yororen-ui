@@ -14,6 +14,12 @@ use crate::headless::checkbox::CheckboxProps;
 #[derive(Clone, Copy, Debug, Default)]
 pub struct CheckboxRenderState {
     pub checked: bool,
+    /// Third ("mixed") state — paints a dash instead of a
+    /// checkmark. Used by tri-state flows such as multi-select
+    /// tree parents whose children are partially selected.
+    /// Renderers treat `checked || indeterminate` as the "on"
+    /// state for fill / border colours.
+    pub indeterminate: bool,
     pub disabled: bool,
     pub has_custom_tone: bool,
     pub custom_tone: Option<Hsla>,

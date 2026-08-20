@@ -29,6 +29,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, Window, div, prelude::FluentBuilder, px,
 };
 
+use yororen_ui_core::headless::checkbox::checkbox;
 use yororen_ui_core::headless::tree_item::{DOUBLE_CLICK_THRESHOLD, LastClick, TreeItemProps};
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
@@ -114,6 +115,8 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
             expanded: props.expanded,
             depth: props.depth.min(u8::MAX as usize) as u8,
             is_leaf: !props.has_children,
+            checked: props.checked,
+            indeterminate: props.indeterminate,
         };
 
         let bg = if state.selected {
@@ -196,6 +199,43 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
             fg
         };
 
+        // Multi-select checkbox slot — composed through the
+        // registered `CheckboxRenderer` so the Fluent checkbox
+        // look applies. The wrapper `.occlude()` keeps the
+        // checkbox's click from also firing the row's `on_click`.
+        let checkbox_slot: Option<gpui::AnyElement> = if props.checkbox {
+            let check_id: ElementId = format!("{}-check", props.id).into();
+            let on_check_cb = props.on_check.clone();
+            let on_click_cb = props.on_click.clone();
+            let checked = props.checked;
+            let indeterminate = props.indeterminate;
+            let disabled = props.disabled;
+            let checkbox_el = checkbox(check_id, cx)
+                .checked(checked)
+                .indeterminate(indeterminate)
+                .disabled(disabled)
+                .on_toggle(move |_next, ev, window, cx| {
+                    // Route the checkbox click to `on_check`,
+                    // falling back to the row's `on_click` when
+                    // the caller didn't provide one.
+                    let cb = on_check_cb.as_ref().or(on_click_cb.as_ref());
+                    if let (Some(cb), Some(ev)) = (cb, ev) {
+                        cb(ev, window, cx);
+                    }
+                })
+                .render(cx);
+            Some(
+                div()
+                    .flex()
+                    .items_center()
+                    .occlude()
+                    .child(checkbox_el)
+                    .into_any_element(),
+            )
+        } else {
+            None
+        };
+
         // Double-click detector — keyed by the row's id so each
         // row tracks its own click history. We stamp `now` on
         // every click; on the next click, if the previous stamp
@@ -275,7 +315,11 @@ impl TreeItemRenderer for WinUITreeItemRenderer {
             });
         }
 
-        row.child(chevron_slot).child(props.label.clone())
+        let mut row = row.child(chevron_slot);
+        if let Some(slot) = checkbox_slot {
+            row = row.child(slot);
+        }
+        row.child(props.label.clone())
     }
 }
 

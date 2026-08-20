@@ -153,10 +153,17 @@ pub struct WinuiApp {
 
     // ---- composite `Entity<XxxState>` ----
     pub select_state: Entity<SelectState>,
+    /// Selection-only combo box demo (`editable == false`).
     pub combo_state: Entity<ComboBoxState>,
+    /// Editable combo box demo (`editable == true`): free-form
+    /// text commits on Enter and fires `on_change`.
+    pub combo_edit_state: Entity<ComboBoxState>,
     pub menu_state: Entity<MenuState>,
     pub dropdown_state: Entity<DropdownMenuState>,
     pub split_dd_state: Entity<DropdownMenuState>,
+    /// Separate open/close state for the toggle split-button
+    /// demo so the two split buttons open independently.
+    pub split_toggle_dd_state: Entity<DropdownMenuState>,
     pub listbox_state: Entity<ListboxState>,
     pub modal_state: Entity<ModalState>,
     pub popover_state: Entity<PopoverState>,
@@ -170,6 +177,14 @@ pub struct WinuiApp {
     pub tree_data: TreeData,
     pub tree_expanded: std::collections::BTreeSet<TreeNodeId>,
     pub tree_selected: Option<TreeNodeId>,
+    // Multi-select tree demo: the selection set plus the anchor
+    // node shift-click ranges extend from.
+    pub tree_multi_selected: std::collections::BTreeSet<TreeNodeId>,
+    pub tree_anchor: Option<TreeNodeId>,
+    /// Expansion set for the multi-select tree — separate from
+    /// the single-select tree's so the two trees expand
+    /// independently.
+    pub tree_multi_expanded: std::collections::BTreeSet<TreeNodeId>,
 
     // ---- plain values ----
     pub text: String,
@@ -186,9 +201,15 @@ pub struct WinuiApp {
     pub toggle_sel: bool,
     pub primary_clicks: usize,
     pub split_action: usize,
+    /// "On" bit for the toggle split-button demo.
+    pub split_toggle: bool,
+    /// Flyout item currently chosen on the toggle split button
+    /// (its label replaces the primary half's caption).
+    pub split_toggle_sel: Option<gpui::SharedString>,
 
     pub select_value: String,
     pub combo_value: String,
+    pub combo_edit_value: String,
     pub listbox_value: String,
     pub dropdown_value: String,
 
@@ -204,9 +225,11 @@ impl WinuiApp {
     pub fn new(cx: &mut Context<Self>) -> Self {
         let select_state = SelectState::new(&mut **cx);
         let combo_state = ComboBoxState::new(&mut **cx);
+        let combo_edit_state = ComboBoxState::new(&mut **cx);
         let menu_state = MenuState::new(&mut **cx);
         let dropdown_state = DropdownMenuState::new(&mut **cx);
         let split_dd_state = DropdownMenuState::new(&mut **cx);
+        let split_toggle_dd_state = DropdownMenuState::new(&mut **cx);
         let listbox_state = ListboxState::new(&mut **cx);
         let modal_state = ModalState::new(&mut **cx);
         let popover_state = PopoverState::new(&mut **cx);
@@ -220,7 +243,21 @@ impl WinuiApp {
                 SelectOption::new("durian", "Durian"),
             ]);
         });
+        // The plain combo demo runs in selection-only mode;
+        // `combo_edit_state` keeps `editable == true` (the
+        // default) and commits free-form text on Enter.
         combo_state.update(cx, |s, _cx| {
+            s.set_editable(false);
+            s.set_placeholder("Pick one…");
+            s.set_options(vec![
+                yororen_ui::headless::combo_box::ComboBoxOption::new("rust", "Rust"),
+                yororen_ui::headless::combo_box::ComboBoxOption::new("go", "Go"),
+                yororen_ui::headless::combo_box::ComboBoxOption::new("python", "Python"),
+                yororen_ui::headless::combo_box::ComboBoxOption::new("zig", "Zig"),
+            ]);
+        });
+        combo_edit_state.update(cx, |s, _cx| {
+            s.set_placeholder("Type or pick…");
             s.set_options(vec![
                 yororen_ui::headless::combo_box::ComboBoxOption::new("rust", "Rust"),
                 yororen_ui::headless::combo_box::ComboBoxOption::new("go", "Go"),
@@ -305,9 +342,11 @@ impl WinuiApp {
             groups_open,
             select_state,
             combo_state,
+            combo_edit_state,
             menu_state,
             dropdown_state,
             split_dd_state,
+            split_toggle_dd_state,
             listbox_state,
             modal_state,
             popover_state,
@@ -317,6 +356,9 @@ impl WinuiApp {
             tree_data,
             tree_expanded,
             tree_selected: None,
+            tree_multi_selected: std::collections::BTreeSet::new(),
+            tree_anchor: None,
+            tree_multi_expanded: std::collections::BTreeSet::new(),
             text: String::new(),
             password: String::new(),
             number: 40.0,
@@ -330,8 +372,11 @@ impl WinuiApp {
             toggle_sel: false,
             primary_clicks: 0,
             split_action: 0,
+            split_toggle: false,
+            split_toggle_sel: None,
             select_value: String::new(),
             combo_value: String::new(),
+            combo_edit_value: String::new(),
             listbox_value: String::new(),
             dropdown_value: String::new(),
             progress: 0.45,

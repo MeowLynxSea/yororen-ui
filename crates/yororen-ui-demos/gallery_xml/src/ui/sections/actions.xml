@@ -60,6 +60,19 @@
 
     <Wrap items="center" gap="md">
         <Cell>
+            <Slot name="label"><Label id="lbl-toggle-split" text={t!(cx, "demo.actions.cell_toggle_split_button")} muted /></Slot>
+            <SplitButton id="spb-toggle" primary={controller.toggle_split_button_primary}
+                         toggled={controller.split_button_toggled(cx)}
+                         selected_item={controller.split_button_selected_item(cx)}
+                         caption={t!(cx, "demo.actions.mute")}
+                         state={controller.toggle_split_button_state(cx)}
+                         items={controller.toggle_split_button_items(cx)}
+                         on_select={controller.toggle_split_button_select} />
+        </Cell>
+    </Wrap>
+
+    <Wrap items="center" gap="md">
+        <Cell>
             <Slot name="label"><Label id="lbl-group" text={t!(cx, "demo.actions.cell_button_group")} muted /></Slot>
             <ButtonGroup id="btg-1">
                 <Button id="btn-left" caption={t!(cx, "demo.actions.left")} variant="neutral"

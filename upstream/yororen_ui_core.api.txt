@@ -1106,6 +1106,7 @@ pub yororen_ui_core::headless::checkbox::CheckboxProps::disabled: bool
 pub yororen_ui_core::headless::checkbox::CheckboxProps::focus_handle: gpui::window::FocusHandle
 pub yororen_ui_core::headless::checkbox::CheckboxProps::has_custom_tone: bool
 pub yororen_ui_core::headless::checkbox::CheckboxProps::id: gpui::window::ElementId
+pub yororen_ui_core::headless::checkbox::CheckboxProps::indeterminate: bool
 pub yororen_ui_core::headless::checkbox::CheckboxProps::on_toggle: core::option::Option<yororen_ui_core::headless::switch::ToggleCallback>
 impl yororen_ui_core::headless::checkbox::CheckboxProps
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::apply(self, gpui::elements::div::Div) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
@@ -1114,6 +1115,7 @@ pub fn yororen_ui_core::headless::checkbox::CheckboxProps::custom_tone(self, gpu
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::disabled(self, bool) -> Self
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::focus_handle(&self) -> &gpui::window::FocusHandle
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::has_custom_tone(self, bool) -> Self
+pub fn yororen_ui_core::headless::checkbox::CheckboxProps::indeterminate(self, bool) -> Self
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::is_focused(&self, &gpui::window::Window) -> bool
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::on_toggle<F>(self, F) -> Self where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(bool, core::option::Option<&gpui::interactive::ClickEvent>, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::checkbox::CheckboxProps::render(self, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
@@ -1163,6 +1165,7 @@ pub struct yororen_ui_core::headless::combo_box::ComboBoxState
 pub yororen_ui_core::headless::combo_box::ComboBoxState::animation: yororen_ui_core::animation::AnimatedVisibility
 pub yororen_ui_core::headless::combo_box::ComboBoxState::core: yororen_ui_core::headless::text_input_core::TextInputCore
 pub yororen_ui_core::headless::combo_box::ComboBoxState::dismiss_on_escape: bool
+pub yororen_ui_core::headless::combo_box::ComboBoxState::editable: bool
 pub yororen_ui_core::headless::combo_box::ComboBoxState::highlighted_index: core::option::Option<usize>
 pub yororen_ui_core::headless::combo_box::ComboBoxState::open: bool
 pub yororen_ui_core::headless::combo_box::ComboBoxState::options: alloc::vec::Vec<yororen_ui_core::headless::combo_box::ComboBoxOption>
@@ -1171,10 +1174,12 @@ pub yororen_ui_core::headless::combo_box::ComboBoxState::text: alloc::string::St
 pub yororen_ui_core::headless::combo_box::ComboBoxState::value: core::option::Option<gpui::shared_string::SharedString>
 impl yororen_ui_core::headless::combo_box::ComboBoxState
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::close(&mut self)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::commit_text(&mut self, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::highlight(&mut self, usize)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::highlight_next(&mut self)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::highlight_prev(&mut self)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::invoke_change(&self, gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::is_editable(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::is_open(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::is_visible(&self) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::new(&mut gpui::app::App) -> gpui::app::entity_map::Entity<Self>
@@ -1182,6 +1187,7 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::on_change(&self) -> 
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::open(&mut self)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::pick(&mut self, gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::select_highlighted(&mut self, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_editable(&mut self, bool)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_on_change<F>(&mut self, F) where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_options(&mut self, alloc::vec::Vec<yororen_ui_core::headless::combo_box::ComboBoxOption>)
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_placeholder(&mut self, impl core::convert::Into<gpui::shared_string::SharedString>)
@@ -4350,15 +4356,21 @@ pub yororen_ui_core::headless::split_button::SplitButtonProps::items: alloc::vec
 pub yororen_ui_core::headless::split_button::SplitButtonProps::on_select: core::option::Option<yororen_ui_core::headless::split_button::SelectCallback>
 pub yororen_ui_core::headless::split_button::SplitButtonProps::primary: yororen_ui_core::headless::split_button::ClickCallback
 pub yororen_ui_core::headless::split_button::SplitButtonProps::primary_focus: gpui::window::FocusHandle
+pub yororen_ui_core::headless::split_button::SplitButtonProps::selected_item: core::option::Option<gpui::shared_string::SharedString>
 pub yororen_ui_core::headless::split_button::SplitButtonProps::state: core::option::Option<gpui::app::entity_map::Entity<yororen_ui_core::headless::dropdown_menu::DropdownMenuState>>
+pub yororen_ui_core::headless::split_button::SplitButtonProps::toggled: core::option::Option<bool>
 impl yororen_ui_core::headless::split_button::SplitButtonProps
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::apply(self, gpui::elements::div::Div) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::caption(self, impl core::convert::Into<gpui::shared_string::SharedString>) -> Self
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::disabled(self, bool) -> Self
+pub fn yororen_ui_core::headless::split_button::SplitButtonProps::display_caption(&self) -> core::option::Option<gpui::shared_string::SharedString>
+pub fn yororen_ui_core::headless::split_button::SplitButtonProps::is_toggle(&self) -> bool
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::items(self, alloc::vec::Vec<yororen_ui_core::headless::dropdown_menu::DropdownItem>) -> Self
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::on_select<F>(self, F) -> Self where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::render(self, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+pub fn yororen_ui_core::headless::split_button::SplitButtonProps::selected_item(self, impl core::convert::Into<core::option::Option<gpui::shared_string::SharedString>>) -> Self
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::state(self, gpui::app::entity_map::Entity<yororen_ui_core::headless::dropdown_menu::DropdownMenuState>) -> Self
+pub fn yororen_ui_core::headless::split_button::SplitButtonProps::toggled(self, bool) -> Self
 impl core::clone::Clone for yororen_ui_core::headless::split_button::SplitButtonProps
 pub fn yororen_ui_core::headless::split_button::SplitButtonProps::clone(&self) -> yororen_ui_core::headless::split_button::SplitButtonProps
 impl core::marker::Freeze for yororen_ui_core::headless::split_button::SplitButtonProps
@@ -5512,6 +5524,28 @@ impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::toolti
 pub fn yororen_ui_core::headless::tooltip::tooltip(impl core::convert::Into<gpui::window::ElementId>, impl core::convert::Into<alloc::string::String>, gpui::app::entity_map::Entity<yororen_ui_core::headless::tooltip::TooltipState>) -> yororen_ui_core::headless::tooltip::TooltipProps
 pub type yororen_ui_core::headless::tooltip::TooltipCloseCallback = alloc::sync::Arc<(dyn core::ops::function::Fn(&mut gpui::window::Window, &mut gpui::app::App) + core::marker::Send + core::marker::Sync)>
 pub mod yororen_ui_core::headless::tree
+pub enum yororen_ui_core::headless::tree::TreeSelectionMode
+pub yororen_ui_core::headless::tree::TreeSelectionMode::Multiple
+pub yororen_ui_core::headless::tree::TreeSelectionMode::None
+pub yororen_ui_core::headless::tree::TreeSelectionMode::Single
+impl core::clone::Clone for yororen_ui_core::headless::tree::TreeSelectionMode
+pub fn yororen_ui_core::headless::tree::TreeSelectionMode::clone(&self) -> yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::cmp::Eq for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::cmp::PartialEq for yororen_ui_core::headless::tree::TreeSelectionMode
+pub fn yororen_ui_core::headless::tree::TreeSelectionMode::eq(&self, &yororen_ui_core::headless::tree::TreeSelectionMode) -> bool
+impl core::default::Default for yororen_ui_core::headless::tree::TreeSelectionMode
+pub fn yororen_ui_core::headless::tree::TreeSelectionMode::default() -> yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::fmt::Debug for yororen_ui_core::headless::tree::TreeSelectionMode
+pub fn yororen_ui_core::headless::tree::TreeSelectionMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::marker::StructuralPartialEq for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::marker::Freeze for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::marker::Send for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::marker::Sync for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::marker::Unpin for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::marker::UnsafeUnpin for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::tree::TreeSelectionMode
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::tree::TreeSelectionMode
 pub struct yororen_ui_core::headless::tree::TreeData
 pub yororen_ui_core::headless::tree::TreeData::children: alloc::collections::btree::map::BTreeMap<yororen_ui_core::headless::tree_item::TreeNodeId, alloc::vec::Vec<yororen_ui_core::headless::tree_item::TreeNodeId>>
 pub yororen_ui_core::headless::tree::TreeData::disabled: alloc::collections::btree::set::BTreeSet<yororen_ui_core::headless::tree_item::TreeNodeId>
@@ -5524,6 +5558,8 @@ pub fn yororen_ui_core::headless::tree::TreeData::flatten(&self, &alloc::collect
 pub fn yororen_ui_core::headless::tree::TreeData::is_disabled(&self, &yororen_ui_core::headless::tree_item::TreeNodeId) -> bool
 pub fn yororen_ui_core::headless::tree::TreeData::label_of(&self, &yororen_ui_core::headless::tree_item::TreeNodeId) -> core::option::Option<&str>
 pub fn yororen_ui_core::headless::tree::TreeData::new() -> Self
+pub fn yororen_ui_core::headless::tree::TreeData::select_range(&self, &alloc::collections::btree::set::BTreeSet<yororen_ui_core::headless::tree_item::TreeNodeId>, &yororen_ui_core::headless::tree_item::TreeNodeId, &yororen_ui_core::headless::tree_item::TreeNodeId) -> alloc::collections::btree::set::BTreeSet<yororen_ui_core::headless::tree_item::TreeNodeId>
+pub fn yororen_ui_core::headless::tree::TreeData::subtree_ids(&self, &yororen_ui_core::headless::tree_item::TreeNodeId) -> alloc::vec::Vec<yororen_ui_core::headless::tree_item::TreeNodeId>
 impl core::clone::Clone for yororen_ui_core::headless::tree::TreeData
 pub fn yororen_ui_core::headless::tree::TreeData::clone(&self) -> yororen_ui_core::headless::tree::TreeData
 impl core::default::Default for yororen_ui_core::headless::tree::TreeData
@@ -5542,12 +5578,19 @@ pub yororen_ui_core::headless::tree::TreeProps::data: yororen_ui_core::headless:
 pub yororen_ui_core::headless::tree::TreeProps::expanded: alloc::collections::btree::set::BTreeSet<yororen_ui_core::headless::tree_item::TreeNodeId>
 pub yororen_ui_core::headless::tree::TreeProps::id: gpui::window::ElementId
 pub yororen_ui_core::headless::tree::TreeProps::selected: core::option::Option<yororen_ui_core::headless::tree_item::TreeNodeId>
+pub yororen_ui_core::headless::tree::TreeProps::selected_ids: alloc::collections::btree::set::BTreeSet<yororen_ui_core::headless::tree_item::TreeNodeId>
+pub yororen_ui_core::headless::tree::TreeProps::selection_mode: yororen_ui_core::headless::tree::TreeSelectionMode
 impl yororen_ui_core::headless::tree::TreeProps
 pub fn yororen_ui_core::headless::tree::TreeProps::apply(self, gpui::elements::div::Div) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
 pub fn yororen_ui_core::headless::tree::TreeProps::data(self, yororen_ui_core::headless::tree::TreeData) -> Self
 pub fn yororen_ui_core::headless::tree::TreeProps::expanded(self, impl core::convert::Into<yororen_ui_core::headless::tree_item::TreeNodeId>) -> Self
+pub fn yororen_ui_core::headless::tree::TreeProps::multi_select(self) -> Self
 pub fn yororen_ui_core::headless::tree::TreeProps::render(self, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
 pub fn yororen_ui_core::headless::tree::TreeProps::selected(self, impl core::convert::Into<core::option::Option<yororen_ui_core::headless::tree_item::TreeNodeId>>) -> Self
+pub fn yororen_ui_core::headless::tree::TreeProps::selected_id(self, impl core::convert::Into<yororen_ui_core::headless::tree_item::TreeNodeId>) -> Self
+pub fn yororen_ui_core::headless::tree::TreeProps::selected_ids(self, alloc::collections::btree::set::BTreeSet<yororen_ui_core::headless::tree_item::TreeNodeId>) -> Self
+pub fn yororen_ui_core::headless::tree::TreeProps::selection_mode(self, yororen_ui_core::headless::tree::TreeSelectionMode) -> Self
+pub fn yororen_ui_core::headless::tree::TreeProps::single_select(self) -> Self
 impl core::clone::Clone for yororen_ui_core::headless::tree::TreeProps
 pub fn yororen_ui_core::headless::tree::TreeProps::clone(&self) -> yororen_ui_core::headless::tree::TreeProps
 impl core::marker::Freeze for yororen_ui_core::headless::tree::TreeProps
@@ -5606,24 +5649,32 @@ impl core::marker::UnsafeUnpin for yororen_ui_core::headless::tree_item::LastCli
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::tree_item::LastClick
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::tree_item::LastClick
 pub struct yororen_ui_core::headless::tree_item::TreeItemProps
+pub yororen_ui_core::headless::tree_item::TreeItemProps::checkbox: bool
+pub yororen_ui_core::headless::tree_item::TreeItemProps::checked: bool
 pub yororen_ui_core::headless::tree_item::TreeItemProps::depth: usize
 pub yororen_ui_core::headless::tree_item::TreeItemProps::disabled: bool
 pub yororen_ui_core::headless::tree_item::TreeItemProps::expanded: bool
 pub yororen_ui_core::headless::tree_item::TreeItemProps::focus_handle: gpui::window::FocusHandle
 pub yororen_ui_core::headless::tree_item::TreeItemProps::has_children: bool
 pub yororen_ui_core::headless::tree_item::TreeItemProps::id: gpui::window::ElementId
+pub yororen_ui_core::headless::tree_item::TreeItemProps::indeterminate: bool
 pub yororen_ui_core::headless::tree_item::TreeItemProps::label: alloc::string::String
 pub yororen_ui_core::headless::tree_item::TreeItemProps::node_id: yororen_ui_core::headless::tree_item::TreeNodeId
+pub yororen_ui_core::headless::tree_item::TreeItemProps::on_check: core::option::Option<yororen_ui_core::headless::tree_item::ClickCallback>
 pub yororen_ui_core::headless::tree_item::TreeItemProps::on_click: core::option::Option<yororen_ui_core::headless::tree_item::ClickCallback>
 pub yororen_ui_core::headless::tree_item::TreeItemProps::on_double_click: core::option::Option<yororen_ui_core::headless::tree_item::ClickCallback>
 pub yororen_ui_core::headless::tree_item::TreeItemProps::on_toggle: core::option::Option<yororen_ui_core::headless::tree_item::ClickCallback>
 pub yororen_ui_core::headless::tree_item::TreeItemProps::selected: bool
 impl yororen_ui_core::headless::tree_item::TreeItemProps
+pub fn yororen_ui_core::headless::tree_item::TreeItemProps::checkbox(self, bool) -> Self
+pub fn yororen_ui_core::headless::tree_item::TreeItemProps::checked(self, bool) -> Self
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::depth(self, usize) -> Self
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::disabled(self, bool) -> Self
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::expanded(self, bool) -> Self
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::focus_handle(&self) -> &gpui::window::FocusHandle
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::has_children(self, bool) -> Self
+pub fn yororen_ui_core::headless::tree_item::TreeItemProps::indeterminate(self, bool) -> Self
+pub fn yororen_ui_core::headless::tree_item::TreeItemProps::on_check<F>(self, F) -> Self where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(&gpui::interactive::ClickEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::on_click<F>(self, F) -> Self where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(&gpui::interactive::ClickEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::on_double_click<F>(self, F) -> Self where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(&gpui::interactive::ClickEvent, &mut gpui::window::Window, &mut gpui::app::App)
 pub fn yororen_ui_core::headless::tree_item::TreeItemProps::on_toggle<F>(self, F) -> Self where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(&gpui::interactive::ClickEvent, &mut gpui::window::Window, &mut gpui::app::App)
@@ -7230,6 +7281,7 @@ pub yororen_ui_core::renderer::checkbox::CheckboxRenderState::checked: bool
 pub yororen_ui_core::renderer::checkbox::CheckboxRenderState::custom_tone: core::option::Option<gpui::color::Hsla>
 pub yororen_ui_core::renderer::checkbox::CheckboxRenderState::disabled: bool
 pub yororen_ui_core::renderer::checkbox::CheckboxRenderState::has_custom_tone: bool
+pub yororen_ui_core::renderer::checkbox::CheckboxRenderState::indeterminate: bool
 impl core::clone::Clone for yororen_ui_core::renderer::checkbox::CheckboxRenderState
 pub fn yororen_ui_core::renderer::checkbox::CheckboxRenderState::clone(&self) -> yororen_ui_core::renderer::checkbox::CheckboxRenderState
 impl core::default::Default for yororen_ui_core::renderer::checkbox::CheckboxRenderState
@@ -7253,6 +7305,7 @@ pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::custom_border: co
 pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::custom_fg: core::option::Option<gpui::color::Hsla>
 pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::custom_focus_border: core::option::Option<gpui::color::Hsla>
 pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::disabled: bool
+pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::editable: bool
 pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::has_value: bool
 pub yororen_ui_core::renderer::combo_box::ComboBoxRenderState::open: bool
 impl core::clone::Clone for yororen_ui_core::renderer::combo_box::ComboBoxRenderState
@@ -9163,6 +9216,7 @@ pub mod yororen_ui_core::renderer::split_button
 pub struct yororen_ui_core::renderer::split_button::SplitButtonRenderState
 pub yororen_ui_core::renderer::split_button::SplitButtonRenderState::disabled: bool
 pub yororen_ui_core::renderer::split_button::SplitButtonRenderState::open: bool
+pub yororen_ui_core::renderer::split_button::SplitButtonRenderState::toggled: bool
 impl core::clone::Clone for yororen_ui_core::renderer::split_button::SplitButtonRenderState
 pub fn yororen_ui_core::renderer::split_button::SplitButtonRenderState::clone(&self) -> yororen_ui_core::renderer::split_button::SplitButtonRenderState
 impl core::default::Default for yororen_ui_core::renderer::split_button::SplitButtonRenderState
@@ -9382,6 +9436,7 @@ pub fn yororen_ui_core::renderer::tooltip::TooltipRenderer::compose(&self, &mut 
 pub mod yororen_ui_core::renderer::tree
 pub struct yororen_ui_core::renderer::tree::TreeRenderState
 pub yororen_ui_core::renderer::tree::TreeRenderState::has_selection: bool
+pub yororen_ui_core::renderer::tree::TreeRenderState::multi_select: bool
 impl core::clone::Clone for yororen_ui_core::renderer::tree::TreeRenderState
 pub fn yororen_ui_core::renderer::tree::TreeRenderState::clone(&self) -> yororen_ui_core::renderer::tree::TreeRenderState
 impl core::default::Default for yororen_ui_core::renderer::tree::TreeRenderState
@@ -9400,8 +9455,10 @@ pub trait yororen_ui_core::renderer::tree::TreeRenderer: core::any::Any + core::
 pub fn yororen_ui_core::renderer::tree::TreeRenderer::compose(&self, &yororen_ui_core::headless::tree::TreeProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
 pub mod yororen_ui_core::renderer::tree_item
 pub struct yororen_ui_core::renderer::tree_item::TreeItemRenderState
+pub yororen_ui_core::renderer::tree_item::TreeItemRenderState::checked: bool
 pub yororen_ui_core::renderer::tree_item::TreeItemRenderState::depth: u8
 pub yororen_ui_core::renderer::tree_item::TreeItemRenderState::expanded: bool
+pub yororen_ui_core::renderer::tree_item::TreeItemRenderState::indeterminate: bool
 pub yororen_ui_core::renderer::tree_item::TreeItemRenderState::is_leaf: bool
 pub yororen_ui_core::renderer::tree_item::TreeItemRenderState::selected: bool
 impl core::clone::Clone for yororen_ui_core::renderer::tree_item::TreeItemRenderState

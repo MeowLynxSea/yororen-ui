@@ -1,5 +1,17 @@
 //! Headless `combo_box` — text input + option list + keyboard
 //! navigation. The renderer shows a text field + a dropdown list.
+//!
+//! ## Editable vs selection-only
+//!
+//! `editable` (default `true`) mirrors WinUI's `IsEditable`:
+//!
+//! - `true`  — the user may type free-form text. Typing filters
+//!   the option list, and pressing <kbd>Enter</kbd> **commits**
+//!   the current text as the value (firing `on_change`) when no
+//!   option is highlighted, so values outside the option list
+//!   are legal.
+//! - `false` — selection-only combo. Typing no longer mutates the
+//!   text; the value can only change by picking an option.
 
 use std::ops::Range;
 use std::sync::Arc;
@@ -46,6 +58,11 @@ pub struct ComboBoxState {
     pub highlighted_index: Option<usize>,
     pub placeholder: SharedString,
     pub dismiss_on_escape: bool,
+    /// Editable mode (WinUI `IsEditable`, default `true`). When
+    /// `false` the embedded text input ignores edit actions —
+    /// the value can only change via `pick`. When `true`,
+    /// <kbd>Enter</kbd> also commits free-form text as the value.
+    pub editable: bool,
     pub core: TextInputCore,
     on_change: Option<ComboBoxChangeCallback>,
 }
@@ -62,6 +79,7 @@ impl ComboBoxState {
             highlighted_index: None,
             placeholder: "Search…".into(),
             dismiss_on_escape: true,
+            editable: true,
             core,
             on_change: None,
         })
@@ -105,6 +123,15 @@ impl ComboBoxState {
     }
     pub fn set_placeholder(&mut self, p: impl Into<SharedString>) {
         self.placeholder = p.into();
+    }
+    /// Switch editable / selection-only mode (WinUI
+    /// `IsEditable`). See the module docs for the behavioural
+    /// difference.
+    pub fn set_editable(&mut self, editable: bool) {
+        self.editable = editable;
+    }
+    pub fn is_editable(&self) -> bool {
+        self.editable
     }
     pub fn highlight(&mut self, i: usize) {
         if i < self.options.len() {
@@ -157,6 +184,26 @@ impl ComboBoxState {
             self.animation.hide();
             self.invoke_change(value, window, cx);
         }
+    }
+    /// Commit the current free-form text as the value (editable
+    /// mode's <kbd>Enter</kbd> action when no option is
+    /// highlighted). Fires `on_change` with the raw text —
+    /// legal values are not restricted to the option list.
+    pub fn commit_text(&mut self, window: &mut gpui::Window, cx: &mut App) {
+        if self.text.is_empty() {
+            return;
+        }
+        // If the text happens to exactly match an option's label,
+        // commit that option's value so callers receive the
+        // canonical value string.
+        let value = match self.options.iter().find(|o| o.label == self.text) {
+            Some(opt) => opt.value.clone(),
+            None => SharedString::new(self.text.clone()),
+        };
+        self.value = Some(value.clone());
+        self.open = false;
+        self.animation.hide();
+        self.invoke_change(value, window, cx);
     }
 }
 
@@ -240,7 +287,9 @@ impl TextInputPainterHost for ComboBoxState {
 // =====================================================================
 // `TextInputActionHandler` — keyboard actions for the embedded text
 // input. Text mutations automatically open the dropdown so the user
-// sees filtered options while typing.
+// sees filtered options while typing. In selection-only mode
+// (`editable == false`) every mutating action is a no-op — the
+// value only changes via `pick`.
 // =====================================================================
 
 impl TextInputActionHandler for ComboBoxState {
@@ -270,16 +319,25 @@ impl TextInputActionHandler for ComboBoxState {
         self.core.end(&self.text);
     }
     fn backspace(&mut self, _: &Backspace, _w: &mut Window, _cx: &mut App) {
+        if !self.editable {
+            return;
+        }
         if self.core.backspace(&mut self.text) && !self.is_open() {
             self.open();
         }
     }
     fn delete(&mut self, _: &Delete, _w: &mut Window, _cx: &mut App) {
+        if !self.editable {
+            return;
+        }
         if self.core.delete(&mut self.text) && !self.is_open() {
             self.open();
         }
     }
     fn paste(&mut self, _: &Paste, _w: &mut Window, cx: &mut App) {
+        if !self.editable {
+            return;
+        }
         if self.core.paste(&mut self.text, false, cx) && !self.is_open() {
             self.open();
         }
@@ -288,6 +346,9 @@ impl TextInputActionHandler for ComboBoxState {
         self.core.copy(&self.text, cx);
     }
     fn cut(&mut self, _: &Cut, _w: &mut Window, cx: &mut App) {
+        if !self.editable {
+            return;
+        }
         if self.core.cut(&mut self.text, cx) && !self.is_open() {
             self.open();
         }
@@ -304,6 +365,11 @@ impl TextInputActionHandler for ComboBoxState {
     fn enter(&mut self, _: &Enter, window: &mut Window, cx: &mut App) {
         if self.highlighted_index.is_some() {
             self.select_highlighted(window, cx);
+        } else if self.editable {
+            // Editable mode: Enter commits the typed text as the
+            // value, so free-form entries outside the option list
+            // are legal.
+            self.commit_text(window, cx);
         }
     }
     fn escape(&mut self, _: &Escape, _w: &mut Window, _cx: &mut App) {
@@ -381,8 +447,12 @@ impl EntityInputHandler for ComboBoxState {
         range_utf16: Option<Range<usize>>,
         new_text: &str,
         _window: &mut Window,
-        _cx: &mut Context<Self>,
+        cx: &mut Context<Self>,
     ) {
+        if !self.editable {
+            return;
+        }
+        let before = self.text.clone();
         let range = range_utf16
             .map(|r| TextInputCore::range_from_utf16(&self.text, &r))
             .or_else(|| self.core.marked_range.clone())
@@ -396,6 +466,17 @@ impl EntityInputHandler for ComboBoxState {
         self.core
             .replace_text_in_range_bytes(&mut self.text, None, range, new_text);
         self.core.marked_range = None;
+        if self.text != before && !self.is_open() {
+            // Typing opens the dropdown so the filtered options
+            // are visible — same behaviour as the keymap-driven
+            // mutations in `TextInputActionHandler`.
+            self.open();
+        }
+        // The IME pipeline bypasses `wire_input_keyboard`'s
+        // notify-on-action, so without this the edit would only
+        // reach the screen on the next cursor-blink tick (typed
+        // letters would appear "after a delay").
+        cx.notify();
     }
 
     fn replace_and_mark_text_in_range(
@@ -404,13 +485,21 @@ impl EntityInputHandler for ComboBoxState {
         new_text: &str,
         new_selected_range_utf16: Option<Range<usize>>,
         _window: &mut Window,
-        _cx: &mut Context<Self>,
+        cx: &mut Context<Self>,
     ) {
+        if !self.editable {
+            return;
+        }
+        let before = self.text.clone();
         let range = range_utf16.map(|r| TextInputCore::range_from_utf16(&self.text, &r));
         let new_sel =
             new_selected_range_utf16.map(|r| TextInputCore::range_from_utf16(&self.text, &r));
         self.core
             .replace_and_mark_text_in_range_bytes(&mut self.text, range, new_text, new_sel);
+        if self.text != before && !self.is_open() {
+            self.open();
+        }
+        cx.notify();
     }
 
     fn bounds_for_range(

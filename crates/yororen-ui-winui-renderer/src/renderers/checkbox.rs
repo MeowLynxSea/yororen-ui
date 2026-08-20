@@ -4,8 +4,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use gpui::{
-    App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, MouseButton, ParentElement,
-    Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
+    App, CursorStyle, Div, FocusHandle, Hsla, InteractiveElement, IntoElement, MouseButton,
+    ParentElement, Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
 use yororen_ui_core::headless::checkbox::CheckboxProps;
@@ -42,7 +42,7 @@ impl WinUICheckboxRenderer {
         if state.disabled {
             // WinUI: a checked-but-disabled box keeps the accent
             // disabled fill, not the neutral control fill.
-            if state.checked {
+            if state.checked || state.indeterminate {
                 return theme
                     .get_color("winui.accent_fill_disabled")
                     .or_else(|| theme.get_color("action.primary.disabled_bg"))
@@ -52,7 +52,7 @@ impl WinUICheckboxRenderer {
                 .get_color("winui.ctrl_fill_disabled")
                 .or_else(|| theme.get_color("surface.sunken"))
                 .unwrap_or_default()
-        } else if state.checked {
+        } else if state.checked || state.indeterminate {
             if state.has_custom_tone {
                 state.custom_tone.unwrap_or_default()
             } else {
@@ -69,7 +69,7 @@ impl WinUICheckboxRenderer {
         }
     }
     pub fn box_border(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
-        if state.checked {
+        if state.checked || state.indeterminate {
             if state.has_custom_tone {
                 state.custom_tone.unwrap_or_default()
             } else {
@@ -86,7 +86,7 @@ impl WinUICheckboxRenderer {
         }
     }
     pub fn box_hover_bg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
-        if state.checked {
+        if state.checked || state.indeterminate {
             theme
                 .get_color("winui.accent_hover")
                 .or_else(|| theme.get_color("action.primary.hover_bg"))
@@ -99,7 +99,7 @@ impl WinUICheckboxRenderer {
         }
     }
     pub fn box_active_bg(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
-        if state.checked {
+        if state.checked || state.indeterminate {
             theme
                 .get_color("winui.accent_pressed")
                 .or_else(|| theme.get_color("action.primary.active_bg"))
@@ -114,7 +114,7 @@ impl WinUICheckboxRenderer {
     pub fn box_border_hover(&self, state: &CheckboxRenderState, theme: &Theme) -> Hsla {
         if state.disabled {
             self.box_border(state, theme)
-        } else if state.checked {
+        } else if state.checked || state.indeterminate {
             theme
                 .get_color("winui.accent_hover")
                 .or_else(|| theme.get_color("action.primary.hover_bg"))
@@ -160,6 +160,7 @@ impl CheckboxRenderer for WinUICheckboxRenderer {
         let theme = cx.theme();
         let state = CheckboxRenderState {
             checked: props.checked,
+            indeterminate: props.indeterminate,
             disabled: props.disabled,
             has_custom_tone: props.has_custom_tone,
             custom_tone: props.custom_tone,
@@ -172,19 +173,41 @@ impl CheckboxRenderer for WinUICheckboxRenderer {
         let active_bg = self.box_active_bg(&state, theme);
         let hover_border = self.box_border_hover(&state, theme);
 
-        // The checkmark is always mounted; it is revealed by
-        // expanding a clipping window from the top-left corner —
-        // matching the reference's `clip-path` polygon animation
-        // (0.2s ease-in-out).
+        // The glyph (checkmark or mixed-state dash) is always
+        // mounted; it is revealed by expanding a clipping window
+        // from the top-left corner — matching the reference's
+        // `clip-path` polygon animation (0.2s ease-in-out).
+        //
+        // The checkmark is the built-in SVG icon, NOT a text "✓"
+        // glyph: text sits on its baseline near the bottom of the
+        // line box, so inside the square clip window it renders
+        // visibly below centre. The mixed-state dash is a flat
+        // bar (same approach as the token renderer).
         let check_color = self.check_fg(&state, theme);
         let check_f: f32 = check_size.into();
+        let glyph_inner: gpui::AnyElement = if props.indeterminate {
+            div()
+                .bg(check_color)
+                .w(px(check_f * 1.2))
+                .h(px((check_f * 0.28).max(2.0)))
+                .rounded(px(1.))
+                .into_any_element()
+        } else {
+            yororen_ui_core::headless::icon::IconProps {
+                id: (props.id.clone(), "glyph").into(),
+                source: yororen_ui_core::headless::icon::IconSource::Builtin("check".into()),
+                size: Some(check_size),
+                color: Some(check_color),
+            }
+            .render(cx)
+        };
         let check_glyph = div()
             .absolute()
-            .top_0()
-            .left_0()
-            .text_color(check_color)
-            .text_size(check_size)
-            .child("✓");
+            .inset_0()
+            .flex()
+            .items_center()
+            .justify_center()
+            .child(glyph_inner);
         let check_window = div()
             .relative()
             .overflow_hidden()
@@ -193,7 +216,7 @@ impl CheckboxRenderer for WinUICheckboxRenderer {
         let animated_check = AnimatedStateElement::new(
             (props.id.clone(), "check"),
             props.id.clone(),
-            props.checked,
+            props.checked || props.indeterminate,
             check_window,
             AnimationConfig::new()
                 .with_duration(Duration::from_millis(200))
@@ -285,6 +308,7 @@ mod tests {
         let custom = rgb(0xabcdef).into();
         let state = CheckboxRenderState {
             checked: true,
+            indeterminate: false,
             disabled: false,
             has_custom_tone: true,
             custom_tone: Some(custom),

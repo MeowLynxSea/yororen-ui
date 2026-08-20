@@ -132,7 +132,13 @@ pub fn render(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> impl IntoEl
             split_button(
                 "spb-1",
                 move |_, _, cx| {
-                    entity_for_primary.update(cx, |s, _cx| s.toast_count += 1);
+                    entity_for_primary.update(cx, |s, cx| {
+                        s.toast_count += 1;
+                        // gpui does not repaint on `Entity::update`
+                        // by itself — notify or the click appears
+                        // to do nothing.
+                        cx.notify();
+                    });
                 },
                 cx,
             )
@@ -144,7 +150,59 @@ pub fn render(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> impl IntoEl
                 DropdownItem::Item(DropdownMenuItem::new("save_all", split_save_all)),
             ])
             .on_select(move |_id, _w, cx| {
-                entity_for_select.update(cx, |s, _cx| s.toast_count += 1);
+                entity_for_select.update(cx, |s, cx| {
+                    s.toast_count += 1;
+                    cx.notify();
+                });
+            })
+            .render(cx),
+            cx,
+        ));
+
+    // --- toggle split_button (WinUI ToggleSplitButton): the
+    //     trigger is "checked" while `split_toggle_on` is set,
+    //     and picking a flyout option REPLACES the primary
+    //     half's caption with that option (the bullet-list
+    //     pattern) while also turning the toggle on. Clicking
+    //     the primary half flips the checked bit but keeps the
+    //     selection. Uses its own DropdownMenuState so the two
+    //     split buttons open/close independently.
+    let entity_for_toggle_primary = entity.clone();
+    let entity_for_toggle_select = entity.clone();
+    let toggle_caption = cx.t("demo.actions.mute").to_string();
+    let toggle_mute = cx.t("demo.actions.mute_mic").to_string();
+    let toggle_mute_speaker = cx.t("demo.actions.mute_speaker").to_string();
+    let toggle_unmute = cx.t("demo.actions.unmute").to_string();
+    let row_toggle_split = row("actions-row-toggle-split", cx)
+        .items_center()
+        .gap(Spacing::Md)
+        .child(cell(
+            cx.t("demo.actions.cell_toggle_split_button"),
+            split_button(
+                "spb-toggle",
+                move |_, _, cx| {
+                    entity_for_toggle_primary.update(cx, |s, cx| {
+                        s.split_toggle_on = !s.split_toggle_on;
+                        cx.notify();
+                    });
+                },
+                cx,
+            )
+            .state(app.split_toggle_dropdown_state.clone())
+            .toggled(app.split_toggle_on)
+            .selected_item(app.split_toggle_selected.clone())
+            .caption(toggle_caption)
+            .items(vec![
+                DropdownItem::Item(DropdownMenuItem::new("mute", toggle_mute)),
+                DropdownItem::Item(DropdownMenuItem::new("mute_speaker", toggle_mute_speaker)),
+                DropdownItem::Item(DropdownMenuItem::new("unmute", toggle_unmute)),
+            ])
+            .on_select(move |id, _w, cx| {
+                entity_for_toggle_select.update(cx, |s, cx| {
+                    s.split_toggle_selected = Some(id);
+                    s.split_toggle_on = true;
+                    cx.notify();
+                });
             })
             .render(cx),
             cx,
@@ -196,6 +254,7 @@ pub fn render(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> impl IntoEl
         .child(row_icon_button.render(cx))
         .child(row_toggle.render(cx))
         .child(row_split.render(cx))
+        .child(row_toggle_split.render(cx))
         .child(row_group.render(cx))
         .render(cx)
 }

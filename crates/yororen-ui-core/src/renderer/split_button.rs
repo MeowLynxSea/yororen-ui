@@ -15,6 +15,9 @@ use crate::headless::split_button::SplitButtonProps;
 pub struct SplitButtonRenderState {
     pub open: bool,
     pub disabled: bool,
+    /// Toggle-mode "on" value. `false` for classic action split
+    /// buttons (`props.toggled` is `None` or `Some(false)`).
+    pub toggled: bool,
 }
 
 pub trait SplitButtonRenderer: Any + Send + Sync {

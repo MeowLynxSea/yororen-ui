@@ -174,6 +174,9 @@ pub enum PropValue {
     ImageSource,
     /// `yororen_ui::headless::keybinding_input::KeybindingInputMode`.
     KeybindingInputMode,
+    /// `yororen_ui::headless::tree::TreeSelectionMode` —
+    /// `None` / `Single` / `Multiple`.
+    TreeSelectionMode,
     /// `yororen_ui::headless::layout::Spacing` — gap/p/px/py
     /// token (named `xs`/`sm`/`md`/`lg`/`xl`/`xxl`).
     Spacing,
@@ -881,6 +884,7 @@ fn parse_prop_value(raw: &str) -> Result<PropValue, String> {
         "IconSource" => Ok(PropValue::IconSource),
         "ImageSource" => Ok(PropValue::ImageSource),
         "KeybindingInputMode" => Ok(PropValue::KeybindingInputMode),
+        "TreeSelectionMode" => Ok(PropValue::TreeSelectionMode),
         "Spacing" => Ok(PropValue::Spacing),
         "Inset" => Ok(PropValue::Inset),
         "AlignItems" => Ok(PropValue::AlignItems),

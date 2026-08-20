@@ -53,6 +53,18 @@ pub struct TreeItemProps {
     pub expanded: bool,
     pub selected: bool,
     pub disabled: bool,
+    /// Multi-select mode: render a checkbox between the chevron
+    /// and the label (WinUI `TreeView` with
+    /// `SelectionMode="Multiple"`). The checkbox's own click fires
+    /// `on_check` (falling back to `on_click` when unset) and
+    /// does NOT bubble to the row body.
+    pub checkbox: bool,
+    /// Multi-select membership for this node (drives the
+    /// checkbox's checked state).
+    pub checked: bool,
+    /// Tri-state hint for parent rows: some (but not all)
+    /// descendants are checked. Paints a mixed checkbox.
+    pub indeterminate: bool,
     pub focus_handle: FocusHandle,
     /// Fired on a single click on the row body (not the chevron).
     /// A double-click fires `on_double_click` instead and
@@ -62,6 +74,9 @@ pub struct TreeItemProps {
     /// double-click of the row body, so users can collapse /
     /// expand without aiming at the small chevron target.
     pub on_toggle: Option<ClickCallback>,
+    /// Fired when the multi-select checkbox itself is clicked.
+    /// When unset the renderer falls back to `on_click`.
+    pub on_check: Option<ClickCallback>,
     /// Optional double-click callback. When unset the renderer
     /// falls back to firing `on_toggle` on double-click.
     pub on_double_click: Option<ClickCallback>,
@@ -82,9 +97,13 @@ pub fn tree_item(
         expanded: false,
         selected: false,
         disabled: false,
+        checkbox: false,
+        checked: false,
+        indeterminate: false,
         focus_handle: cx.focus_handle(),
         on_click: None,
         on_toggle: None,
+        on_check: None,
         on_double_click: None,
     }
 }
@@ -110,6 +129,22 @@ impl TreeItemProps {
         self.disabled = v;
         self
     }
+    /// Render a multi-select checkbox on this row (see
+    /// [`TreeItemProps::checkbox`]).
+    pub fn checkbox(mut self, v: bool) -> Self {
+        self.checkbox = v;
+        self
+    }
+    /// Multi-select membership for this row.
+    pub fn checked(mut self, v: bool) -> Self {
+        self.checked = v;
+        self
+    }
+    /// Tri-state hint — some descendants are checked.
+    pub fn indeterminate(mut self, v: bool) -> Self {
+        self.indeterminate = v;
+        self
+    }
     pub fn on_click<F>(mut self, f: F) -> Self
     where
         F: 'static + Send + Sync + Fn(&ClickEvent, &mut gpui::Window, &mut App),
@@ -122,6 +157,15 @@ impl TreeItemProps {
         F: 'static + Send + Sync + Fn(&ClickEvent, &mut gpui::Window, &mut App),
     {
         self.on_toggle = Some(Arc::new(f));
+        self
+    }
+    /// Set the multi-select checkbox's click handler. When unset,
+    /// clicking the checkbox falls back to `on_click`.
+    pub fn on_check<F>(mut self, f: F) -> Self
+    where
+        F: 'static + Send + Sync + Fn(&ClickEvent, &mut gpui::Window, &mut App),
+    {
+        self.on_check = Some(Arc::new(f));
         self
     }
     pub fn on_double_click<F>(mut self, f: F) -> Self

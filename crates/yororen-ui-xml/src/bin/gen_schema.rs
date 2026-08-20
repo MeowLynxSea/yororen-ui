@@ -227,6 +227,8 @@ enum PropValue {
     ImageSource,
     /// `KeybindingInputMode` setter (e.g. `KeybindingInput::mode`).
     KeybindingInputMode,
+    /// `TreeSelectionMode` setter (e.g. `Tree::selection_mode`).
+    TreeSelectionMode,
     /// `Spacing` setter (e.g. `Column::gap`). Resolved to a
     /// theme token at render time.
     Spacing,
@@ -930,6 +932,9 @@ fn classify_arg(ty: &Type) -> PropValue {
         if n == "KeybindingInputMode" {
             return PropValue::KeybindingInputMode;
         }
+        if n == "TreeSelectionMode" {
+            return PropValue::TreeSelectionMode;
+        }
         if n == "Spacing" {
             return PropValue::Spacing;
         }
@@ -987,6 +992,7 @@ fn classify_arg(ty: &Type) -> PropValue {
     // `impl Into<TreeNodeId>` is not misclassified as String.
     if rendered.contains("TreeData")
         || rendered.contains("TreeNodeId")
+        || rendered.contains("Option < SharedString >")
         || rendered.starts_with("Vec <")
         || rendered.starts_with("HashMap <")
         || rendered.starts_with("BTreeMap <")
@@ -1197,6 +1203,7 @@ fn parse_prop_value(raw: &str) -> Option<PropValue> {
         "IconSource" => Some(PropValue::IconSource),
         "ImageSource" => Some(PropValue::ImageSource),
         "KeybindingInputMode" => Some(PropValue::KeybindingInputMode),
+        "TreeSelectionMode" => Some(PropValue::TreeSelectionMode),
         "Spacing" => Some(PropValue::Spacing),
         "Inset" => Some(PropValue::Inset),
         "AlignItems" => Some(PropValue::AlignItems),
@@ -1426,6 +1433,7 @@ fn render_props(props: &[PropInfo]) -> String {
             PropValue::IconSource => "PropValue::IconSource",
             PropValue::ImageSource => "PropValue::ImageSource",
             PropValue::KeybindingInputMode => "PropValue::KeybindingInputMode",
+            PropValue::TreeSelectionMode => "PropValue::TreeSelectionMode",
             PropValue::Spacing => "PropValue::Spacing",
             PropValue::Inset => "PropValue::Inset",
             PropValue::AlignItems => "PropValue::AlignItems",

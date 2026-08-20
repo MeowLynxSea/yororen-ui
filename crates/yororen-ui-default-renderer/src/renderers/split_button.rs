@@ -13,6 +13,8 @@
 //! dropdown on its own stacking layer above the surrounding
 //! page flow without shifting sibling components.
 
+use std::cell::Cell;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use gpui::{
@@ -93,18 +95,29 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
         let state = SplitButtonRenderState {
             open,
             disabled: props.disabled,
+            toggled: props.toggled.unwrap_or(false),
         };
 
         // ---- Primary button (caption only, click = props.primary) ----
+        // The caption is the *selected* flyout item's label when
+        // set (the pick-a-list-style ToggleSplitButton pattern),
+        // else the static caption. In toggle mode both halves
+        // paint the accent "checked" look via the primary action
+        // variant while the toggled bit is set.
         let primary_id: ElementId = format!("{:?}-primary", props.id).into();
+        let primary_variant = if state.toggled {
+            ActionVariantKind::Primary
+        } else {
+            ActionVariantKind::Neutral
+        };
         let primary = ButtonProps {
             id: primary_id,
             focus_handle: props.primary_focus.clone(),
             on_click: Some(props.primary.clone()),
             disabled: props.disabled,
             clickable: true,
-            variant: ActionVariantKind::Neutral,
-            caption: props.caption.clone(),
+            variant: primary_variant,
+            caption: props.display_caption(),
             icon: None,
             icon_size: px(16.),
         }
@@ -115,7 +128,12 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
         let chevron_click: ClickCallback =
             Arc::new(move |_ev: &ClickEvent, _w: &mut Window, cx: &mut App| {
                 if let Some(s) = state_for_chevron.as_ref() {
-                    s.update(cx, |st, _cx| st.toggle());
+                    // Notify so the open/close flip repaints even
+                    // when the caller's handlers don't notify.
+                    s.update(cx, |st, cx| {
+                        st.toggle();
+                        cx.notify();
+                    });
                 }
             });
         let chevron_label = if open { "▴" } else { "▾" };
@@ -127,7 +145,7 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
             on_click: Some(chevron_click),
             disabled: props.disabled,
             clickable: true,
-            variant: ActionVariantKind::Neutral,
+            variant: primary_variant,
             caption: Some(chevron_label.into()),
             icon: None,
             icon_size: px(16.),
@@ -145,19 +163,30 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
             .child(primary)
             .child(chevron);
 
-        // `on_mouse_down_out` on the outer wrapper closes the menu
-        // when the user clicks anywhere outside the trigger + menu
-        // (the absolute menu body is still a layout child of this
-        // div, so clicks on items are absorbed by the items and
-        // don't fire `_out`). Clicks on the trigger are likewise
-        // absorbed by the primary / chevron buttons. Honoured only
-        // when the caller opted in via `dismiss_on_outside_click`.
-        let state_for_close = props.state.clone();
+        // Outside-press dismissal hangs off the menu panel (see
+        // below), NOT on this wrapper: gpui's `on_mouse_down_out`
+        // is a geometric check of the element's own hitbox, and the
+        // wrapper's hitbox only covers the trigger row — the
+        // absolute, deferred menu hangs below it. A wrapper-level
+        // `_out` therefore fired on every menu-item press, closing
+        // the menu mid-click; the exit-animating items then slid
+        // out from under the pointer and gpui dropped the click, so
+        // `on_select` never ran (the "picked an item but nothing
+        // switched" bug). Honoured only when the caller opted in
+        // via `dismiss_on_outside_click`.
         let dismiss_outside = props
             .state
             .as_ref()
             .map(|s| s.read(cx).dismiss_on_outside_click)
             .unwrap_or(true);
+        // A press on the trigger row (primary / chevron) must not
+        // count as "outside" either: the chevron's click handler
+        // toggles the open state on mouse-up, so dismissing on
+        // mouse-down would close-then-reopen the menu. Capture
+        // listeners run in paint order (ancestors first), so this
+        // marker on the wrapper executes ahead of the menu's `_out`
+        // and suppresses it for trigger presses.
+        let trigger_press = Rc::new(Cell::new(false));
 
         // ---- Dropdown body (only when open) ----
         // Wrapped in `gpui::deferred(...)` so the popover paints
@@ -168,10 +197,9 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
         // the menu and you'd see "through" it.
         let mut root = div().relative().child(trigger_row);
         if dismiss_outside {
-            root = root.on_mouse_down_out(move |_ev, _w, cx| {
-                if let Some(st) = state_for_close.as_ref() {
-                    st.update(cx, |s, _cx| s.close());
-                }
+            let mark_trigger_press = trigger_press.clone();
+            root = root.capture_any_mouse_down(move |_ev, _w, _cx| {
+                mark_trigger_press.set(true);
             });
         }
         if visible {
@@ -221,6 +249,26 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
                 // split button).
                 .occlude();
 
+            // Dismiss on outside presses. On the panel itself,
+            // item presses land inside its hitbox and never fire
+            // `_out`; the wrapper's capture marker above exempts
+            // trigger presses so the chevron keeps toggling.
+            if dismiss_outside {
+                let state_for_close = props.state.clone();
+                let suppress = trigger_press.clone();
+                menu = menu.on_mouse_down_out(move |_ev, _w, cx| {
+                    if suppress.replace(false) {
+                        return;
+                    }
+                    if let Some(st) = state_for_close.as_ref() {
+                        st.update(cx, |s, cx| {
+                            s.close();
+                            cx.notify();
+                        });
+                    }
+                });
+            }
+
             for it in &props.items {
                 match it {
                     DropdownItem::Item(item) => {
@@ -233,18 +281,35 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
 
                         let row_id: ElementId =
                             format!("{:?}-item-{}", props.id, item_id_str).into();
+                        let is_selected_item = props.selected_item.as_ref() == Some(&item_id_str);
                         let list_item_el = ListItemProps {
                             id: row_id,
                             title: item_label,
                             description: None,
                             leading_icon: None,
                             trailing_icon: None,
-                            selected: false,
+                            selected: is_selected_item,
                             disabled: item_disabled,
                             on_click: None,
                         }
                         .render(cx);
 
+                        // The selected flyout item keeps the
+                        // `action.primary` look (matching the select
+                        // dropdown's selected option); plain items
+                        // blend with the menu container. Hover on the
+                        // selected item stays within the primary
+                        // pair instead of washing it out.
+                        let (item_base, item_hover_target) = if is_selected_item {
+                            (
+                                theme.get_color("action.primary.bg").unwrap_or(panel_bg),
+                                theme
+                                    .get_color("action.primary.hover_bg")
+                                    .unwrap_or(item_hover_bg),
+                            )
+                        } else {
+                            (panel_bg, item_hover_bg)
+                        };
                         let item_el = if !item_disabled {
                             list_item_el
                                 .w_full()
@@ -252,12 +317,15 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
                                 // default so items blend with the
                                 // menu container instead of stamping
                                 // a contrasting rectangle on it.
-                                .bg(panel_bg)
+                                .bg(item_base)
                                 .cursor_pointer()
-                                .hover(move |s| s.bg(item_hover_bg))
+                                .hover(move |s| s.bg(item_hover_target))
                                 .on_click(move |_ev, window, cx| {
                                     if let Some(st) = state_for_click.as_ref() {
-                                        st.update(cx, |s, _cx| s.close());
+                                        st.update(cx, |s, cx| {
+                                            s.close();
+                                            cx.notify();
+                                        });
                                     }
                                     if let Some(cb) = on_select_for_click.as_ref() {
                                         cb(item_id_for_callback.clone(), window, cx);

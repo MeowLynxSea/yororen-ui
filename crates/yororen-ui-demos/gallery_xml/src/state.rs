@@ -79,9 +79,16 @@ pub struct GalleryState {
     pub popover_state: Entity<PopoverState>,
     pub tooltip_state: Entity<TooltipState>,
     pub select_state: Entity<SelectState>,
+    /// Selection-only combo box demo (`editable == false`).
     pub combo_state: Entity<ComboBoxState>,
+    /// Editable combo box demo (`editable == true`): free-form
+    /// text commits on Enter and fires `on_change`.
+    pub editable_combo_state: Entity<ComboBoxState>,
     pub dropdown_state: Entity<DropdownMenuState>,
     pub split_dropdown_state: Entity<DropdownMenuState>,
+    /// Separate open/close state for the toggle split_button
+    /// demo cell so the two split buttons open independently.
+    pub split_toggle_dropdown_state: Entity<DropdownMenuState>,
     pub menu_state: Entity<MenuState>,
     // `dropdown_menu_state` is a separate `MenuState` used for
     // the `<Menu slot="content">` inside the dropdown demo. It
@@ -105,6 +112,7 @@ pub struct GalleryState {
     // -------- Composite on_change values --------
     pub select_demo_value: String,
     pub combo_demo_value: String,
+    pub editable_combo_value: String,
     pub dropdown_demo_value: String,
     pub menu_demo_value: String,
     pub listbox_demo_value: String,
@@ -119,6 +127,11 @@ pub struct GalleryState {
     pub progress_value: f32,
     pub progress_indeterminate: bool,
     pub toggle_btn_selected: bool,
+    /// "On" bit for the toggle split_button demo cell.
+    pub split_toggle_on: bool,
+    /// Flyout item currently chosen on the toggle split_button
+    /// (its label replaces the primary half's caption).
+    pub split_toggle_selected: Option<SharedString>,
     pub tag_selected: bool,
     pub tag_closable_count: Counter,
 
@@ -134,6 +147,14 @@ pub struct GalleryState {
     pub form_email_error: Option<String>,
     pub tree_expanded: BTreeSet<TreeNodeId>,
     pub tree_selected: Option<TreeNodeId>,
+    // Multi-select tree demo cell: the selection set plus the
+    // anchor node shift-click ranges extend from.
+    pub tree_multi_selected: BTreeSet<TreeNodeId>,
+    pub tree_anchor: Option<TreeNodeId>,
+    /// Expansion set for the multi-select tree — kept separate
+    /// from `tree_expanded` so the two tree cells expand
+    /// independently.
+    pub tree_multi_expanded: BTreeSet<TreeNodeId>,
     pub tree_data: TreeData,
     pub list_controller: Entity<VirtualListController>,
     pub vl_visible_range: Option<std::ops::Range<usize>>,
@@ -186,8 +207,10 @@ impl GalleryState {
         let tooltip_state = TooltipState::new(cx);
         let select_state = SelectState::new(cx);
         let combo_state = ComboBoxState::new(cx);
+        let editable_combo_state = ComboBoxState::new(cx);
         let dropdown_state = DropdownMenuState::new(cx);
         let split_dropdown_state = DropdownMenuState::new(cx);
+        let split_toggle_dropdown_state = DropdownMenuState::new(cx);
         let menu_state = MenuState::new(cx);
         let dropdown_menu_state = MenuState::new(cx);
         let listbox_state = ListboxState::new(cx);
@@ -200,7 +223,22 @@ impl GalleryState {
                 yororen_ui::headless::select::SelectOption::new("durian", "Durian"),
             ]);
         });
+        // The plain combo demo cell runs in selection-only mode
+        // (typing is disabled); the editable cell keeps
+        // `editable == true` (the default) and commits free-form
+        // text on Enter.
         combo_state.update(cx, |s, _cx| {
+            s.set_editable(false);
+            s.set_placeholder("Pick one…");
+            s.set_options(vec![
+                yororen_ui::headless::combo_box::ComboBoxOption::new("rust", "Rust"),
+                yororen_ui::headless::combo_box::ComboBoxOption::new("go", "Go"),
+                yororen_ui::headless::combo_box::ComboBoxOption::new("python", "Python"),
+                yororen_ui::headless::combo_box::ComboBoxOption::new("zig", "Zig"),
+            ]);
+        });
+        editable_combo_state.update(cx, |s, _cx| {
+            s.set_placeholder("Type or pick…");
             s.set_options(vec![
                 yororen_ui::headless::combo_box::ComboBoxOption::new("rust", "Rust"),
                 yororen_ui::headless::combo_box::ComboBoxOption::new("go", "Go"),
@@ -262,8 +300,10 @@ impl GalleryState {
             tooltip_state,
             select_state,
             combo_state,
+            editable_combo_state,
             dropdown_state,
             split_dropdown_state,
+            split_toggle_dropdown_state,
             menu_state,
             dropdown_menu_state,
             listbox_state,
@@ -279,6 +319,7 @@ impl GalleryState {
 
             select_demo_value: String::new(),
             combo_demo_value: String::new(),
+            editable_combo_value: String::new(),
             dropdown_demo_value: String::new(),
             menu_demo_value: String::new(),
             listbox_demo_value: String::new(),
@@ -291,6 +332,8 @@ impl GalleryState {
             progress_value: 0.65,
             progress_indeterminate: false,
             toggle_btn_selected: false,
+            split_toggle_on: false,
+            split_toggle_selected: None,
             tag_selected: true,
             tag_closable_count: Counter { value: 0 },
 
@@ -308,6 +351,9 @@ impl GalleryState {
             form_email_error: None,
             tree_expanded: BTreeSet::new(),
             tree_selected: None,
+            tree_multi_selected: BTreeSet::new(),
+            tree_anchor: None,
+            tree_multi_expanded: BTreeSet::new(),
             tree_data: Self::build_tree_data(cx),
             list_controller: cx
                 .new(|_| VirtualListController::new(100, gpui::ListAlignment::Top, gpui::px(20.))),

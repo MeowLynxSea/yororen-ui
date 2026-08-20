@@ -18,6 +18,12 @@ use super::switch::ToggleCallback;
 pub struct CheckboxProps {
     pub id: ElementId,
     pub checked: bool,
+    /// Third ("mixed") state — the renderer paints a dash
+    /// instead of a checkmark. Used by tri-state flows such as
+    /// multi-select tree parents whose children are partially
+    /// selected. Toggle semantics stay caller-owned: `on_toggle`
+    /// still fires with `!checked`.
+    pub indeterminate: bool,
     pub disabled: bool,
     pub focus_handle: FocusHandle,
     pub on_toggle: Option<ToggleCallback>,
@@ -34,6 +40,7 @@ pub fn checkbox(id: impl Into<ElementId>, cx: &mut App) -> CheckboxProps {
     CheckboxProps {
         id: id.into(),
         checked: false,
+        indeterminate: false,
         disabled: false,
         focus_handle: cx.focus_handle(),
         on_toggle: None,
@@ -51,6 +58,14 @@ impl CheckboxProps {
     }
     pub fn checked(mut self, v: bool) -> Self {
         self.checked = v;
+        self
+    }
+    /// Set the third ("mixed") state. The renderer paints a
+    /// dash; `on_toggle` still fires with `!checked` when the
+    /// box is clicked, so tri-state flows can cycle
+    /// indeterminate → checked → unchecked themselves.
+    pub fn indeterminate(mut self, v: bool) -> Self {
+        self.indeterminate = v;
         self
     }
     pub fn disabled(mut self, v: bool) -> Self {
