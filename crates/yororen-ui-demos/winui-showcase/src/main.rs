@@ -24,6 +24,9 @@ use yororen_ui_winui_renderer::{install_with, winui_dark};
 mod app;
 mod pages;
 
+#[cfg(test)]
+mod keyboard_repro;
+
 fn main() {
     let app = Application::new().with_assets(UiAsset);
 

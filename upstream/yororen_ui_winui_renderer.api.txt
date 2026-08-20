@@ -206,6 +206,8 @@ pub use yororen_ui_winui_renderer::renderers::FormFieldRenderer
 pub use yororen_ui_winui_renderer::renderers::FormRenderState
 pub use yororen_ui_winui_renderer::renderers::FormRenderer
 pub use yororen_ui_winui_renderer::renderers::GlobalVariantRegistry
+pub use yororen_ui_winui_renderer::renderers::GridViewRenderState
+pub use yororen_ui_winui_renderer::renderers::GridViewRenderer
 pub use yororen_ui_winui_renderer::renderers::HeadingRenderState
 pub use yororen_ui_winui_renderer::renderers::HeadingRenderer
 pub use yororen_ui_winui_renderer::renderers::IconButtonRenderState
@@ -614,6 +616,31 @@ impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::form_fi
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::form_field::WinUIFormFieldRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::form_field::WinUIFormFieldRenderer
 pub fn yororen_ui_winui_renderer::renderers::form_field::arc_form_field<T: yororen_ui_core::renderer::form_field::FormFieldRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::form_field::FormFieldRenderer>
+pub mod yororen_ui_winui_renderer::renderers::grid_view
+pub use yororen_ui_winui_renderer::renderers::grid_view::GridViewRenderState
+pub use yororen_ui_winui_renderer::renderers::grid_view::GridViewRenderer
+pub struct yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::bg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::border_radius(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::disabled_fg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::fg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::gap(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::hover_bg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::min_tile_size(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::padding(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::selected_bg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::selected_fg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+impl yororen_ui_core::renderer::grid_view::GridViewRenderer for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::compose(&self, &yororen_ui_core::headless::grid_view::GridViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::Send for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::Sync for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::grid_view::arc_grid_view<T: yororen_ui_core::renderer::grid_view::GridViewRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::grid_view::GridViewRenderer>
 pub mod yororen_ui_winui_renderer::renderers::heading
 pub use yororen_ui_winui_renderer::renderers::heading::HeadingRenderState
 pub use yororen_ui_winui_renderer::renderers::heading::HeadingRenderer
@@ -1036,6 +1063,7 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_fil
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_focus_ring(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::focus_ring::FocusRingRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_form(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::form::FormRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_form_field(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::form_field::FormFieldRenderer>>
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_grid_view(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::grid_view::GridViewRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_heading(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::heading::HeadingRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_icon(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::icon::IconRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_icon_button(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::icon_button::IconButtonRenderer>>
@@ -1093,6 +1121,7 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_fi
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_focus_ring(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::focus_ring::FocusRingRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_form(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::form::FormRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_form_field(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::form_field::FormFieldRenderer>) -> Self
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_grid_view(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::grid_view::GridViewRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_heading(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::heading::HeadingRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_icon(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::icon::IconRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_icon_button(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::icon_button::IconButtonRenderer>) -> Self
@@ -1605,6 +1634,7 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_fil
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_focus_ring(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::focus_ring::FocusRingRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_form(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::form::FormRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_form_field(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::form_field::FormFieldRenderer>>
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_grid_view(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::grid_view::GridViewRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_heading(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::heading::HeadingRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_icon(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::icon::IconRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_icon_button(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::icon_button::IconButtonRenderer>>
@@ -1662,6 +1692,7 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_fi
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_focus_ring(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::focus_ring::FocusRingRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_form(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::form::FormRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_form_field(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::form_field::FormFieldRenderer>) -> Self
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_grid_view(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::grid_view::GridViewRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_heading(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::heading::HeadingRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_icon(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::icon::IconRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_icon_button(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::icon_button::IconButtonRenderer>) -> Self
@@ -1978,6 +2009,27 @@ impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::form::WinUIFo
 impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::form::WinUIFormRenderer
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::form::WinUIFormRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::form::WinUIFormRenderer
+pub struct yororen_ui_winui_renderer::renderers::WinUIGridViewRenderer
+impl yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::bg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::border_radius(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::disabled_fg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::fg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::gap(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::hover_bg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::min_tile_size(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::padding(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::selected_bg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::selected_fg(&self, &yororen_ui_core::renderer::grid_view::GridViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+impl yororen_ui_core::renderer::grid_view::GridViewRenderer for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer::compose(&self, &yororen_ui_core::headless::grid_view::GridViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::Send for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::Sync for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::grid_view::WinUIGridViewRenderer
 pub struct yororen_ui_winui_renderer::renderers::WinUIHeadingRenderer
 impl yororen_ui_winui_renderer::renderers::heading::WinUIHeadingRenderer
 pub fn yororen_ui_winui_renderer::renderers::heading::WinUIHeadingRenderer::color(&self, &yororen_ui_core::renderer::heading::HeadingRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla

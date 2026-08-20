@@ -3,7 +3,7 @@
 //!
 //! Source of truth: `yororen-ui-core/src/headless/*.rs`
 //! plus `yororen-ui-xml/overrides.toml`.
-//! Last regenerated with: 67 entries (28 from overrides), 5 skipped.
+//! Last regenerated with: 68 entries (28 from overrides), 5 skipped.
 //!
 //! Skipped files (need manual schema entry or a schema
 //! extension — see `gen_schema.rs` notes):
@@ -399,6 +399,24 @@ pub static BUILTINS_GENERATED: &[ComponentDef] = &[
             slots: &[SlotDef { name: "input", setter: "input" }],
         }),
         doc: "auto-generated from `headless::form_field`",
+    },
+    // NOTE: extra_args = 1 entries
+    ComponentDef {
+        tag: "GridView",
+        kind: ComponentKind::Leaf(LeafDef {
+            factory: "::yororen_ui::headless::grid_view::grid_view",
+            extra_args: &[ExtraArg { kind: ExtraArgKind::Custom, attr: "state" }, ],
+            render: RenderMode::Default,
+            needs_app: false,
+            needs_window: false,
+            props: &[],
+            events: &[],
+            supports_text_child: false,
+            children_before_render: false,
+            unwrap_children: false,
+            slots: &[],
+        }),
+        doc: "auto-generated from `headless::grid_view`",
     },
     // NOTE: extra_args = 1 entries
     ComponentDef {

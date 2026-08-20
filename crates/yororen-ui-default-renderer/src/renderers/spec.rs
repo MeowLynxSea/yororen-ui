@@ -16,7 +16,7 @@ use gpui::{Hsla, Pixels};
 /// render path that wants its renderer looks it up by `S`.
 ///
 /// The blanket impl below makes every `'static + Send + Sync` type a
-/// `RenderState` automatically — so the 55 `XxxRenderState` structs
+/// `RenderState` automatically — so the 56 `XxxRenderState` structs
 /// scattered across `renderer/<component>.rs` don't need a hand-written
 /// `impl RenderState for XxxRenderState {}` each. They are composed of
 /// primitives + `Arc<dyn VariantStyle>` and therefore already satisfy

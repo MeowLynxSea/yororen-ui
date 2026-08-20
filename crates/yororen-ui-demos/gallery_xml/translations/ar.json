@@ -202,6 +202,8 @@
       "cell_list": "list_item (3 صفوف; يتم التحديد عبر props)",
       "cell_listbox": "listbox (اختيار واحد; ↑/↓ للتنقل، انقر للاختيار)",
       "listbox_selected": "المحدد: {}",
+      "cell_gridview": "grid_view (شبكة أحادية الاختيار; ←/→/↑/↓ لتحريك التمييز، انقر للاختيار)",
+      "gridview_selected": "المحدد: {}",
       "cell_table": "table (3 صفوف × 3 أعمدة)",
       "cell_tree": "tree + tree_item (3-5 صفوف; انقر على chevron أو انقر مرتين للتوسيع، انقر للاختيار)",
       "cell_tree_multi": "tree — تحديد متعدد (مربع الاختيار يبدل الشجرة الفرعية؛ Ctrl/Cmd+نقر يبدل صفًا واحدًا؛ Shift+نقر يحدد نطاقًا)",

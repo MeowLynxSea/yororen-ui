@@ -193,6 +193,10 @@ impl Controller {
         self.state.read(cx).listbox_demo_value.clone().into()
     }
 
+    pub fn gridview_demo_value(&self, cx: &App) -> SharedString {
+        self.state.read(cx).gridview_demo_value.clone().into()
+    }
+
     // -------- Footer text helpers (used by `<Label text={controller.footer_X_text(cx)}>`) --------
 
     /// Build the footer form-summary text in a single state read.
@@ -247,6 +251,10 @@ impl Controller {
 
     pub fn listbox_state(&self, cx: &App) -> Entity<yororen_ui::headless::listbox::ListboxState> {
         self.state.read(cx).listbox_state.clone()
+    }
+
+    pub fn gridview_state(&self, cx: &App) -> Entity<yororen_ui::headless::grid_view::GridViewState> {
+        self.state.read(cx).gridview_state.clone()
     }
 
     pub fn menu_state(&self, cx: &App) -> Entity<yororen_ui::headless::menu::MenuState> {
@@ -736,6 +744,17 @@ impl Controller {
             .replacen("{}", &status, 1)
     }
 
+    pub fn gridview_status_text(&self, cx: &App) -> String {
+        let value = self.gridview_demo_value(cx);
+        let status = if value.is_empty() {
+            "—".to_string()
+        } else {
+            value.to_string()
+        };
+        cx.t("demo.lists.gridview_selected")
+            .replacen("{}", &status, 1)
+    }
+
     pub fn form_email_error_text(&self, cx: &App) -> String {
         self.form_email_error(cx).unwrap_or_default()
     }
@@ -1021,6 +1040,14 @@ impl Controller {
                 st.set_on_change(move |value, _w, cx| {
                     let v = value.to_string();
                     state_for_listbox.update(cx, |s, _cx| s.listbox_demo_value = v);
+                });
+            });
+
+            let state_for_gridview = state.clone();
+            s.gridview_state.update(cx, |st, _cx| {
+                st.set_on_change(move |value, _w, cx| {
+                    let v = value.to_string();
+                    state_for_gridview.update(cx, |s, _cx| s.gridview_demo_value = v);
                 });
             });
 

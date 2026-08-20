@@ -208,6 +208,8 @@
       "cell_list": "list_item (3 rows; selected via props)",
       "cell_listbox": "listbox (single-select; ↑/↓ highlights, click selects)",
       "listbox_selected": "selected: {}",
+      "cell_gridview": "grid_view (single-select grid; ←/→/↑/↓ move highlight, click selects)",
+      "gridview_selected": "selected: {}",
       "cell_table": "table (3 rows × 3 cols)",
       "cell_tree": "tree + tree_item (3-5 rows; click chevron or double-click row to expand, click row to select)",
       "cell_tree_multi": "tree — multi-select (checkbox toggles the subtree; ctrl/cmd-click toggles one row; shift-click selects a range)",

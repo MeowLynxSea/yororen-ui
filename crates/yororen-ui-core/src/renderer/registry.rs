@@ -44,7 +44,7 @@ use std::sync::Arc;
 use gpui::Global;
 
 /// Marker trait for component types that can have a renderer
-/// registered against them. The 55 unit structs in
+/// registered against them. The 56 unit structs in
 /// `yororen-ui-core::headless::*` (one per component) implement
 /// this trait; user code may add markers for custom components.
 pub trait RendererMarker: 'static {}

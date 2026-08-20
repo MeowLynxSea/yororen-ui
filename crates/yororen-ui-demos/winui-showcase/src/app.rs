@@ -19,6 +19,7 @@ use gpui::{
 
 use yororen_ui::headless::combo_box::ComboBoxState;
 use yororen_ui::headless::dropdown_menu::DropdownMenuState;
+use yororen_ui::headless::grid_view::{GridViewOption, GridViewState};
 use yororen_ui::headless::icon::{IconSource, icon};
 use yororen_ui::headless::label::label;
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
@@ -165,6 +166,7 @@ pub struct WinuiApp {
     /// demo so the two split buttons open independently.
     pub split_toggle_dd_state: Entity<DropdownMenuState>,
     pub listbox_state: Entity<ListboxState>,
+    pub gridview_state: Entity<GridViewState>,
     pub modal_state: Entity<ModalState>,
     pub popover_state: Entity<PopoverState>,
     pub tooltip_state: Entity<yororen_ui::headless::tooltip::TooltipState>,
@@ -211,6 +213,7 @@ pub struct WinuiApp {
     pub combo_value: String,
     pub combo_edit_value: String,
     pub listbox_value: String,
+    pub gridview_value: String,
     pub dropdown_value: String,
 
     pub progress: f32,
@@ -231,6 +234,7 @@ impl WinuiApp {
         let split_dd_state = DropdownMenuState::new(&mut **cx);
         let split_toggle_dd_state = DropdownMenuState::new(&mut **cx);
         let listbox_state = ListboxState::new(&mut **cx);
+        let gridview_state = GridViewState::new(&mut **cx);
         let modal_state = ModalState::new(&mut **cx);
         let popover_state = PopoverState::new(&mut **cx);
         let tooltip_state = yororen_ui::headless::tooltip::TooltipState::new(&mut **cx);
@@ -280,6 +284,19 @@ impl WinuiApp {
                 ListboxOption::new("banana", "Banana"),
                 ListboxOption::new("cherry", "Cherry"),
                 ListboxOption::new("durian", "Durian"),
+            ]);
+        });
+        gridview_state.update(cx, |s, _cx| {
+            s.set_columns(4);
+            s.set_options(vec![
+                GridViewOption::new("docs", "Documents"),
+                GridViewOption::new("pics", "Pictures"),
+                GridViewOption::new("music", "Music"),
+                GridViewOption::new("videos", "Videos"),
+                GridViewOption::new("downloads", "Downloads"),
+                GridViewOption::new("archive", "Archive").disabled(true),
+                GridViewOption::new("favorites", "Favorites"),
+                GridViewOption::new("recent", "Recent"),
             ]);
         });
         modal_state.update(cx, |s, _cx| {
@@ -348,6 +365,7 @@ impl WinuiApp {
             split_dd_state,
             split_toggle_dd_state,
             listbox_state,
+            gridview_state,
             modal_state,
             popover_state,
             tooltip_state,
@@ -378,6 +396,7 @@ impl WinuiApp {
             combo_value: String::new(),
             combo_edit_value: String::new(),
             listbox_value: String::new(),
+            gridview_value: String::new(),
             dropdown_value: String::new(),
             progress: 0.45,
             disclosure_open: true,

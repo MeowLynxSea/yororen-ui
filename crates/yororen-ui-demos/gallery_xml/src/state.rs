@@ -15,6 +15,7 @@ use gpui::{App, AppContext, Entity, Global, SharedString};
 use yororen_ui::headless::combo_box::ComboBoxState;
 use yororen_ui::headless::dropdown_menu::DropdownMenuState;
 use yororen_ui::headless::keybinding_input::KeybindingInputMode;
+use yororen_ui::headless::grid_view::{GridViewOption, GridViewState};
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
 use yororen_ui::headless::menu::MenuState;
 use yororen_ui::headless::modal::ModalState;
@@ -98,6 +99,7 @@ pub struct GalleryState {
     // NOT also update the popover's `menu_demo_value`.
     pub dropdown_menu_state: Entity<MenuState>,
     pub listbox_state: Entity<ListboxState>,
+    pub gridview_state: Entity<GridViewState>,
 
     // -------- Input values (bound via `@bind`) --------
     pub text_value: Entity<String>,
@@ -116,6 +118,7 @@ pub struct GalleryState {
     pub dropdown_demo_value: String,
     pub menu_demo_value: String,
     pub listbox_demo_value: String,
+    pub gridview_demo_value: String,
 
     // -------- Controls --------
     pub checkbox_value: Entity<bool>,
@@ -214,6 +217,7 @@ impl GalleryState {
         let menu_state = MenuState::new(cx);
         let dropdown_menu_state = MenuState::new(cx);
         let listbox_state = ListboxState::new(cx);
+        let gridview_state = GridViewState::new(cx);
 
         select_state.update(cx, |s, _cx| {
             s.set_options(vec![
@@ -288,6 +292,21 @@ impl GalleryState {
                 ListboxOption::new("elderberry", "Elderberry"),
             ]);
         });
+        gridview_state.update(cx, |s, _cx| {
+            // Three columns; eight options so the last row is
+            // short — mirrors the gallery_demo grid seed.
+            s.set_columns(3);
+            s.set_options(vec![
+                GridViewOption::new("apple", "Apple"),
+                GridViewOption::new("banana", "Banana"),
+                GridViewOption::new("cherry", "Cherry"),
+                GridViewOption::new("durian", "Durian").disabled(true),
+                GridViewOption::new("elderberry", "Elderberry"),
+                GridViewOption::new("fig", "Fig"),
+                GridViewOption::new("grape", "Grape"),
+                GridViewOption::new("honeydew", "Honeydew"),
+            ]);
+        });
 
         Self {
             current_renderer: RendererKind::default(),
@@ -307,6 +326,7 @@ impl GalleryState {
             menu_state,
             dropdown_menu_state,
             listbox_state,
+            gridview_state,
 
             text_value: cx.new(|_| String::new()),
             password_value: cx.new(|_| String::new()),
@@ -323,6 +343,7 @@ impl GalleryState {
             dropdown_demo_value: String::new(),
             menu_demo_value: String::new(),
             listbox_demo_value: String::new(),
+            gridview_demo_value: String::new(),
 
             checkbox_value: cx.new(|_| false),
             switch_value: cx.new(|_| false),

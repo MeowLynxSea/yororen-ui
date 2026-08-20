@@ -8,6 +8,7 @@ use gpui::{Context, ElementId, IntoElement, ParentElement, Styled, Window, px};
 
 use yororen_ui::headless::button::button;
 use yororen_ui::headless::form::form;
+use yororen_ui::headless::grid_view::grid_view;
 use yororen_ui::headless::form_field::form_field;
 use yororen_ui::headless::label::label;
 use yororen_ui::headless::layout::{Spacing, column, row, spacer};
@@ -119,6 +120,46 @@ pub fn render(
                 .render(cx),
         );
     let listbox_wrapped = cell(cx.t("demo.lists.cell_listbox"), lb_col.render(cx), cx);
+
+    // --- grid_view: single-select tile grid with 2D keyboard nav ---
+    // Same data-driven shape as the listbox, but the renderer
+    // lays the options out on an equal-width grid (3 columns
+    // seeded in `GalleryApp::new`). ←/→ walk the linear option
+    // order (wrapping, exactly like the listbox); ↑/↓ jump a
+    // whole row stride without wrapping. The callback here
+    // ONLY updates the demo's mirror string — see the listbox
+    // note above for why `gridview_state` must not be touched
+    // from inside `on_change`.
+    let entity_for_gv = cx.entity().clone();
+    app.gridview_state.update(cx, |s, _cx| {
+        s.set_on_change(move |value, _w, cx| {
+            let v = value.to_string();
+            entity_for_gv.update(cx, |s, _cx| {
+                s.gridview_demo_value = v;
+            });
+        });
+    });
+    let gv_label_template = cx.t("demo.lists.gridview_selected").to_string();
+    let gv_selected_text = gv_label_template.replacen(
+        "{}",
+        if app.gridview_demo_value.is_empty() {
+            "—"
+        } else {
+            app.gridview_demo_value.as_str()
+        },
+        1,
+    );
+    let gv_el = grid_view("lists-gridview", app.gridview_state.clone()).render(cx);
+    let gv_col = column("lists-gridview-col", cx)
+        .gap(Spacing::Sm)
+        .w(px(240.))
+        .child(gv_el)
+        .child(
+            label("lists-gridview-status", gv_selected_text, cx)
+                .muted(true)
+                .render(cx),
+        );
+    let gridview_wrapped = cell(cx.t("demo.lists.cell_gridview"), gv_col.render(cx), cx);
 
     // --- form + form_field (with a real text_input + submit button) ---
     let entity_form = cx.entity().clone();
@@ -587,6 +628,7 @@ pub fn render(
         .gap(Spacing::Md)
         .child(list_wrapped)
         .child(listbox_wrapped)
+        .child(gridview_wrapped)
         .child(form_wrapped)
         .child(table_wrapped)
         .child(tree_wrapped)

@@ -36,6 +36,7 @@ pub mod file_path_input;
 pub mod focus_ring;
 pub mod form;
 pub mod form_field;
+pub mod grid_view;
 pub mod heading;
 pub mod icon;
 pub mod icon_button;

@@ -18,7 +18,7 @@ theme JSON  ─▶  renderer (XxxRenderer)  ─▶  headless (XxxProps)  ─▶ 
 ```
 
 - **Headless** ([`yororen-ui-core`](https://crates.io/crates/yororen-ui-core)) — data, state, a11y, i18n, RTL, animation, assets. No visual decisions.
-- **Renderer** ([`yororen-ui-default-renderer`](https://crates.io/crates/yororen-ui-default-renderer) · [`yororen-ui-brutalism-renderer`](https://crates.io/crates/yororen-ui-brutalism-renderer)) — turns props into a styled div. 55 trait slots, filled with `Token*` or `Brutal*` impls. Swap the renderer, change the entire look.
+- **Renderer** ([`yororen-ui-default-renderer`](https://crates.io/crates/yororen-ui-default-renderer) · [`yororen-ui-brutalism-renderer`](https://crates.io/crates/yororen-ui-brutalism-renderer)) — turns props into a styled div. 56 trait slots, filled with `Token*` or `Brutal*` impls. Swap the renderer, change the entire look.
 - **Theme** — a JSON file. The renderer reads paths like `action.primary.bg`; missing paths fall back to renderer defaults.
 
 The meta-crate [`yororen-ui`](https://crates.io/crates/yororen-ui) re-exports core + the default renderer + three bundled locales, so most apps need a single dependency. Add the `brutalism` or `xml` feature to opt into the alternative renderer or the XML DSL.
@@ -33,7 +33,7 @@ The meta-crate [`yororen-ui`](https://crates.io/crates/yororen-ui) re-exports co
     <th>What you get</th>
   </tr>
   <tr>
-    <td><strong>55 components</strong></td>
+    <td><strong>56 components</strong></td>
     <td>Buttons, inputs, badges, tooltips, modals, popovers, selects, lists, virtualised lists, trees, tables, and more</td>
   </tr>
   <tr>
@@ -85,7 +85,7 @@ fn main() {
 
     app.run(|cx: &mut App| {
         // 1) Renderer + theme — picks system-light or system-dark by OS appearance,
-        //    installs the global Theme, and registers 55 default XxxRenderer impls.
+        //    installs the global Theme, and registers 56 default XxxRenderer impls.
         renderer::install(cx, cx.window_appearance());
 
         // 2) Text-input keymap (idempotent).
@@ -280,7 +280,7 @@ cargo run -p showcase-xml-demo
   </tr>
   <tr>
     <td><code>yororen-ui-default-renderer</code></td>
-    <td>55 <code>TokenXxxRenderer</code> impls + bundled <code>system-light.json</code> / <code>system-dark.json</code> themes + <code>renderer::install</code> bootstrap</td>
+    <td>56 <code>TokenXxxRenderer</code> impls + bundled <code>system-light.json</code> / <code>system-dark.json</code> themes + <code>renderer::install</code> bootstrap</td>
   </tr>
   <tr>
     <td><code>yororen-ui-brutalism-renderer</code><br><sub><em>(optional, feature <code>brutalism</code>)</em></sub></td>
@@ -310,9 +310,9 @@ theme JSON  ─▶  renderer (XxxRenderer)  ─▶  headless (XxxProps)  ─▶ 
 - **Renderer** — a per-component trait that reads the theme and produces visual divs.
 - **Theme** — a single `serde_json::Value` you can swap at runtime.
 
-The 55 component markers (<code>yororen-ui-core::renderer::markers</code>) are the keys into the global <code>RendererRegistry</code>. The default and brutalism renderers each implement all 55 trait slots.
+The 56 component markers (<code>yororen-ui-core::renderer::markers</code>) are the keys into the global <code>RendererRegistry</code>. The default and brutalism renderers each implement all 56 trait slots.
 
-A custom renderer only needs to implement the 55 <code>XxxRenderer</code> traits &mdash; it doesn't touch the headless layer.
+A custom renderer only needs to implement the 56 <code>XxxRenderer</code> traits &mdash; it doesn't touch the headless layer.
 
 ---
 

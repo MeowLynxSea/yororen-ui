@@ -1,5 +1,6 @@
-//! Brutalist list renderers: `ListItem`, `TreeItem`, `Tree`,
-//! `Form`, `FormField`, `Table`, `VirtualList`, `UniformVirtualList`.
+//! Brutalist list renderers: `ListItem`, `Listbox`, `GridView`,
+//! `TreeItem`, `Tree`, `Form`, `FormField`, `Table`, `VirtualList`,
+//! `UniformVirtualList`.
 
 use gpui::{
     App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, IntoElement, KeyDownEvent,
@@ -261,6 +262,221 @@ impl ListboxRenderer for BrutalListboxRenderer {
                     }
                     "up" => {
                         state_for_keys.update(cx, |s, _cx| s.highlight_prev());
+                        true
+                    }
+                    "home" => {
+                        state_for_keys.update(cx, |s, _cx| {
+                            if let Some(i) = (0..s.options.len()).find(|&i| s.is_selectable(i)) {
+                                s.set_highlighted(i);
+                            }
+                        });
+                        true
+                    }
+                    "end" => {
+                        state_for_keys.update(cx, |s, _cx| {
+                            if let Some(i) =
+                                (0..s.options.len()).rev().find(|&i| s.is_selectable(i))
+                            {
+                                s.set_highlighted(i);
+                            }
+                        });
+                        true
+                    }
+                    "enter" => {
+                        state_for_keys.update(cx, |s, cx_inner| {
+                            s.select_highlighted(window, &mut *cx_inner);
+                        });
+                        true
+                    }
+                    _ => false,
+                };
+                if handled {
+                    // See the matching comment in
+                    // `TokenListboxRenderer::compose`: state-only
+                    // updates need an explicit `window.refresh()`
+                    // to schedule a repaint because `compose`
+                    // doesn't establish a paint-time entity
+                    // subscription.
+                    window.refresh();
+                }
+            })
+            .border(bw)
+            .border_color(border)
+            .rounded(r)
+            .child(body)
+    }
+}
+
+// =====================================================================
+// GridView
+// =====================================================================
+
+pub use yororen_ui_core::renderer::grid_view::{GridViewRenderState, GridViewRenderer};
+
+pub struct BrutalGridViewRenderer;
+
+// Inherent helpers — *not* part of the trait surface. Brutalism
+// reuses the list_item colour tokens so grid tiles look
+// consistent with other list surfaces; the brutalist styling
+// overrides (thick borders, hard offset shadow) come from the
+// outer shell.
+impl BrutalGridViewRenderer {
+    pub fn bg(&self, _: &GridViewRenderState, theme: &Theme) -> Hsla {
+        theme.get_color("surface.base").unwrap_or(BRUTAL_BORDER)
+    }
+    pub fn hover_bg(&self, _: &GridViewRenderState, theme: &Theme) -> Hsla {
+        theme.get_color("surface.hover").unwrap_or(BRUTAL_BORDER)
+    }
+    pub fn selected_bg(&self, _: &GridViewRenderState, theme: &Theme) -> Hsla {
+        theme
+            .get_color("border.focus")
+            .or_else(|| theme.get_color("action.primary.bg"))
+            .unwrap_or(BRUTAL_BORDER)
+    }
+    pub fn fg(&self, state: &GridViewRenderState, theme: &Theme) -> Hsla {
+        let _ = state;
+        theme.get_color("content.primary").unwrap_or(BRUTAL_BORDER)
+    }
+    pub fn selected_fg(&self, _: &GridViewRenderState, theme: &Theme) -> Hsla {
+        theme
+            .get_color("content.on_status")
+            .unwrap_or(BRUTAL_BORDER)
+    }
+    pub fn disabled_fg(&self, _: &GridViewRenderState, theme: &Theme) -> Hsla {
+        theme.get_color("content.disabled").unwrap_or(BRUTAL_BORDER)
+    }
+    pub fn padding(&self, _: &GridViewRenderState, theme: &Theme) -> Edges<Pixels> {
+        let h = theme
+            .get_number("tokens.control.list_item.padding")
+            .unwrap_or(10.0) as f32;
+        Edges::symmetric(px(h), px(h / 2.0))
+    }
+    pub fn min_tile_size(&self, _: &GridViewRenderState, theme: &Theme) -> Pixels {
+        px(theme
+            .get_number("tokens.control.list_item.min_height")
+            .unwrap_or(36.0) as f32)
+    }
+    pub fn border_radius(&self, _: &GridViewRenderState, _: &Theme) -> Pixels {
+        px(BRUTAL_RADIUS)
+    }
+    pub fn gap(&self, _: &GridViewRenderState, theme: &Theme) -> Pixels {
+        px(theme.get_number("tokens.spacing.gap_1").unwrap_or(4.0) as f32)
+    }
+    pub fn border_color(&self, _: &GridViewRenderState, theme: &Theme) -> Hsla {
+        brutal_border_color(theme)
+    }
+    pub fn border_width(&self, _: &GridViewRenderState, _: &Theme) -> Pixels {
+        px(BRUTAL_BORDER_WIDTH)
+    }
+}
+
+impl GridViewRenderer for BrutalGridViewRenderer {
+    fn compose(
+        &self,
+        props: &yororen_ui_core::headless::grid_view::GridViewProps,
+        cx: &App,
+    ) -> Stateful<Div> {
+        use yororen_ui_core::theme::ActiveTheme;
+        let theme = cx.theme();
+        let read = props.state.read(cx);
+        let state = GridViewRenderState {
+            item_count: read.options.len(),
+            columns: read.columns,
+        };
+        let bg = self.bg(&state, theme);
+        let hover_bg = self.hover_bg(&state, theme);
+        let selected_bg = self.selected_bg(&state, theme);
+        let fg = self.fg(&state, theme);
+        let selected_fg = self.selected_fg(&state, theme);
+        let disabled_fg = self.disabled_fg(&state, theme);
+        let pad = self.padding(&state, theme);
+        let h = self.min_tile_size(&state, theme);
+        let r = self.border_radius(&state, theme);
+        let gap = self.gap(&state, theme);
+        let border = self.border_color(&state, theme);
+        let bw = self.border_width(&state, theme);
+
+        let highlighted = read.highlighted_index;
+        let selected_value = read.selected_value.clone();
+        let options = read.options.clone();
+        let columns = read.columns.max(1);
+        let state_for_click = props.state.clone();
+        let focus_handle = read.focus_handle();
+        let _ = read;
+
+        let mut body: Div = gpui::div()
+            .grid()
+            .grid_cols(columns as u16)
+            .gap(gap)
+            .bg(bg)
+            .p(px(2.0))
+            .rounded(r);
+
+        for (i, opt) in options.iter().enumerate() {
+            let is_highlighted = highlighted == Some(i);
+            let is_selected = selected_value.as_ref() == Some(&opt.value);
+            let tile_fg = if opt.disabled {
+                disabled_fg
+            } else if is_selected {
+                selected_fg
+            } else {
+                fg
+            };
+            let tile_bg = if is_selected {
+                selected_bg
+            } else if is_highlighted {
+                hover_bg
+            } else {
+                gpui::hsla(0.0, 0.0, 0.0, 0.0)
+            };
+            let value_for_click = opt.value.clone();
+            let mut tile: Stateful<Div> = gpui::div()
+                .id(ElementId::Name(format!("brutal-gridview-tile-{}", i).into()))
+                .flex()
+                .items_center()
+                .justify_center()
+                .text_center()
+                .bg(tile_bg)
+                .text_color(tile_fg)
+                .px(pad.left)
+                .py(pad.top)
+                .min_h(h)
+                .rounded(r)
+                .when(!opt.disabled, |d| d.cursor_pointer())
+                .when(opt.disabled, |d| d.opacity(0.5))
+                .child(opt.label.to_string());
+            if !opt.disabled {
+                let state_for_this_tile = state_for_click.clone();
+                tile = tile.on_click(move |_ev, window, cx| {
+                    state_for_this_tile.update(cx, |s, cx_inner| {
+                        s.pick(value_for_click.clone(), window, &mut *cx_inner);
+                    });
+                });
+            }
+            body = body.child(tile);
+        }
+
+        let state_for_keys = state_for_click.clone();
+        gpui::div()
+            .id(props.id.clone())
+            .track_focus(&focus_handle)
+            .on_key_down(move |ev: &KeyDownEvent, window, cx| {
+                let ks = &ev.keystroke;
+                let handled = match ks.key.as_str() {
+                    "right" => {
+                        state_for_keys.update(cx, |s, _cx| s.highlight_next());
+                        true
+                    }
+                    "left" => {
+                        state_for_keys.update(cx, |s, _cx| s.highlight_prev());
+                        true
+                    }
+                    "down" => {
+                        state_for_keys.update(cx, |s, _cx| s.highlight_down());
+                        true
+                    }
+                    "up" => {
+                        state_for_keys.update(cx, |s, _cx| s.highlight_up());
                         true
                     }
                     "home" => {

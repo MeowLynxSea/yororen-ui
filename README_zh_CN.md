@@ -18,7 +18,7 @@
 ```
 
 - **Headless**（[`yororen-ui-core`](https://crates.io/crates/yororen-ui-core)）—— 数据、状态、a11y、i18n、RTL、动画、资源。不做任何视觉决策。
-- **渲染器**（[`yororen-ui-default-renderer`](https://crates.io/crates/yororen-ui-default-renderer) · [`yororen-ui-brutalism-renderer`](https://crates.io/crates/yororen-ui-brutalism-renderer)）—— 负责将 props 转换为样式化的 div。55 个 trait 槽位分别由 `Token*` 或 `Brutal*` 实现；更换渲染器，整套应用的视觉就会一并切换。
+- **渲染器**（[`yororen-ui-default-renderer`](https://crates.io/crates/yororen-ui-default-renderer) · [`yororen-ui-brutalism-renderer`](https://crates.io/crates/yororen-ui-brutalism-renderer)）—— 负责将 props 转换为样式化的 div。56 个 trait 槽位分别由 `Token*` 或 `Brutal*` 实现；更换渲染器，整套应用的视觉就会一并切换。
 - **主题** —— JSON 文件。渲染器按路径（如 `action.primary.bg`）读取；缺失的路径回退到渲染器的默认值。
 
 聚合 crate [`yororen-ui`](https://crates.io/crates/yororen-ui) 重新导出 core + 默认渲染器 + 三个内置 locale，大多数应用只需要这一个依赖。开启 `brutalism` 或 `xml` feature 即可启用备选渲染器或 XML DSL。
@@ -33,7 +33,7 @@
     <th>说明</th>
   </tr>
   <tr>
-    <td><strong>55 个组件</strong></td>
+    <td><strong>56 个组件</strong></td>
     <td>按钮、输入框、徽章、工具提示、模态框、浮层、选择器、列表、虚拟化列表、树、表格等</td>
   </tr>
   <tr>
@@ -85,7 +85,7 @@ fn main() {
 
     app.run(|cx: &mut App| {
         // 1) 渲染器 + 主题 —— 根据系统外观选择 system-light 或 system-dark，
-        //    安装全局 Theme，并注册 55 个默认渲染器实现。
+        //    安装全局 Theme，并注册 56 个默认渲染器实现。
         renderer::install(cx, cx.window_appearance());
 
         // 2) 初始化文本输入的键位映射（幂等）。
@@ -279,7 +279,7 @@ cargo run -p showcase-xml-demo
   </tr>
   <tr>
     <td><code>yororen-ui-default-renderer</code></td>
-    <td>55 个 <code>TokenXxxRenderer</code> 默认实现 + 内置 <code>system-light.json</code> / <code>system-dark.json</code> 主题 + <code>renderer::install</code> 引导函数</td>
+    <td>56 个 <code>TokenXxxRenderer</code> 默认实现 + 内置 <code>system-light.json</code> / <code>system-dark.json</code> 主题 + <code>renderer::install</code> 引导函数</td>
   </tr>
   <tr>
     <td><code>yororen-ui-brutalism-renderer</code><br><sub><em>（可选，feature <code>brutalism</code>）</em></sub></td>
@@ -309,9 +309,9 @@ cargo run -p showcase-xml-demo
 - **渲染器** —— 每个组件一个 trait，读取主题并生成样式化 div。
 - **主题** —— 一个 <code>serde_json::Value</code>，可在运行时切换。
 
-55 个组件标记（<code>yororen-ui-core::renderer::markers</code>）是全局 <code>RendererRegistry</code> 的键。默认渲染器和 brutalism 渲染器各实现全部 55 个 trait 槽位。
+56 个组件标记（<code>yororen-ui-core::renderer::markers</code>）是全局 <code>RendererRegistry</code> 的键。默认渲染器和 brutalism 渲染器各实现全部 56 个 trait 槽位。
 
-自定义渲染器只需要实现 55 个 <code>XxxRenderer</code> trait——完全不需要触碰 headless 层。
+自定义渲染器只需要实现 56 个 <code>XxxRenderer</code> trait——完全不需要触碰 headless 层。
 
 ---
 

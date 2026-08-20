@@ -1004,6 +1004,7 @@ fn generated_schema_picks_up_new_components() {
         "Slider",
         "Radio",
         "ToggleButton",
+        "GridView",
     ] {
         assert!(
             crate::schema_generated::BUILTINS_GENERATED
@@ -1521,6 +1522,7 @@ fn generated_schema_invariants() {
         "Slider",
         "Radio",
         "ToggleButton",
+        "GridView",
     ] {
         assert!(
             generated.iter().any(|c| c.tag == tag),

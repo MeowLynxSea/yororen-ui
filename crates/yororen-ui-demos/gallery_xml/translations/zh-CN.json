@@ -202,6 +202,8 @@
       "cell_list": "list_item (3 行; 通过 props 选中)",
       "cell_listbox": "listbox (单选; ↑/↓ 切换高亮,点击选中)",
       "listbox_selected": "已选择：{}",
+      "cell_gridview": "grid_view (单选网格; ←/→/↑/↓ 移动高亮,点击选中)",
+      "gridview_selected": "已选择：{}",
       "cell_table": "table (3 行 × 3 列)",
       "cell_tree": "tree + tree_item (3-5 行; 点击 chevron 或双击行展开，点击行选中)",
       "cell_tree_multi": "tree — 多选（复选框切换整个子树；Ctrl/Cmd+点击切换单行；Shift+点击选择范围）",

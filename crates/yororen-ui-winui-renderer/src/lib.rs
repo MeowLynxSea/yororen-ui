@@ -1,6 +1,6 @@
 //! WinUI-style renderer for [`yororen_ui_core`] headless primitives.
 //!
-//! This crate holds the *visual* layer of yororen-ui: the 55
+//! This crate holds the *visual* layer of yororen-ui: the 56
 //! `XxxRenderer` traits (defined in `yororen-ui-core`), their
 //! `WinUIXxxRenderer` implementations, the bundled
 //! `winui-light.json` / `winui-dark.json` themes, and a

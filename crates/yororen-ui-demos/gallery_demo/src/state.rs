@@ -16,6 +16,7 @@ use gpui::Entity;
 use yororen_ui::headless::combo_box::ComboBoxState;
 use yororen_ui::headless::dropdown_menu::DropdownMenuState;
 use yororen_ui::headless::keybinding_input::KeybindingInputMode;
+use yororen_ui::headless::grid_view::{GridViewOption, GridViewState};
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
 use yororen_ui::headless::menu::MenuState;
 use yororen_ui::headless::modal::ModalState;
@@ -84,6 +85,7 @@ pub struct GalleryApp {
     // NOT also update the popover's `menu_demo_value`.
     pub dropdown_menu_state: Entity<MenuState>,
     pub listbox_state: Entity<ListboxState>,
+    pub gridview_state: Entity<GridViewState>,
 
     // -------- Input values (mirrored via on_change) --------
     pub text_value: String,
@@ -102,6 +104,7 @@ pub struct GalleryApp {
     pub dropdown_demo_value: String,
     pub menu_demo_value: String,
     pub listbox_demo_value: String,
+    pub gridview_demo_value: String,
 
     // -------- Controls --------
     pub checkbox_value: bool,
@@ -215,6 +218,7 @@ impl GalleryApp {
         let menu_state = MenuState::new(&mut **cx);
         let dropdown_menu_state = MenuState::new(&mut **cx);
         let listbox_state = ListboxState::new(&mut **cx);
+        let gridview_state = GridViewState::new(&mut **cx);
 
         // Seed the select / combo / dropdown / menu options so
         // the renderer's first paint shows the full menu.
@@ -302,6 +306,25 @@ impl GalleryApp {
                 ListboxOption::new("elderberry", "Elderberry"),
             ]);
         });
+        gridview_state.update(cx, |s, _cx| {
+            // Seed the grid view with a fruit tile set: three
+            // columns across, three rows down, with the last
+            // row short (8 options for 9 slots) so the demo
+            // shows the grid layout handles a ragged tail. One
+            // tile is disabled to demonstrate that grid
+            // keyboard nav skips non-selectable tiles.
+            s.set_columns(3);
+            s.set_options(vec![
+                GridViewOption::new("apple", "Apple"),
+                GridViewOption::new("banana", "Banana"),
+                GridViewOption::new("cherry", "Cherry"),
+                GridViewOption::new("durian", "Durian").disabled(true),
+                GridViewOption::new("elderberry", "Elderberry"),
+                GridViewOption::new("fig", "Fig"),
+                GridViewOption::new("grape", "Grape"),
+                GridViewOption::new("honeydew", "Honeydew"),
+            ]);
+        });
 
         Self {
             // Toolbar
@@ -323,6 +346,7 @@ impl GalleryApp {
             menu_state,
             dropdown_menu_state,
             listbox_state,
+            gridview_state,
 
             // Inputs
             text_value: String::new(),
@@ -341,6 +365,7 @@ impl GalleryApp {
             dropdown_demo_value: String::new(),
             menu_demo_value: String::new(),
             listbox_demo_value: String::new(),
+            gridview_demo_value: String::new(),
 
             // Controls
             checkbox_value: false,

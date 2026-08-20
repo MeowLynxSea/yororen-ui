@@ -8,7 +8,7 @@
 //! [`install`] is the one-call bootstrap: it loads
 //! `system-light.json` (or `system-dark.json` if
 //! `WindowAppearance` is dark), populates the global theme, and
-//! registers the 55 default `TokenXxxRenderer` impls against
+//! registers the 56 default `TokenXxxRenderer` impls against
 //! the core `RendererRegistry`. App code calls it once at
 //! startup, then `cx.theme()` /
 //! `cx.renderer_arc::<markers::Button, dyn ButtonRenderer>()`
@@ -27,7 +27,8 @@ use crate::renderers::{
     TokenCardRenderer, TokenCheckboxRenderer, TokenComboBoxRenderer, TokenDisclosureRenderer,
     TokenDividerRenderer, TokenDropdownMenuRenderer, TokenEmptyStateRenderer,
     TokenFilePathInputRenderer, TokenFocusRingRenderer, TokenFormFieldRenderer, TokenFormRenderer,
-    TokenHeadingRenderer, TokenIconButtonRenderer, TokenIconRenderer, TokenImageRenderer,
+    TokenGridViewRenderer, TokenHeadingRenderer, TokenIconButtonRenderer, TokenIconRenderer,
+    TokenImageRenderer,
     TokenKeybindingDisplayRenderer, TokenKeybindingInputRenderer, TokenLabelRenderer,
     TokenListItemRenderer, TokenListboxRenderer, TokenMenuRenderer, TokenModalRenderer,
     TokenNotificationRenderer, TokenNumberInputRenderer, TokenOverlayRenderer, TokenPanelRenderer,
@@ -61,7 +62,7 @@ pub fn system_for(appearance: WindowAppearance) -> Theme {
 }
 
 /// One-call bootstrap. Picks a system theme by OS appearance,
-/// installs the global `Theme`, and registers the 55 default
+/// installs the global `Theme`, and registers the 56 default
 /// `TokenXxxRenderer` impls against the core
 /// `RendererRegistry`. Call this once at app boot, before any
 /// component renders.
@@ -84,7 +85,7 @@ pub fn install_with(cx: &mut App, theme: Theme) {
     register_default_renderers(cx);
 }
 
-/// Register the 55 default `TokenXxxRenderer` impls against
+/// Register the 56 default `TokenXxxRenderer` impls against
 /// the core `RendererRegistry`. Public so a caller who already
 /// installed the theme (e.g. for tests) can still wire up the
 /// default look without re-installing the theme.
@@ -202,6 +203,9 @@ pub fn register_default_renderers(cx: &mut App) {
     ));
     cx.register_renderer_arc::<markers::FormField, dyn crate::renderers::FormFieldRenderer>(
         Arc::new(TokenFormFieldRenderer),
+    );
+    cx.register_renderer_arc::<markers::GridView, dyn crate::renderers::GridViewRenderer>(
+        Arc::new(TokenGridViewRenderer),
     );
     cx.register_renderer_arc::<markers::ListItem, dyn crate::renderers::ListItemRenderer>(
         Arc::new(TokenListItemRenderer),

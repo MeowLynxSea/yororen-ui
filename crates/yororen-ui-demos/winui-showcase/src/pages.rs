@@ -1259,6 +1259,7 @@ fn data_page(
     window: &mut Window,
     cx: &mut Context<WinuiApp>,
 ) -> gpui::AnyElement {
+    use yororen_ui::headless::grid_view::grid_view;
     use yororen_ui::headless::list_item::list_item;
     use yororen_ui::headless::table::{TableColumn, table};
     use yororen_ui::headless::tree::tree;
@@ -1287,6 +1288,33 @@ fn data_page(
         .on_select(move |i, _w, cx| {
             entity_table.update(cx, |s, _cx| s.table_selected = i);
         })
+        .render(cx);
+
+    // Grid view: single-select tile grid with 2D keyboard nav.
+    let entity_gv = entity.clone();
+    let gridview_state = app.gridview_state.clone();
+    gridview_state.update(cx, |s, _cx| {
+        s.set_on_change(move |value, _w, cx| {
+            let v = value.to_string();
+            entity_gv.update(cx, |s, _cx| s.gridview_value = v);
+        });
+    });
+    let gv_el = column("wd-gv-col", cx)
+        .gap(Spacing::Sm)
+        .child(grid_view("wd-gridview", gridview_state.clone()).render(cx))
+        .child(
+            label(
+                "wd-gridview-status",
+                if app.gridview_value.is_empty() {
+                    "selected: —".to_string()
+                } else {
+                    format!("selected: {}", app.gridview_value)
+                },
+                cx,
+            )
+            .muted(true)
+            .render(cx),
+        )
         .render(cx);
 
     // List items: plain, selected, with icons, disabled.
@@ -1490,6 +1518,12 @@ fn data_page(
             column("winui-data-inner", cx)
                 .gap(Spacing::Xl)
                 .child(section("data-table", "Table — click a row", table_el, cx))
+                .child(section(
+                    "data-gridview",
+                    "Grid view — single-select tiles (←/→/↑/↓ move highlight, click selects)",
+                    gv_el,
+                    cx,
+                ))
                 .child(section("data-list-items", "List items", list_items, cx))
                 .child(section("data-tree", "Tree view", tree_el, cx))
                 .child(section(

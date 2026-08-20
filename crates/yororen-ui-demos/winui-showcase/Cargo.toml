@@ -10,5 +10,8 @@ gpui = { package = "gpui-ce", version = "0.3" }
 yororen-ui = { package = "yororen_ui", path = "../../yororen-ui" }
 yororen-ui-winui-renderer = { package = "yororen_ui_winui_renderer", path = "../../yororen-ui-winui-renderer" }
 
+[dev-dependencies]
+gpui = { package = "gpui-ce", version = "0.3", features = ["test-support"] }
+
 [lints]
 workspace = true

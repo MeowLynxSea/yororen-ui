@@ -22,6 +22,14 @@
     </Cell>
 
     <Cell>
+        <Slot name="label"><Label id="lbl-gridview" text={t!(cx, "demo.lists.cell_gridview")} muted /></Slot>
+        <Column flex col gap="md" w={gpui::px(240.)}>
+            <GridView id="lists-gridview" state={controller.gridview_state(cx)} />
+            <Label id="lists-gridview-status" text={controller.gridview_status_text(cx)} muted />
+        </Column>
+    </Cell>
+
+    <Cell>
         <Slot name="label"><Label id="lbl-form" text={t!(cx, "demo.form.cell")} muted /></Slot>
         <Form id="frm-email" submit={t!(cx, "demo.form.email_label")}
               on_submit={controller.submit_form} w={gpui::px(300.)}>

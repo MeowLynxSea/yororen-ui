@@ -30,6 +30,7 @@ use yororen_ui_core::theme::{Theme, install as install_theme};
 
 use yororen_ui_core::renderer::button_group::ButtonGroupRenderer;
 use yororen_ui_core::renderer::form_field::FormFieldRenderer;
+use yororen_ui_core::renderer::grid_view::GridViewRenderer;
 use yororen_ui_core::renderer::icon::IconRenderer as CoreIconRenderer;
 use yororen_ui_core::renderer::image::ImageRenderer;
 use yororen_ui_core::renderer::keybinding_display::KeybindingDisplayRenderer;
@@ -67,8 +68,8 @@ use crate::renderers::{
         BrutalSelectRenderer, BrutalTextAreaRenderer, BrutalTextInputRenderer,
     },
     lists::{
-        BrutalFormFieldRenderer, BrutalFormRenderer, BrutalListItemRenderer, BrutalListboxRenderer,
-        BrutalTableRenderer, BrutalTreeItemRenderer, BrutalTreeRenderer,
+        BrutalFormFieldRenderer, BrutalFormRenderer, BrutalGridViewRenderer, BrutalListItemRenderer,
+        BrutalListboxRenderer, BrutalTableRenderer, BrutalTreeItemRenderer, BrutalTreeRenderer,
         BrutalUniformVirtualListRenderer, BrutalVirtualListRenderer,
     },
     notifications::{BrutalNotificationRenderer, BrutalToastRenderer},
@@ -112,7 +113,7 @@ fn brutal_theme_for(appearance: WindowAppearance) -> Theme {
     Theme::from_json(json).expect("brutalism theme json is valid")
 }
 
-/// Register all 55 brutalist `XxxRenderer` impls against the core
+/// Register all 56 brutalist `XxxRenderer` impls against the core
 /// `RendererRegistry`. Public so a caller who already installed
 /// the theme (e.g. for tests) can still wire up the brutalist
 /// look without re-installing the theme.
@@ -215,9 +216,12 @@ pub fn register_brutal_renderers(cx: &mut App) {
         BrutalNotificationRenderer,
     ));
 
-    // Lists (9)
+    // Lists (10)
     cx.register_renderer_arc::<m::ListItem, dyn ListItemRenderer>(Arc::new(BrutalListItemRenderer));
     cx.register_renderer_arc::<m::Listbox, dyn ListboxRenderer>(Arc::new(BrutalListboxRenderer));
+    cx.register_renderer_arc::<m::GridView, dyn GridViewRenderer>(Arc::new(
+        BrutalGridViewRenderer,
+    ));
     cx.register_renderer_arc::<m::TreeItem, dyn TreeItemRenderer>(Arc::new(BrutalTreeItemRenderer));
     cx.register_renderer_arc::<m::Tree, dyn TreeRenderer>(Arc::new(BrutalTreeRenderer));
     cx.register_renderer_arc::<m::Form, dyn FormRenderer>(Arc::new(BrutalFormRenderer));

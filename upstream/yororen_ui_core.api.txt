@@ -1545,6 +1545,79 @@ impl core::marker::UnsafeUnpin for yororen_ui_core::headless::form_field::FormFi
 impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::form_field::FormFieldProps
 impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::form_field::FormFieldProps
 pub fn yororen_ui_core::headless::form_field::form_field(impl core::convert::Into<gpui::window::ElementId>, impl core::convert::Into<gpui::shared_string::SharedString>, &mut gpui::app::App) -> yororen_ui_core::headless::form_field::FormFieldProps
+pub mod yororen_ui_core::headless::grid_view
+pub struct yororen_ui_core::headless::grid_view::GridViewOption
+pub yororen_ui_core::headless::grid_view::GridViewOption::disabled: bool
+pub yororen_ui_core::headless::grid_view::GridViewOption::label: gpui::shared_string::SharedString
+pub yororen_ui_core::headless::grid_view::GridViewOption::value: gpui::shared_string::SharedString
+impl yororen_ui_core::headless::grid_view::GridViewOption
+pub fn yororen_ui_core::headless::grid_view::GridViewOption::disabled(self, bool) -> Self
+pub fn yororen_ui_core::headless::grid_view::GridViewOption::new(impl core::convert::Into<gpui::shared_string::SharedString>, impl core::convert::Into<gpui::shared_string::SharedString>) -> Self
+impl core::clone::Clone for yororen_ui_core::headless::grid_view::GridViewOption
+pub fn yororen_ui_core::headless::grid_view::GridViewOption::clone(&self) -> yororen_ui_core::headless::grid_view::GridViewOption
+impl core::fmt::Debug for yororen_ui_core::headless::grid_view::GridViewOption
+pub fn yororen_ui_core::headless::grid_view::GridViewOption::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for yororen_ui_core::headless::grid_view::GridViewOption
+impl core::marker::Send for yororen_ui_core::headless::grid_view::GridViewOption
+impl core::marker::Sync for yororen_ui_core::headless::grid_view::GridViewOption
+impl core::marker::Unpin for yororen_ui_core::headless::grid_view::GridViewOption
+impl core::marker::UnsafeUnpin for yororen_ui_core::headless::grid_view::GridViewOption
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::grid_view::GridViewOption
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::grid_view::GridViewOption
+pub struct yororen_ui_core::headless::grid_view::GridViewProps
+pub yororen_ui_core::headless::grid_view::GridViewProps::id: gpui::window::ElementId
+pub yororen_ui_core::headless::grid_view::GridViewProps::state: gpui::app::entity_map::Entity<yororen_ui_core::headless::grid_view::GridViewState>
+impl yororen_ui_core::headless::grid_view::GridViewProps
+pub fn yororen_ui_core::headless::grid_view::GridViewProps::apply(self, gpui::elements::div::Div) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+pub fn yororen_ui_core::headless::grid_view::GridViewProps::render(self, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::clone::Clone for yororen_ui_core::headless::grid_view::GridViewProps
+pub fn yororen_ui_core::headless::grid_view::GridViewProps::clone(&self) -> yororen_ui_core::headless::grid_view::GridViewProps
+impl core::marker::Freeze for yororen_ui_core::headless::grid_view::GridViewProps
+impl core::marker::Send for yororen_ui_core::headless::grid_view::GridViewProps
+impl core::marker::Sync for yororen_ui_core::headless::grid_view::GridViewProps
+impl core::marker::Unpin for yororen_ui_core::headless::grid_view::GridViewProps
+impl core::marker::UnsafeUnpin for yororen_ui_core::headless::grid_view::GridViewProps
+impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::grid_view::GridViewProps
+impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::grid_view::GridViewProps
+pub struct yororen_ui_core::headless::grid_view::GridViewState
+pub yororen_ui_core::headless::grid_view::GridViewState::columns: usize
+pub yororen_ui_core::headless::grid_view::GridViewState::highlighted_index: core::option::Option<usize>
+pub yororen_ui_core::headless::grid_view::GridViewState::options: alloc::vec::Vec<yororen_ui_core::headless::grid_view::GridViewOption>
+pub yororen_ui_core::headless::grid_view::GridViewState::selected_value: core::option::Option<gpui::shared_string::SharedString>
+impl yororen_ui_core::headless::grid_view::GridViewState
+pub fn yororen_ui_core::headless::grid_view::GridViewState::focus_handle(&self) -> gpui::window::FocusHandle
+pub fn yororen_ui_core::headless::grid_view::GridViewState::highlight_down(&mut self)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::highlight_next(&mut self)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::highlight_prev(&mut self)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::highlight_up(&mut self)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::new(&mut gpui::app::App) -> gpui::app::entity_map::Entity<Self>
+pub fn yororen_ui_core::headless::grid_view::GridViewState::pick(&mut self, gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::select_highlighted(&mut self, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::set_columns(&mut self, usize)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::set_on_change<F>(&mut self, F) where F: 'static + core::marker::Send + core::marker::Sync + core::ops::function::Fn(gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::set_options(&mut self, alloc::vec::Vec<yororen_ui_core::headless::grid_view::GridViewOption>)
+pub fn yororen_ui_core::headless::grid_view::GridViewState::set_selected(&mut self, impl core::convert::Into<gpui::shared_string::SharedString>)
+impl core::clone::Clone for yororen_ui_core::headless::grid_view::GridViewState
+pub fn yororen_ui_core::headless::grid_view::GridViewState::clone(&self) -> yororen_ui_core::headless::grid_view::GridViewState
+impl gpui::window::Focusable for yororen_ui_core::headless::grid_view::GridViewState
+pub fn yororen_ui_core::headless::grid_view::GridViewState::focus_handle(&self, &gpui::app::App) -> gpui::window::FocusHandle
+impl yororen_ui_core::headless::list_navigable::ListNavigable for yororen_ui_core::headless::grid_view::GridViewState
+pub fn yororen_ui_core::headless::grid_view::GridViewState::highlighted_index(&self) -> core::option::Option<usize>
+pub fn yororen_ui_core::headless::grid_view::GridViewState::is_selectable(&self, usize) -> bool
+pub fn yororen_ui_core::headless::grid_view::GridViewState::options_len(&self) -> usize
+pub fn yororen_ui_core::headless::grid_view::GridViewState::set_highlighted(&mut self, usize)
+impl core::marker::Freeze for yororen_ui_core::headless::grid_view::GridViewState
+impl !core::marker::Send for yororen_ui_core::headless::grid_view::GridViewState
+impl !core::marker::Sync for yororen_ui_core::headless::grid_view::GridViewState
+impl core::marker::Unpin for yororen_ui_core::headless::grid_view::GridViewState
+impl core::marker::UnsafeUnpin for yororen_ui_core::headless::grid_view::GridViewState
+impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::grid_view::GridViewState
+impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::grid_view::GridViewState
+pub const yororen_ui_core::headless::grid_view::DEFAULT_COLUMNS: usize
+pub fn yororen_ui_core::headless::grid_view::grid_view(impl core::convert::Into<gpui::window::ElementId>, gpui::app::entity_map::Entity<yororen_ui_core::headless::grid_view::GridViewState>) -> yororen_ui_core::headless::grid_view::GridViewProps
+pub fn yororen_ui_core::headless::grid_view::highlight_down<N: yororen_ui_core::headless::list_navigable::ListNavigable>(&mut N, usize)
+pub fn yororen_ui_core::headless::grid_view::highlight_up<N: yororen_ui_core::headless::list_navigable::ListNavigable>(&mut N, usize)
+pub type yororen_ui_core::headless::grid_view::GridViewChangeCallback = alloc::sync::Arc<dyn core::ops::function::Fn(gpui::shared_string::SharedString, &mut gpui::window::Window, &mut gpui::app::App)>
 pub mod yororen_ui_core::headless::heading
 pub enum yororen_ui_core::headless::heading::HeadingLevel
 pub yororen_ui_core::headless::heading::HeadingLevel::H1
@@ -2506,6 +2579,11 @@ pub fn yororen_ui_core::headless::combo_box::ComboBoxState::highlighted_index(&s
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::is_selectable(&self, usize) -> bool
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::options_len(&self) -> usize
 pub fn yororen_ui_core::headless::combo_box::ComboBoxState::set_highlighted(&mut self, usize)
+impl yororen_ui_core::headless::list_navigable::ListNavigable for yororen_ui_core::headless::grid_view::GridViewState
+pub fn yororen_ui_core::headless::grid_view::GridViewState::highlighted_index(&self) -> core::option::Option<usize>
+pub fn yororen_ui_core::headless::grid_view::GridViewState::is_selectable(&self, usize) -> bool
+pub fn yororen_ui_core::headless::grid_view::GridViewState::options_len(&self) -> usize
+pub fn yororen_ui_core::headless::grid_view::GridViewState::set_highlighted(&mut self, usize)
 impl yororen_ui_core::headless::list_navigable::ListNavigable for yororen_ui_core::headless::listbox::ListboxState
 pub fn yororen_ui_core::headless::listbox::ListboxState::highlighted_index(&self) -> core::option::Option<usize>
 pub fn yororen_ui_core::headless::listbox::ListboxState::is_selectable(&self, usize) -> bool
@@ -2890,6 +2968,26 @@ impl core::marker::Unpin for yororen_ui_core::renderer::FormField
 impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::FormField
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::FormField
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::FormField
+pub struct yororen_ui_core::headless::markers::GridView
+impl core::clone::Clone for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::clone(&self) -> yororen_ui_core::renderer::GridView
+impl core::cmp::Eq for yororen_ui_core::renderer::GridView
+impl core::cmp::PartialEq for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::eq(&self, &yororen_ui_core::renderer::GridView) -> bool
+impl core::default::Default for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::default() -> yororen_ui_core::renderer::GridView
+impl core::fmt::Debug for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_core::renderer::GridView
+impl core::marker::StructuralPartialEq for yororen_ui_core::renderer::GridView
+impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::GridView
+impl core::marker::Freeze for yororen_ui_core::renderer::GridView
+impl core::marker::Send for yororen_ui_core::renderer::GridView
+impl core::marker::Sync for yororen_ui_core::renderer::GridView
+impl core::marker::Unpin for yororen_ui_core::renderer::GridView
+impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::GridView
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::GridView
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::GridView
 pub struct yororen_ui_core::headless::markers::Heading
 impl core::clone::Clone for yororen_ui_core::renderer::Heading
 pub fn yororen_ui_core::renderer::Heading::clone(&self) -> yororen_ui_core::renderer::Heading
@@ -7480,6 +7578,26 @@ impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::form
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::form_field::FormFieldRenderState
 pub trait yororen_ui_core::renderer::form_field::FormFieldRenderer: core::any::Any + core::marker::Send + core::marker::Sync
 pub fn yororen_ui_core::renderer::form_field::FormFieldRenderer::compose(&self, &mut yororen_ui_core::headless::form_field::FormFieldProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+pub mod yororen_ui_core::renderer::grid_view
+pub struct yororen_ui_core::renderer::grid_view::GridViewRenderState
+pub yororen_ui_core::renderer::grid_view::GridViewRenderState::columns: usize
+pub yororen_ui_core::renderer::grid_view::GridViewRenderState::item_count: usize
+impl core::clone::Clone for yororen_ui_core::renderer::grid_view::GridViewRenderState
+pub fn yororen_ui_core::renderer::grid_view::GridViewRenderState::clone(&self) -> yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::default::Default for yororen_ui_core::renderer::grid_view::GridViewRenderState
+pub fn yororen_ui_core::renderer::grid_view::GridViewRenderState::default() -> yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::fmt::Debug for yororen_ui_core::renderer::grid_view::GridViewRenderState
+pub fn yororen_ui_core::renderer::grid_view::GridViewRenderState::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::marker::Freeze for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::marker::Send for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::marker::Sync for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::marker::Unpin for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::grid_view::GridViewRenderState
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::grid_view::GridViewRenderState
+pub trait yororen_ui_core::renderer::grid_view::GridViewRenderer: core::any::Any + core::marker::Send + core::marker::Sync
+pub fn yororen_ui_core::renderer::grid_view::GridViewRenderer::compose(&self, &yororen_ui_core::headless::grid_view::GridViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
 pub mod yororen_ui_core::renderer::heading
 pub struct yororen_ui_core::renderer::heading::HeadingRenderState
 pub yororen_ui_core::renderer::heading::HeadingRenderState::level: yororen_ui_core::headless::heading::HeadingLevel
@@ -7965,6 +8083,26 @@ impl core::marker::Unpin for yororen_ui_core::renderer::FormField
 impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::FormField
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::FormField
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::FormField
+pub struct yororen_ui_core::renderer::markers::GridView
+impl core::clone::Clone for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::clone(&self) -> yororen_ui_core::renderer::GridView
+impl core::cmp::Eq for yororen_ui_core::renderer::GridView
+impl core::cmp::PartialEq for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::eq(&self, &yororen_ui_core::renderer::GridView) -> bool
+impl core::default::Default for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::default() -> yororen_ui_core::renderer::GridView
+impl core::fmt::Debug for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_core::renderer::GridView
+impl core::marker::StructuralPartialEq for yororen_ui_core::renderer::GridView
+impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::GridView
+impl core::marker::Freeze for yororen_ui_core::renderer::GridView
+impl core::marker::Send for yororen_ui_core::renderer::GridView
+impl core::marker::Sync for yororen_ui_core::renderer::GridView
+impl core::marker::Unpin for yororen_ui_core::renderer::GridView
+impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::GridView
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::GridView
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::GridView
 pub struct yororen_ui_core::renderer::markers::Heading
 impl core::clone::Clone for yororen_ui_core::renderer::Heading
 pub fn yororen_ui_core::renderer::Heading::clone(&self) -> yororen_ui_core::renderer::Heading
@@ -10151,6 +10289,26 @@ impl core::marker::Unpin for yororen_ui_core::renderer::variant::GlobalVariantRe
 impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::variant::GlobalVariantRegistry
 impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::variant::GlobalVariantRegistry
 impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::variant::GlobalVariantRegistry
+pub struct yororen_ui_core::renderer::GridView
+impl core::clone::Clone for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::clone(&self) -> yororen_ui_core::renderer::GridView
+impl core::cmp::Eq for yororen_ui_core::renderer::GridView
+impl core::cmp::PartialEq for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::eq(&self, &yororen_ui_core::renderer::GridView) -> bool
+impl core::default::Default for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::default() -> yororen_ui_core::renderer::GridView
+impl core::fmt::Debug for yororen_ui_core::renderer::GridView
+pub fn yororen_ui_core::renderer::GridView::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for yororen_ui_core::renderer::GridView
+impl core::marker::StructuralPartialEq for yororen_ui_core::renderer::GridView
+impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::GridView
+impl core::marker::Freeze for yororen_ui_core::renderer::GridView
+impl core::marker::Send for yororen_ui_core::renderer::GridView
+impl core::marker::Sync for yororen_ui_core::renderer::GridView
+impl core::marker::Unpin for yororen_ui_core::renderer::GridView
+impl core::marker::UnsafeUnpin for yororen_ui_core::renderer::GridView
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::renderer::GridView
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::renderer::GridView
 pub struct yororen_ui_core::renderer::Heading
 impl core::clone::Clone for yororen_ui_core::renderer::Heading
 pub fn yororen_ui_core::renderer::Heading::clone(&self) -> yororen_ui_core::renderer::Heading
@@ -11095,6 +11253,7 @@ impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::Fi
 impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::FocusRing
 impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::Form
 impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::FormField
+impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::GridView
 impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::Heading
 impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::Icon
 impl yororen_ui_core::renderer::RendererMarker for yororen_ui_core::renderer::IconButton

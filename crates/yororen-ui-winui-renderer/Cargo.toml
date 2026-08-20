@@ -12,5 +12,8 @@ yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", ve
 gpui = { package = "gpui-ce", version = "0.3" }
 serde_json = "1"
 
+[dev-dependencies]
+gpui = { package = "gpui-ce", version = "0.3", features = ["test-support"] }
+
 [lints]
 workspace = true
