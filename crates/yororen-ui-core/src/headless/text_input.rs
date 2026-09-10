@@ -723,7 +723,7 @@ impl TextInputState {
         window: &mut Window,
         _cx: &mut App,
     ) {
-        self.core.on_mouse_down(&self.value, position, window);
+        self.core.on_mouse_down(&self.value, position, window, _cx);
     }
 
     pub fn on_mouse_up(

@@ -8,12 +8,12 @@ readme = "../../README.md"
 repository.workspace = true
 
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.3" }
+gpui = { package = "gpui-ce", version = "0.2.2" }
 
 # rust-embed is retained for asset/icon embedding (`assets/icons/**`).
 # Locale data is no longer embedded here; it ships in dedicated
 # `yororen-ui-locale-*` crates.
-rust-embed = "8.11"
+rust-embed = { version = "8.11", features = ["include-exclude"] }
 smallvec = "1"
 unicode-segmentation = "1"
 serde = { version = "1", features = ["derive"] }
@@ -22,11 +22,6 @@ serde_json = "1"
 # locale-aware date/time rendering. The `notification` module does
 # NOT depend on chrono — it uses `std::time::SystemTime` directly.
 chrono = { version = "0.4", features = ["serde"] }
-
-[dev-dependencies]
-# `test-support` enables `gpui::test` and `TestAppContext`, used by
-# the hooks integration tests.
-gpui = { package = "gpui-ce", version = "0.3", features = ["test-support"] }
 
 [lints]
 workspace = true

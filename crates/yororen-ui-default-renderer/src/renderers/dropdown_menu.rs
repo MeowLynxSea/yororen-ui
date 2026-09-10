@@ -74,6 +74,7 @@ impl DropdownMenuRenderer for TokenDropdownMenuRenderer {
                     color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                     blur_radius: gpui::px(12.0),
                     spread_radius: gpui::px(0.0),
+                    inset: false,
                     offset: gpui::Point {
                         x: gpui::px(0.0),
                         y: gpui::px(4.0),

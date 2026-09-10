@@ -26,12 +26,7 @@ pub struct BrutalModalRenderer;
 // Inherent helpers — *not* part of the trait surface.
 impl BrutalModalRenderer {
     pub fn scrim(&self, _: &ModalRenderState, _: &Theme) -> Hsla {
-        Hsla {
-            h: 0.0,
-            s: 0.0,
-            l: 0.0,
-            a: 0.5,
-        }
+        gpui::hsla(0.0, 0.0, 0.0, 0.5)
     }
     pub fn panel_bg(&self, _: &ModalRenderState, theme: &Theme) -> Hsla {
         theme.get_color("surface.raised").unwrap_or(BRUTAL_BORDER)
@@ -89,6 +84,7 @@ impl ModalRenderer for BrutalModalRenderer {
                 color: shadow.color,
                 blur_radius: shadow.blur,
                 spread_radius: gpui::px(0.0),
+                inset: false,
                 offset: gpui::Point {
                     x: gpui::px(0.0),
                     y: shadow.offset_y,
@@ -175,6 +171,7 @@ impl PopoverRenderer for BrutalPopoverRenderer {
                     color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                     blur_radius: gpui::px(0.0),
                     spread_radius: gpui::px(0.0),
+                    inset: false,
                     offset: gpui::Point {
                         x: gpui::px(0.0),
                         y: shadow.offset_y,
@@ -288,6 +285,7 @@ impl DropdownMenuRenderer for BrutalDropdownMenuRenderer {
                     color: gpui::hsla(0.0, 0.0, 0.0, 1.0),
                     blur_radius: gpui::px(0.0),
                     spread_radius: gpui::px(0.0),
+                    inset: false,
                     offset: gpui::Point {
                         x: gpui::px(0.0),
                         y: shadow.offset_y,
@@ -409,12 +407,7 @@ impl BrutalOverlayRenderer {
         // Same fallback as the default renderer (50% black) so the
         // gallery shows a visible scrim even if the theme omits the
         // `surface.scrim` key.
-        theme.get_color("surface.scrim").unwrap_or(Hsla {
-            h: 0.0,
-            s: 0.0,
-            l: 0.0,
-            a: 0.5,
-        })
+        theme.get_color("surface.scrim").unwrap_or(gpui::hsla(0.0, 0.0, 0.0, 0.5))
     }
 }
 
@@ -631,6 +624,7 @@ impl MenuRenderer for BrutalMenuRenderer {
                 offset: gpui::point(px(0.0), shadow.offset_y),
                 blur_radius: shadow.blur,
                 spread_radius: px(0.0),
+                inset: false,
             }])
             .child(body)
     }

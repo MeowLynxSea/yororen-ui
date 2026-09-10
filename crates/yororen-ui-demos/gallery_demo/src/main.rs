@@ -18,7 +18,7 @@
 //! See `theme_switcher.rs` for the runtime swap mechanism and
 //! `gallery_app.rs` for the per-render `install_renderer` call.
 
-use gpui::{App, AppContext, Application, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, WindowBounds, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui::notification::center::NotificationCenter;
@@ -31,7 +31,7 @@ mod state;
 mod theme_switcher;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // 1. Bind the text-input keymap once.

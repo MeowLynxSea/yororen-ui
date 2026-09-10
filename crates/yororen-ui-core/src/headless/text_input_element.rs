@@ -244,6 +244,7 @@ impl<T: TextInputPainterHost + EntityInputHandler> Element for TextInputElement<
             background_color: None,
             underline: None,
             strikethrough: None,
+            letter_spacing: None,
         };
         let line = window
             .text_system()
@@ -327,6 +328,8 @@ impl<T: TextInputPainterHost + EntityInputHandler> Element for TextInputElement<
         let _ = line.paint(
             point(origin_x, bounds.top()),
             window.line_height(),
+            gpui::TextAlign::Left,
+            None,
             window,
             cx,
         );

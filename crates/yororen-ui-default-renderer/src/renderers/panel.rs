@@ -35,7 +35,7 @@ impl TokenPanelRenderer {
         gpui::px(theme.get_number("tokens.radii.lg").unwrap_or(0.0) as f32)
     }
     pub fn shadow_alpha(&self, _state: &PanelRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_2").unwrap_or_default().a
+        theme.get_color("shadow.elevation_2").unwrap_or_default().alpha
     }
     pub fn title_color(&self, _state: &PanelRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.primary").unwrap_or_default()

@@ -180,6 +180,7 @@ impl ButtonRenderer for BrutalButtonRenderer {
                 offset: gpui::point(px(0.0), s.offset_y),
                 blur_radius: s.blur,
                 spread_radius: px(0.0),
+                inset: false,
             }]);
         }
 
@@ -726,6 +727,7 @@ impl SplitButtonRenderer for BrutalSplitButtonRenderer {
                     offset: gpui::point(px(0.0), shadow_spec.offset_y),
                     blur_radius: shadow_spec.blur,
                     spread_radius: px(0.0),
+                    inset: false,
                 }])
                 // popover pattern: occlude_mouse blocks
                 // events from reaching elements painted behind

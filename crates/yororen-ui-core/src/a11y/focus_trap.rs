@@ -222,9 +222,9 @@ impl FocusTrapState {
     }
 
     /// Deactivates the focus trap and restores previous focus.
-    pub fn deactivate(&mut self, window: &mut Window, _cx: &mut App) {
+    pub fn deactivate(&mut self, window: &mut Window, cx: &mut App) {
         if let Some(handle) = &self.previous_focus {
-            handle.focus(window);
+            handle.focus(window, cx);
         }
         self.is_active = false;
     }

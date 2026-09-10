@@ -1,11 +1,12 @@
 [workspace]
 resolver = "2"
 # Note: every `gpui = { package = "gpui-ce" ... }` dependency in this
-# workspace points at a third-party fork of the upstream `gpui` crate
-# (https://github.com/zed-industries/zed/tree/main/crates/gpui). The
-# fork exposes the same public API but is published under a
-# different name so a host app can pin to a specific version of
-# the UI layer independently of the core zed gpui version. See
+# workspace points at the gpui-ce community fork of the upstream `gpui`
+# crate (https://github.com/zed-industries/zed/tree/main/crates/gpui),
+# published to crates.io as `gpui-ce`. Since the June 2026 re-fork the
+# fork mirrors zed's `crates/` layout *and* zed's own version numbers,
+# which is why the published line reads 0.2.x (the older 0.3.x releases
+# were yanked and will not return). The workspace pins 0.2.2; see
 # `yororen-ui-core/Cargo.toml` for the canonical dep entry.
 members = [
     "crates/yororen-ui",

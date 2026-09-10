@@ -384,7 +384,7 @@ impl TextInputActionHandler for ComboBoxState {
         window: &mut Window,
         _cx: &mut App,
     ) {
-        self.core.on_mouse_down(&self.text, position, window);
+        self.core.on_mouse_down(&self.text, position, window, _cx);
     }
     fn on_mouse_up(&mut self, _event: &gpui::MouseUpEvent, _w: &mut Window, _cx: &mut App) {
         self.core.on_mouse_up();

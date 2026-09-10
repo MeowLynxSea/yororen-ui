@@ -32,7 +32,7 @@ impl TokenCardRenderer {
         gpui::px(theme.get_number("tokens.radii.lg").unwrap_or(0.0) as f32)
     }
     pub fn shadow_alpha(&self, _state: &CardRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_1").unwrap_or_default().a
+        theme.get_color("shadow.elevation_1").unwrap_or_default().alpha
     }
     pub fn gap(&self, _state: &CardRenderState, theme: &Theme) -> Pixels {
         gpui::px(theme.get_number("tokens.spacing.inset_sm").unwrap_or(8.0) as f32)

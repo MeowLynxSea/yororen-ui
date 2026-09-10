@@ -290,10 +290,9 @@ fn default_text() -> Hsla {
 /// `delta` (positive = lighter, negative = darker), clamped to
 /// the valid HSL range.
 fn adjust_lightness(color: Hsla, delta: f32) -> Hsla {
-    Hsla {
-        l: (color.l + delta).clamp(0.0, 1.0),
-        ..color
-    }
+    let mut out = color;
+    out.lightness = (color.lightness + delta).clamp(0.0, 1.0);
+    out
 }
 
 /// Convenience: the host already wrapped in

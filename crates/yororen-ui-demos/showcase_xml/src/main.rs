@@ -40,7 +40,7 @@ mod state;
 mod view;
 
 use gpui::{
-    App, AppContext, Application, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px,
+    App, AppContext, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px,
     size,
 };
 
@@ -88,7 +88,7 @@ fn render_custom_widget(id: String, cx: &mut gpui::App) -> gpui::AnyElement {
     // float. We rely on the trait `Display` from gpui.
     let label = format!(
         "theme.surface.base = h {:.2}°  s {:.2}  l {:.2}  a {:.2}",
-        swatch.h, swatch.s, swatch.l, swatch.a
+        swatch.color.hue.into_degrees(), swatch.saturation, swatch.lightness, swatch.alpha
     );
 
     // 2-row composition: a 48×48 swatch on top, an
@@ -122,7 +122,7 @@ fn render_custom_widget(id: String, cx: &mut gpui::App) -> gpui::AnyElement {
 yororen_ui::register_xml_component!(CustomWidget => render_custom_widget);
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // Install the default theme + renderers.

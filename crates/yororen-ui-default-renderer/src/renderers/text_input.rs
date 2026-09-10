@@ -111,7 +111,7 @@ impl TokenTextInputRenderer {
         } else {
             theme.get_color("border.focus").unwrap_or_default()
         };
-        hsla(c.h, c.s, c.l, 0.25)
+        hsla(c.color.hue.into_degrees() / 360.0, c.saturation, c.lightness, 0.25)
     }
     pub fn min_height(&self, _state: &TextInputRenderState, theme: &Theme) -> Pixels {
         px(theme

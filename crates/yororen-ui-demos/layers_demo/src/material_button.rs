@@ -241,7 +241,7 @@ impl Element for RippleElement {
             let alpha = MD_RIPPLE_PEAK_ALPHA * (1.0 - t);
             paints.push(RipplePaint {
                 path: circle_path(point(ripple.center.x, ripple.center.y), radius_px),
-                color: hsla(self.color.h, self.color.s, self.color.l, alpha),
+                color: hsla(self.color.color.hue.into_degrees() / 360.0, self.color.saturation, self.color.lightness, alpha),
             });
         }
 

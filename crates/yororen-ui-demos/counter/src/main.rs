@@ -13,14 +13,14 @@
 mod counter_app;
 mod state;
 
-use gpui::{App, AppContext, Application, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, WindowBounds, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui::locale_en;
 use yororen_ui::renderer;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // Install the default theme + 54 default renderers in

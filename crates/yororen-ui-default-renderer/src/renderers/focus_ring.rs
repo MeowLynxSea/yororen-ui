@@ -67,6 +67,7 @@ impl FocusRingRenderer for TokenFocusRingRenderer {
                 offset: point(gpui::px(0.), gpui::px(0.)),
                 blur_radius: gpui::px(0.),
                 spread_radius: width,
+                inset: false,
             }])
     }
 }

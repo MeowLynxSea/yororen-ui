@@ -240,6 +240,7 @@ impl SplitButtonRenderer for TokenSplitButtonRenderer {
                     offset: point(px(0.), px(4.)),
                     blur_radius: px(12.),
                     spread_radius: px(0.),
+                    inset: false,
                 }])
                 // popover pattern: occlude (the
                 // `InteractiveElement` trait method) blocks

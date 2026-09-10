@@ -461,8 +461,7 @@ impl NotificationCenter {
                 .await;
             cx.update(|cx| {
                 this.dismiss(id, cx);
-            })
-            .ok();
+            });
         })
         .detach();
     }
@@ -476,8 +475,7 @@ impl NotificationCenter {
                         window.refresh();
                     })
                     .ok();
-                })
-                .ok();
+                });
             })
             .detach();
         }

@@ -13,7 +13,7 @@
 //! 2. Build a `ButtonRenderState` with the desired variant
 //! 3. Call the renderer's `bg` / `fg` / `padding` / etc.
 
-use gpui::{App, AppContext, Application, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, WindowBounds, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui::renderer;
@@ -21,7 +21,7 @@ use yororen_ui::renderer;
 mod variant_app;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         renderer::install(cx, cx.window_appearance());

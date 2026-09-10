@@ -10,7 +10,7 @@ repository.workspace = true
 [dependencies]
 yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.3" }
 yororen-ui-default-renderer = { package = "yororen_ui_default_renderer", path = "../yororen-ui-default-renderer", version = "0.3" }
-gpui = { package = "gpui-ce", version = "0.3" }
+gpui = { package = "gpui-ce", version = "0.2.2" }
 
 [lints]
 workspace = true

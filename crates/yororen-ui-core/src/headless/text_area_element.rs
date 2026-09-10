@@ -137,6 +137,7 @@ impl Element for TextAreaElement {
                 background_color: None,
                 underline: None,
                 strikethrough: None,
+                letter_spacing: None,
             };
             let shaped_line =
                 window
@@ -263,7 +264,14 @@ impl Element for TextAreaElement {
         for (i, line) in lines.iter().enumerate() {
             let y_offset = bounds.top() + (i as f32) * line_height_px;
             let origin_x = bounds.left() - prepaint.scroll_x;
-            let _ = line.paint(point(origin_x, y_offset), line_height_px, window, cx);
+            let _ = line.paint(
+                point(origin_x, y_offset),
+                line_height_px,
+                gpui::TextAlign::Left,
+                None,
+                window,
+                cx,
+            );
         }
 
         let is_focused = self.focus_handle.is_focused(window);

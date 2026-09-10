@@ -251,6 +251,7 @@ impl FocusRingRenderer for BrutalFocusRingRenderer {
                 offset: point(px(0.), px(0.)),
                 blur_radius: px(0.),
                 spread_radius: width,
+                inset: false,
             }])
     }
 }
@@ -638,7 +639,7 @@ impl Element for BrutalSkeletonPulseElement {
         let eased = ease_in_out(tri);
         let alpha_mult = BRUTAL_SKELETON_PULSE_MIN
             + (BRUTAL_SKELETON_PULSE_MAX - BRUTAL_SKELETON_PULSE_MIN) * eased;
-        let color = hsla(self.bg.h, self.bg.s, self.bg.l, self.bg.a * alpha_mult);
+        let color = hsla(self.bg.color.hue.into_degrees() / 360.0, self.bg.saturation, self.bg.lightness, self.bg.alpha * alpha_mult);
 
         window.paint_quad(gpui::PaintQuad {
             bounds,

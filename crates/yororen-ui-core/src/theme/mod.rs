@@ -149,7 +149,11 @@ mod tests {
     fn get_color_from_string_hex() {
         let t = Theme::from_value(json!({"x": "#ff0000"}));
         let c = t.get_color("x").unwrap();
-        assert!(c.s > 0.5, "red should have high saturation, got {}", c.s);
+        assert!(
+            c.saturation > 0.5,
+            "red should have high saturation, got {}",
+            c.saturation
+        );
     }
 
     #[test]

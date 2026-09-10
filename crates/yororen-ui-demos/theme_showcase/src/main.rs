@@ -15,7 +15,7 @@
 //! `headless::button` + the same `TokenButtonRenderer` is
 //! reused for all four.
 
-use gpui::{App, AppContext, Application, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, WindowBounds, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui_default_renderer as default_renderer;
@@ -23,7 +23,7 @@ use yororen_ui_default_renderer as default_renderer;
 mod theme_app;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // Register the 54 default `TokenXxxRenderer` impls. We

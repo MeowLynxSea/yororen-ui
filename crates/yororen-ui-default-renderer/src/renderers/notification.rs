@@ -26,7 +26,7 @@ impl NotificationRenderer for TokenNotificationRenderer {
         gpui::px(theme.get_number("tokens.radii.lg").unwrap_or(0.0) as f32)
     }
     fn shadow_alpha(&self, _state: &NotificationRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_2").unwrap_or_default().a
+        theme.get_color("shadow.elevation_2").unwrap_or_default().alpha
     }
 }
 

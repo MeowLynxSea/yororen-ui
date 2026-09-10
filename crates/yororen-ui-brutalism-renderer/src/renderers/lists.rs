@@ -856,13 +856,13 @@ impl VirtualListRenderer for BrutalVirtualListRenderer {
         }
 
         // The inner list is constructed inline and forced to
-        // fill the parent — same `size_full().flex_grow().min_h_0()`
+        // fill the parent — same `size_full().flex_grow(1.).min_h_0()`
         // pattern as the default renderer. Brutalism could add
         // its own offsets (e.g. a hard offset shadow on the
         // scroll surface) here without sharing code with default.
         let list_el =
             gpui::list(props.state, render_row).with_sizing_behavior(props.sizing_behavior);
-        let inner = list_el.size_full().flex_grow().min_h_0();
+        let inner = list_el.size_full().flex_grow(1.).min_h_0();
 
         // The outer div is the brutalist frame: thick black
         // border, square corners, surface background, and

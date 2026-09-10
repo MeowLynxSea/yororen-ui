@@ -131,7 +131,7 @@ mod tests {
     fn custom_tone_overrides_checked_ring_and_dot() {
         let theme = fixture();
         let r = TokenRadioRenderer;
-        let custom = rgb(0x123456).into();
+        let custom = gpui::rgb_to_hsla(rgb(0x123456));
         let state = RadioRenderState {
             checked: true,
             disabled: false,

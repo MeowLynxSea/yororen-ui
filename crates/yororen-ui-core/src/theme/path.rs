@@ -78,7 +78,7 @@ pub fn value_to_hsla(v: &Value) -> Option<Hsla> {
         let s = obj.get("s").and_then(Value::as_f64)? as f32;
         let l = obj.get("l").and_then(Value::as_f64)? as f32;
         let a = obj.get("a").and_then(Value::as_f64).unwrap_or(1.0) as f32;
-        return Some(Hsla { h, s, l, a });
+        return Some(gpui::hsla(h, s, l, a));
     }
     if let Some(arr) = v.as_array()
         && arr.len() == 4
@@ -87,7 +87,7 @@ pub fn value_to_hsla(v: &Value) -> Option<Hsla> {
         let s = arr[1].as_f64()? as f32;
         let l = arr[2].as_f64()? as f32;
         let a = arr[3].as_f64()? as f32;
-        return Some(Hsla { h, s, l, a });
+        return Some(gpui::hsla(h, s, l, a));
     }
     None
 }
@@ -110,13 +110,13 @@ fn parse_hex_color(s: &str) -> Option<Hsla> {
         }
         _ => return None,
     };
-    let rgb = gpui::Rgba {
-        r: r as f32 / 255.0,
-        g: g as f32 / 255.0,
-        b: b as f32 / 255.0,
-        a: a as f32 / 255.0,
-    };
-    Some(rgb.into())
+    let rgb = gpui::Rgba::new(
+        r as f32 / 255.0,
+        g as f32 / 255.0,
+        b as f32 / 255.0,
+        a as f32 / 255.0,
+    );
+    Some(gpui::rgb_to_hsla(rgb))
 }
 
 #[cfg(test)]
@@ -176,20 +176,20 @@ mod tests {
     fn parse_hex_6_digit() {
         let c = parse_hex_color("#ff0000").unwrap();
         // red: hue 0, sat 1, lightness 0.5, alpha 1
-        assert!(c.s > 0.5, "expected high saturation, got {}", c.s);
+        assert!(c.saturation > 0.5, "expected high saturation, got {}", c.saturation);
         assert!(
-            c.l > 0.4 && c.l < 0.6,
+            c.lightness > 0.4 && c.lightness < 0.6,
             "expected mid lightness, got {}",
-            c.l
+            c.lightness
         );
-        assert!(c.a > 0.99);
+        assert!(c.alpha > 0.99);
     }
 
     #[test]
     fn parse_hex_8_digit_with_alpha() {
         let c = parse_hex_color("#00ff0080").unwrap();
         // alpha should be ~0.5
-        assert!(c.a > 0.49 && c.a < 0.51, "alpha {}", c.a);
+        assert!(c.alpha > 0.49 && c.alpha < 0.51, "alpha {}", c.alpha);
     }
 
     #[test]
@@ -203,20 +203,20 @@ mod tests {
     fn value_to_hsla_from_object() {
         let v = json!({"h": 0.5, "s": 0.5, "l": 0.5, "a": 1.0});
         let c = value_to_hsla(&v).unwrap();
-        assert_eq!(c.h, 0.5);
-        assert_eq!(c.s, 0.5);
-        assert_eq!(c.l, 0.5);
-        assert_eq!(c.a, 1.0);
+        assert!((c.color.hue.into_degrees() / 360.0 - 0.5).abs() < 1e-6);
+        assert_eq!(c.saturation, 0.5);
+        assert_eq!(c.lightness, 0.5);
+        assert_eq!(c.alpha, 1.0);
     }
 
     #[test]
     fn value_to_hsla_from_array() {
         let v = json!([0.1, 0.2, 0.3, 0.4]);
         let c = value_to_hsla(&v).unwrap();
-        assert_eq!(c.h, 0.1);
-        assert_eq!(c.s, 0.2);
-        assert_eq!(c.l, 0.3);
-        assert_eq!(c.a, 0.4);
+        assert!((c.color.hue.into_degrees() / 360.0 - 0.1).abs() < 1e-5);
+        assert!((c.saturation - 0.2).abs() < 1e-6);
+        assert!((c.lightness - 0.3).abs() < 1e-6);
+        assert!((c.alpha - 0.4).abs() < 1e-6);
     }
 
     #[test]

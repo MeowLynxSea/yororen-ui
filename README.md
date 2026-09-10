@@ -369,7 +369,7 @@ yororen_ui = { path = "../yororen-ui" }
 
 ```toml
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.3" }
+gpui = { package = "gpui-ce", version = "0.2.2" }
 ```
 
 In this repository, <code>gpui-ce</code> is specified in <code>Cargo.toml</code>.

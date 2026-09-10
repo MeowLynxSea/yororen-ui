@@ -93,12 +93,16 @@ pub fn lerp(start: f32, end: f32, t: f32) -> f32 {
 
 /// Helper to interpolate between two colors.
 pub fn lerp_color(start: Hsla, end: Hsla, t: f32) -> Hsla {
-    Hsla {
-        h: lerp(start.h, end.h, t),
-        s: lerp(start.s, end.s, t),
-        l: lerp(start.l, end.l, t),
-        a: lerp(start.a, end.a, t),
-    }
+    gpui::hsla(
+        lerp(
+            start.color.hue.into_degrees() / 360.0,
+            end.color.hue.into_degrees() / 360.0,
+            t,
+        ),
+        lerp(start.saturation, end.saturation, t),
+        lerp(start.lightness, end.lightness, t),
+        lerp(start.alpha, end.alpha, t),
+    )
 }
 
 /// Create a simple animation id from a prefix and state.

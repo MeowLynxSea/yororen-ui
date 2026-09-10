@@ -623,13 +623,19 @@ impl TextInputCore {
     }
 
     /// Mouse-down: start drag-select and place the caret.
-    pub fn on_mouse_down(&mut self, value: &str, position: Point<Pixels>, window: &mut Window) {
+    pub fn on_mouse_down(
+        &mut self,
+        value: &str,
+        position: Point<Pixels>,
+        window: &mut Window,
+        cx: &mut gpui::App,
+    ) {
         self.is_selecting = true;
         if let Some(utf16) = self.character_index_for_point_inner(value, position) {
             let byte = Self::utf16_to_offset(value, utf16);
             self.move_to(value, byte);
         }
-        window.focus(&self.focus_handle);
+        window.focus(&self.focus_handle, cx);
     }
 
     /// Mouse-move (while drag-selecting). Returns `true` when the

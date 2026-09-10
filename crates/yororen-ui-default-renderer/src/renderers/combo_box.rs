@@ -147,7 +147,7 @@ impl ComboBoxRenderer for TokenComboBoxRenderer {
         let cursor_color = theme.get_color("border.focus").unwrap_or_default();
         let selection_color = {
             let c = theme.get_color("border.focus").unwrap_or_default();
-            gpui::hsla(c.h, c.s, c.l, 0.25)
+            gpui::hsla(c.color.hue.into_degrees() / 360.0, c.saturation, c.lightness, 0.25)
         };
 
         let ti_element = TextInputElement {
@@ -228,6 +228,7 @@ impl ComboBoxRenderer for TokenComboBoxRenderer {
                     offset: gpui::point(px(0.), px(4.)),
                     blur_radius: px(12.),
                     spread_radius: px(0.),
+                    inset: false,
                 }])
                 .occlude()
                 .on_mouse_down_out(move |_ev, _window, cx| {

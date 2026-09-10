@@ -17,11 +17,8 @@ yororen-ui-locale-zh-cn = { package = "yororen_ui_locale_zh_cn", path = "../yoro
 yororen-ui-locale-ar = { package = "yororen_ui_locale_ar", path = "../yororen-ui-locale-ar", version = "0.3" }
 yororen-ui-xml = { package = "yororen_ui_xml", path = "../yororen-ui-xml", version = "0.3", optional = true }
 yororen-ui-xml-macro = { package = "yororen_ui_xml_macro", path = "../yororen-ui-xml-macro", version = "0.3", optional = true }
-gpui = { package = "gpui-ce", version = "0.3" }
+gpui = { package = "gpui-ce", version = "0.2.2" }
 serde_json = "1"
-
-[dev-dependencies]
-gpui = { package = "gpui-ce", version = "0.3", features = ["test-support"] }
 
 [features]
 default = ["xml"]

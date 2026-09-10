@@ -156,7 +156,7 @@ impl TextInputRenderer for BrutalTextInputRenderer {
             } else {
                 brutal_input_focus_border(&theme)
             };
-            hsla(c.h, c.s, c.l, 0.5)
+            hsla(c.color.hue.into_degrees() / 360.0, c.saturation, c.lightness, 0.5)
         };
         let min_h = brutal_input_min_height(&theme);
         let padding = brutal_input_padding(&theme);
@@ -282,7 +282,7 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
             } else {
                 brutal_input_focus_border(&theme)
             };
-            hsla(c.h, c.s, c.l, 0.5)
+            hsla(c.color.hue.into_degrees() / 360.0, c.saturation, c.lightness, 0.5)
         };
         let min_h = px(theme
             .get_number("tokens.control.text_area.min_height")
@@ -1421,7 +1421,7 @@ impl ComboBoxRenderer for BrutalComboBoxRenderer {
         let cursor_color = theme.get_color("border.focus").unwrap_or(BRUTAL_BORDER);
         let selection_color = {
             let c = theme.get_color("border.focus").unwrap_or(BRUTAL_BORDER);
-            gpui::hsla(c.h, c.s, c.l, 0.4)
+            gpui::hsla(c.color.hue.into_degrees() / 360.0, c.saturation, c.lightness, 0.4)
         };
 
         let ti_element = TextInputElement {

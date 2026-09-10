@@ -11,7 +11,7 @@ mod theme_switcher;
 mod view;
 
 use gpui::{
-    App, AppContext, Application, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px,
+    App, AppContext, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px,
     size,
 };
 
@@ -82,7 +82,7 @@ fn render_counter_widget(id: String, cx: &mut gpui::App) -> gpui::AnyElement {
 yororen_ui::register_xml_component!(CounterWidget => render_counter_widget);
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // 1. Install the default renderer + theme (light).

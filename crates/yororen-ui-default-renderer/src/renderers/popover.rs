@@ -28,7 +28,7 @@ impl TokenPopoverRenderer {
         theme.get_color("border.muted").unwrap_or_default()
     }
     pub fn shadow_alpha(&self, _state: &PopoverRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_2").unwrap_or_default().a
+        theme.get_color("shadow.elevation_2").unwrap_or_default().alpha
     }
     pub fn border_radius(&self, _state: &PopoverRenderState, theme: &Theme) -> Pixels {
         gpui::px(theme.get_number("tokens.radii.md").unwrap_or(0.0) as f32)
@@ -92,6 +92,7 @@ impl PopoverRenderer for TokenPopoverRenderer {
                     color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                     blur_radius: gpui::px(12.0),
                     spread_radius: gpui::px(0.0),
+                    inset: false,
                     offset: gpui::Point {
                         x: gpui::px(0.0),
                         y: gpui::px(4.0),

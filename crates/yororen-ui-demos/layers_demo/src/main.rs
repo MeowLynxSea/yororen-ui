@@ -29,7 +29,7 @@
 //! delta (`#6E6E74 → #84848A → #5A5A60`) so hover and
 //! active are visually clear.
 
-use gpui::{App, AppContext, Application, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, WindowBounds, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui_default_renderer as default_renderer;
@@ -104,7 +104,7 @@ const DEMO_THEME_JSON: &str = r##"{
 }"##;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // Bind the text-input keymap once at startup. The

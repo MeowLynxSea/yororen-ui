@@ -144,6 +144,7 @@ impl MenuRenderer for TokenMenuRenderer {
                 color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                 blur_radius: px(12.0),
                 spread_radius: px(0.0),
+                inset: false,
                 offset: gpui::Point {
                     x: px(0.0),
                     y: px(4.0),

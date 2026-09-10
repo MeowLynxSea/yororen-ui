@@ -389,7 +389,7 @@ mod tests {
         // Red's HSL: hue=0. Verify against the theme.
         let bg = s.bg(&VariantState::default());
         assert!(
-            bg.s > 0.5,
+            bg.saturation > 0.5,
             "primary bg should be saturated red, got {:?}",
             bg
         );
@@ -423,10 +423,10 @@ mod tests {
         struct Ghost;
         impl VariantStyle for Ghost {
             fn bg(&self, _: &VariantState) -> Hsla {
-                rgb(0x000000).into()
+                gpui::rgb_to_hsla(rgb(0x000000))
             }
             fn fg(&self, _: &VariantState) -> Hsla {
-                rgb(0xFFFFFF).into()
+                gpui::rgb_to_hsla(rgb(0xFFFFFF))
             }
             fn border(&self, _: &VariantState) -> Option<Hsla> {
                 None
@@ -439,6 +439,6 @@ mod tests {
         r.register(key.clone(), std::sync::Arc::new(Ghost));
         assert_eq!(r.custom_count(), 1);
         let resolved = r.resolve(&key).expect("ghost should be registered");
-        assert_eq!(resolved.bg(&VariantState::default()), rgb(0x000000).into());
+        assert_eq!(resolved.bg(&VariantState::default()), gpui::rgb_to_hsla(rgb(0x000000)));
     }
 }

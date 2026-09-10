@@ -9,18 +9,8 @@ use gpui::{Hsla, px};
 use yororen_ui_core::renderer::spec::ShadowSpec;
 use yororen_ui_core::theme::Theme;
 
-pub const BRUTAL_BORDER: Hsla = Hsla {
-    h: 0.0,
-    s: 0.0,
-    l: 0.0,
-    a: 1.0,
-};
-pub const BRUTAL_BORDER_WHITE: Hsla = Hsla {
-    h: 0.0,
-    s: 0.0,
-    l: 1.0,
-    a: 1.0,
-};
+pub const BRUTAL_BORDER: Hsla = gpui::hsla(0.0, 0.0, 0.0, 1.0);
+pub const BRUTAL_BORDER_WHITE: Hsla = gpui::hsla(0.0, 0.0, 1.0, 1.0);
 
 pub const BRUTAL_BORDER_WIDTH: f32 = 3.0;
 pub const BRUTAL_SMALL_BORDER_WIDTH: f32 = 2.0;
