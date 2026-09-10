@@ -431,6 +431,7 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                     offset: point(px(0.), px(5.)),
                     blur_radius: px(15.),
                     spread_radius: px(0.),
+                    inset: false,
                 }])
                 // popover pattern: occlude (the
                 // `InteractiveElement` trait method) blocks

@@ -39,7 +39,7 @@ impl WinUIDropdownMenuRenderer {
             .get_color("shadow.flyout")
             .or_else(|| theme.get_color("shadow.elevation_2"))
             .unwrap_or_default()
-            .a
+            .alpha
     }
 }
 
@@ -84,6 +84,7 @@ impl DropdownMenuRenderer for WinUIDropdownMenuRenderer {
                     color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                     blur_radius: gpui::px(15.0),
                     spread_radius: gpui::px(0.0),
+                    inset: false,
                     offset: gpui::Point {
                         x: gpui::px(0.0),
                         y: gpui::px(5.0),

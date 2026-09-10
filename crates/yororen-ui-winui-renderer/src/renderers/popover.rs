@@ -39,7 +39,7 @@ impl WinUIPopoverRenderer {
             .get_color("shadow.flyout")
             .or_else(|| theme.get_color("shadow.elevation_2"))
             .unwrap_or_default()
-            .a
+            .alpha
     }
     /// Flyouts use the 8px OverlayCornerRadius.
     pub fn border_radius(&self, _state: &PopoverRenderState, theme: &Theme) -> Pixels {
@@ -115,6 +115,7 @@ impl PopoverRenderer for WinUIPopoverRenderer {
                     color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                     blur_radius: gpui::px(15.0),
                     spread_radius: gpui::px(0.0),
+                    inset: false,
                     offset: gpui::Point {
                         x: gpui::px(0.0),
                         y: gpui::px(5.0),

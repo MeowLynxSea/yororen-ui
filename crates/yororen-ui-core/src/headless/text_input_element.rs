@@ -569,7 +569,7 @@ mod input_interaction_tests {
         // Focus-in frame: spawns the task.
         cx.update(|window, cx| {
             let focus_handle = state.read(cx).focus_handle();
-            window.focus(&focus_handle);
+            window.focus(&focus_handle, cx);
             assert!(focus_handle.is_focused(window));
             start_cursor_blink(state.clone(), window, cx);
         });

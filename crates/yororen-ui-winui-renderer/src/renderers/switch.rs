@@ -406,7 +406,7 @@ mod tests {
     fn custom_tone_overrides_checked_track_color() {
         let theme = fixture();
         let r = WinUISwitchRenderer;
-        let custom = gpui::rgb(0xdeadbe).into();
+        let custom = gpui::rgb_to_hsla(gpui::rgb(0xdeadbe));
         let state = SwitchRenderState {
             checked: true,
             disabled: false,

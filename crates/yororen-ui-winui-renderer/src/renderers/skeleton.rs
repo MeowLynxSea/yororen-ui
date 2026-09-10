@@ -164,7 +164,7 @@ impl Element for SkeletonPulseElement {
         let eased = ease_in_out(tri);
         // Lerp alpha multiplier between min and max.
         let alpha_mult = SKELETON_PULSE_MIN + (SKELETON_PULSE_MAX - SKELETON_PULSE_MIN) * eased;
-        let color = hsla(self.bg.h, self.bg.s, self.bg.l, self.bg.a * alpha_mult);
+        let color = hsla(self.bg.color.hue.into_degrees() / 360.0, self.bg.saturation, self.bg.lightness, self.bg.alpha * alpha_mult);
 
         window.paint_quad(gpui::PaintQuad {
             bounds,

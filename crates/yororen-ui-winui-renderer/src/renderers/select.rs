@@ -312,6 +312,7 @@ impl SelectRenderer for WinUISelectRenderer {
                     offset: gpui::point(px(0.), px(5.)),
                     blur_radius: px(15.),
                     spread_radius: px(0.),
+                    inset: false,
                 }])
                 .occlude()
                 .on_mouse_down_out(move |_ev, _window, cx| {

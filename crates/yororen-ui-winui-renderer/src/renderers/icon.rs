@@ -25,11 +25,11 @@ impl WinUIIconRenderer {
 
     pub fn color(&self, state: &IconRenderState, theme: &Theme) -> Hsla {
         if state.has_custom_color {
-            return gpui::rgb(0x0A0A0A).into();
+            return gpui::rgb_to_hsla(gpui::rgb(0x0A0A0A));
         }
         theme
             .get_color("content.primary")
-            .unwrap_or_else(|| gpui::rgb(0x0A0A0A).into())
+            .unwrap_or_else(|| gpui::rgb_to_hsla(gpui::rgb(0x0A0A0A)))
     }
 }
 

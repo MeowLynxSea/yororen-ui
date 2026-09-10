@@ -81,7 +81,7 @@ fn winui_listbox_arrow_keys_move_highlight(cx: &mut TestAppContext) {
     // and drive the arrow keys through the real dispatch path.
     window
         .update(cx, |root, window, cx| {
-            root.state.read(cx).focus_handle().focus(window);
+            root.state.read(cx).focus_handle().focus(window, cx);
         })
         .unwrap();
 
@@ -156,7 +156,7 @@ fn winui_gridview_arrow_keys_move_highlight(cx: &mut TestAppContext) {
 
     window
         .update(cx, |root, window, cx| {
-            root.state.read(cx).focus_handle().focus(window);
+            root.state.read(cx).focus_handle().focus(window, cx);
         })
         .unwrap();
 

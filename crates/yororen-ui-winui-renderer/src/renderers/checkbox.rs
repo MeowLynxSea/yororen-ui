@@ -305,7 +305,7 @@ mod tests {
     fn custom_tone_overrides_checked_state_color() {
         let theme = fixture();
         let r = WinUICheckboxRenderer;
-        let custom = rgb(0xabcdef).into();
+        let custom = gpui::rgb_to_hsla(rgb(0xabcdef));
         let state = CheckboxRenderState {
             checked: true,
             indeterminate: false,

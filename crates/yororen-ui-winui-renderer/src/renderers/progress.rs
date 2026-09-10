@@ -263,7 +263,7 @@ impl Element for IndeterminateBarElement {
                     bounds: seg_bounds,
                     corner_radii: Corners::all(r).clamp_radii_for_quad_size(seg_bounds.size),
                     background: self.fill.into(),
-                    border_color: gpui::black().opacity(0.),
+                    border_color: gpui::hsla(0.0, 0.0, 0.0, 0.0),
                     border_widths: gpui::Edges::default(),
                     border_style: gpui::BorderStyle::default(),
                 });

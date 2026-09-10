@@ -38,7 +38,7 @@ impl ToastRenderer for WinUIToastRenderer {
         theme.get_color("border.muted").unwrap_or_default()
     }
     fn shadow_alpha(&self, _state: &ToastRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_2").unwrap_or_default().a
+        theme.get_color("shadow.elevation_2").unwrap_or_default().alpha
     }
 }
 

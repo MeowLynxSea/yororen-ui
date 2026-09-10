@@ -136,12 +136,14 @@ impl TooltipRenderer for WinUITooltipRenderer {
                 offset: gpui::Point::new(px(0.), px(8.)),
                 blur_radius: px(16.),
                 spread_radius: px(0.),
+                inset: false,
             },
             gpui::BoxShadow {
                 color: halo_shadow,
                 offset: gpui::Point::new(px(0.), px(0.)),
                 blur_radius: px(2.),
                 spread_radius: px(0.),
+                inset: false,
             },
         ];
 

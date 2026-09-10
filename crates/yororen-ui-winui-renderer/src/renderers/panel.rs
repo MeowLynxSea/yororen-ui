@@ -46,7 +46,7 @@ impl WinUIPanelRenderer {
         )
     }
     pub fn shadow_alpha(&self, _state: &PanelRenderState, theme: &Theme) -> f32 {
-        theme.get_color("shadow.elevation_2").unwrap_or_default().a
+        theme.get_color("shadow.elevation_2").unwrap_or_default().alpha
     }
     pub fn title_color(&self, _state: &PanelRenderState, theme: &Theme) -> Hsla {
         theme.get_color("content.primary").unwrap_or_default()

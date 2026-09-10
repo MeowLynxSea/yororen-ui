@@ -16,7 +16,7 @@
 //! inputs, pick items from select/combo/listbox, and click the
 //! split button.
 
-use gpui::{App, AppContext, Application, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, WindowBounds, WindowOptions, px, size};
 
 use yororen_ui::assets::UiAsset;
 use yororen_ui_winui_renderer::{install_with, winui_dark};
@@ -28,7 +28,7 @@ mod pages;
 mod keyboard_repro;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // 1. Bind the text-input keymap once (text_input /

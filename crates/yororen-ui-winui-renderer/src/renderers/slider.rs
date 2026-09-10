@@ -341,7 +341,7 @@ impl Element for SliderTrackElement {
             point(knob_x, knob_y),
             size(px(self.knob_size), px(self.knob_size)),
         );
-        window.paint_shadows(
+        window.paint_drop_shadows(
             knob_bounds,
             Corners::all(outer_radius),
             &[gpui::BoxShadow {
@@ -349,6 +349,7 @@ impl Element for SliderTrackElement {
                 offset: point(px(0.), px(1.)),
                 blur_radius: px(3.),
                 spread_radius: px(0.),
+                inset: false,
             }],
         );
         let outer_path = circle_path(knob_center, outer_radius);

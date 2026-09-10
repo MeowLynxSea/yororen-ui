@@ -5,7 +5,7 @@
 //! radius, and `overflow_hidden` so the rounded corners clip
 //! the scrolled content.
 //!
-//! The inner list is forced to `size_full().flex_grow().min_h_0()`
+//! The inner list is forced to `size_full().flex_grow(1.).min_h_0()`
 //! so it fills the parent — without this, `gpui::list` collapses
 //! to zero height when nested in a flex column.
 //!
@@ -74,7 +74,7 @@ impl VirtualListRenderer for WinUIVirtualListRenderer {
         // `gpui::list` alone collapses to zero height in a
         // flex column without an explicit size.
         let list_el = list(props.state, render_row).with_sizing_behavior(props.sizing_behavior);
-        let inner = list_el.size_full().flex_grow().min_h_0();
+        let inner = list_el.size_full().flex_grow(1.).min_h_0();
 
         // `gpui::list` handles scroll internally (its own
         // bubble-phase `on_mouse_event` consumes the delta and

@@ -160,7 +160,7 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             theme.get_color("border.focus").unwrap_or_default()
         };
         let focus_color = theme.get_color("border.focus").unwrap_or_default();
-        let selection_color = hsla(focus_color.h, focus_color.s, focus_color.l, 0.25);
+        let selection_color = hsla(focus_color.color.hue.into_degrees() / 360.0, focus_color.saturation, focus_color.lightness, 0.25);
         let font = default_font(&theme);
         drop(theme);
 

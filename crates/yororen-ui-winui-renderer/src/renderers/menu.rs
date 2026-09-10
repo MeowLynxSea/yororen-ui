@@ -62,7 +62,7 @@ impl WinUIMenuRenderer {
             .get_color("shadow.flyout")
             .or_else(|| theme.get_color("shadow.elevation_2"))
             .unwrap_or_default()
-            .a
+            .alpha
     }
     pub fn item_hover_bg(&self, _state: &MenuRenderState, theme: &Theme) -> Hsla {
         theme
@@ -202,6 +202,7 @@ impl MenuRenderer for WinUIMenuRenderer {
                 color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                 blur_radius: px(15.0),
                 spread_radius: px(0.0),
+                inset: false,
                 offset: gpui::Point {
                     x: px(0.0),
                     y: px(5.0),

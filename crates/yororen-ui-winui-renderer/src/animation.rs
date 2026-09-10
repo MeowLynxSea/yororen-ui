@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 use std::time::{Duration, Instant};
 
+use gpui::ColorExt;
 use gpui::{
     AnyElement, App, Div, Element, ElementId, Entity, Global, GlobalElementId, Hsla,
     InspectorElementId, InteractiveElement, IntoElement, LayoutId, ParentElement, Pixels, Rgba,
@@ -191,27 +192,22 @@ pub fn interaction_pressed(cx: &App, id: &ElementId) -> bool {
 /// plain HSLA lerping.
 pub(crate) fn lerp_hsla(a: Hsla, b: Hsla, t: f32) -> Hsla {
     let t = t.clamp(0.0, 1.0);
-    let a = Rgba::from(a);
-    let b = Rgba::from(b);
+    let a = gpui::hsla_to_rgba(a);
+    let b = gpui::hsla_to_rgba(b);
     // Premultiply both endpoints, lerp, then un-premultiply.
-    let r = a.r * a.a + (b.r * b.a - a.r * a.a) * t;
-    let g = a.g * a.a + (b.g * b.a - a.g * a.a) * t;
-    let bl = a.b * a.a + (b.b * b.a - a.b * a.a) * t;
-    let alpha = a.a + (b.a - a.a) * t;
+    let r = a.red * a.alpha + (b.red * b.alpha - a.red * a.alpha) * t;
+    let g = a.green * a.alpha + (b.green * b.alpha - a.green * a.alpha) * t;
+    let bl = a.blue * a.alpha + (b.blue * b.alpha - a.blue * a.alpha) * t;
+    let alpha = a.alpha + (b.alpha - a.alpha) * t;
     if alpha <= f32::EPSILON {
-        return Hsla::from(Rgba {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0,
-            a: 0.0,
-        });
+        return gpui::hsla(0.0, 0.0, 0.0, 0.0);
     }
-    Hsla::from(Rgba {
-        r: (r / alpha).clamp(0.0, 1.0),
-        g: (g / alpha).clamp(0.0, 1.0),
-        b: (bl / alpha).clamp(0.0, 1.0),
-        a: alpha,
-    })
+    gpui::rgb_to_hsla(gpui::Rgba::new(
+        (r / alpha).clamp(0.0, 1.0),
+        (g / alpha).clamp(0.0, 1.0),
+        (bl / alpha).clamp(0.0, 1.0),
+        alpha,
+    ))
 }
 
 /// Linear interpolation for pixel-ish scalars.
@@ -275,7 +271,7 @@ pub fn animated_input_border(
     // lighter than either endpoint. Pre-composite the hover onto the
     // rest background so the animation stays between two opaque,
     // monotonic colours.
-    let hover_bg = bg_rest.blend(bg_hover);
+    let hover_bg = bg_rest.blend(&bg_hover);
     // WinUI TextBox state transition: 167ms `cubic-bezier(0,0,0,1)`.
     let config = AnimationConfig::new()
         .with_duration(Duration::from_millis(167))
@@ -1214,16 +1210,16 @@ mod tests {
         // Premultiplied midpoint of transparent-black → opaque-white
         // is a half-strength white: rgb stays 1, alpha halves.
         let mid = lerp_hsla(a, b, 0.5);
-        assert!((mid.l - 1.0).abs() < 0.02);
-        assert!((mid.a - 0.5).abs() < 0.02);
+        assert!((mid.lightness - 1.0).abs() < 0.02);
+        assert!((mid.alpha - 0.5).abs() < 0.02);
         assert_eq!(lerp_hsla(a, b, 0.0), a);
         assert_eq!(lerp_hsla(a, b, 1.0), b);
         // Opaque↔opaque pairs behave like straight RGBA lerping.
         let c = hsla(0., 0., 0., 1.);
         let d = hsla(0., 0., 1., 1.);
         let mid = lerp_hsla(c, d, 0.5);
-        assert!((mid.l - 0.5).abs() < 0.01);
-        assert!((mid.a - 1.0).abs() < 0.001);
+        assert!((mid.lightness - 0.5).abs() < 0.01);
+        assert!((mid.alpha - 1.0).abs() < 0.001);
     }
 
     /// Regression test for the Expander / TreeItem hover flash:
@@ -1237,7 +1233,7 @@ mod tests {
         let base = hsla(0., 0., 0.173, 1.0); // surface.base-ish
         let fill = hsla(0., 0., 1.0, 0.06); // subtle_fill_secondary
         let backdrop = 0.12_f32; // page behind the control
-        let composite = |c: gpui::Hsla| c.a * c.l + (1.0 - c.a) * backdrop;
+        let composite = |c: gpui::Hsla| c.alpha * c.lightness + (1.0 - c.alpha) * backdrop;
 
         let rest = composite(base);
         let hovered = composite(fill);

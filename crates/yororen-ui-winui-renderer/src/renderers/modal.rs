@@ -59,7 +59,7 @@ impl WinUIModalRenderer {
         theme
             .get_color("shadow.dialog")
             .unwrap_or_else(|| gpui::hsla(0., 0., 0., 0.28))
-            .a
+            .alpha
     }
 }
 
@@ -95,6 +95,7 @@ impl ModalRenderer for WinUIModalRenderer {
                 color: gpui::hsla(0.0, 0.0, 0.0, alpha),
                 blur_radius: gpui::px(64.0),
                 spread_radius: gpui::px(0.0),
+                inset: false,
                 offset: gpui::Point {
                     x: gpui::px(0.0),
                     y: gpui::px(32.0),

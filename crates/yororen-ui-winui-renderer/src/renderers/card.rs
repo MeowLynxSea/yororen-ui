@@ -109,9 +109,10 @@ impl CardRenderer for WinUICardRenderer {
             // Hover: fill lightens AND the stroke deepens, per the
             // reference SettingsCard "clickable" state.
             el = el.hover(move |s| {
-                s.bg(hover_bg).border_color(gpui::Hsla {
-                    a: 1.0,
-                    ..hover_stroke
+                s.bg(hover_bg).border_color({
+                    let mut stroke = hover_stroke;
+                    stroke.alpha = 1.0;
+                    stroke
                 })
             });
         }
