@@ -427,7 +427,7 @@ impl Controller {
 
     toggle_selectors! {
         select_default_renderer => set_renderer(RendererKind::Default),
-        select_brutalism_renderer => set_renderer(RendererKind::Brutalism),
+        select_winui_renderer => set_renderer(RendererKind::WinUI),
         select_light_theme => set_dark_mode(DarkMode::Light),
         select_dark_theme => set_dark_mode(DarkMode::Dark),
         select_english_locale => set_locale(LocaleChoice::En),

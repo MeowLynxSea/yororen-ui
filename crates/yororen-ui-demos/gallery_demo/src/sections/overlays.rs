@@ -151,7 +151,7 @@ pub fn render(app: &mut GalleryApp, cx: &mut Context<GalleryApp>) -> impl IntoEl
     let dropdown_wrapped = cell(cx.t("demo.overlays.dropdown_trigger"), dropdown_el, cx);
 
     // --- disclosure ---
-    // The renderer (default or brutalism) draws the trigger
+    // The renderer (default or WinUI) draws the trigger
     // (chevron + title). The demo only appends the expanded
     // body as a child, eliminating the previous "double trigger"
     // artifact.

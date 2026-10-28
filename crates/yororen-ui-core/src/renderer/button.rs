@@ -1,5 +1,5 @@
 //! `ButtonRenderer` trait — the data contract that every
-//! third-party renderer (default, brutalism, …) implements to
+//! third-party renderer (default, winui, …) implements to
 //! describe a `Button`'s visual.
 //!
 //! Lives in core (not the default-renderer) so headless
@@ -13,7 +13,7 @@
 //!
 //! `ButtonRenderState` is provided as a convenience projection
 //! of `ButtonProps` for renderers that want to share helpers
-//! across the suite (e.g. token-based vs. brutalist), but it
+//! across the suite (e.g. token-based vs. WinUI), but it
 //! is not part of the trait surface.
 
 use std::any::Any;

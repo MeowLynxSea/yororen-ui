@@ -5,7 +5,7 @@
 //! (open/closed), and *how fast* it should get there. It does **not**
 //! know anything about pixels, transforms, or renderers.
 //!
-//! Renderers in `yororen-ui-default-renderer` / `yororen-ui-brutalism-renderer`
+//! Renderers in `yororen-ui-default-renderer` / `yororen-ui-winui-renderer`
 //! read this state and apply the actual visual animation.
 
 use std::time::Duration;

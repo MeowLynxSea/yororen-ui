@@ -12,7 +12,6 @@ One `.api.txt` per published crate:
 | --- | --- |
 | `yororen_ui_core.api.txt` | `yororen_ui_core` (`yororen-ui-core`) |
 | `yororen_ui_default_renderer.api.txt` | `yororen_ui_default_renderer` (`yororen-ui-default-renderer`) |
-| `yororen_ui_brutalism_renderer.api.txt` | `yororen_ui_brutalism_renderer` (`yororen-ui-brutalism-renderer`) |
 | `yororen_ui_winui_renderer.api.txt` | `yororen_ui_winui_renderer` (`yororen-ui-winui-renderer`) |
 | `yororen_ui_xml.api.txt` | `yororen_ui_xml` (`yororen-ui-xml`) |
 | `yororen_ui.api.txt` | `yororen_ui` (`yororen-ui` meta-crate) |

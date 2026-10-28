@@ -11,7 +11,7 @@ gpui-ce-platform = { package = "gpui_ce_platform", version = "0.1" }
 yororen-ui = { package = "yororen_ui", path = "../../yororen-ui", features = ["xml"] }
 yororen-ui-xml = { package = "yororen_ui_xml", path = "../../yororen-ui-xml" }
 yororen-ui-default-renderer = { package = "yororen_ui_default_renderer", path = "../../yororen-ui-default-renderer" }
-yororen-ui-brutalism-renderer = { package = "yororen_ui_brutalism_renderer", path = "../../yororen-ui-brutalism-renderer" }
+yororen-ui-winui-renderer = { package = "yororen_ui_winui_renderer", path = "../../yororen-ui-winui-renderer" }
 
 [lints]
 workspace = true

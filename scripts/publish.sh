@@ -27,7 +27,6 @@ cd "$REPO_ROOT"
 PUBLISH_ORDER=(
     yororen_ui_core
     yororen_ui_default_renderer
-    yororen_ui_brutalism_renderer
     yororen_ui_winui_renderer
     yororen_ui_locale_en
     yororen_ui_locale_zh_cn

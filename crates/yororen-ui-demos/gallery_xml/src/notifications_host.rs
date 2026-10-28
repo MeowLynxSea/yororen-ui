@@ -17,7 +17,7 @@
 //!
 //! Implementing the host here in the gallery:
 //!
-//! 1. Works with **both** renderers (default and brutalism) —
+//! 1. Works with **both** renderers (default and WinUI) —
 //!    colors are read with the path-based
 //!    `cx.theme().get_color("...")` API that both bundled
 //!    JSON themes already populate.
@@ -87,8 +87,8 @@ const CLOSE_BUTTON_SIZE: f32 = 20.0;
 
 /// How much darker / lighter the card border is compared to the
 /// card background. Used so the card has a subtle outline that
-/// reads against bright kind colors (the brutalism theme uses
-/// saturated hues that would otherwise look "flat" against the
+/// reads against bright kind colors (the WinUI theme uses
+/// accent hues that would otherwise look "flat" against the
 /// white page surface).
 const BORDER_LIGHTEN_DELTA: f32 = 0.06;
 
@@ -179,7 +179,7 @@ fn toast_card(
         ToastKind::Neutral => "status.neutral",
     };
     let theme = cx.theme();
-    // Both bundled themes (default + brutalism) populate every
+    // Both bundled themes (default + WinUI) populate every
     // `status.<kind>.bg` and `.fg` we use, so a missing key is
     // unusual. Fall back to a neutral surface tone + a default
     // text tone in that case.
@@ -199,7 +199,7 @@ fn toast_card(
         });
     // The border is a slightly darkened / lightened version of
     // the kind background, so the card has a visible edge on
-    // both pastel (default) and saturated (brutalism) palettes.
+    // both pastel (default) and accent (WinUI) palettes.
     let kind_border = adjust_lightness(kind_bg, BORDER_LIGHTEN_DELTA);
 
     // Close button. The `center` is cloned (an `Arc<Mutex<…>>`

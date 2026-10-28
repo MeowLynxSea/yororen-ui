@@ -12,7 +12,6 @@ members = [
     "crates/yororen-ui",
     "crates/yororen-ui-core",
     "crates/yororen-ui-default-renderer",
-    "crates/yororen-ui-brutalism-renderer",
     "crates/yororen-ui-winui-renderer",
     "crates/yororen-ui-xml",
     "crates/yororen-ui-xml-macro",

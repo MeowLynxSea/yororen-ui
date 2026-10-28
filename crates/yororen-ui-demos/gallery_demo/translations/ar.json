@@ -2,7 +2,6 @@
   "demo": {
     "title": "معرض yororen-ui",
     "renderer_default": "افتراضي",
-    "renderer_brutalism": "بريوتالزم",
     "renderer_winui": "وينUI",
     "theme_light": "فاتح",
     "theme_dark": "داكن",

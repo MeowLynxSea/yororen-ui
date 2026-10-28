@@ -2,7 +2,6 @@
   "demo": {
     "title": "yororen-ui gallery",
     "renderer_default": "Default",
-    "renderer_brutalism": "Brutalism",
     "renderer_winui": "WinUI",
     "theme_light": "Light",
     "theme_dark": "Dark",

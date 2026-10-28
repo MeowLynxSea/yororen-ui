@@ -10,7 +10,6 @@ repository.workspace = true
 [dependencies]
 yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.3" }
 yororen-ui-default-renderer = { package = "yororen_ui_default_renderer", path = "../yororen-ui-default-renderer", version = "0.3" }
-yororen-ui-brutalism-renderer = { package = "yororen_ui_brutalism_renderer", path = "../yororen-ui-brutalism-renderer", version = "0.3", optional = true }
 yororen-ui-winui-renderer = { package = "yororen_ui_winui_renderer", path = "../yororen-ui-winui-renderer", version = "0.3", optional = true }
 yororen-ui-locale-en = { package = "yororen_ui_locale_en", path = "../yororen-ui-locale-en", version = "0.3" }
 yororen-ui-locale-zh-cn = { package = "yororen_ui_locale_zh_cn", path = "../yororen-ui-locale-zh-CN", version = "0.3" }
@@ -22,7 +21,6 @@ serde_json = "1"
 
 [features]
 default = ["xml"]
-brutalism = ["dep:yororen-ui-brutalism-renderer"]
 winui = ["dep:yororen-ui-winui-renderer"]
 xml = ["dep:yororen-ui-xml", "dep:yororen-ui-xml-macro"]
 

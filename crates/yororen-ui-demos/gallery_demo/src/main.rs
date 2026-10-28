@@ -1,6 +1,6 @@
 //! yororen-ui Gallery Demo — a one-stop demo that exercises every
 //! component shipped by `yororen-ui` and lets the user hot-swap
-//! between the default and the brutalism renderer at runtime.
+//! between the default and the WinUI renderer at runtime.
 //!
 //! ## Boot sequence
 //!

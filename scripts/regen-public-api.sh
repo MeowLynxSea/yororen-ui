@@ -31,7 +31,6 @@ declare -A pkg_to_baseline=(
     [yororen_ui_core]="upstream/yororen_ui_core.api.txt"
     [yororen_ui]="upstream/yororen_ui.api.txt"
     [yororen_ui_default_renderer]="upstream/yororen_ui_default_renderer.api.txt"
-    [yororen_ui_brutalism_renderer]="upstream/yororen_ui_brutalism_renderer.api.txt"
     [yororen_ui_winui_renderer]="upstream/yororen_ui_winui_renderer.api.txt"
     [yororen_ui_xml]="upstream/yororen_ui_xml.api.txt"
 )

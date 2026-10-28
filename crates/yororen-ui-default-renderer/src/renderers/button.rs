@@ -89,13 +89,12 @@ impl TokenButtonRenderer {
     }
 
     /// The default renderer does not draw a border (v0.3 / v0.4
-    /// behaviour). The brutalism renderer overrides this.
+    /// behaviour). The WinUI renderer overrides this.
     pub fn border(&self, _state: &ButtonRenderState, _theme: &Theme) -> Option<BorderSpec> {
         None
     }
 
-    /// The default renderer does not draw a shadow. The
-    /// brutalism renderer returns a 4px Y-offset hard shadow.
+    /// The default renderer does not draw a shadow.
     pub fn shadow(&self, _state: &ButtonRenderState, _theme: &Theme) -> Option<ShadowSpec> {
         None
     }

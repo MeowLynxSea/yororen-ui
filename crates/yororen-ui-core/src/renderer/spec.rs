@@ -82,7 +82,7 @@ impl BorderSpec {
 /// Shadow spec. Stored as a small inline representation; a
 /// theme package can layer this on top of the GPUI `BoxShadow`
 /// builder at render time. The current spec only carries a
-/// single Y offset (not X) — a brutalist renderer can still
+/// single Y offset (not X) — a custom renderer can still
 /// produce a "downward-only" drop shadow this way.
 #[derive(Clone, Copy, Debug)]
 pub struct ShadowSpec {

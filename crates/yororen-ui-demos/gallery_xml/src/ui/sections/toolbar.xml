@@ -10,10 +10,10 @@
                       selected={controller.current_renderer(cx) == crate::state::RendererKind::Default}
                       variant="primary"
                       on_toggle={controller.select_default_renderer} />
-        <ToggleButton id="renderer-brutalism" caption={t!(cx, "demo.renderer_brutalism")}
-                      selected={controller.current_renderer(cx) == crate::state::RendererKind::Brutalism}
+        <ToggleButton id="renderer-winui" caption={t!(cx, "demo.renderer_winui")}
+                      selected={controller.current_renderer(cx) == crate::state::RendererKind::WinUI}
                       variant="primary"
-                      on_toggle={controller.select_brutalism_renderer} />
+                      on_toggle={controller.select_winui_renderer} />
 
         <ToggleButton id="dark-light" caption={t!(cx, "demo.theme_light")}
                       selected={controller.dark_mode(cx) == crate::state::DarkMode::Light}

@@ -205,7 +205,7 @@ impl TreeItemProps {
 }
 
 /// Re-export the helper used by the renderer's double-click
-/// tracker so both default and brutalism renderers can use the
+/// tracker so both default and winui renderers can use the
 /// same threshold without duplicating the constant.
 pub use DOUBLE_CLICK_THRESHOLD as double_click_threshold;
 

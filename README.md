@@ -18,10 +18,10 @@ theme JSON  ─▶  renderer (XxxRenderer)  ─▶  headless (XxxProps)  ─▶ 
 ```
 
 - **Headless** ([`yororen-ui-core`](https://crates.io/crates/yororen-ui-core)) — data, state, a11y, i18n, RTL, animation, assets. No visual decisions.
-- **Renderer** ([`yororen-ui-default-renderer`](https://crates.io/crates/yororen-ui-default-renderer) · [`yororen-ui-brutalism-renderer`](https://crates.io/crates/yororen-ui-brutalism-renderer)) — turns props into a styled div. 58 trait slots, filled with `Token*` or `Brutal*` impls. Swap the renderer, change the entire look.
+- **Renderer** ([`yororen-ui-default-renderer`](https://crates.io/crates/yororen-ui-default-renderer) · [`yororen-ui-winui-renderer`](https://crates.io/crates/yororen-ui-winui-renderer)) — turns props into a styled div. 58 trait slots, filled with `Token*` or `WinUI*` impls. Swap the renderer, change the entire look.
 - **Theme** — a JSON file. The renderer reads paths like `action.primary.bg`; missing paths fall back to renderer defaults.
 
-The meta-crate [`yororen-ui`](https://crates.io/crates/yororen-ui) re-exports core + the default renderer + three bundled locales, so most apps need a single dependency. Add the `brutalism` or `xml` feature to opt into the alternative renderer or the XML DSL.
+The meta-crate [`yororen-ui`](https://crates.io/crates/yororen-ui) re-exports core + the default renderer + three bundled locales, so most apps need a single dependency. Add the `winui` or `xml` feature to opt into the alternative renderer or the XML DSL.
 
 ---
 
@@ -38,7 +38,7 @@ The meta-crate [`yororen-ui`](https://crates.io/crates/yororen-ui) re-exports co
   </tr>
   <tr>
     <td><strong>Three-layer architecture</strong></td>
-    <td>Headless primitives + JSON themes + swappable visual renderers (default + brutalism)</td>
+    <td>Headless primitives + JSON themes + swappable visual renderers (default + winui)</td>
   </tr>
   <tr>
     <td><strong>JSON themes</strong></td>
@@ -124,12 +124,12 @@ Every headless factory exposes both `.apply(div)` (a11y only) and `.render(cx)` 
 <details>
 <summary><strong>Swap renderers or themes (optional)</strong></summary>
 
-### Brutalism renderer
+### WinUI renderer
 
 ```rust
-use yororen_ui::brutalism_renderer;
+use yororen_ui::winui_renderer;
 
-brutalism_renderer::install(cx);   // sharp corners, hard shadows, monospace
+winui_renderer::install_with(cx, winui_renderer::themes::winui_light());
 ```
 
 ### Custom JSON theme
@@ -283,8 +283,8 @@ cargo run -p showcase-xml-demo
     <td>58 <code>TokenXxxRenderer</code> impls + bundled <code>system-light.json</code> / <code>system-dark.json</code> themes + <code>renderer::install</code> bootstrap</td>
   </tr>
   <tr>
-    <td><code>yororen-ui-brutalism-renderer</code><br><sub><em>(optional, feature <code>brutalism</code>)</em></sub></td>
-    <td>Sharp corners, thick black borders, hard offset shadows, monospace typography</td>
+    <td><code>yororen-ui-winui-renderer</code><br><sub><em>(optional, feature <code>winui</code>)</em></sub></td>
+    <td>WinUI-style palette, compact controls, accent focus rings, subtle borders</td>
   </tr>
   <tr>
     <td><code>yororen-ui-xml</code> + <code>yororen-ui-xml-macro</code><br><sub><em>(optional, feature <code>xml</code>, default-on)</em></sub></td>
@@ -310,7 +310,7 @@ theme JSON  ─▶  renderer (XxxRenderer)  ─▶  headless (XxxProps)  ─▶ 
 - **Renderer** — a per-component trait that reads the theme and produces visual divs.
 - **Theme** — a single `serde_json::Value` you can swap at runtime.
 
-The 58 component markers (<code>yororen-ui-core::renderer::markers</code>) are the keys into the global <code>RendererRegistry</code>. The default and brutalism renderers each implement all 58 trait slots.
+The 58 component markers (<code>yororen-ui-core::renderer::markers</code>) are the keys into the global <code>RendererRegistry</code>. The default and WinUI renderers each implement all 58 trait slots.
 
 A custom renderer only needs to implement the 58 <code>XxxRenderer</code> traits &mdash; it doesn't touch the headless layer.
 
@@ -337,7 +337,7 @@ To enable specific features:
 
 ```toml
 [dependencies]
-yororen_ui = { version = "0.3", default-features = false, features = ["xml", "brutalism"] }
+yororen_ui = { version = "0.3", default-features = false, features = ["xml", "winui"] }
 ```
 
 </details>

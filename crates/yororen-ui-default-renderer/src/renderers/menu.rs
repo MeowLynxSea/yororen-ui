@@ -43,7 +43,7 @@ impl TokenMenuRenderer {
         // can become 1-character-wide if any item happens to be
         // shorter in the layout context the dropdown panel
         // inherits. 180 px is the conventional menu width and
-        // matches the brutalism renderer.
+        // matches the WinUI renderer.
         px(theme
             .get_number("tokens.control.menu.min_width")
             .unwrap_or(180.0) as f32)
