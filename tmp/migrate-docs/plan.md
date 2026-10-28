@@ -59,6 +59,7 @@ rust-version = "1.95"，所有成员继承，独立 fuzz 工作区单独声明�
 | --- | --- | --- |
 | 所有 crate / 类型身份 | 历史 0.3.x 与重新发布线不兼容，不能混用 | 统一 workspace 依赖；无锁解析后检查 gpui 单一版本及所有 registry 元数据 |
 | 应用初始化 | Application::new() → gpui_ce_platform::application() | 平台归档 src/gpui_platform.rs:64；基线 demos 已迁移，README 仍旧 |
+| macOS 原生启动（运行确认） | 不在 0.3.0 的启动回调中同步创建窗口 | gpui_ce_macos/src/platform.rs:1282 的 did_finish_launching 在锁内调用回调，与 open_window:776 重入同一 Mutex；使用 App::spawn + AsyncApp::update 调度初始化，返回原生启动回调后才创建窗口；九个 demo 已原生验证 |
 | AppContext | notify、emit、global entity 操作由 inherent 方法移入 AppContext；借用接口调整 | src/gpui.rs:258、src/app/context.rs；显式导入 trait / prelude；发布版仍为 AppContext，不猜测 main 的分域 trait |
 | 焦点 | FocusHandle::focus(window) → focus(window, cx)；Window::focus/focus_next/focus_prev/blur 同样需要 App | src/window.rs:701、3119、3166、3180；基线大多已吸收，blink 测试补 window.blur(cx) |
 | 自绘 Element | request_layout/prepaint/paint 增加 inspector 参数；命中测试 boolean → HitboxBehavior | src/element.rs、src/window.rs:6965；基线已部分吸收，核查全部自绘控件 |
@@ -140,6 +141,9 @@ div.rs 中仍使用 hover/active，并无对应弃用标记。迁移不能盲从
 
 未引入依赖 workaround。调研用下载源码只在 tmp/migrate-docs/research，
 不参与 Cargo 构建；无 patch、replace、git 或私有 registry 依赖。
+运行阶段发现 macOS 启动回调锁重入，按正常前台任务生命周期调整 demo 和
+接入示例的初始化顺序；这是保留在 0.3.0 接入方式中的明确兼容适配，详见
+summary.md。没有修改 registry 缓存或隐藏下游所需的启动步骤。
 分阶段提交时暂时跳过会提前触发全库编译的本地 pre-commit hook，最终已用
 scripts/regen-public-api.sh --all 显式重建全部公开 API 基线。没有修改 hook
 配置或提交豁免配置。独立下游检查只对尚未发布的 Yororen 源码使用本地路径，

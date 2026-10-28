@@ -1,8 +1,8 @@
 {
   "date": "2026-10-28",
   "branch": "codex/migrate-gpui-ce-0.3",
-  "validated_source_commit": "3ad67e59129d0e892db9a8e947cb2cc7daeb22eb",
-  "note": "Code and manifests at this commit; only migration reports/API snapshots remained to commit. Exit codes observed from completed commands.",
+  "validated_source_commit": "b88ad62b92d3a0b750347ea523e2f4cc955bdf24",
+  "note": "Final nine-demo startup fix, bilingual startup examples and consumer script are committed; validation reports follow. Library API unchanged from the recorded complete public-API generation.",
   "lock_sha256": "a3ae7799d2fb28d58a8a65b0a34de4c6c8662d919e5062f5495a7a6f42600e2f",
   "checks": [
     {
@@ -58,6 +58,12 @@
       "exit_code": 0,
       "log": "registry-audit.log",
       "log_sha256": "f3d1eba5dee251207eb5aaef0993a94e8ab8095d4dd2443b7c86fbb256f84bd5"
+    },
+    {
+      "command": "python3 tmp/migrate-docs/check_native_startup.py",
+      "exit_code": 0,
+      "log": "native-startup.log",
+      "log_sha256": "9b44792d520dab889e7fcf9f104aa657f7937242f50bf05b85b68923416a00d6"
     }
   ],
   "test_results": {
@@ -69,6 +75,8 @@
   "registry_package_versions": 778,
   "all_registry_checks_passed": true,
   "wiki_diff_empty": true,
-  "manual_native_gui": "unavailable: host Mac locked; automated GPUI demo window tests passed",
-  "external_publication": false
+  "manual_native_gui": "All nine actual debug executables launched, onscreen windows verified by PID, native screenshots visually inspected; user confirmed counter appeared. OS IME and cross-platform runtime remain unverified.",
+  "external_publication": false,
+  "native_startup_report": "native-startup/report.json",
+  "native_demo_windows_passed": 9
 }

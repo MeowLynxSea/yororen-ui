@@ -37,6 +37,7 @@ GPUI 生态依赖使用正常 registry 解析。它们是 2026 年 10 月的新�
 | XML | yororen_ui_xml → yororen_ui_xml_macro | 按依赖顺序 check；parser/codegen、宏、tests/benches、独立 fuzz 目标均覆盖 |
 | facade | yororen_ui | 最后检查门面、默认 XML 和可选 WinUI 集成；公开 re-export 保留 |
 | demos | 全部九个 | 逐包 check 后全量 build/test/clippy；gallery 和 WinUI showcase 更新 Deferred 优先级 |
+| 原生启动修正 | 全部九个及中英 README | App::spawn 在启动回调返回后初始化窗口；open_window 错误明确报出；创建后 activate(true)；真实 macOS 进程、屏幕窗口和截图逐个核验 |
 
 所有实际调用的替代接口均先检查 crates.io 发布归档源码。特别区分主分支
 CHANGELOG 与发布归档：未把主分支的 hover_style 等未发布重命名套到 0.3.0。
@@ -47,6 +48,52 @@ CHANGELOG 与发布归档：未把主分支的 hover_style 等未发布重命名
 App 跳过键盘绑定。改为目标版本真实支持的 `App::has_global/set_global`，
 保证每个 App 注册一次。函数签名和调用方式保持不变。
 既有 blink 测试同步改为 `window.blur(cx)`。
+
+## macOS 原生启动死锁与修正
+
+用户运行 demo 未见窗口后，直接运行 counter 复现：进程存在但首个窗口未创建。
+`counter-sample.txt` 的线程采样显示主线程停在
+`MacPlatform::open_window → Mutex::lock → parking_lot`，调用链来自
+`did_finish_launching → Application::run callback → App::open_window`。
+这条路径不在先前的 GPUI mock 测试窗口覆盖范围内。
+
+目标发布归档 `gpui_ce_macos 0.3.0/src/platform.rs:1282`：
+
+```rust
+if let Some(callback) = platform.0.lock().finish_launching.take() {
+    callback();
+}
+```
+
+锁守卫在 if-let 主体结束前仍然存活；同文件 `open_window:776` 再次请求
+`self.0.lock()`，发生同线程非重入锁死锁。不是构建产物缺失或隐藏窗口。
+未修改任何 registry 缓存、上游源码、依赖来源或锁文件。
+
+九个 demo 及下游接入示例统一采用目标版真实存在的前台任务 API：
+
+```rust
+app.run(|cx: &mut gpui::App| {
+    cx.spawn(async |cx| cx.update(open_demo)).detach();
+});
+```
+
+`open_demo` 是普通私有函数，包含原来的主题/locale/state/窗口初始化。
+`App::spawn` 位于 gpui/src/app.rs:2871，`AsyncApp::update` 位于
+gpui/src/app/async_context.rs:257，返回值直接为 R。任务在主线程后续调度时执行，
+届时启动回调已经返回并释放平台锁；不能简单替换成同一 update 周期内的 defer。
+窗口结果改为 expect，避免静默吞掉创建失败，随后按上游 examples 调用
+`cx.activate(true)`。Yororen 库自身公开 API 不受影响。
+
+这是该 registry 版本下公开、必要的启动顺序适配，README 明确告知下游，
+不把它留作隐蔽临时代码。上游同步启动回调的锁生命周期缺陷本身仍在发布版中；
+未来升级上游时应重新核对，再决定是否恢复同步初始化。
+
+2026-10-28 18 点后的原生检查逐个启动全部九个最终 Debug 二进制，
+通过 CoreGraphics 确认属于各自 PID 的 onscreen 普通窗口，并保存窗口截图。
+九张截图均检查过，首帧含实际控件、文字、图标和主题；用户也确认 counter
+窗口已经出现。证据见 [native-startup/report.json](native-startup/report.json)。
+检查脚本 [check_native_startup.py](check_native_startup.py) 可复跑；它只关闭
+自己启动的测试进程。
 
 ## 公开 API 变化清单
 
@@ -99,6 +146,7 @@ facade、XML 快照不变。renderer 的旧快照包含此前版本迁移尚未�
 | crates.io 来源、yank、校验和 | 778 个外部锁定版本，全为 crates.io，无 yank/校验和错误；18 个本地 workspace 成员 | registry-audit.json |
 | 无锁 workspace | 临时复制 manifests/源码，不携带锁文件，正常解析；外部版本集合与已审计根锁完全一致 | downstream-check.json / downstream-check.log |
 | 独立下游示例 | 无旧 lock、无 patch，默认 XML + WinUI 编译通过；仅有 gpui-ce 0.3.0 | downstream-check.json |
+| 全部九个原生 demo | 修正启动顺序后，实际运行、onscreen 窗口检测、首帧截图检查通过 | native-startup/report.json / native-startup.log |
 | 九个发布包 | 指定九个可发布包的 cargo package 成功；归一化 manifests 无 path/git/patch，内部版本均 0.4 | package-publishable.log / package-check.json |
 | 公开 API 基线 | 全部五份生成成功，逐项差异已说明 | public-api-review.json / public-api.log |
 
@@ -137,11 +185,11 @@ core 的几何测试另覆盖空文本、ASCII、中文/emoji 字节边界和 UT
 既有输入、选区、光标闪烁及 XML 测试均通过。测试 debug selector 仅在 cfg(test)
 中加入，不改变发行版 demo 布局。
 
-宿主 Mac 锁屏，Computer Use 返回无法自动解锁，不能完成原生 demo 窗口
-的人工视觉抽查。这些 GPUI 自动化窗口测试不等同于真实屏幕、GPU、系统
-IME 候选窗和剪贴板端到端验证；Linux/Windows 原生运行也未在本机验证。
-建议发布前在可交互桌面补查单/多行输入法、RTL 混排、图标与阴影、弹层遮挡，
-并在目标平台执行构建。不得将这些剩余项写成已通过。
+首次迁移验收期间宿主 Mac 锁屏，尚不能人工视觉抽查。后续用户反馈启动问题，
+在桌面可用后定位并修正上述原生启动死锁，已补齐九个原生窗口与首帧截图检查。
+这仍不等同于真实系统 IME 候选窗、剪贴板、复杂 RTL 混排和所有浮层的完整
+端到端验证；Linux/Windows 原生运行也未在本机验证。建议发布前补查这些交互
+并在目标平台执行构建，不得把剩余项写成已通过。
 
 public-api 使用现有 nightly 工具生成，出现既有文档 `ignore` 代码块中
 省略号的 rustdoc 警告；生成成功，稳定工具链上的三条验收命令通过。
@@ -155,5 +203,6 @@ facade；仓库既有 `scripts/publish.sh` 已采用这一拓扑。需等各版�
 操作未在本轮执行。九个 demo 保持 publish=false，不上传。
 
 分阶段提交包括依赖/工具链/计划、core、default renderer、WinUI renderer、
-demos、输入初始化与交互测试、0.4 发布准备，以及最终 API 基线/迁移总结。
-本轮没有遗留临时 workaround。
+demos、输入初始化与交互测试、0.4 发布准备、API 基线/迁移总结，以及用户
+反馈后的九个 demo 原生启动顺序修正和真实窗口检查。本轮没有遗留临时依赖
+workaround；0.3.0 的必要启动适配与上游剩余缺陷已在本文明确说明。

@@ -1,0 +1,241 @@
+{
+  "checked_at": "2026-10-28T10:11:46.470932+00:00",
+  "platform": "macOS",
+  "demos": [
+    {
+      "demo": "counter-demo",
+      "pid": 57223,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 332,
+          "Width": 400,
+          "X": 520,
+          "Y": 315
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115590,
+        "kCGWindowOwnerName": "counter-demo",
+        "kCGWindowOwnerPID": 57223,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:05:59.362535+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/counter-demo.png",
+      "log": "tmp/migrate-docs/native-startup/counter-demo.log"
+    },
+    {
+      "demo": "showcase-xml-demo",
+      "pid": 57257,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 648,
+          "Width": 714,
+          "X": 363,
+          "Y": 157
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115622,
+        "kCGWindowOwnerName": "showcase-xml-demo",
+        "kCGWindowOwnerPID": 57257,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:02.258533+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/showcase-xml-demo.png",
+      "log": "tmp/migrate-docs/native-startup/showcase-xml-demo.log"
+    },
+    {
+      "demo": "gallery-demo",
+      "pid": 57287,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 868,
+          "Width": 1276,
+          "X": 82,
+          "Y": 31
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115627,
+        "kCGWindowOwnerName": "gallery-demo",
+        "kCGWindowOwnerPID": 57287,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:00.695318+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/gallery-demo.png",
+      "log": "tmp/migrate-docs/native-startup/gallery-demo.log"
+    },
+    {
+      "demo": "gallery-xml-demo",
+      "pid": 57304,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 872,
+          "Width": 1282,
+          "X": 79,
+          "Y": 29
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115661,
+        "kCGWindowOwnerName": "gallery-xml-demo",
+        "kCGWindowOwnerPID": 57304,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:00.808962+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/gallery-xml-demo.png",
+      "log": "tmp/migrate-docs/native-startup/gallery-xml-demo.log"
+    },
+    {
+      "demo": "inputs-demo",
+      "pid": 57380,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 870,
+          "Width": 900,
+          "X": 270,
+          "Y": 30
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115668,
+        "kCGWindowOwnerName": "inputs-demo",
+        "kCGWindowOwnerPID": 57380,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:00.216456+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/inputs-demo.png",
+      "log": "tmp/migrate-docs/native-startup/inputs-demo.log"
+    },
+    {
+      "demo": "layers-demo",
+      "pid": 57429,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 630,
+          "Width": 796,
+          "X": 322,
+          "Y": 166
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115674,
+        "kCGWindowOwnerName": "layers-demo",
+        "kCGWindowOwnerPID": 57429,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:05:58.895229+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/layers-demo.png",
+      "log": "tmp/migrate-docs/native-startup/layers-demo.log"
+    },
+    {
+      "demo": "theme-showcase-demo",
+      "pid": 57476,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 534,
+          "Width": 702,
+          "X": 369,
+          "Y": 214
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115679,
+        "kCGWindowOwnerName": "theme-showcase-demo",
+        "kCGWindowOwnerPID": 57476,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:00.568049+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/theme-showcase-demo.png",
+      "log": "tmp/migrate-docs/native-startup/theme-showcase-demo.log"
+    },
+    {
+      "demo": "variant-showcase-demo",
+      "pid": 57506,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 452,
+          "Width": 702,
+          "X": 369,
+          "Y": 255
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115685,
+        "kCGWindowOwnerName": "variant-showcase-demo",
+        "kCGWindowOwnerPID": 57506,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:00.022678+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/variant-showcase-demo.png",
+      "log": "tmp/migrate-docs/native-startup/variant-showcase-demo.log"
+    },
+    {
+      "demo": "winui-showcase",
+      "pid": 57525,
+      "onscreen": true,
+      "window": {
+        "kCGWindowAlpha": 1,
+        "kCGWindowBounds": {
+          "Height": 788,
+          "Width": 1116,
+          "X": 162,
+          "Y": 87
+        },
+        "kCGWindowIsOnscreen": true,
+        "kCGWindowLayer": 0,
+        "kCGWindowMemoryUsage": 2368,
+        "kCGWindowName": "",
+        "kCGWindowNumber": 115690,
+        "kCGWindowOwnerName": "winui-showcase",
+        "kCGWindowOwnerPID": 57525,
+        "kCGWindowSharingState": 1,
+        "kCGWindowStoreType": 1
+      },
+      "binary_mtime": "2026-10-28T10:06:00.805578+00:00",
+      "screenshot": "tmp/migrate-docs/native-startup/winui-showcase.png",
+      "log": "tmp/migrate-docs/native-startup/winui-showcase.log"
+    }
+  ],
+  "note": "Real process and onscreen native-window checks plus screenshots; not an interaction or IME test."
+}
