@@ -14,10 +14,11 @@ use std::ops::Range;
 use gpui::{
     App, Bounds, Element, ElementId, ElementInputHandler, FocusHandle, GlobalElementId, Hsla,
     IntoElement, LayoutId, PaintQuad, Pixels, ShapedLine, SharedString, Style, TextRun, Window,
-    fill, point, px, relative, size,
+    point, px, relative, size,
 };
 
 use crate::headless::text_input::TextInputState;
+use crate::headless::text_input_core::line_caret_x;
 
 /// The inner multi-line painter. Embedded by `headless::TextAreaProps::render`.
 pub struct TextAreaElement {
@@ -154,7 +155,7 @@ impl Element for TextAreaElement {
             let shaped_line =
                 window
                     .text_system()
-                    .shape_line(line_str.clone().into(), font_size, &[run], None);
+                    .shape_line(line_str.clone().into(), font_size, &[run]);
             shaped.push(shaped_line);
         }
 
@@ -181,7 +182,7 @@ impl Element for TextAreaElement {
         let caret_col = caret.saturating_sub(line_byte_ranges[caret_row].start);
 
         let line_height_px = window.line_height();
-        let caret_x_line = shaped[caret_row].x_for_index(caret_col);
+        let caret_x_line = line_caret_x(&shaped[caret_row], caret_col);
         let cursor_thickness = px(2.0);
         let max_cursor_x = (bounds.size.width - cursor_thickness).max(Pixels::ZERO);
         let max_line_width = shaped
@@ -239,17 +240,15 @@ impl Element for TextAreaElement {
                 if sel_start < sel_end {
                     let col_start = sel_start - range.start;
                     let col_end = sel_end - range.start;
-                    let start_x = line.x_for_index(col_start);
-                    let end_x = line.x_for_index(col_end);
+                    let start_x = line_caret_x(line, col_start);
+                    let end_x = line_caret_x(line, col_end);
                     let y_top = bounds.top() + (i as f32) * line_height_px;
                     let y_bottom = y_top + line_height_px;
-                    let quad = fill(
-                        Bounds::from_corners(
-                            point(bounds.left() + start_x.min(end_x) - scroll_x, y_top),
-                            point(bounds.left() + start_x.max(end_x) - scroll_x, y_bottom),
-                        ),
-                        self.selection_color,
-                    );
+                    let quad = PaintQuad::new(Bounds::from_corners(
+                        point(bounds.left() + start_x.min(end_x) - scroll_x, y_top),
+                        point(bounds.left() + start_x.max(end_x) - scroll_x, y_bottom),
+                    ))
+                    .background(self.selection_color);
                     selection_quads.push(quad);
                 }
             }
@@ -259,13 +258,13 @@ impl Element for TextAreaElement {
             let y_top = bounds.top() + (caret_row as f32) * line_height_px;
             let y_bottom = y_top + line_height_px;
             let cursor_paint_x = bounds.left() + caret_x_line - scroll_x;
-            Some(fill(
-                Bounds::new(
+            Some(
+                PaintQuad::new(Bounds::new(
                     point(cursor_paint_x, y_top),
                     size(cursor_thickness, y_bottom - y_top),
-                ),
-                self.cursor_color,
-            ))
+                ))
+                .background(self.cursor_color),
+            )
         } else {
             None
         };

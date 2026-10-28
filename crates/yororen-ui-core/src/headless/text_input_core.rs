@@ -38,7 +38,26 @@
 
 use std::ops::Range;
 
-use gpui::{App, Bounds, FocusHandle, Pixels, Point, ShapedLine, UTF16Selection, Window, point};
+use gpui::{
+    App, Bounds, CaretPosition, FocusHandle, Pixels, Point, ShapedLine, UTF16Selection, Window,
+    point,
+};
+
+// Keep the public ShapedLine caches while querying Parley's cluster-aware geometry.
+pub(crate) fn line_caret_x(line: &ShapedLine, index: usize) -> Pixels {
+    line.platform_layout
+        .caret_bounds(
+            CaretPosition::attached_to_next_cluster(index.min(line.len())),
+            line.font_size,
+        )
+        .map_or(Pixels::ZERO, |bounds| bounds.left())
+}
+
+pub(crate) fn line_index_for_x(line: &ShapedLine, x: Pixels) -> usize {
+    line.platform_layout
+        .byte_index_from_pixel_point(point(x, line.font_size / 2.), line.font_size)
+        .unwrap_or_else(|index| index)
+}
 
 /// The shared text-input state machine. Composed into
 /// `TextInputState` and `ComboBoxState`. Not a `Component` /
@@ -418,8 +437,8 @@ impl TextInputCore {
                     any = true;
                     let col_start = sel_start - line_range.start;
                     let col_end = sel_end - line_range.start;
-                    let start_x = line.x_for_index(col_start);
-                    let end_x = line.x_for_index(col_end);
+                    let start_x = line_caret_x(line, col_start);
+                    let end_x = line_caret_x(line, col_end);
                     let y_top = Pixels::from(f32::from(line_height) * (i as f32));
                     let y_bottom = y_top + line_height;
                     min_x = min_x.min(start_x.min(end_x));
@@ -445,15 +464,15 @@ impl TextInputCore {
 
         let line = self.last_layout.as_ref()?;
         let range_bytes = Self::range_from_utf16(value, &range_utf16);
-        let start_x = line.x_for_index(range_bytes.start);
-        let end_x = line.x_for_index(range_bytes.end);
+        let start_x = line_caret_x(line, range_bytes.start);
+        let end_x = line_caret_x(line, range_bytes.end);
         Some(Bounds::from_corners(
             point(
-                element_bounds.left() + start_x - self.scroll_x,
+                element_bounds.left() + start_x.min(end_x) - self.scroll_x,
                 element_bounds.top(),
             ),
             point(
-                element_bounds.left() + end_x - self.scroll_x,
+                element_bounds.left() + start_x.max(end_x) - self.scroll_x,
                 element_bounds.bottom(),
             ),
         ))
@@ -481,18 +500,14 @@ impl TextInputCore {
                 .max(0)
                 .min((row_count - 1) as i64) as usize;
             let line = &self.last_line_layouts[row];
-            let col_bytes = line
-                .index_for_x(local.x + self.scroll_x)
-                .unwrap_or(line.len());
+            let col_bytes = line_index_for_x(line, local.x + self.scroll_x);
             let row_start = self.last_line_byte_ranges[row].start;
             let byte_in_value = row_start + col_bytes;
             return Some(Self::offset_to_utf16(value, byte_in_value));
         }
 
         let line = self.last_layout.as_ref()?;
-        let utf8_index = line
-            .index_for_x(local.x + self.scroll_x)
-            .unwrap_or(line.len());
+        let utf8_index = line_index_for_x(line, local.x + self.scroll_x);
         Some(Self::offset_to_utf16(value, utf8_index))
     }
 

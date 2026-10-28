@@ -14,7 +14,7 @@ use gpui::{
     App, Bounds, Div, Element, ElementId, ElementInputHandler, EntityInputHandler, FocusHandle,
     GlobalElementId, Hsla, InteractiveElement, IntoElement, LayoutId, MouseButton, MouseDownEvent,
     MouseMoveEvent, MouseUpEvent, PaintQuad, Pixels, ShapedLine, SharedString, Stateful, Style,
-    TextRun, Window, fill, hsla, point, px, relative, size,
+    TextRun, Window, hsla, point, px, relative, size,
 };
 
 use crate::action_handler;
@@ -22,6 +22,7 @@ use crate::headless::text_input::{
     Backspace, Copy, Cut, Delete, End, Enter, Escape, Home, Left, Paste, Right, SelectAll,
     SelectLeft, SelectRight, ShowCharacterPalette, TextInputActionHandler, TextInputState,
 };
+use crate::headless::text_input_core::line_caret_x;
 
 use std::ops::Range;
 
@@ -248,9 +249,9 @@ impl<T: TextInputPainterHost + EntityInputHandler> Element for TextInputElement<
         };
         let line = window
             .text_system()
-            .shape_line(display_text.clone(), font_size, &[run], None);
+            .shape_line(display_text.clone(), font_size, &[run]);
 
-        let caret_x_line = line.x_for_index(caret_disp);
+        let caret_x_line = line_caret_x(&line, caret_disp);
         let cursor_thickness = px(2.0);
         let max_cursor_x = (bounds.size.width - cursor_thickness).max(Pixels::ZERO);
         let max_scroll_x = (line.width - max_cursor_x).max(Pixels::ZERO);
@@ -263,28 +264,24 @@ impl<T: TextInputPainterHost + EntityInputHandler> Element for TextInputElement<
         scroll_x = scroll_x.clamp(Pixels::ZERO, max_scroll_x);
 
         let (selection_quad, cursor_quad) = if !selection_disp.is_empty() && !is_empty {
-            let start_x = line.x_for_index(selection_disp.start);
-            let end_x = line.x_for_index(selection_disp.end);
-            let quad = fill(
-                Bounds::from_corners(
-                    point(bounds.left() + start_x.min(end_x) - scroll_x, bounds.top()),
-                    point(
-                        bounds.left() + start_x.max(end_x) - scroll_x,
-                        bounds.bottom(),
-                    ),
+            let start_x = line_caret_x(&line, selection_disp.start);
+            let end_x = line_caret_x(&line, selection_disp.end);
+            let quad = PaintQuad::new(Bounds::from_corners(
+                point(bounds.left() + start_x.min(end_x) - scroll_x, bounds.top()),
+                point(
+                    bounds.left() + start_x.max(end_x) - scroll_x,
+                    bounds.bottom(),
                 ),
-                self.selection_color,
-            );
+            ))
+            .background(self.selection_color);
             (Some(quad), None)
         } else {
             let cursor_paint_x = bounds.left() + caret_x_line - scroll_x;
-            let quad = fill(
-                Bounds::new(
-                    point(cursor_paint_x, bounds.top()),
-                    size(cursor_thickness, bounds.bottom() - bounds.top()),
-                ),
-                self.cursor_color,
-            );
+            let quad = PaintQuad::new(Bounds::new(
+                point(cursor_paint_x, bounds.top()),
+                size(cursor_thickness, bounds.bottom() - bounds.top()),
+            ))
+            .background(self.cursor_color);
             (None, Some(quad))
         };
 
@@ -543,6 +540,52 @@ pub(crate) fn hsla_default() -> Hsla {
 mod input_interaction_tests {
     use super::*;
     use gpui::{AppContext, TestAppContext};
+
+    #[gpui::test]
+    fn shaped_input_geometry_preserves_unicode_and_outside_edges(cx: &mut TestAppContext) {
+        let cx = cx.add_empty_window();
+        cx.update(|window, cx| {
+            for value in ["", "hello", "你好🙂"] {
+                let line = window.text_system().shape_line(
+                    value.to_owned().into(),
+                    px(16.),
+                    &[TextRun {
+                        len: value.len(),
+                        font: window.text_style().font(),
+                        ..Default::default()
+                    }],
+                );
+                let mut input = TextInputState::new(cx);
+                input.value = value.to_owned();
+                input.core.last_bounds = Some(Bounds::new(
+                    point(px(20.), px(30.)),
+                    size(line.width + px(100.), px(24.)),
+                ));
+                input.core.last_layout = Some(line.clone());
+
+                assert_eq!(line_caret_x(&line, value.len() + 1), line.width);
+                assert_eq!(
+                    input.core.character_index_for_point_inner(
+                        value,
+                        point(px(20.) + line.width + px(50.), px(40.)),
+                    ),
+                    Some(value.encode_utf16().count()),
+                );
+                if !value.is_empty() {
+                    let bounds = input
+                        .core
+                        .bounds_for_range_inner(
+                            value,
+                            0..value.encode_utf16().count(),
+                            input.core.last_bounds.unwrap(),
+                        )
+                        .unwrap();
+                    assert_eq!(bounds.left(), px(20.));
+                    assert_eq!(bounds.size.width, line.width);
+                }
+            }
+        });
+    }
 
     /// The blink task must spawn once per focus-in (not once per
     /// render frame), keep toggling the caret every
