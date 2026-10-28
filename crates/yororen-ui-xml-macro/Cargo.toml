@@ -12,8 +12,8 @@ repository.workspace = true
 proc-macro = true
 
 [dependencies]
-yororen-ui-xml = { package = "yororen_ui_xml", path = "../yororen-ui-xml", version = "0.3" }
-yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.3" }
+yororen-ui-xml = { package = "yororen_ui_xml", path = "../yororen-ui-xml", version = "0.4" }
+yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.4" }
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full", "extra-traits"] }

@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/rust-edition%202024-yellow.svg" alt="Rust Edition">
   <img src="https://img.shields.io/badge/gpui-based-2a2a2a.svg" alt="Powered by gpui">
-  <img src="https://img.shields.io/badge/version-0.3.0-orange.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.4.0-orange.svg" alt="Version">
 </p>
 
 **Yororen UI** is a headless-first Rust UI library built on top of [`gpui`](https://github.com/zed-industries/zed) (via [`gpui-ce`](https://crates.io/crates/gpui-ce)). A button is not a visual — it is a focusable, clickable thing with a label and an optional icon. The visual is a plug-in.
@@ -75,13 +75,13 @@ The meta-crate [`yororen-ui`](https://crates.io/crates/yororen-ui) re-exports co
 ## Quick start
 
 ```rust
-use gpui::{App, Application, Bounds, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, Bounds, WindowBounds, WindowOptions, px, size};
 use yororen_ui::assets::UiAsset;
 use yororen_ui::locale_en;
 use yororen_ui::renderer;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // 1) Renderer + theme — picks system-light or system-dark by OS appearance,
@@ -323,21 +323,21 @@ A custom renderer only needs to implement the 58 <code>XxxRenderer</code> traits
 
 ```toml
 [dependencies]
-yororen_ui = "0.3"
+yororen_ui = "0.4"
 ```
 
 The <code>xml</code> feature is enabled by default so <code>xml!</code> / <code>xml_file!</code> work out of the box. To opt out:
 
 ```toml
 [dependencies]
-yororen_ui = { version = "0.3", default-features = false }
+yororen_ui = { version = "0.4", default-features = false }
 ```
 
 To enable specific features:
 
 ```toml
 [dependencies]
-yororen_ui = { version = "0.3", default-features = false, features = ["xml", "winui"] }
+yororen_ui = { version = "0.4", default-features = false, features = ["xml", "winui"] }
 ```
 
 </details>
@@ -347,7 +347,7 @@ yororen_ui = { version = "0.3", default-features = false, features = ["xml", "wi
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.3.0" }
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.4.0" }
 ```
 
 </details>
@@ -357,7 +357,7 @@ yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.
 
 ```toml
 [dependencies]
-yororen_ui = { path = "../yororen-ui" }
+yororen_ui = { path = "../yororen-ui/crates/yororen-ui" }
 ```
 
 </details>
@@ -369,7 +369,8 @@ yororen_ui = { path = "../yororen-ui" }
 
 ```toml
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.2.2" }
+gpui = { package = "gpui-ce", version = "0.3.0" }
+gpui-ce-platform = { package = "gpui_ce_platform", version = "0.3.0", features = ["font-kit", "wayland", "x11"] }
 ```
 
 In this repository, <code>gpui-ce</code> is specified in <code>Cargo.toml</code>.
@@ -380,7 +381,10 @@ In this repository, <code>gpui-ce</code> is specified in <code>Cargo.toml</code>
 
 ## Requirements
 
-- **Rust edition:** 2024
+- **Rust:** 1.95 or later (edition 2024)
+- **GPUI:** the October 2026 `gpui-ce 0.3.0` release line; use `gpui_ce_platform 0.3.0` for app startup. The older 0.3.2/0.3.3 releases are yanked and incompatible.
+- **Migration:** Yororen UI 0.4 uses this GPUI line throughout; upgrade all Yororen crates together from 0.3. No git patches are needed.
+- **Release status:** this branch prepares 0.4.0; the 0.4 registry and tag examples apply after that release is published.
 - **Platforms:** macOS, Linux, Windows (whatever <code>gpui-ce</code> supports)
 
 ---

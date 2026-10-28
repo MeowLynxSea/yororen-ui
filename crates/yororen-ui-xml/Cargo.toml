@@ -9,7 +9,7 @@ readme = "../../README.md"
 repository.workspace = true
 
 [dependencies]
-yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.3" }
+yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.4" }
 gpui.workspace = true
 roxmltree = "0.20"
 proc-macro2 = "1"

@@ -7847,7 +7847,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "gpui-ce",
  "serde_json",
@@ -7863,7 +7863,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_core"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "chrono",
  "gpui-ce",
@@ -7876,7 +7876,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_default_renderer"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "gpui-ce",
  "serde_json",
@@ -7885,7 +7885,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_locale_ar"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "gpui-ce",
  "serde_json",
@@ -7894,7 +7894,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_locale_en"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "gpui-ce",
  "serde_json",
@@ -7903,7 +7903,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_locale_zh_cn"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "gpui-ce",
  "serde_json",
@@ -7912,7 +7912,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_winui_renderer"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "gpui-ce",
  "serde_json",
@@ -7921,7 +7921,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_xml"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "criterion",
  "gpui-ce",
@@ -7938,7 +7938,7 @@ dependencies = [
 
 [[package]]
 name = "yororen_ui_xml_macro"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "proc-macro2",
  "quote",

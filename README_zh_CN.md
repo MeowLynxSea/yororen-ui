@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="许可证">
   <img src="https://img.shields.io/badge/rust-edition%202024-yellow.svg" alt="Rust 版本">
   <img src="https://img.shields.io/badge/gpui-based-2a2a2a.svg" alt="基于 gpui">
-  <img src="https://img.shields.io/badge/version-0.3.0-orange.svg" alt="版本">
+  <img src="https://img.shields.io/badge/version-0.4.0-orange.svg" alt="版本">
 </p>
 
 **Yororen UI** 是一个 headless 优先的 Rust UI 库，基于 [`gpui`](https://github.com/zed-industries/zed)（通过 [`gpui-ce`](https://crates.io/crates/gpui-ce)）构建。按钮不是某种视觉样式，而是一个可聚焦、可点击、可带文本标签和图标的组件；外观由渲染器决定。
@@ -75,13 +75,13 @@
 ## 快速开始
 
 ```rust
-use gpui::{App, Application, Bounds, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, Bounds, WindowBounds, WindowOptions, px, size};
 use yororen_ui::assets::UiAsset;
 use yororen_ui::locale_en;
 use yororen_ui::renderer;
 
 fn main() {
-    let app = Application::new().with_assets(UiAsset);
+    let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
         // 1) 渲染器 + 主题 —— 根据系统外观选择 system-light 或 system-dark，
@@ -322,21 +322,21 @@ cargo run -p showcase-xml-demo
 
 ```toml
 [dependencies]
-yororen_ui = "0.3"
+yororen_ui = "0.4"
 ```
 
 <code>xml</code> feature 默认开启，<code>xml!</code> / <code>xml_file!</code> 开箱即用。如需关闭：
 
 ```toml
 [dependencies]
-yororen_ui = { version = "0.3", default-features = false }
+yororen_ui = { version = "0.4", default-features = false }
 ```
 
 按需启用 feature：
 
 ```toml
 [dependencies]
-yororen_ui = { version = "0.3", default-features = false, features = ["xml", "winui"] }
+yororen_ui = { version = "0.4", default-features = false, features = ["xml", "winui"] }
 ```
 
 </details>
@@ -346,7 +346,7 @@ yororen_ui = { version = "0.3", default-features = false, features = ["xml", "wi
 
 ```toml
 [dependencies]
-yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.3.0" }
+yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.4.0" }
 ```
 
 </details>
@@ -356,7 +356,7 @@ yororen_ui = { git = "https://github.com/MeowLynxSea/yororen-ui.git", tag = "v0.
 
 ```toml
 [dependencies]
-yororen_ui = { path = "../yororen-ui" }
+yororen_ui = { path = "../yororen-ui/crates/yororen-ui" }
 ```
 
 </details>
@@ -368,7 +368,8 @@ yororen_ui = { path = "../yororen-ui" }
 
 ```toml
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.3" }
+gpui = { package = "gpui-ce", version = "0.3.0" }
+gpui-ce-platform = { package = "gpui_ce_platform", version = "0.3.0", features = ["font-kit", "wayland", "x11"] }
 ```
 
 在本仓库中，<code>gpui-ce</code> 已在 <code>Cargo.toml</code> 中指定。
@@ -379,7 +380,10 @@ gpui = { package = "gpui-ce", version = "0.3" }
 
 ## 环境要求
 
-- **Rust edition：** 2024
+- **Rust：** 1.95 或更高版本（edition 2024）
+- **GPUI：** 2026 年 10 月发布的 `gpui-ce 0.3.0` 版本线；应用入口使用 `gpui_ce_platform 0.3.0`。历史 `0.3.2/0.3.3` 已被 yank，且与新版本线不兼容。
+- **迁移：** Yororen UI 0.4 全部使用这一 GPUI 版本线；从 0.3 升级时需同步升级全部 Yororen crate，无需配置 git patch。
+- **发布状态：** 此分支准备 0.4.0；上述 0.4 crates.io 和 tag 示例需待该版本正式发布后使用。
 - **平台：** macOS、Linux、Windows（与 <code>gpui-ce</code> 支持的范围一致）
 
 ---
