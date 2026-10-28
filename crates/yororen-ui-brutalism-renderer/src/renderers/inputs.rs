@@ -19,6 +19,7 @@ use yororen_ui_core::headless::icon::{IconSource, icon};
 use yororen_ui_core::headless::keybinding_input::{KeybindingInputMode, KeybindingInputProps};
 use yororen_ui_core::headless::number_input::NumberInputProps;
 use yororen_ui_core::headless::password_input::PasswordInputProps;
+use yororen_ui_core::headless::scroll_view::ScrollViewProps;
 use yororen_ui_core::headless::search_input::SearchInputProps;
 use yororen_ui_core::headless::text_area::TextAreaProps;
 use yororen_ui_core::headless::text_area_element::TextAreaElement;
@@ -239,9 +240,14 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
         let disabled = props.disabled;
         let max_length = props.max_length;
         let on_change = props.on_change.clone();
+        let initial_value = props.initial_value.clone();
 
         let state = window.use_keyed_state(props.id.clone(), cx, |_window, cx| {
-            TextInputState::new(&mut *cx)
+            let mut s = TextInputState::new(&mut *cx);
+            if let Some(v) = initial_value.clone() {
+                s.value = v;
+            }
+            s
         });
         state.update(cx, |s, _cx| {
             s.placeholder = SharedString::from(placeholder_str);
@@ -287,6 +293,12 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
         let min_h = px(theme
             .get_number("tokens.control.text_area.min_height")
             .unwrap_or(90.0) as f32);
+        // Cap on the text area's height; beyond it the content
+        // scrolls vertically (with the brutal square scrollbar).
+        let max_h = px(theme
+            .get_number("tokens.control.text_area.max_height")
+            .or_else(|| theme.get_number("tokens.control.input.text_area_max_h"))
+            .unwrap_or(160.0) as f32);
         let pad = px(theme
             .get_number("tokens.control.text_area.padding")
             .unwrap_or(12.0) as f32);
@@ -295,6 +307,17 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
         drop(theme);
 
         let placeholder_for_element = state.read(cx).placeholder.clone();
+        // Vertical scroll controller: external via `props.scroll`,
+        // or auto-persisted keyed by the element id.
+        let scroll = match &props.scroll {
+            Some(c) => c.clone(),
+            None => window
+                .use_keyed_state(props.id.clone(), cx, |_, _| {
+                    yororen_ui_core::headless::scroll_view::ScrollViewController::new()
+                })
+                .read(cx)
+                .clone(),
+        };
         let inner = TextAreaElement {
             state: state.clone(),
             focus_handle: focus_handle.clone(),
@@ -305,7 +328,23 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
             selection_color,
             placeholder: placeholder_for_element,
             min_h,
+            scroll_handle: Some(scroll.handle()),
         };
+        // The element is the scroll area's only (direct) child.
+        // The scroll view sits inside the input shell so the focus /
+        // mouse handlers on the shell stay reachable — `occlude`
+        // is disabled ONLY for the TextArea (the shell lives behind
+        // the scroller, unlike dropdown/menu surfaces).
+        let scroller =
+            yororen_ui_core::headless::scroll_view::ScrollViewProps::compose_embedded_with_occlude(
+                (props.id.clone(), "scroll"),
+                &scroll,
+                Some(max_h),
+                None,
+                vec![gpui::IntoElement::into_any_element(inner)],
+                false,
+                cx,
+            );
 
         let base: Stateful<Div> = div()
             .id(props.id.clone())
@@ -322,7 +361,7 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
             } else {
                 CursorStyle::IBeam
             })
-            .child(inner)
+            .child(scroller)
             .track_focus(&focus_handle);
 
         let mut keyed: Stateful<Div> = base
@@ -372,14 +411,11 @@ impl TextAreaRenderer for BrutalTextAreaRenderer {
             if disabled {
                 return;
             }
-            let before = state_for_enter.read(cx).value.clone();
             state_for_enter.update(cx, |s, _cx| {
                 s.insert_text("\n");
             });
             let after = state_for_enter.read(cx).value.clone();
-            if before != after
-                && let Some(cb) = on_change_for_enter.as_ref()
-            {
+            if let Some(cb) = on_change_for_enter.as_ref() {
                 cb(&after, window, &mut *cx);
             }
         });
@@ -1197,6 +1233,12 @@ impl SelectRenderer for BrutalSelectRenderer {
         if is_visible && !options.is_empty() {
             let h_f32: f32 = h.into();
             let state_for_close = props.state.clone();
+            let scroll = props.state.read(cx).scroll.clone();
+            let max_h = px(theme
+                .get_number("tokens.control.select.menu_max_height")
+                .or_else(|| theme.get_number("tokens.control.combo_box.menu_max_height"))
+                .unwrap_or(320.0) as f32);
+            let mut items: Vec<gpui::AnyElement> = Vec::with_capacity(options.len());
             let mut dropdown: Stateful<gpui::Div> = gpui::div()
                 .id("brutal-select-dropdown")
                 .absolute()
@@ -1268,8 +1310,19 @@ impl SelectRenderer for BrutalSelectRenderer {
                         s.pick(opt_value.clone(), window, &mut *cx_inner);
                     });
                 });
-                dropdown = dropdown.child(item);
+                items.push(item.into_any_element());
             }
+
+            // Options are the scroll area's direct children so
+            // `scroll_to_item` can reveal the highlighted option.
+            dropdown = dropdown.child(ScrollViewProps::compose_embedded(
+                gpui::ElementId::Name("brutal-select-scroll".into()),
+                &scroll,
+                Some(max_h),
+                Some(px(2.)),
+                items,
+                cx,
+            ));
 
             // `gpui::deferred` paints the dropdown after the
             // next sibling cell so it isn't covered. The animation
@@ -1495,6 +1548,11 @@ impl ComboBoxRenderer for BrutalComboBoxRenderer {
         if is_visible && !filtered.is_empty() {
             let h_f32: f32 = h.into();
             let state_for_close = props.state.clone();
+            let scroll = props.state.read(cx).scroll.clone();
+            let max_h = px(theme
+                .get_number("tokens.control.combo_box.menu_max_height")
+                .unwrap_or(320.0) as f32);
+            let mut items: Vec<gpui::AnyElement> = Vec::with_capacity(filtered.len());
             let mut dropdown: Stateful<gpui::Div> = gpui::div()
                 .id("brutal-combo-dropdown")
                 .absolute()
@@ -1560,8 +1618,20 @@ impl ComboBoxRenderer for BrutalComboBoxRenderer {
                         s.pick(opt_value.clone(), window, &mut *cx_inner);
                     });
                 });
-                dropdown = dropdown.child(item);
+                items.push(item.into_any_element());
             }
+
+            // Options are the scroll area's direct children so
+            // `scroll_to_item` can reveal the keyboard-highlighted
+            // option (see `scroll_highlighted_into_view`).
+            dropdown = dropdown.child(ScrollViewProps::compose_embedded(
+                gpui::ElementId::Name("brutal-combo-scroll".into()),
+                &scroll,
+                Some(max_h),
+                Some(px(2.)),
+                items,
+                cx,
+            ));
 
             // The animation wrapper is absolutely positioned at the
             // top-left of the outer relative container so the dropdown

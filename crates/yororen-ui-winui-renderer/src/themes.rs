@@ -27,17 +27,17 @@ use crate::renderers::{
     WinUICardRenderer, WinUICheckboxRenderer, WinUIComboBoxRenderer, WinUIDisclosureRenderer,
     WinUIDividerRenderer, WinUIDropdownMenuRenderer, WinUIEmptyStateRenderer,
     WinUIFilePathInputRenderer, WinUIFocusRingRenderer, WinUIFormFieldRenderer, WinUIFormRenderer,
-    WinUIGridViewRenderer,
-    WinUIHeadingRenderer, WinUIIconButtonRenderer, WinUIIconRenderer, WinUIImageRenderer,
-    WinUIKeybindingDisplayRenderer, WinUIKeybindingInputRenderer, WinUILabelRenderer,
-    WinUIListItemRenderer, WinUIListboxRenderer, WinUIMenuRenderer, WinUIModalRenderer,
-    WinUINotificationRenderer, WinUINumberInputRenderer, WinUIOverlayRenderer, WinUIPanelRenderer,
-    WinUIPasswordInputRenderer, WinUIPopoverRenderer, WinUIProgressBarRenderer,
-    WinUIRadioGroupRenderer, WinUIRadioRenderer, WinUISearchInputRenderer, WinUISelectRenderer,
-    WinUIShortcutHintRenderer, WinUISkeletonRenderer, WinUISliderRenderer, WinUISpacerRenderer,
-    WinUISplitButtonRenderer, WinUISwitchRenderer, WinUITableRenderer, WinUITagRenderer,
-    WinUITextAreaRenderer, WinUITextInputRenderer, WinUITextRenderer, WinUIToastRenderer,
-    WinUIToggleButtonRenderer, WinUITooltipRenderer, WinUITreeItemRenderer, WinUITreeRenderer,
+    WinUIGridViewRenderer, WinUIHeadingRenderer, WinUIIconButtonRenderer, WinUIIconRenderer,
+    WinUIImageRenderer, WinUIKeybindingDisplayRenderer, WinUIKeybindingInputRenderer,
+    WinUILabelRenderer, WinUIListItemRenderer, WinUIListboxRenderer, WinUIMenuRenderer,
+    WinUIModalRenderer, WinUINotificationRenderer, WinUINumberInputRenderer, WinUIOverlayRenderer,
+    WinUIPanelRenderer, WinUIPasswordInputRenderer, WinUIPipsPagerRenderer, WinUIPopoverRenderer,
+    WinUIProgressBarRenderer, WinUIRadioGroupRenderer, WinUIRadioRenderer, WinUIScrollViewRenderer,
+    WinUISearchInputRenderer, WinUISelectRenderer, WinUIShortcutHintRenderer,
+    WinUISkeletonRenderer, WinUISliderRenderer, WinUISpacerRenderer, WinUISplitButtonRenderer,
+    WinUISwitchRenderer, WinUITableRenderer, WinUITagRenderer, WinUITextAreaRenderer,
+    WinUITextInputRenderer, WinUITextRenderer, WinUIToastRenderer, WinUIToggleButtonRenderer,
+    WinUITooltipRenderer, WinUITreeItemRenderer, WinUITreeRenderer,
     WinUIUniformVirtualListRenderer, WinUIVirtualListRenderer,
 };
 
@@ -287,5 +287,11 @@ pub fn register_winui_renderers(cx: &mut App) {
     );
     cx.register_renderer_arc::<markers::ShortcutHint, dyn crate::renderers::ShortcutHintRenderer>(
         Arc::new(WinUIShortcutHintRenderer),
+    );
+    cx.register_renderer_arc::<markers::ScrollView, dyn crate::renderers::ScrollViewRenderer>(
+        Arc::new(WinUIScrollViewRenderer),
+    );
+    cx.register_renderer_arc::<markers::PipsPager, dyn crate::renderers::PipsPagerRenderer>(
+        Arc::new(WinUIPipsPagerRenderer),
     );
 }

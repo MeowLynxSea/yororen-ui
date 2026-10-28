@@ -15,12 +15,14 @@ use gpui::Entity;
 
 use yororen_ui::headless::combo_box::ComboBoxState;
 use yororen_ui::headless::dropdown_menu::DropdownMenuState;
-use yororen_ui::headless::keybinding_input::KeybindingInputMode;
 use yororen_ui::headless::grid_view::{GridViewOption, GridViewState};
+use yororen_ui::headless::keybinding_input::KeybindingInputMode;
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
 use yororen_ui::headless::menu::MenuState;
 use yororen_ui::headless::modal::ModalState;
+use yororen_ui::headless::pips_pager::PipsPagerState;
 use yororen_ui::headless::popover::PopoverState;
+use yororen_ui::headless::scroll_view::ScrollViewController;
 use yororen_ui::headless::select::SelectState;
 use yororen_ui::headless::tooltip::TooltipState;
 use yororen_ui::headless::tree_item::TreeNodeId;
@@ -86,6 +88,12 @@ pub struct GalleryApp {
     pub dropdown_menu_state: Entity<MenuState>,
     pub listbox_state: Entity<ListboxState>,
     pub gridview_state: Entity<GridViewState>,
+    /// PipsPager demo state: 12 pages elided to a window of 5
+    /// with nav buttons (the WinUI-aligned configuration).
+    pub pips_pager_state: Entity<PipsPagerState>,
+    pub pips_pager_demo_value: String,
+    /// Scroll controller for the standalone scroll_view demo.
+    pub scroll_view_controller: ScrollViewController,
 
     // -------- Input values (mirrored via on_change) --------
     pub text_value: String,
@@ -219,6 +227,12 @@ impl GalleryApp {
         let dropdown_menu_state = MenuState::new(&mut **cx);
         let listbox_state = ListboxState::new(&mut **cx);
         let gridview_state = GridViewState::new(&mut **cx);
+        let pips_pager_state = PipsPagerState::new(&mut **cx);
+        pips_pager_state.update(cx, |s, _cx| {
+            s.set_page_count(12);
+            s.set_max_visible_pips(Some(5));
+            s.set_nav_buttons(true);
+        });
 
         // Seed the select / combo / dropdown / menu options so
         // the renderer's first paint shows the full menu.
@@ -347,6 +361,9 @@ impl GalleryApp {
             dropdown_menu_state,
             listbox_state,
             gridview_state,
+            pips_pager_state,
+            pips_pager_demo_value: String::new(),
+            scroll_view_controller: ScrollViewController::new(),
 
             // Inputs
             text_value: String::new(),

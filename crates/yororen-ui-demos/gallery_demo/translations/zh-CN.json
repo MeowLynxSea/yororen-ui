@@ -215,7 +215,11 @@
       "cell_tree_multi": "tree — 多选（复选框切换整个子树；Ctrl/Cmd+点击切换单行；Shift+点击选择范围）",
       "cell_vl": "virtual_list (scroll_to_top/bottom + on_visible_range_change + 无限加载)",
       "cell_uvl": "uniform_virtual_list (1000 项; 等高快速路径; scroll_to_top/bottom)",
-      "cell_spacer": "spacer (16px 高)"
+      "cell_spacer": "spacer (16px 高)",
+      "cell_scrollview": "scroll_view（带边框；滚轮、拖拽滑块、轨道翻页、←/→/↑/↓/PgUp/PgDn/Home/End）",
+      "sv_row": "滚动行 #{}",
+      "cell_pips_pager": "pips_pager（12 页省略为 5；点击圆点 / ⋯ / ‹ › 或 ←/→/Home/End）",
+      "pips_page": "页码：{}"
     }
   }
 }

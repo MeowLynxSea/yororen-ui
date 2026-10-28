@@ -85,6 +85,10 @@ pub(crate) fn event_signature(event_name: &str, tag: &str) -> (TokenStream, Toke
             quote! { __range: std::ops::Range<usize>, __total: usize, __window: &mut gpui::Window, cx: &mut gpui::App },
             quote! { __range, __total, __window, cx },
         ),
+        "on_scroll" => (
+            quote! { __offset: gpui::Point<gpui::Pixels>, __max: gpui::Size<gpui::Pixels>, __window: &mut gpui::Window, cx: &mut gpui::App },
+            quote! { __offset, __max, __window, cx },
+        ),
         _ => (
             // Click-style events (on_click, on_change, …) receive
             // the event/value as the first argument. The name `__ev`

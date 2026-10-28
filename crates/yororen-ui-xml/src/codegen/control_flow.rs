@@ -8,6 +8,7 @@ use crate::schema::{ComponentDef, ControlFlowDef};
 use crate::codegen::{
     attr::{attr_expr_only, parse_let_bindings},
     codegen_children_as_element, parse_ts,
+    scroll_view::codegen_scroll_view,
     templates::{codegen_slot, codegen_template},
     virtual_list::{codegen_uniform_virtual_list, codegen_virtual_list},
 };
@@ -117,6 +118,7 @@ pub(crate) fn codegen_control_flow(
         ControlFlowDef::UniformVirtualList => {
             codegen_uniform_virtual_list(element, cx, source_file, user_schema)
         }
+        ControlFlowDef::ScrollView => codegen_scroll_view(element, cx, source_file, user_schema),
         ControlFlowDef::Include => Err(XmlError::new(
             XmlErrorKind::Unsupported,
             element.span,

@@ -39,11 +39,13 @@ pub mod number_input;
 pub mod overlay;
 pub mod panel;
 pub mod password_input;
+pub mod pips_pager;
 pub mod popover;
 pub mod progress;
 pub mod radio;
 pub mod radio_group;
 pub mod registry;
+pub mod scroll_view;
 pub mod search_input;
 pub mod select;
 pub mod shortcut_hint;
@@ -98,11 +100,13 @@ pub use number_input::WinUINumberInputRenderer;
 pub use overlay::WinUIOverlayRenderer;
 pub use panel::WinUIPanelRenderer;
 pub use password_input::WinUIPasswordInputRenderer;
+pub use pips_pager::WinUIPipsPagerRenderer;
 pub use popover::WinUIPopoverRenderer;
 pub use progress::WinUIProgressBarRenderer;
 pub use radio::WinUIRadioRenderer;
 pub use radio_group::WinUIRadioGroupRenderer;
 pub use registry::RendererRegistry;
+pub use scroll_view::WinUIScrollViewRenderer;
 pub use search_input::WinUISearchInputRenderer;
 pub use select::WinUISelectRenderer;
 pub use shortcut_hint::WinUIShortcutHintRenderer;
@@ -163,10 +167,14 @@ pub use yororen_ui_core::renderer::panel::{PanelRenderState, PanelRenderer};
 pub use yororen_ui_core::renderer::password_input::{
     PasswordInputRenderState, PasswordInputRenderer,
 };
+pub use yororen_ui_core::renderer::pips_pager::{PipsPagerRenderState, PipsPagerRenderer};
 pub use yororen_ui_core::renderer::popover::{PopoverRenderState, PopoverRenderer};
 pub use yororen_ui_core::renderer::progress::{ProgressBarRenderState, ProgressBarRenderer};
 pub use yororen_ui_core::renderer::radio::{RadioRenderState, RadioRenderer};
 pub use yororen_ui_core::renderer::radio_group::{RadioGroupRenderState, RadioGroupRenderer};
+pub use yororen_ui_core::renderer::scroll_view::{
+    ScrollThumbDrag, ScrollViewRenderState, ScrollViewRenderer,
+};
 pub use yororen_ui_core::renderer::search_input::{SearchInputRenderState, SearchInputRenderer};
 pub use yororen_ui_core::renderer::select::{SelectRenderState, SelectRenderer};
 pub use yororen_ui_core::renderer::shortcut_hint::{ShortcutHintRenderState, ShortcutHintRenderer};

@@ -8,13 +8,15 @@ use gpui::{Context, ElementId, IntoElement, ParentElement, Styled, Window, px};
 
 use yororen_ui::headless::button::button;
 use yororen_ui::headless::form::form;
-use yororen_ui::headless::grid_view::grid_view;
 use yororen_ui::headless::form_field::form_field;
+use yororen_ui::headless::grid_view::grid_view;
 use yororen_ui::headless::label::label;
 use yororen_ui::headless::layout::{Spacing, column, row, spacer};
 use yororen_ui::headless::list_item::list_item;
 use yororen_ui::headless::listbox::listbox;
+use yororen_ui::headless::pips_pager::pips_pager;
 use yororen_ui::headless::radio_group::radio_group;
+use yororen_ui::headless::scroll_view::scroll_view;
 use yororen_ui::headless::table::TableColumn;
 use yororen_ui::headless::table::table;
 use yororen_ui::headless::text_input::text_input;
@@ -608,6 +610,63 @@ pub fn render(
         .render(cx);
     let uvl_wrapped = cell(cx.t("demo.lists.cell_uvl"), uvl_col, cx);
 
+    // --- scroll_view: generic scrollable container with a
+    // renderer-drawn scrollbar, thumb drag, track paging and
+    // keyboard scrolling (arrows / PgUp / PgDn / Home / End) ---
+    let sv_children: Vec<_> = (0..24)
+        .map(|i| {
+            label(
+                ElementId::Name(format!("lists-scrollview-row-{i}").into()),
+                cx.t("demo.lists.sv_row")
+                    .to_string()
+                    .replacen("{}", &i.to_string(), 1),
+                cx,
+            )
+            .render(cx)
+        })
+        .collect();
+    let sv_el = scroll_view("lists-scrollview", &app.scroll_view_controller, cx)
+        .framed(true)
+        .children(sv_children)
+        .render(cx)
+        .h(px(160.))
+        .w(px(240.));
+    let sv_wrapped = cell(cx.t("demo.lists.cell_scrollview"), sv_el, cx);
+
+    // --- pips_pager: page-indicator dots with ellipsis elision
+    // and prev/next chevrons (WinUI-aligned demo configuration).
+    // The callback only mirrors the page into the demo status
+    // string — same no-entity-recursion rule as listbox above. ---
+    let entity_for_pips = cx.entity().clone();
+    app.pips_pager_state.update(cx, |s, _cx| {
+        s.set_on_change(move |page, _w, cx| {
+            entity_for_pips.update(cx, |s, _cx| {
+                s.pips_pager_demo_value = (page + 1).to_string();
+            });
+        });
+    });
+    let pips_label_template = cx.t("demo.lists.pips_page").to_string();
+    let pips_status = pips_label_template.replacen(
+        "{}",
+        if app.pips_pager_demo_value.is_empty() {
+            "1"
+        } else {
+            app.pips_pager_demo_value.as_str()
+        },
+        1,
+    );
+    let pips_el = pips_pager("lists-pips-pager", app.pips_pager_state.clone()).render(cx);
+    let pips_col = column("lists-pips-col", cx)
+        .gap(Spacing::Sm)
+        .w(px(240.))
+        .child(pips_el)
+        .child(
+            label("lists-pips-status", pips_status, cx)
+                .muted(true)
+                .render(cx),
+        );
+    let pips_wrapped = cell(cx.t("demo.lists.cell_pips_pager"), pips_col.render(cx), cx);
+
     // --- spacer ---
     let sp = spacer("lists-spacer", cx).render(cx).h(px(16.)).w_full();
     let sp_wrapped = cell(cx.t("demo.lists.cell_spacer"), sp, cx);
@@ -635,6 +694,8 @@ pub fn render(
         .child(tree_multi_wrapped)
         .child(vl_wrapped)
         .child(uvl_wrapped)
+        .child(sv_wrapped)
+        .child(pips_wrapped)
         .child(sp_wrapped)
         .child(rg_wrapped)
         .render(cx)

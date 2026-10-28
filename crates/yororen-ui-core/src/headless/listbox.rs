@@ -42,6 +42,11 @@ pub struct ListboxState {
     pub options: Vec<ListboxOption>,
     pub highlighted_index: Option<usize>,
     pub selected_value: Option<SharedString>,
+    /// Scroll controller driving the (optional) scrollable list
+    /// body. Renderers attach the list to it; keyboard highlight
+    /// changes call `scroll_to_item` so the highlighted option
+    /// stays visible in long lists.
+    pub scroll: crate::headless::scroll_view::ScrollViewController,
     /// Focus handle minted in `new`. The renderer wires
     /// `track_focus` + `on_key_down` against this handle so
     /// arrow keys move highlight, `Enter` selects. The handle
@@ -58,6 +63,7 @@ impl ListboxState {
             options: Vec::new(),
             highlighted_index: None,
             selected_value: None,
+            scroll: crate::headless::scroll_view::ScrollViewController::new(),
             focus_handle,
             on_change: None,
         })
@@ -70,6 +76,17 @@ impl ListboxState {
     /// and `is_focused(window)` want).
     pub fn focus_handle(&self) -> FocusHandle {
         self.focus_handle.clone()
+    }
+
+    /// Scroll the highlighted item into view through the attached
+    /// [`ScrollViewController`](crate::headless::scroll_view::ScrollViewController).
+    /// Renderers call this after keyboard highlight changes so the
+    /// highlighted option stays visible in long lists. No-op when
+    /// nothing is highlighted or the list fits.
+    pub fn scroll_highlighted_into_view(&self) {
+        if let Some(ix) = self.highlighted_index {
+            self.scroll.scroll_to_item(ix);
+        }
     }
 
     pub fn set_options(&mut self, opts: Vec<ListboxOption>) {

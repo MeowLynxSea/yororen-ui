@@ -26,11 +26,9 @@ fn showcase_listbox_arrows_after_click(cx: &mut gpui::TestAppContext) {
     let listbox_state = cx.update(|cx| app_entity.read(cx).listbox_state.clone());
 
     let window = cx
-        .update(|cx| {
-            cx.open_window(gpui::WindowOptions::default(), |_, _| app_entity.clone())
-        })
+        .update(|cx| cx.open_window(gpui::WindowOptions::default(), |_, _| app_entity.clone()))
         .unwrap();
-    let mut cx = gpui::VisualTestContext::from_window(window.into(), &cx.deref());
+    let mut cx = gpui::VisualTestContext::from_window(window.into(), cx.deref());
     cx.run_until_parked();
 
     // Brute-force: click across the page until the listbox

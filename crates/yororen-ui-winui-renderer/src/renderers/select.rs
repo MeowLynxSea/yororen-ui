@@ -10,6 +10,7 @@ use gpui::{
 
 use yororen_ui_core::animation::{AnimationConfig, SlideDirection};
 use yororen_ui_core::headless::icon::IconProps;
+use yororen_ui_core::headless::scroll_view::ScrollViewProps;
 use yororen_ui_core::headless::select::SelectProps;
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
@@ -328,6 +329,13 @@ impl SelectRenderer for WinUISelectRenderer {
                 .or_else(|| theme.get_color("surface.hover"))
                 .unwrap_or_default();
 
+            let scroll = props.state.read(cx).scroll.clone();
+            let max_h = px(theme
+                .get_number("tokens.control.select.menu_max_height")
+                .or_else(|| theme.get_number("tokens.control.combo_box.menu_max_height"))
+                .unwrap_or(320.0) as f32);
+            let mut items: Vec<gpui::AnyElement> = Vec::with_capacity(options.len());
+
             for (i, opt) in options.iter().enumerate() {
                 let opt_value = opt.value.clone();
                 let opt_label = opt.label.to_string();
@@ -422,8 +430,19 @@ impl SelectRenderer for WinUISelectRenderer {
                         s.pick(opt_value.clone(), window, &mut *cx_inner);
                     });
                 });
-                dropdown = dropdown.child(item);
+                items.push(::gpui::IntoElement::into_any_element(item));
             }
+
+            // Options are the scroll area's direct children so
+            // `scroll_to_item` can reveal the highlighted option.
+            dropdown = dropdown.child(ScrollViewProps::compose_embedded(
+                gpui::ElementId::Name("winui-select-scroll".into()),
+                &scroll,
+                Some(max_h),
+                Some(px(2.)),
+                items,
+                cx,
+            ));
 
             let distance = px(theme.get_number("motion.slide_distance").unwrap_or(10.0) as f32);
             // WinUI flyout open/close: 250ms `cubic-bezier(0.1, 0.9,

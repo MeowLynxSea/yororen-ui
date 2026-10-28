@@ -14,12 +14,14 @@ use gpui::{App, AppContext, Entity, Global, SharedString};
 
 use yororen_ui::headless::combo_box::ComboBoxState;
 use yororen_ui::headless::dropdown_menu::DropdownMenuState;
-use yororen_ui::headless::keybinding_input::KeybindingInputMode;
 use yororen_ui::headless::grid_view::{GridViewOption, GridViewState};
+use yororen_ui::headless::keybinding_input::KeybindingInputMode;
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
 use yororen_ui::headless::menu::MenuState;
 use yororen_ui::headless::modal::ModalState;
+use yororen_ui::headless::pips_pager::PipsPagerState;
 use yororen_ui::headless::popover::PopoverState;
+use yororen_ui::headless::scroll_view::ScrollViewController;
 use yororen_ui::headless::select::SelectState;
 use yororen_ui::headless::tooltip::TooltipState;
 use yororen_ui::headless::tree::{TreeData, node_id as tree_node_id};
@@ -100,6 +102,9 @@ pub struct GalleryState {
     pub dropdown_menu_state: Entity<MenuState>,
     pub listbox_state: Entity<ListboxState>,
     pub gridview_state: Entity<GridViewState>,
+    pub pips_pager_state: Entity<PipsPagerState>,
+    /// Scroll controller for the standalone scroll_view demo.
+    pub scroll_view_controller: ScrollViewController,
 
     // -------- Input values (bound via `@bind`) --------
     pub text_value: Entity<String>,
@@ -119,6 +124,9 @@ pub struct GalleryState {
     pub menu_demo_value: String,
     pub listbox_demo_value: String,
     pub gridview_demo_value: String,
+    /// Mirror of the pips_pager demo's current page (1-based
+    /// display string seed).
+    pub pips_pager_demo_value: String,
 
     // -------- Controls --------
     pub checkbox_value: Entity<bool>,
@@ -218,6 +226,7 @@ impl GalleryState {
         let dropdown_menu_state = MenuState::new(cx);
         let listbox_state = ListboxState::new(cx);
         let gridview_state = GridViewState::new(cx);
+        let pips_pager_state = PipsPagerState::new(cx);
 
         select_state.update(cx, |s, _cx| {
             s.set_options(vec![
@@ -307,6 +316,11 @@ impl GalleryState {
                 GridViewOption::new("honeydew", "Honeydew"),
             ]);
         });
+        pips_pager_state.update(cx, |s, _cx| {
+            s.set_page_count(12);
+            s.set_max_visible_pips(Some(5));
+            s.set_nav_buttons(true);
+        });
 
         Self {
             current_renderer: RendererKind::default(),
@@ -327,6 +341,8 @@ impl GalleryState {
             dropdown_menu_state,
             listbox_state,
             gridview_state,
+            pips_pager_state,
+            scroll_view_controller: ScrollViewController::new(),
 
             text_value: cx.new(|_| String::new()),
             password_value: cx.new(|_| String::new()),
@@ -344,6 +360,7 @@ impl GalleryState {
             menu_demo_value: String::new(),
             listbox_demo_value: String::new(),
             gridview_demo_value: String::new(),
+            pips_pager_demo_value: String::new(),
 
             checkbox_value: cx.new(|_| false),
             switch_value: cx.new(|_| false),

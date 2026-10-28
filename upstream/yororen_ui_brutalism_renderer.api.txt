@@ -681,6 +681,7 @@ pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::d
 pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::fg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::gap(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::hover_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::max_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::min_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::padding(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_brutalism_renderer::renderers::lists::BrutalListboxRenderer::selected_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -937,6 +938,50 @@ impl core::marker::Unpin for yororen_ui_brutalism_renderer::renderers::overlays:
 impl core::marker::UnsafeUnpin for yororen_ui_brutalism_renderer::renderers::overlays::BrutalPopoverRenderer
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_brutalism_renderer::renderers::overlays::BrutalPopoverRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_brutalism_renderer::renderers::overlays::BrutalPopoverRenderer
+pub mod yororen_ui_brutalism_renderer::renderers::scroll
+pub struct yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::active_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::active_dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::dot_border_width(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::fg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::gap(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::hover_bg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::inactive_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::nav_button_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::pips_pager::PipsPagerRenderer for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer::compose(&self, &yororen_ui_core::headless::pips_pager::PipsPagerProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl core::marker::Send for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl core::marker::Sync for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl core::marker::Unpin for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_brutalism_renderer::renderers::scroll::BrutalPipsPagerRenderer
+pub struct yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::bar_width(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::frame_bg(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::frame_border_width(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::frame_radius(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::nav_step(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::thumb_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::thumb_hover_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::thumb_min_size(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::track_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> core::option::Option<gpui::color::Hsla>
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::track_inset(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::scroll_view::ScrollViewRenderer for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer::compose(&self, yororen_ui_core::headless::scroll_view::ScrollViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl core::marker::Send for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl core::marker::Sync for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl core::marker::Unpin for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_brutalism_renderer::renderers::scroll::BrutalScrollViewRenderer
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::arc_pips_pager<T: yororen_ui_core::renderer::pips_pager::PipsPagerRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>
+pub fn yororen_ui_brutalism_renderer::renderers::scroll::arc_scroll_view<T: yororen_ui_core::renderer::scroll_view::ScrollViewRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>
 pub mod yororen_ui_brutalism_renderer::renderers::surfaces
 pub use yororen_ui_brutalism_renderer::renderers::surfaces::AvatarRenderState
 pub use yororen_ui_brutalism_renderer::renderers::surfaces::AvatarRenderer

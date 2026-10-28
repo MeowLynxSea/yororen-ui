@@ -155,6 +155,8 @@ pub use yororen_ui_default_renderer::renderers::PanelRenderState
 pub use yororen_ui_default_renderer::renderers::PanelRenderer
 pub use yororen_ui_default_renderer::renderers::PasswordInputRenderState
 pub use yororen_ui_default_renderer::renderers::PasswordInputRenderer
+pub use yororen_ui_default_renderer::renderers::PipsPagerRenderState
+pub use yororen_ui_default_renderer::renderers::PipsPagerRenderer
 pub use yororen_ui_default_renderer::renderers::PopoverRenderState
 pub use yororen_ui_default_renderer::renderers::PopoverRenderer
 pub use yororen_ui_default_renderer::renderers::ProgressBarRenderState
@@ -163,6 +165,9 @@ pub use yororen_ui_default_renderer::renderers::RadioGroupRenderState
 pub use yororen_ui_default_renderer::renderers::RadioGroupRenderer
 pub use yororen_ui_default_renderer::renderers::RadioRenderState
 pub use yororen_ui_default_renderer::renderers::RadioRenderer
+pub use yororen_ui_default_renderer::renderers::ScrollThumbDrag
+pub use yororen_ui_default_renderer::renderers::ScrollViewRenderState
+pub use yororen_ui_default_renderer::renderers::ScrollViewRenderer
 pub use yororen_ui_default_renderer::renderers::SearchInputRenderState
 pub use yororen_ui_default_renderer::renderers::SearchInputRenderer
 pub use yororen_ui_default_renderer::renderers::SelectRenderState
@@ -715,6 +720,7 @@ pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::di
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::fg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::gap(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::hover_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::max_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::min_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::padding(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::selected_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -870,6 +876,27 @@ impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::passw
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::password_input::TokenPasswordInputRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::password_input::TokenPasswordInputRenderer
 pub fn yororen_ui_default_renderer::renderers::password_input::arc_password_input<T: yororen_ui_core::renderer::password_input::PasswordInputRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>
+pub mod yororen_ui_default_renderer::renderers::pips_pager
+pub struct yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::active_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::active_dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::fg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::gap(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::hover_bg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::inactive_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::nav_button_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::pips_pager::PipsPagerRenderer for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::compose(&self, &yororen_ui_core::headless::pips_pager::PipsPagerProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::Send for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::Sync for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::Unpin for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+pub fn yororen_ui_default_renderer::renderers::pips_pager::arc_pips_pager<T: yororen_ui_core::renderer::pips_pager::PipsPagerRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>
 pub mod yororen_ui_default_renderer::renderers::popover
 pub use yororen_ui_default_renderer::renderers::popover::PopoverRenderState
 pub use yororen_ui_default_renderer::renderers::popover::PopoverRenderer
@@ -985,10 +1012,12 @@ pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_n
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_overlay(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_panel(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_password_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>>
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_pips_pager(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_popover(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_progress_bar(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_radio(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_radio_group(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>>
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_scroll_view(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_search_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_select(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_shortcut_hint(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>>
@@ -1043,10 +1072,12 @@ pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_overlay(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_panel(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_password_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>) -> Self
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_pips_pager(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_popover(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_progress_bar(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_radio(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_radio_group(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>) -> Self
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_scroll_view(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_search_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_select(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_shortcut_hint(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>) -> Self
@@ -1080,6 +1111,29 @@ impl core::marker::Unpin for yororen_ui_default_renderer::renderers::registry::R
 impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::registry::RendererRegistry
 impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::registry::RendererRegistry
 impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::registry::RendererRegistry
+pub mod yororen_ui_default_renderer::renderers::scroll_view
+pub struct yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::bar_width(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::frame_bg(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::frame_border_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::frame_radius(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::nav_step(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::thumb_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::thumb_hover_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::thumb_min_size(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::track_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> core::option::Option<gpui::color::Hsla>
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::track_inset(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::scroll_view::ScrollViewRenderer for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::compose(&self, yororen_ui_core::headless::scroll_view::ScrollViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::Send for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::Sync for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::Unpin for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+pub fn yororen_ui_default_renderer::renderers::scroll_view::arc_scroll_view<T: yororen_ui_core::renderer::scroll_view::ScrollViewRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>
 pub mod yororen_ui_default_renderer::renderers::search_input
 pub struct yororen_ui_default_renderer::renderers::search_input::TokenSearchInputRenderer
 impl yororen_ui_default_renderer::renderers::search_input::TokenSearchInputRenderer
@@ -1329,6 +1383,7 @@ pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer:
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::border_radius(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::focus_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::hover_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::max_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::min_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::padding(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::text_color(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -1550,10 +1605,12 @@ pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_n
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_overlay(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_panel(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_password_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>>
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_pips_pager(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_popover(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_progress_bar(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_radio(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_radio_group(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>>
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_scroll_view(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_search_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_select(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>>
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::get_shortcut_hint(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>>
@@ -1608,10 +1665,12 @@ pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_overlay(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_panel(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_password_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>) -> Self
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_pips_pager(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_popover(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_progress_bar(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_radio(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_radio_group(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>) -> Self
+pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_scroll_view(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_search_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_select(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>) -> Self
 pub fn yororen_ui_default_renderer::renderers::registry::RendererRegistry::with_shortcut_hint(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>) -> Self
@@ -2055,6 +2114,7 @@ pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::di
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::fg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::gap(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::hover_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::max_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::min_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::padding(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_default_renderer::renderers::listbox::TokenListboxRenderer::selected_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -2185,6 +2245,25 @@ impl core::marker::Unpin for yororen_ui_default_renderer::renderers::password_in
 impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::password_input::TokenPasswordInputRenderer
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::password_input::TokenPasswordInputRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::password_input::TokenPasswordInputRenderer
+pub struct yororen_ui_default_renderer::renderers::TokenPipsPagerRenderer
+impl yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::active_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::active_dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::fg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::gap(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::hover_bg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::inactive_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::nav_button_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::pips_pager::PipsPagerRenderer for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+pub fn yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer::compose(&self, &yororen_ui_core::headless::pips_pager::PipsPagerProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::Send for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::Sync for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::Unpin for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::pips_pager::TokenPipsPagerRenderer
 pub struct yororen_ui_default_renderer::renderers::TokenPopoverRenderer
 impl yororen_ui_default_renderer::renderers::popover::TokenPopoverRenderer
 pub fn yororen_ui_default_renderer::renderers::popover::TokenPopoverRenderer::bg(&self, &yororen_ui_core::renderer::popover::PopoverRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -2249,6 +2328,27 @@ impl core::marker::Unpin for yororen_ui_default_renderer::renderers::radio::Toke
 impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::radio::TokenRadioRenderer
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::radio::TokenRadioRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::radio::TokenRadioRenderer
+pub struct yororen_ui_default_renderer::renderers::TokenScrollViewRenderer
+impl yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::bar_width(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::frame_bg(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::frame_border_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::frame_radius(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::nav_step(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::thumb_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::thumb_hover_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::thumb_min_size(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::track_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> core::option::Option<gpui::color::Hsla>
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::track_inset(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::scroll_view::ScrollViewRenderer for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+pub fn yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer::compose(&self, yororen_ui_core::headless::scroll_view::ScrollViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::Send for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::Sync for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::Unpin for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_default_renderer::renderers::scroll_view::TokenScrollViewRenderer
 pub struct yororen_ui_default_renderer::renderers::TokenSearchInputRenderer
 impl yororen_ui_default_renderer::renderers::search_input::TokenSearchInputRenderer
 pub fn yororen_ui_default_renderer::renderers::search_input::TokenSearchInputRenderer::active_border(&self, &yororen_ui_core::renderer::search_input::SearchInputRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -2444,6 +2544,7 @@ pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer:
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::border_radius(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::focus_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::hover_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::max_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::min_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::padding(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_default_renderer::renderers::text_area::TokenTextAreaRenderer::text_color(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla

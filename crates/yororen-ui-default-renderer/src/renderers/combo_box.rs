@@ -9,6 +9,7 @@ use gpui::{
 
 use yororen_ui_core::animation::SlideDirection;
 use yororen_ui_core::headless::combo_box::ComboBoxProps;
+use yororen_ui_core::headless::scroll_view::ScrollViewProps;
 use yororen_ui_core::headless::text_input_element::{
     TextInputElement, start_cursor_blink, wire_input_keyboard,
 };
@@ -235,6 +236,12 @@ impl ComboBoxRenderer for TokenComboBoxRenderer {
                     state_for_close.update(cx, |s, _cx| s.close());
                 });
 
+            let scroll = props.state.read(cx).scroll.clone();
+            let max_h = px(theme
+                .get_number("tokens.control.combo_box.menu_max_height")
+                .unwrap_or(320.0) as f32);
+            let mut items: Vec<gpui::AnyElement> = Vec::with_capacity(filtered.len());
+
             for (orig_i, opt) in filtered.iter() {
                 let opt_value = opt.value.clone();
                 let opt_label = opt.label.to_string();
@@ -276,8 +283,20 @@ impl ComboBoxRenderer for TokenComboBoxRenderer {
                         s.pick(opt_value.clone(), window, &mut *cx_inner);
                     });
                 });
-                dropdown = dropdown.child(item);
+                items.push(::gpui::IntoElement::into_any_element(item));
             }
+
+            // The options are the scroll area's direct children so
+            // `scroll_to_item` can reveal the keyboard-highlighted
+            // option (see `scroll_highlighted_into_view`).
+            dropdown = dropdown.child(ScrollViewProps::compose_embedded(
+                gpui::ElementId::Name("default-combo-scroll".into()),
+                &scroll,
+                Some(max_h),
+                Some(px(2.)),
+                items,
+                cx,
+            ));
 
             let distance = px(theme.get_number("motion.slide_distance").unwrap_or(10.0) as f32);
             // The animation wrapper is absolutely positioned at the

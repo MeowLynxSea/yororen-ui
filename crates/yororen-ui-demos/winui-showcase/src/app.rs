@@ -25,7 +25,9 @@ use yororen_ui::headless::label::label;
 use yororen_ui::headless::listbox::{ListboxOption, ListboxState};
 use yororen_ui::headless::menu::MenuState;
 use yororen_ui::headless::modal::ModalState;
+use yororen_ui::headless::pips_pager::PipsPagerState;
 use yororen_ui::headless::popover::PopoverState;
+use yororen_ui::headless::scroll_view::{ScrollViewController, scroll_view};
 use yororen_ui::headless::search_input::search_input;
 use yororen_ui::headless::select::{SelectOption, SelectState};
 use yororen_ui::headless::tree::TreeData;
@@ -167,6 +169,12 @@ pub struct WinuiApp {
     pub split_toggle_dd_state: Entity<DropdownMenuState>,
     pub listbox_state: Entity<ListboxState>,
     pub gridview_state: Entity<GridViewState>,
+    pub pips_pager_state: Entity<PipsPagerState>,
+    pub scroll_view_controller: ScrollViewController,
+    /// Controller for the window-level content scroller (the right
+    /// hand page region), separate from the embedded TextArea demo's
+    /// controller.
+    pub content_scroll_controller: ScrollViewController,
     pub modal_state: Entity<ModalState>,
     pub popover_state: Entity<PopoverState>,
     pub tooltip_state: Entity<yororen_ui::headless::tooltip::TooltipState>,
@@ -215,6 +223,7 @@ pub struct WinuiApp {
     pub listbox_value: String,
     pub gridview_value: String,
     pub dropdown_value: String,
+    pub pips_pager_value: String,
 
     pub progress: f32,
     pub disclosure_open: bool,
@@ -235,6 +244,7 @@ impl WinuiApp {
         let split_toggle_dd_state = DropdownMenuState::new(&mut **cx);
         let listbox_state = ListboxState::new(&mut **cx);
         let gridview_state = GridViewState::new(&mut **cx);
+        let pips_pager_state = PipsPagerState::new(&mut **cx);
         let modal_state = ModalState::new(&mut **cx);
         let popover_state = PopoverState::new(&mut **cx);
         let tooltip_state = yororen_ui::headless::tooltip::TooltipState::new(&mut **cx);
@@ -298,6 +308,11 @@ impl WinuiApp {
                 GridViewOption::new("favorites", "Favorites"),
                 GridViewOption::new("recent", "Recent"),
             ]);
+        });
+        pips_pager_state.update(cx, |s, _cx| {
+            s.set_page_count(12);
+            s.set_max_visible_pips(Some(5));
+            s.set_nav_buttons(true);
         });
         modal_state.update(cx, |s, _cx| {
             s.set_dismiss_on_escape(true);
@@ -366,6 +381,9 @@ impl WinuiApp {
             split_toggle_dd_state,
             listbox_state,
             gridview_state,
+            pips_pager_state,
+            scroll_view_controller: ScrollViewController::new(),
+            content_scroll_controller: ScrollViewController::new(),
             modal_state,
             popover_state,
             tooltip_state,
@@ -398,6 +416,7 @@ impl WinuiApp {
             listbox_value: String::new(),
             gridview_value: String::new(),
             dropdown_value: String::new(),
+            pips_pager_value: String::new(),
             progress: 0.45,
             disclosure_open: true,
             tag_selected: false,
@@ -941,12 +960,16 @@ impl Render for WinuiApp {
         let sidebar_animated =
             AnimatedWidthElement::new("winui-sidebar-anim", sidebar_target, sidebar_bar);
 
-        let content_scroll = div()
-            .id("winui-content-scroll")
-            .flex_1()
-            .h_full()
-            .overflow_y_scroll()
-            .child(pages::build(self, window, cx));
+        // Unified scroll control for the page region: the native
+        // `overflow_y_scroll` div is replaced by a `scroll_view`
+        // driven by this controller, gaining the renderer-drawn
+        // scrollbar, thumb drag, track paging and keyboard scroll.
+        let content_scroll =
+            scroll_view("winui-content-scroll", &self.content_scroll_controller, cx)
+                .child(pages::build(self, window, cx))
+                .render(cx)
+                .flex_1()
+                .h_full();
 
         // The body region is ABSOLUTELY positioned to fill the window
         // below the title bar (top 49 → bottom / left → right). Its

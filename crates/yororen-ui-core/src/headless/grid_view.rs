@@ -395,7 +395,9 @@ mod tests {
     fn down_drifts_right_over_disabled_tile() {
         // Highlighted at 0, tile directly below (2) is disabled;
         // the scan drifts right to 3.
-        let mut s = SkipOddState { highlighted: Some(0) };
+        let mut s = SkipOddState {
+            highlighted: Some(0),
+        };
         highlight_down(&mut s, 2);
         assert_eq!(s.highlighted, Some(3));
     }
@@ -403,7 +405,9 @@ mod tests {
     #[test]
     fn up_drifts_left_over_disabled_tile() {
         // Highlighted at 3, tile directly above (1) is selectable.
-        let mut s = SkipOddState { highlighted: Some(3) };
+        let mut s = SkipOddState {
+            highlighted: Some(3),
+        };
         highlight_up(&mut s, 2);
         assert_eq!(s.highlighted, Some(1));
     }

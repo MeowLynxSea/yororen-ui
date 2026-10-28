@@ -272,6 +272,13 @@ pub struct TextInputState {
     /// single-line input convention. `text_area`'s renderer
     /// sets this to `true` so multi-line paste works.
     pub paste_newlines: bool,
+    /// The caret position (UTF-8 bytes) the text area last
+    /// scrolled into view. `TextAreaElement` only re-runs its
+    /// vertical caret-follow when this differs from the current
+    /// caret — so wheel scrolling (which moves the *viewport*, not
+    /// the caret) is never fought back by the follow. Multi-line
+    /// only; single-line inputs ignore it.
+    pub followed_caret: usize,
     /// The shared caret / selection / IME / cursor-blink state.
     /// Public so callers (renderers) can read/mutate via the
     /// `Deref` impl or directly via `state.core.X`. See
@@ -303,6 +310,7 @@ impl TextInputState {
             on_change: None,
             on_submit: None,
             paste_newlines: false,
+            followed_caret: usize::MAX,
             core: TextInputCore::new(cx),
         }
     }
@@ -391,12 +399,13 @@ impl TextInputState {
     /// Insert `text` at the current caret and advance the caret.
     /// Used by Enter-on-text-area (inserts '\n') and any
     /// caller that wants to type a single chunk without going
-    /// through the IME / action pipeline.
-    pub fn insert_text(&mut self, text: &str) {
+    /// through the IME / action pipeline. Returns `true` when the
+    /// insert actually changed the value.
+    pub fn insert_text(&mut self, text: &str) -> bool {
         if text.is_empty() {
-            return;
+            return false;
         }
-        self.replace_text_in_range_bytes(None, text);
+        self.replace_text_in_range_bytes(None, text)
     }
 
     /// Collapse selection to a single caret position.

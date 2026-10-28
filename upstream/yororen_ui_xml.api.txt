@@ -169,6 +169,7 @@ pub yororen_ui_xml::schema::ControlFlowDef::Fragment
 pub yororen_ui_xml::schema::ControlFlowDef::If
 pub yororen_ui_xml::schema::ControlFlowDef::Include
 pub yororen_ui_xml::schema::ControlFlowDef::Match
+pub yororen_ui_xml::schema::ControlFlowDef::ScrollView
 pub yororen_ui_xml::schema::ControlFlowDef::Slot
 pub yororen_ui_xml::schema::ControlFlowDef::State
 pub yororen_ui_xml::schema::ControlFlowDef::Template

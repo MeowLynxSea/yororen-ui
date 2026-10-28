@@ -89,6 +89,14 @@ tag = "UniformVirtualList"
 kind = "ControlFlow"
 control_flow = "UniformVirtualList"
 
+# `ScrollView` is a control-flow tag: its children become the
+# scrolled content and the controller is auto-persisted (see
+# `codegen_scroll_view`), not a headless Leaf.
+[[override_]]
+tag = "ScrollView"
+kind = "ControlFlow"
+control_flow = "ScrollView"
+
 # ----- Custom modifications -----
 
 # The legacy `headless::spacer` goes through a `SpacerRenderer`
@@ -152,6 +160,7 @@ needs_window = true
 tag = "TextArea"
 kind = "Leaf"
 needs_window = true
+props = [["scroll", "scroll", "Custom"]]
 
 # `ButtonGroup` consumes its children at compose time; each child
 # must be the `Stateful<Div>` returned by `button(...).render(cx)`.

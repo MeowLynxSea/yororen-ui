@@ -8,6 +8,8 @@ use std::sync::Arc;
 
 use gpui::{App, Hsla};
 
+use super::scroll_view::ScrollViewController;
+
 /// `TextArea` is a multi-line text input. It reuses
 /// `TextInputState` for value + caret.
 #[derive(Clone)]
@@ -24,6 +26,19 @@ pub struct TextAreaProps {
     pub custom_border: Option<Hsla>,
     pub custom_focus_border: Option<Hsla>,
     pub custom_text_color: Option<Hsla>,
+    /// Optional one-shot initial value seeded by the caller. The
+    /// renderer reads this when minting the underlying
+    /// `TextInputState` via `use_keyed_state`, mirroring
+    /// `TextInputProps::initial_value`. The live value lives in
+    /// the state entity and is updated by every keystroke — to
+    /// reset at runtime, bump the `id` so a fresh state is minted.
+    pub initial_value: Option<String>,
+    /// External scroll controller for the vertical scroll
+    /// container the renderer wraps the text area in. `None`
+    /// (default) lets the renderer mint and persist one keyed by
+    /// the element id — supply your own when buttons outside the
+    /// area need to drive its scroll position.
+    pub scroll: Option<ScrollViewController>,
 }
 
 pub fn text_area(id: impl Into<gpui::ElementId>) -> TextAreaProps {
@@ -40,6 +55,8 @@ pub fn text_area(id: impl Into<gpui::ElementId>) -> TextAreaProps {
         custom_border: None,
         custom_focus_border: None,
         custom_text_color: None,
+        initial_value: None,
+        scroll: None,
     }
 }
 
@@ -92,6 +109,18 @@ impl TextAreaProps {
     }
     pub fn custom_text_color(mut self, c: Hsla) -> Self {
         self.custom_text_color = Some(c);
+        self
+    }
+    /// One-shot initial value, mirroring `TextInputProps::value`.
+    pub fn value(mut self, v: impl Into<String>) -> Self {
+        self.initial_value = Some(v.into());
+        self
+    }
+
+    /// Drive the vertical scroll position with an externally owned
+    /// controller instead of the renderer's auto-persisted one.
+    pub fn scroll(mut self, controller: &ScrollViewController) -> Self {
+        self.scroll = Some(controller.clone());
         self
     }
 

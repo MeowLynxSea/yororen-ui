@@ -240,6 +240,8 @@ pub use yororen_ui_winui_renderer::renderers::PanelRenderState
 pub use yororen_ui_winui_renderer::renderers::PanelRenderer
 pub use yororen_ui_winui_renderer::renderers::PasswordInputRenderState
 pub use yororen_ui_winui_renderer::renderers::PasswordInputRenderer
+pub use yororen_ui_winui_renderer::renderers::PipsPagerRenderState
+pub use yororen_ui_winui_renderer::renderers::PipsPagerRenderer
 pub use yororen_ui_winui_renderer::renderers::PopoverRenderState
 pub use yororen_ui_winui_renderer::renderers::PopoverRenderer
 pub use yororen_ui_winui_renderer::renderers::ProgressBarRenderState
@@ -248,6 +250,9 @@ pub use yororen_ui_winui_renderer::renderers::RadioGroupRenderState
 pub use yororen_ui_winui_renderer::renderers::RadioGroupRenderer
 pub use yororen_ui_winui_renderer::renderers::RadioRenderState
 pub use yororen_ui_winui_renderer::renderers::RadioRenderer
+pub use yororen_ui_winui_renderer::renderers::ScrollThumbDrag
+pub use yororen_ui_winui_renderer::renderers::ScrollViewRenderState
+pub use yororen_ui_winui_renderer::renderers::ScrollViewRenderer
 pub use yororen_ui_winui_renderer::renderers::SearchInputRenderState
 pub use yororen_ui_winui_renderer::renderers::SearchInputRenderer
 pub use yororen_ui_winui_renderer::renderers::SelectRenderState
@@ -807,6 +812,7 @@ pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::disa
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::fg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::gap(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::hover_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::max_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::min_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::padding(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::selected_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -962,6 +968,27 @@ impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::passwor
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::password_input::WinUIPasswordInputRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::password_input::WinUIPasswordInputRenderer
 pub fn yororen_ui_winui_renderer::renderers::password_input::arc_password_input<T: yororen_ui_core::renderer::password_input::PasswordInputRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>
+pub mod yororen_ui_winui_renderer::renderers::pips_pager
+pub struct yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::active_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::active_dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::fg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::gap(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::hover_bg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::inactive_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::nav_button_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::pips_pager::PipsPagerRenderer for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::compose(&self, &yororen_ui_core::headless::pips_pager::PipsPagerProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::Send for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::Sync for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::arc_pips_pager<T: yororen_ui_core::renderer::pips_pager::PipsPagerRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>
 pub mod yororen_ui_winui_renderer::renderers::popover
 pub use yororen_ui_winui_renderer::renderers::popover::PopoverRenderState
 pub use yororen_ui_winui_renderer::renderers::popover::PopoverRenderer
@@ -1080,10 +1107,12 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_num
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_overlay(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_panel(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_password_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>>
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_pips_pager(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_popover(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_progress_bar(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_radio(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_radio_group(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>>
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_scroll_view(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_search_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_select(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_shortcut_hint(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>>
@@ -1138,10 +1167,12 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_nu
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_overlay(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_panel(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_password_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>) -> Self
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_pips_pager(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_popover(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_progress_bar(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_radio(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_radio_group(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>) -> Self
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_scroll_view(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_search_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_select(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_shortcut_hint(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>) -> Self
@@ -1175,6 +1206,29 @@ impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::registry::Ren
 impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::registry::RendererRegistry
 impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::registry::RendererRegistry
 impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::registry::RendererRegistry
+pub mod yororen_ui_winui_renderer::renderers::scroll_view
+pub struct yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::bar_width(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::frame_bg(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::frame_border_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::frame_radius(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::nav_step(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::thumb_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::thumb_hover_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::thumb_min_size(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::track_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> core::option::Option<gpui::color::Hsla>
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::track_inset(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::scroll_view::ScrollViewRenderer for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::compose(&self, yororen_ui_core::headless::scroll_view::ScrollViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::Send for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::Sync for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::arc_scroll_view<T: yororen_ui_core::renderer::scroll_view::ScrollViewRenderer + 'static>(T) -> alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>
 pub mod yororen_ui_winui_renderer::renderers::search_input
 pub struct yororen_ui_winui_renderer::renderers::search_input::WinUISearchInputRenderer
 impl yororen_ui_winui_renderer::renderers::search_input::WinUISearchInputRenderer
@@ -1430,6 +1484,7 @@ pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::b
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::border_radius(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::focus_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::hover_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::max_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::min_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::padding(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::text_color(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -1651,10 +1706,12 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_num
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_overlay(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_panel(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_password_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>>
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_pips_pager(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_popover(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_progress_bar(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_radio(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_radio_group(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>>
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_scroll_view(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_search_input(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_select(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>>
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::get_shortcut_hint(&self) -> core::option::Option<&alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>>
@@ -1709,10 +1766,12 @@ pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_nu
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_overlay(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::overlay::OverlayRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_panel(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::panel::PanelRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_password_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::password_input::PasswordInputRenderer>) -> Self
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_pips_pager(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::pips_pager::PipsPagerRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_popover(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::popover::PopoverRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_progress_bar(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::progress::ProgressBarRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_radio(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio::RadioRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_radio_group(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::radio_group::RadioGroupRenderer>) -> Self
+pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_scroll_view(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::scroll_view::ScrollViewRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_search_input(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::search_input::SearchInputRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_select(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::select::SelectRenderer>) -> Self
 pub fn yororen_ui_winui_renderer::renderers::registry::RendererRegistry::with_shortcut_hint(self, alloc::sync::Arc<dyn yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer>) -> Self
@@ -2163,6 +2222,7 @@ pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::disa
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::fg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::gap(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::hover_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::max_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::min_height(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::padding(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_winui_renderer::renderers::listbox::WinUIListboxRenderer::selected_bg(&self, &yororen_ui_core::renderer::listbox::ListboxRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -2293,6 +2353,25 @@ impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::password_inpu
 impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::password_input::WinUIPasswordInputRenderer
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::password_input::WinUIPasswordInputRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::password_input::WinUIPasswordInputRenderer
+pub struct yororen_ui_winui_renderer::renderers::WinUIPipsPagerRenderer
+impl yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::active_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::active_dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::dot_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::fg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::gap(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::hover_bg(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::inactive_color(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::nav_button_size(&self, &yororen_ui_core::renderer::pips_pager::PipsPagerRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::pips_pager::PipsPagerRenderer for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+pub fn yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer::compose(&self, &yororen_ui_core::headless::pips_pager::PipsPagerProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::Send for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::Sync for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::pips_pager::WinUIPipsPagerRenderer
 pub struct yororen_ui_winui_renderer::renderers::WinUIPopoverRenderer
 impl yororen_ui_winui_renderer::renderers::popover::WinUIPopoverRenderer
 pub fn yororen_ui_winui_renderer::renderers::popover::WinUIPopoverRenderer::bg(&self, &yororen_ui_core::renderer::popover::PopoverRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -2359,6 +2438,27 @@ impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::radio::WinUIR
 impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::radio::WinUIRadioRenderer
 impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::radio::WinUIRadioRenderer
 impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::radio::WinUIRadioRenderer
+pub struct yororen_ui_winui_renderer::renderers::WinUIScrollViewRenderer
+impl yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::bar_width(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::frame_bg(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::frame_border_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::frame_radius(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::nav_step(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::thumb_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::thumb_hover_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::thumb_min_size(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::track_color(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> core::option::Option<gpui::color::Hsla>
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::track_inset(&self, &yororen_ui_core::renderer::scroll_view::ScrollViewRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
+impl yororen_ui_core::renderer::scroll_view::ScrollViewRenderer for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+pub fn yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer::compose(&self, yororen_ui_core::headless::scroll_view::ScrollViewProps, &gpui::app::App) -> gpui::elements::div::Stateful<gpui::elements::div::Div>
+impl core::marker::Freeze for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::Send for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::Sync for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::Unpin for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::marker::UnsafeUnpin for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
+impl core::panic::unwind_safe::UnwindSafe for yororen_ui_winui_renderer::renderers::scroll_view::WinUIScrollViewRenderer
 pub struct yororen_ui_winui_renderer::renderers::WinUISearchInputRenderer
 impl yororen_ui_winui_renderer::renderers::search_input::WinUISearchInputRenderer
 pub fn yororen_ui_winui_renderer::renderers::search_input::WinUISearchInputRenderer::active_border(&self, &yororen_ui_core::renderer::search_input::SearchInputRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
@@ -2560,6 +2660,7 @@ pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::b
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::border_radius(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::focus_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::hover_border(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla
+pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::max_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::min_height(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::geometry::Pixels
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::padding(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> yororen_ui_core::renderer::spec::Edges<gpui::geometry::Pixels>
 pub fn yororen_ui_winui_renderer::renderers::text_area::WinUITextAreaRenderer::text_color(&self, &yororen_ui_core::renderer::text_area::TextAreaRenderState, &yororen_ui_core::theme::Theme) -> gpui::color::Hsla

@@ -3,10 +3,11 @@
 
 use gpui::prelude::FluentBuilder;
 use gpui::{
-    App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, ParentElement, Pixels, Stateful,
-    StatefulInteractiveElement, Styled, div, px,
+    App, CursorStyle, Div, ElementId, Hsla, InteractiveElement, IntoElement, ParentElement, Pixels,
+    Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 use yororen_ui_core::animation::SlideDirection;
+use yororen_ui_core::headless::scroll_view::ScrollViewProps;
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
 
@@ -533,7 +534,10 @@ impl MenuRenderer for BrutalMenuRenderer {
         let pad = self.padding(&state, theme);
         let item_px = self.item_padding_x(&state, theme);
         let item_py = self.item_padding_y(&state, theme);
-        let item_gap = self.item_gap(&state, theme);
+        // The embedded scroll view below uses the hardcoded
+        // `px(2.)` gap to match the default renderer's menu.
+        // `self.item_gap` remains on the helper surface so callers
+        // can re-introduce the themed gap without API churn.
         let item_hover_bg = self.item_hover_bg(&state, theme);
         let item_hl_fg = self.item_hl_fg(&state, theme);
         let group_label_fg = self.group_label_fg(&state, theme);
@@ -541,12 +545,18 @@ impl MenuRenderer for BrutalMenuRenderer {
 
         let items = props.state.read(cx).items.clone();
         let highlighted = props.state.read(cx).highlighted_index;
+        let scroll = props.state.read(cx).scroll.clone();
+        let max_h = px(theme
+            .get_number("tokens.control.menu.max_visible_height")
+            .unwrap_or(320.0) as f32);
 
-        // Build the menu body (flex column) with one row per
-        // item. Highlighted row is painted using `item_hover_bg`
-        // directly so keyboard navigation matches mouse hover
-        // without an extra theme key.
-        let mut body: Div = gpui::div().flex().flex_col().gap(item_gap);
+        // Rows are collected as `AnyElement`s so they can be moved
+        // into the embedded scroll view as its *direct* children —
+        // `ScrollHandle::scroll_to_item` addresses direct children,
+        // which is what the keyboard reveal relies on. Highlighted
+        // row is painted using `item_hover_bg` directly so keyboard
+        // navigation matches mouse hover without an extra theme key.
+        let mut rows: Vec<gpui::AnyElement> = Vec::with_capacity(items.len());
 
         for (i, item) in items.iter().enumerate() {
             match item {
@@ -578,7 +588,7 @@ impl MenuRenderer for BrutalMenuRenderer {
                             f(id.clone(), window, cx);
                         }
                     });
-                    body = body.child(row);
+                    rows.push(row.into_any_element());
                 }
                 DropdownItem::Separator => {
                     // A 2-pixel hard separator matches the
@@ -589,7 +599,7 @@ impl MenuRenderer for BrutalMenuRenderer {
                         .h(px(2.0))
                         .my(px(2.0))
                         .bg(border);
-                    body = body.child(sep);
+                    rows.push(sep.into_any_element());
                 }
                 DropdownItem::Group(group) => {
                     let group_label = group.label.to_string();
@@ -601,7 +611,7 @@ impl MenuRenderer for BrutalMenuRenderer {
                         .text_color(group_label_fg)
                         .text_size(px(11.0))
                         .child(group_label);
-                    body = body.child(header);
+                    rows.push(header.into_any_element());
                 }
             }
         }
@@ -626,6 +636,13 @@ impl MenuRenderer for BrutalMenuRenderer {
                 spread_radius: px(0.0),
                 inset: false,
             }])
-            .child(body)
+            .child(ScrollViewProps::compose_embedded(
+                ElementId::Name(format!("{:?}-scroll", props.id).into()),
+                &scroll,
+                Some(max_h),
+                Some(px(2.)),
+                rows,
+                cx,
+            ))
     }
 }

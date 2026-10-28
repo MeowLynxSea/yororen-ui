@@ -1315,6 +1315,7 @@ fn render_override(o: &OverrideEntry) -> Option<String> {
                 "State" => "ControlFlowDef::State",
                 "VirtualList" => "ControlFlowDef::VirtualList",
                 "UniformVirtualList" => "ControlFlowDef::UniformVirtualList",
+                "ScrollView" => "ControlFlowDef::ScrollView",
                 other => {
                     eprintln!("warning: unknown control flow variant `{other}`");
                     return None;

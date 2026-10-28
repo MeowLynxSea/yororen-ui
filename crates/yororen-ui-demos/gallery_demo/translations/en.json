@@ -215,7 +215,11 @@
       "cell_tree_multi": "tree — multi-select (checkbox toggles the subtree; ctrl/cmd-click toggles one row; shift-click selects a range)",
       "cell_vl": "virtual_list (scroll_to_top/bottom + on_visible_range_change + infinite loading)",
       "cell_uvl": "uniform_virtual_list (1000 items; uniform-height fast path; scroll_to_top/bottom)",
-      "cell_spacer": "spacer (16px tall)"
+      "cell_spacer": "spacer (16px tall)",
+      "cell_scrollview": "scroll_view (framed; wheel, thumb drag, track paging, ←/→/↑/↓/PgUp/PgDn/Home/End)",
+      "sv_row": "Scroll row #{}",
+      "cell_pips_pager": "pips_pager (12 pages elided to 5; click dots / ⋯ / ‹ › or ←/→/Home/End)",
+      "pips_page": "page: {}"
     }
   }
 }

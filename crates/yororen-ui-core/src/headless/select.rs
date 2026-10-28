@@ -34,6 +34,9 @@ pub type SelectChangeCallback = Arc<dyn Fn(SharedString, &mut gpui::Window, &mut
 #[derive(Clone)]
 pub struct SelectState {
     pub open: bool,
+    /// Scroll controller for the dropdown option list (see
+    /// `ListboxState::scroll`).
+    pub scroll: crate::headless::scroll_view::ScrollViewController,
     pub animation: AnimatedVisibility,
     pub value: Option<SharedString>,
     pub options: Vec<SelectOption>,
@@ -47,6 +50,7 @@ impl SelectState {
     pub fn new(app: &mut App) -> Entity<Self> {
         app.new(|_| Self {
             open: false,
+            scroll: crate::headless::scroll_view::ScrollViewController::new(),
             animation: AnimatedVisibility::new(),
             value: None,
             options: Vec::new(),
@@ -55,6 +59,17 @@ impl SelectState {
             dismiss_on_escape: true,
             on_change: None,
         })
+    }
+
+    /// Scroll the highlighted item into view through the attached
+    /// [`ScrollViewController`](crate::headless::scroll_view::ScrollViewController).
+    /// Renderers call this after keyboard highlight changes so the
+    /// highlighted option stays visible in long lists. No-op when
+    /// nothing is highlighted or the list fits.
+    pub fn scroll_highlighted_into_view(&self) {
+        if let Some(ix) = self.highlighted_index {
+            self.scroll.scroll_to_item(ix);
+        }
     }
 
     pub fn open(&mut self) {

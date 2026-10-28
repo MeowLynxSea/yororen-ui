@@ -209,6 +209,10 @@
       "cell_tree_multi": "tree — تحديد متعدد (مربع الاختيار يبدل الشجرة الفرعية؛ Ctrl/Cmd+نقر يبدل صفًا واحدًا؛ Shift+نقر يحدد نطاقًا)",
       "cell_vl": "virtual_list (scroll_to_top/bottom + on_visible_range_change + تحميل لا نهائي)",
       "cell_uvl": "uniform_virtual_list (1000 عنصر; مسار سريع متساوي الارتفاع; scroll_to_top/bottom)",
+      "cell_scrollview": "scroll_view (مؤطّر؛ عجلة التمرير، سحب المقبض، تصفّح المسار، ←/→/↑/↓/PgUp/PgDn/Home/End)",
+      "sv_row": "صف تمرير #{}",
+      "cell_pips_pager": "pips_pager (12 صفحة مختصرة إلى 5؛ انقر النقاط / ⋯ / ‹ › أو ←/→/Home/End)",
+      "pips_page": "الصفحة: {}",
       "cell_spacer": "spacer (ارتفاع 16px)"
     }
   }

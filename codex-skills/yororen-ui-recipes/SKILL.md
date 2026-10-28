@@ -21,7 +21,7 @@ still builds in isolation.
 | `counter` | minimal bootstrap, single `Entity<T>` global, three buttons, `cx.notify()` | a starter template for any app |
 | `layers_demo` | the 3 render pathways (headless / default-render / caller-custom Material ripple) side by side | to understand the visual flexibility of headless props |
 | `inputs_demo` | all 7 text inputs wired with `cx.entity().clone()` `on_change` closures | an input form, a settings page, anything input-heavy |
-| `gallery_demo` | the full 54-component showcase, theme switching, i18n, notification host, virtualized list | a kitchen-sink reference for any pattern |
+| `gallery_demo` | the full 58-component showcase, theme switching, i18n, notification host, virtualized list | a kitchen-sink reference for any pattern |
 | `theme_showcase` | per-render `theme::install(cx, theme)` for live theme switching | a "Next theme" toolbar, A/B theme testing |
 
 The gallery is the most complete — start there if you're building a
@@ -184,7 +184,7 @@ Files: `crates/yororen-ui-demos/gallery_demo/src/`.
 
 By far the largest demo. It is the canonical reference for:
 
-- The full component surface (54 components, all in one window).
+- The full component surface (58 components, all in one window).
 - `cell()` and `input_cell()` helper functions that wrap a single
   component in a labelled card with a status line — the fastest way
   to compose a "compare every variant" page.
@@ -216,7 +216,7 @@ Two-window pattern for theme switching:
 fn main() {
     let app = Application::new().with_assets(UiAsset);
     app.run(|cx: &mut App| {
-        // Register the 54 default renderers ONCE (no theme yet).
+        // Register the 58 default renderers ONCE (no theme yet).
         default_renderer::install(cx, cx.window_appearance());
 
         let app_entity = cx.new(|_cx| theme_app::ThemeApp::new());
@@ -302,4 +302,4 @@ To make the choice at runtime (a "Switch theme" button), see
 ## 10. References
 
 - `references/overlay-z-order.md` — paint priority for popovers, modals, toasts
-- `references/custom-renderer.md` — writing your own 54-marker renderer crate
+- `references/custom-renderer.md` — writing your own 58-marker renderer crate

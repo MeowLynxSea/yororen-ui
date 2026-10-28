@@ -24,9 +24,11 @@ use gpui::{
     Pixels, Stateful, StatefulInteractiveElement, Styled, div, px,
 };
 
+use gpui::IntoElement;
 use gpui::prelude::FluentBuilder;
 use yororen_ui_core::headless::list_navigable::ListNavigable;
 use yororen_ui_core::headless::listbox::ListboxProps;
+use yororen_ui_core::headless::scroll_view::ScrollViewProps;
 use yororen_ui_core::renderer::spec::Edges;
 use yororen_ui_core::theme::Theme;
 
@@ -80,6 +82,15 @@ impl TokenListboxRenderer {
     pub fn gap(&self, _state: &ListboxRenderState, theme: &Theme) -> Pixels {
         gpui::px(theme.get_number("tokens.spacing.gap_1").unwrap_or(2.0) as f32)
     }
+    /// Cap on the list body's height; beyond it the body scrolls
+    /// (with a renderer-drawn scrollbar) instead of overflowing.
+    pub fn max_height(&self, _state: &ListboxRenderState, theme: &Theme) -> Pixels {
+        gpui::px(
+            theme
+                .get_number("tokens.control.listbox.max_visible_height")
+                .unwrap_or(240.0) as f32,
+        )
+    }
 }
 
 impl ListboxRenderer for TokenListboxRenderer {
@@ -100,6 +111,7 @@ impl ListboxRenderer for TokenListboxRenderer {
         let h = self.min_height(&state, theme);
         let r = self.border_radius(&state, theme);
         let gap = self.gap(&state, theme);
+        let max_h = self.max_height(&state, theme);
 
         let highlighted = read.highlighted_index;
         let selected_value = read.selected_value.clone();
@@ -112,15 +124,14 @@ impl ListboxRenderer for TokenListboxRenderer {
         // shell can `track_focus` it and the key handler can
         // also reference it.
         let focus_handle = read.focus_handle();
+        let scroll = read.scroll.clone();
         let _ = read;
 
-        let mut body: Div = div()
-            .flex()
-            .flex_col()
-            .gap(gap)
-            .bg(bg)
-            .rounded(r)
-            .p(px(2.0));
+        // Rows are collected as `AnyElement`s so they can be moved
+        // into the embedded scroll view as its *direct* children —
+        // `ScrollHandle::scroll_to_item` addresses direct children,
+        // which is what the keyboard reveal relies on.
+        let mut rows: Vec<gpui::AnyElement> = Vec::with_capacity(options.len());
 
         for (i, opt) in options.iter().enumerate() {
             let is_highlighted = highlighted == Some(i);
@@ -161,8 +172,17 @@ impl ListboxRenderer for TokenListboxRenderer {
                     });
                 });
             }
-            body = body.child(row);
+            rows.push(row.into_any_element());
         }
+
+        let body = ScrollViewProps::compose_embedded(
+            ElementId::Name(format!("{:?}-scroll", props.id).into()),
+            &scroll,
+            Some(max_h),
+            Some(gap),
+            rows,
+            cx,
+        );
 
         // Keyboard nav — drives the same `ListNavigable` algorithm
         // the headless layer uses, so highlight / skip-disabled
@@ -223,6 +243,11 @@ impl ListboxRenderer for TokenListboxRenderer {
                     _ => false,
                 };
                 if handled {
+                    // Keep the highlighted row inside the scrolled
+                    // viewport (no-op when the list fits).
+                    state_for_keys.update(cx, |s, _cx| {
+                        s.scroll_highlighted_into_view();
+                    });
                     // Mark the window dirty so the next paint
                     // re-runs `render` and re-reads the state.
                     // Without this the highlight change is
@@ -233,7 +258,15 @@ impl ListboxRenderer for TokenListboxRenderer {
                     window.refresh();
                 }
             })
-            .child(body)
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .bg(bg)
+                    .rounded(r)
+                    .p(px(2.0))
+                    .child(body),
+            )
     }
 }
 

@@ -3,7 +3,7 @@
 //! Re-exports the three layers:
 //!
 //! - [`yororen_ui_core`] — headless primitives + i18n + a11y + rtl + animation + assets.
-//! - [`yororen_ui_default_renderer`] — 54 component renderers + Theme (JSON-backed) + bundled themes.
+//! - [`yororen_ui_default_renderer`] — 58 component renderers + Theme (JSON-backed) + bundled themes.
 //!
 //! Plus the bundled locale catalogs (`en`, `zh-CN`, `ar`).
 //!

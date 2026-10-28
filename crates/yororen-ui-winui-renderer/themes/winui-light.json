@@ -205,7 +205,8 @@
         "icon_gap": 8,
         "spinner_size": 14,
         "text_area_min_h": 120,
-        "radius": 4
+        "radius": 4,
+        "text_area_max_h": 160
       },
       "switch": {
         "track_w": 40,
@@ -471,6 +472,18 @@
       "table": {},
       "panel": {
         "radius": 4
+      },
+      "scroll_view": {
+        "bar_width": 10,
+        "thumb_min_size": 24,
+        "track_inset": 2,
+        "nav_step": 48
+      },
+      "pips_pager": {
+        "dot_size": 6,
+        "active_dot_size": 16,
+        "gap": 8,
+        "nav_button_size": 24
       }
     }
   },
@@ -508,5 +521,10 @@
     "slider_thumb_bg": "#FFFFFF",
     "accent_fill_disabled": "#00000038",
     "dialog_bg": "#FCFCFC"
+  },
+  "scrollbar": {
+    "track": "#0000000D",
+    "thumb": "#00000059",
+    "thumb_hover": "#00000080"
   }
 }

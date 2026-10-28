@@ -9,6 +9,7 @@ use yororen_ui::headless::label::label;
 use yororen_ui::headless::layout::{Inset, Spacing, column};
 use yororen_ui::headless::number_input::number_input;
 use yororen_ui::headless::password_input::password_input;
+use yororen_ui::headless::scroll_view::{ScrollViewController, scroll_view};
 use yororen_ui::headless::search_input::search_input;
 use yororen_ui::headless::text_area::text_area;
 use yororen_ui::headless::text_input::text_input;
@@ -47,15 +48,19 @@ impl InputsApp {
 
 impl Render for InputsApp {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        // Use the scrollable root via the layout primitive.
-        // `scrollable()` maps to `.overflow_scroll()` and the
-        // visual background is applied after `.render(cx)`.
-        column("inputs-scroll", cx)
+        // Unified scroll control for the page root: the native
+        // `.overflow_scroll()` column is replaced by a `scroll_view`
+        // (renderer-drawn scrollbar, thumb drag, track paging).
+        let scroll_entity = window.use_keyed_state(
+            gpui::ElementId::Name("inputs-scroll-controller".into()),
+            cx,
+            |_window, _cx: &mut gpui::Context<ScrollViewController>| ScrollViewController::new(),
+        );
+        let scroll = scroll_entity.read(cx).clone();
+        let page = column("inputs-scroll", cx)
             .w_full()
-            .h_full()
             .gap(Spacing::Xl)
             .p(Inset::Xl)
-            .scrollable()
             // Panel 1: text_input.
             .child(panel_with_label(
                 "1. text_input",
@@ -230,8 +235,12 @@ impl Render for InputsApp {
                 "text_area value: {:?}",
                 self.text_area_value
             )))
+            .render(cx);
+
+        scroll_view("inputs-scroll-view", &scroll, cx)
+            .child(page.bg(hsla(0.0, 0.0, 0.97, 1.0)))
             .render(cx)
-            .bg(hsla(0.0, 0.0, 0.97, 1.0))
+            .size_full()
     }
 }
 

@@ -3,7 +3,7 @@
 //!
 //! Source of truth: `yororen-ui-core/src/headless/*.rs`
 //! plus `yororen-ui-xml/overrides.toml`.
-//! Last regenerated with: 68 entries (28 from overrides), 5 skipped.
+//! Last regenerated with: 70 entries (29 from overrides), 5 skipped.
 //!
 //! Skipped files (need manual schema entry or a schema
 //! extension — see `gen_schema.rs` notes):
@@ -745,6 +745,24 @@ pub static BUILTINS_GENERATED: &[ComponentDef] = &[
         doc: "auto-generated from `headless::password_input`",
     },
     ComponentDef {
+        tag: "PipsPager",
+        kind: ComponentKind::Leaf(LeafDef {
+            factory: "::yororen_ui::headless::pips_pager::pips_pager",
+            extra_args: &[ExtraArg { kind: ExtraArgKind::Custom, attr: "state" }, ],
+            render: RenderMode::Default,
+            needs_app: false,
+            needs_window: false,
+            props: &[],
+            events: &[],
+            supports_text_child: false,
+            children_before_render: false,
+            unwrap_children: false,
+            slots: &[],
+        }),
+        doc: "auto-generated from `headless::pips_pager`",
+    },
+    // NOTE: extra_args = 1 entries
+    ComponentDef {
         tag: "Popover",
         kind: ComponentKind::Leaf(LeafDef {
             factory: "::yororen_ui::headless::popover::popover",
@@ -1125,6 +1143,8 @@ pub static BUILTINS_GENERATED: &[ComponentDef] = &[
             PropDef { name: "custom_border", setter: "custom_border", value: PropValue::Color },
             PropDef { name: "custom_focus_border", setter: "custom_focus_border", value: PropValue::Color },
             PropDef { name: "custom_text_color", setter: "custom_text_color", value: PropValue::Color },
+            PropDef { name: "value", setter: "value", value: PropValue::String },
+            PropDef { name: "scroll", setter: "scroll", value: PropValue::Custom },
             ],
             events: &[("on_change", "on_change"), ],
             supports_text_child: false,
@@ -1343,6 +1363,11 @@ pub static BUILTINS_OVERRIDES: &[ComponentDef] = &[
     ComponentDef {
             tag: "UniformVirtualList",
             kind: ComponentKind::ControlFlow(ControlFlowDef::UniformVirtualList),
+            doc: "from `overrides.toml`",
+        },
+    ComponentDef {
+            tag: "ScrollView",
+            kind: ComponentKind::ControlFlow(ControlFlowDef::ScrollView),
             doc: "from `overrides.toml`",
         },
 ];

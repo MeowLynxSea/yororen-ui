@@ -1,6 +1,6 @@
 //! Default renderer for [`yororen_ui_core`] headless primitives.
 //!
-//! This crate holds the *visual* layer of yororen-ui: the 56
+//! This crate holds the *visual* layer of yororen-ui: the 58
 //! `XxxRenderer` traits (defined in `yororen-ui-core`), their
 //! `TokenXxxRenderer` default implementations, the bundled
 //! `system-light.json` / `system-dark.json` themes, and a

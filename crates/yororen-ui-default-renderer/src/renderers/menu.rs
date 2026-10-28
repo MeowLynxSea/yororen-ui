@@ -15,6 +15,7 @@ use gpui::{
 };
 use yororen_ui_core::headless::dropdown_menu::DropdownItem;
 use yororen_ui_core::headless::menu::MenuProps;
+use yororen_ui_core::headless::scroll_view::ScrollViewProps;
 use yororen_ui_core::theme::Theme;
 
 pub use yororen_ui_core::renderer::menu::{MenuRenderState, MenuRenderer};
@@ -70,9 +71,16 @@ impl MenuRenderer for TokenMenuRenderer {
 
         let items = props.state.read(cx).items.clone();
         let highlighted = props.state.read(cx).highlighted_index;
+        let scroll = props.state.read(cx).scroll.clone();
+        let max_h = px(theme
+            .get_number("tokens.control.menu.max_visible_height")
+            .unwrap_or(320.0) as f32);
 
-        // Build the menu body (flex column) with one row per item.
-        let mut body: Div = div().flex().flex_col().gap(px(2.0));
+        // Rows are collected as `AnyElement`s so they can be moved
+        // into the embedded scroll view as its *direct* children —
+        // `ScrollHandle::scroll_to_item` addresses direct children,
+        // which is what the keyboard reveal relies on.
+        let mut rows: Vec<gpui::AnyElement> = Vec::with_capacity(items.len());
 
         for (i, item) in items.iter().enumerate() {
             match item {
@@ -106,7 +114,7 @@ impl MenuRenderer for TokenMenuRenderer {
                             f(id.clone(), window, cx);
                         }
                     });
-                    body = body.child(row);
+                    rows.push(::gpui::IntoElement::into_any_element(row));
                 }
                 DropdownItem::Separator => {
                     let sep = div()
@@ -115,7 +123,7 @@ impl MenuRenderer for TokenMenuRenderer {
                         .h(px(1.0))
                         .my(px(2.0))
                         .bg(border);
-                    body = body.child(sep);
+                    rows.push(::gpui::IntoElement::into_any_element(sep));
                 }
                 DropdownItem::Group(group) => {
                     let group_label = group.label.to_string();
@@ -127,7 +135,7 @@ impl MenuRenderer for TokenMenuRenderer {
                         .text_color(theme.get_color("content.tertiary").unwrap_or_default())
                         .text_size(px(11.0))
                         .child(group_label);
-                    body = body.child(header);
+                    rows.push(::gpui::IntoElement::into_any_element(header));
                 }
             }
         }
@@ -150,7 +158,14 @@ impl MenuRenderer for TokenMenuRenderer {
                     y: px(4.0),
                 },
             }])
-            .child(body)
+            .child(ScrollViewProps::compose_embedded(
+                ElementId::Name(format!("{:?}-scroll", props.id).into()),
+                &scroll,
+                Some(max_h),
+                Some(px(2.)),
+                rows,
+                cx,
+            ))
     }
 }
 

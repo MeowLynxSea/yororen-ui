@@ -60,6 +60,9 @@ pub type DropdownSelectCallback = Arc<dyn Fn(SharedString, &mut gpui::Window, &m
 #[derive(Clone)]
 pub struct DropdownMenuState {
     pub open: bool,
+    /// Scroll controller for the menu list (see
+    /// `ListboxState::scroll`).
+    pub scroll: crate::headless::scroll_view::ScrollViewController,
     pub animation: AnimatedVisibility,
     pub highlighted_index: Option<usize>,
     pub dismiss_on_escape: bool,
@@ -75,6 +78,7 @@ impl DropdownMenuState {
     pub fn new(app: &mut App) -> Entity<Self> {
         app.new(|_| Self {
             open: false,
+            scroll: crate::headless::scroll_view::ScrollViewController::new(),
             animation: AnimatedVisibility::new(),
             highlighted_index: None,
             dismiss_on_escape: true,
@@ -82,6 +86,17 @@ impl DropdownMenuState {
             items: Vec::new(),
             on_select: None,
         })
+    }
+
+    /// Scroll the highlighted item into view through the attached
+    /// [`ScrollViewController`](crate::headless::scroll_view::ScrollViewController).
+    /// Renderers call this after keyboard highlight changes so the
+    /// highlighted option stays visible in long lists. No-op when
+    /// nothing is highlighted or the list fits.
+    pub fn scroll_highlighted_into_view(&self) {
+        if let Some(ix) = self.highlighted_index {
+            self.scroll.scroll_to_item(ix);
+        }
     }
 
     pub fn open(&mut self) {

@@ -51,6 +51,9 @@ pub type ComboBoxChangeCallback = Arc<dyn Fn(SharedString, &mut gpui::Window, &m
 #[derive(Clone)]
 pub struct ComboBoxState {
     pub open: bool,
+    /// Scroll controller for the dropdown option list (see
+    /// `ListboxState::scroll`).
+    pub scroll: crate::headless::scroll_view::ScrollViewController,
     pub animation: AnimatedVisibility,
     pub text: String,
     pub value: Option<SharedString>,
@@ -72,6 +75,7 @@ impl ComboBoxState {
         let core = TextInputCore::new(app);
         app.new(|_| Self {
             open: false,
+            scroll: crate::headless::scroll_view::ScrollViewController::new(),
             animation: AnimatedVisibility::new(),
             text: String::new(),
             value: None,
@@ -83,6 +87,17 @@ impl ComboBoxState {
             core,
             on_change: None,
         })
+    }
+
+    /// Scroll the highlighted item into view through the attached
+    /// [`ScrollViewController`](crate::headless::scroll_view::ScrollViewController).
+    /// Renderers call this after keyboard highlight changes so the
+    /// highlighted option stays visible in long lists. No-op when
+    /// nothing is highlighted or the list fits.
+    pub fn scroll_highlighted_into_view(&self) {
+        if let Some(ix) = self.highlighted_index {
+            self.scroll.scroll_to_item(ix);
+        }
     }
 
     pub fn open(&mut self) {

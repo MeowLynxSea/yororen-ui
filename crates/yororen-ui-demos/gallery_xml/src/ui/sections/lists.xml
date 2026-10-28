@@ -30,6 +30,27 @@
     </Cell>
 
     <Cell>
+        <Slot name="label"><Label id="lbl-scrollview" text={t!(cx, "demo.lists.cell_scrollview")} muted /></Slot>
+        <Column flex col gap="md">
+            <ScrollView id="lists-scrollview"
+                        controller={controller.scroll_view_controller(cx)}
+                        framed h={gpui::px(160.)} w={gpui::px(240.)}>
+                <For each={controller.sv_rows(cx)} let:item let:index={i} key={i}>
+                    <Label id={format!("lists-scrollview-row-{}", i)} text={item.clone()} />
+                </For>
+            </ScrollView>
+        </Column>
+    </Cell>
+
+    <Cell>
+        <Slot name="label"><Label id="lbl-pips-pager" text={t!(cx, "demo.lists.cell_pips_pager")} muted /></Slot>
+        <Column flex col gap="md" w={gpui::px(240.)}>
+            <PipsPager id="lists-pips-pager" state={controller.pips_pager_state(cx)} />
+            <Label id="lists-pips-status" text={controller.pips_pager_status_text(cx)} muted />
+        </Column>
+    </Cell>
+
+    <Cell>
         <Slot name="label"><Label id="lbl-form" text={t!(cx, "demo.form.cell")} muted /></Slot>
         <Form id="frm-email" submit={t!(cx, "demo.form.email_label")}
               on_submit={controller.submit_form} w={gpui::px(300.)}>

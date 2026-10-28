@@ -2111,3 +2111,80 @@ fn virtual_list_children_as_rows_style_passthrough() {
     );
     assert!(s.contains("Styled :: size_full"), "{s}");
 }
+
+#[test]
+fn scroll_view_wraps_children_and_mints_controller() {
+    // No `controller`: the controller is auto-persisted via
+    // `window.use_keyed_state` and the children become the
+    // scrolled content through `props.child(...)`.
+    let s = render(
+        r#"<ScrollView id="sv" h={px(200.)}>
+    <Label id="a" text="1" />
+    <Label id="b" text="2" />
+</ScrollView>"#,
+    );
+    assert!(
+        s.contains("scroll_view :: scroll_view"),
+        "factory call missing: {s}"
+    );
+    assert!(
+        s.contains("use_keyed_state"),
+        "auto-persisted controller missing: {s}"
+    );
+    assert!(
+        s.contains("ScrollViewController :: new"),
+        "controller init missing: {s}"
+    );
+    // Both children are accumulated through `.child(...)`.
+    assert_eq!(s.matches("__props . child").count(), 2, "{s}");
+    // Style passthrough applies to the rendered element.
+    assert!(s.contains("Styled :: h"), "{s}");
+    assert!(s.contains("px (200.)"), "{s}");
+}
+
+#[test]
+fn scroll_view_external_controller_skips_keyed_state() {
+    let s = render(
+        r#"<ScrollView id="sv" controller={self.scroller}>
+    <Label id="a" text="1" />
+</ScrollView>"#,
+    );
+    assert!(s.contains("let __snap = (self . scroller) . clone"), "{s}");
+    assert!(!s.contains("use_keyed_state"), "{s}");
+}
+
+#[test]
+fn scroll_view_bool_and_scrollbar_attrs() {
+    let s = render(
+        r#"<ScrollView id="sv" scroll_x framed={show_frame} scrollbar="never">
+    <Label id="a" text="1" />
+</ScrollView>"#,
+    );
+    // Bare `scroll_x` ≡ true; `framed={expr}` passes through; the
+    // scrollbar literal maps to the Never variant.
+    assert!(s.contains("scroll_x (true)"), "{s}");
+    assert!(s.contains("framed (show_frame)"), "{s}");
+    assert!(s.contains("ScrollbarVisibility :: Never"), "{s}");
+}
+
+#[test]
+fn scroll_view_requires_children() {
+    let err = codegen(
+        r#"<ScrollView id="sv" />"#,
+        proc_macro2::Span::call_site(),
+        None,
+        None,
+        &[],
+    )
+    .expect_err("empty ScrollView must be rejected");
+    assert!(err.to_string().contains("at least one child"), "{err}");
+}
+
+#[test]
+fn pips_pager_is_a_generated_leaf_with_state_arg() {
+    // `<PipsPager>` is auto-generated from the headless factory:
+    // the `state` attribute is a Custom extra arg (like GridView).
+    let s = render(r#"<PipsPager id="pp" state={self.pager} />"#);
+    assert!(s.contains("pips_pager :: pips_pager"), "{s}");
+    assert!(s.contains("self . pager"), "{s}");
+}

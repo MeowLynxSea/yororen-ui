@@ -72,6 +72,15 @@ impl WinUITextAreaRenderer {
                 .unwrap_or_else(|| theme.get_color("content.primary").unwrap_or_default())
         }
     }
+    /// Cap on the text area's height; beyond it the content
+    /// scrolls vertically (with the Fluent faded scrollbar).
+    pub fn max_height(&self, _state: &TextAreaRenderState, theme: &Theme) -> Pixels {
+        gpui::px(
+            theme
+                .get_number("tokens.control.input.text_area_max_h")
+                .unwrap_or(160.0) as f32,
+        )
+    }
     pub fn min_height(&self, _state: &TextAreaRenderState, theme: &Theme) -> Pixels {
         px(theme
             .get_number("tokens.control.input.text_area_min_h")
@@ -93,9 +102,14 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
         let disabled = props.disabled;
         let max_length = props.max_length;
         let on_change = props.on_change.clone();
+        let initial_value = props.initial_value.clone();
 
         let state = window.use_keyed_state(props.id.clone(), cx, |_window, cx| {
-            TextInputState::new(&mut *cx)
+            let mut s = TextInputState::new(&mut *cx);
+            if let Some(v) = initial_value.clone() {
+                s.value = v;
+            }
+            s
         });
         state.update(cx, |s, _cx| {
             s.placeholder = SharedString::from(placeholder_str);
@@ -132,6 +146,7 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
         };
         let text_color = self.text_color(&render_state, &theme);
         let min_h = self.min_height(&render_state, &theme);
+        let max_h = self.max_height(&render_state, &theme);
         let padding = self.padding(&render_state, &theme);
         let radius = self.border_radius(&render_state, &theme);
         let side_border = theme
@@ -165,6 +180,17 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
         drop(theme);
 
         let placeholder_for_element = state.read(cx).placeholder.clone();
+        // Vertical scroll controller: external via `props.scroll`,
+        // or auto-persisted keyed by the element id.
+        let scroll = match &props.scroll {
+            Some(c) => c.clone(),
+            None => window
+                .use_keyed_state(props.id.clone(), cx, |_, _| {
+                    yororen_ui_core::headless::scroll_view::ScrollViewController::new()
+                })
+                .read(cx)
+                .clone(),
+        };
         let inner = TextAreaElement {
             state: state.clone(),
             focus_handle: focus_handle.clone(),
@@ -175,7 +201,21 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             selection_color,
             placeholder: placeholder_for_element,
             min_h,
+            scroll_handle: Some(scroll.handle()),
         };
+        // The element is the scroll area's only (direct) child. The
+        // shell (focus / mouse / IME handlers) sits behind the
+        // scroller, so `occlude` is disabled for the TextArea only.
+        let scroller =
+            yororen_ui_core::headless::scroll_view::ScrollViewProps::compose_embedded_with_occlude(
+                (props.id.clone(), "scroll"),
+                &scroll,
+                Some(max_h),
+                None,
+                vec![gpui::IntoElement::into_any_element(inner)],
+                false,
+                cx,
+            );
 
         let mut base: Stateful<Div> = div()
             .id(props.id.clone())
@@ -196,7 +236,7 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             } else {
                 CursorStyle::IBeam
             })
-            .child(inner)
+            .child(scroller)
             .track_focus(&focus_handle);
 
         if !disabled {
@@ -262,14 +302,11 @@ impl TextAreaRenderer for WinUITextAreaRenderer {
             if disabled {
                 return;
             }
-            let before = state_for_enter.read(cx).value.clone();
             state_for_enter.update(cx, |s, _cx| {
                 s.insert_text("\n");
             });
             let after = state_for_enter.read(cx).value.clone();
-            if before != after
-                && let Some(cb) = on_change_for_enter.as_ref()
-            {
+            if let Some(cb) = on_change_for_enter.as_ref() {
                 cb(&after, window, &mut *cx);
             }
         });

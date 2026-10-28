@@ -12,6 +12,7 @@ use std::ops::Deref;
 use gpui::{App, Context, Entity, IntoElement, Render, TestAppContext, Window, px};
 use yororen_ui_core::headless::grid_view::{GridViewOption, GridViewState, grid_view};
 use yororen_ui_core::headless::listbox::{ListboxOption, ListboxState, listbox};
+use yororen_ui_core::headless::pips_pager::{PipsPagerState, pips_pager};
 
 struct ListboxRoot {
     state: Entity<ListboxState>,
@@ -32,6 +33,18 @@ struct GridViewRoot {
 impl Render for GridViewRoot {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl gpui::IntoElement {
         grid_view("t-gridview", self.state.clone())
+            .render(cx)
+            .into_any_element()
+    }
+}
+
+struct PipsPagerRoot {
+    state: Entity<PipsPagerState>,
+}
+
+impl Render for PipsPagerRoot {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl gpui::IntoElement {
+        pips_pager("t-pips-pager", self.state.clone())
             .render(cx)
             .into_any_element()
     }
@@ -66,6 +79,15 @@ fn seeded_gridview(cx: &mut App) -> Entity<GridViewState> {
     state
 }
 
+fn seeded_pips_pager(cx: &mut App) -> Entity<PipsPagerState> {
+    let state = PipsPagerState::new(cx);
+    state.update(cx, |s, _cx| {
+        s.set_page_count(12);
+        s.set_nav_buttons(true);
+    });
+    state
+}
+
 #[gpui::test]
 fn winui_listbox_arrow_keys_move_highlight(cx: &mut TestAppContext) {
     let state = cx.update(|cx| {
@@ -88,57 +110,61 @@ fn winui_listbox_arrow_keys_move_highlight(cx: &mut TestAppContext) {
     cx.simulate_keystrokes(window.into(), "down");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(root.state.read(cx).highlighted_index, Some(0), "down from None → 0");
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(0),
+                "down from None → 0"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "down");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(
-            root.state.read(cx).highlighted_index,
-            Some(1),
-            "down moves one step to banana"
-        );
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(1),
+                "down moves one step to banana"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "down");
     window
         .update(cx, |root, _window, cx| {
-        // Cherry (index 2) is disabled — the shared walk refuses
-        // to land on it, so the highlight stays on banana.
-        assert_eq!(
-            root.state.read(cx).highlighted_index,
-            Some(1),
-            "down does not land on a disabled option"
-        );
+            // Cherry (index 2) is disabled — the shared walk refuses
+            // to land on it, so the highlight stays on banana.
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(1),
+                "down does not land on a disabled option"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "up");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(
-            root.state.read(cx).highlighted_index,
-            Some(0),
-            "up wraps past disabled"
-        );
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(0),
+                "up wraps past disabled"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "enter");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(
-            root.state
-                .read(cx)
-                .selected_value
-                .as_ref()
-                .map(|v| v.to_string()),
-            Some("apple".to_string()),
-            "enter picks the highlighted row"
-        );
+            assert_eq!(
+                root.state
+                    .read(cx)
+                    .selected_value
+                    .as_ref()
+                    .map(|v| v.to_string()),
+                Some("apple".to_string()),
+                "enter picks the highlighted row"
+            );
         })
         .unwrap();
 }
@@ -163,40 +189,48 @@ fn winui_gridview_arrow_keys_move_highlight(cx: &mut TestAppContext) {
     cx.simulate_keystrokes(window.into(), "right");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(
-            root.state.read(cx).highlighted_index,
-            Some(0),
-            "right from None → 0"
-        );
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(0),
+                "right from None → 0"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "down");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(root.state.read(cx).highlighted_index, Some(3), "down steps a row stride");
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(3),
+                "down steps a row stride"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "up");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(root.state.read(cx).highlighted_index, Some(0), "up steps back");
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(0),
+                "up steps back"
+            );
         })
         .unwrap();
 
     cx.simulate_keystrokes(window.into(), "enter");
     window
         .update(cx, |root, _window, cx| {
-        assert_eq!(
-            root.state
-                .read(cx)
-                .selected_value
-                .as_ref()
-                .map(|v| v.to_string()),
-            Some("a".to_string()),
-            "enter picks the highlighted tile"
-        );
+            assert_eq!(
+                root.state
+                    .read(cx)
+                    .selected_value
+                    .as_ref()
+                    .map(|v| v.to_string()),
+                Some("a".to_string()),
+                "enter picks the highlighted tile"
+            );
         })
         .unwrap();
 }
@@ -223,18 +257,21 @@ fn winui_listbox_arrows_after_row_click(cx: &mut TestAppContext) {
     // listbox shell pads by 2px and rows by ~8/4px, so (20, 20)
     // lands inside row 0). The selection assert below proves the
     // click actually hit a row before we exercise the arrows.
-    cx.simulate_click(gpui::Point::new(px(20.0), px(20.0)), gpui::Modifiers::default());
+    cx.simulate_click(
+        gpui::Point::new(px(20.0), px(20.0)),
+        gpui::Modifiers::default(),
+    );
     window
         .update(&mut cx, |root, _window, cx| {
-        assert_eq!(
-            root.state
-                .read(cx)
-                .selected_value
-                .as_ref()
-                .map(|v| v.to_string()),
-            Some("apple".to_string()),
-            "click on row 0 selects apple (proves the click landed)"
-        );
+            assert_eq!(
+                root.state
+                    .read(cx)
+                    .selected_value
+                    .as_ref()
+                    .map(|v| v.to_string()),
+                Some("apple".to_string()),
+                "click on row 0 selects apple (proves the click landed)"
+            );
         })
         .unwrap();
 
@@ -244,11 +281,71 @@ fn winui_listbox_arrows_after_row_click(cx: &mut TestAppContext) {
     cx.simulate_keystrokes("down down");
     window
         .update(&mut cx, |root, _window, cx| {
-        assert_eq!(
-            root.state.read(cx).highlighted_index,
-            Some(1),
-            "arrow down after clicking a row must still move the highlight"
-        );
+            assert_eq!(
+                root.state.read(cx).highlighted_index,
+                Some(1),
+                "arrow down after clicking a row must still move the highlight"
+            );
+        })
+        .unwrap();
+}
+
+#[gpui::test]
+fn winui_pips_pager_keyboard_nav(cx: &mut TestAppContext) {
+    let state = cx.update(|cx| {
+        yororen_ui_winui_renderer::install_with(cx, yororen_ui_winui_renderer::winui_dark());
+        seeded_pips_pager(cx)
+    });
+
+    let window = cx.add_window(|_window, _cx| PipsPagerRoot {
+        state: state.clone(),
+    });
+
+    window
+        .update(cx, |root, window, cx| {
+            root.state.read(cx).focus_handle().focus(window);
+        })
+        .unwrap();
+
+    // → moves one page forward; ← back again.
+    cx.simulate_keystrokes(window.into(), "right");
+    window
+        .update(cx, |root, _window, cx| {
+            assert_eq!(root.state.read(cx).current_page, 1, "right → page 1");
+        })
+        .unwrap();
+
+    cx.simulate_keystrokes(window.into(), "left");
+    window
+        .update(cx, |root, _window, cx| {
+            assert_eq!(root.state.read(cx).current_page, 0, "left → page 0");
+        })
+        .unwrap();
+
+    // Home jumps to the first page; End to the last (11, no wrap).
+    cx.simulate_keystrokes(window.into(), "end");
+    window
+        .update(cx, |root, _window, cx| {
+            assert_eq!(root.state.read(cx).current_page, 11, "end → page 11");
+        })
+        .unwrap();
+
+    cx.simulate_keystrokes(window.into(), "home");
+    window
+        .update(cx, |root, _window, cx| {
+            assert_eq!(root.state.read(cx).current_page, 0, "home → page 0");
+        })
+        .unwrap();
+
+    // ← at the first page is a no-op (no wrap), exactly like WinUI.
+    cx.simulate_keystrokes(window.into(), "left");
+    window
+        .update(cx, |root, _window, cx| {
+            assert_eq!(
+                root.state.read(cx).current_page,
+                0,
+                "left at page 0 stays put"
+            );
         })
         .unwrap();
 }

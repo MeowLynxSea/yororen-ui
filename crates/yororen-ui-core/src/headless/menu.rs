@@ -12,6 +12,9 @@ use super::list_navigable::ListNavigable;
 #[derive(Clone)]
 pub struct MenuState {
     pub highlighted_index: Option<usize>,
+    /// Scroll controller for the menu list (see
+    /// `ListboxState::scroll`).
+    pub scroll: crate::headless::scroll_view::ScrollViewController,
     pub items: Vec<DropdownItem>,
     on_select: Option<DropdownSelectCallback>,
 }
@@ -20,9 +23,21 @@ impl MenuState {
     pub fn new(app: &mut App) -> Entity<Self> {
         app.new(|_| Self {
             highlighted_index: None,
+            scroll: crate::headless::scroll_view::ScrollViewController::new(),
             items: Vec::new(),
             on_select: None,
         })
+    }
+
+    /// Scroll the highlighted item into view through the attached
+    /// [`ScrollViewController`](crate::headless::scroll_view::ScrollViewController).
+    /// Renderers call this after keyboard highlight changes so the
+    /// highlighted option stays visible in long lists. No-op when
+    /// nothing is highlighted or the list fits.
+    pub fn scroll_highlighted_into_view(&self) {
+        if let Some(ix) = self.highlighted_index {
+            self.scroll.scroll_to_item(ix);
+        }
     }
 
     pub fn set_items(&mut self, items: Vec<DropdownItem>) {

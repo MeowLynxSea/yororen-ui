@@ -362,6 +362,17 @@ pub enum ControlFlowDef {
     /// in the closure scope where `name` resolves to the
     /// entity.
     State,
+    /// `<ScrollView id="…">…</ScrollView>` — a generic scrollable
+    /// container with renderer-drawn scrollbars. The codegen mints
+    /// and persists a `ScrollViewController` via
+    /// `window.use_keyed_state(id, …)` (or accepts an external
+    /// `controller={…}` expression evaluating to a
+    /// `ScrollViewController`). The children become the scrolled
+    /// content. Optional `scroll_x` / `scroll_y` / `framed` (bool
+    /// literals or expressions), `scrollbar="always" | "never"`,
+    /// and `on_scroll={…}` (fired with the post-scroll
+    /// `(offset, max_offset)`).
+    ScrollView,
 }
 
 impl ComponentDef {
@@ -412,6 +423,11 @@ pub static BUILTINS: &[ComponentDef] = &[
         tag: "UniformVirtualList",
         kind: ComponentKind::ControlFlow(ControlFlowDef::UniformVirtualList),
         doc: "Equal-height virtual list with an auto-persisted controller — `<UniformVirtualList id=\"…\" item_count={n} let:index={i}>…</UniformVirtualList>`.",
+    },
+    ComponentDef {
+        tag: "ScrollView",
+        kind: ComponentKind::ControlFlow(ControlFlowDef::ScrollView),
+        doc: "Scrollable container with an auto-persisted controller — `<ScrollView id=\"…\">…</ScrollView>`.",
     },
     ComponentDef {
         tag: "Div",

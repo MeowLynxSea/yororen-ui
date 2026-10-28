@@ -197,6 +197,10 @@ impl Controller {
         self.state.read(cx).gridview_demo_value.clone().into()
     }
 
+    pub fn pips_pager_demo_value(&self, cx: &App) -> SharedString {
+        self.state.read(cx).pips_pager_demo_value.clone().into()
+    }
+
     // -------- Footer text helpers (used by `<Label text={controller.footer_X_text(cx)}>`) --------
 
     /// Build the footer form-summary text in a single state read.
@@ -253,8 +257,25 @@ impl Controller {
         self.state.read(cx).listbox_state.clone()
     }
 
-    pub fn gridview_state(&self, cx: &App) -> Entity<yororen_ui::headless::grid_view::GridViewState> {
+    pub fn gridview_state(
+        &self,
+        cx: &App,
+    ) -> Entity<yororen_ui::headless::grid_view::GridViewState> {
         self.state.read(cx).gridview_state.clone()
+    }
+
+    pub fn pips_pager_state(
+        &self,
+        cx: &App,
+    ) -> Entity<yororen_ui::headless::pips_pager::PipsPagerState> {
+        self.state.read(cx).pips_pager_state.clone()
+    }
+
+    pub fn scroll_view_controller(
+        &self,
+        cx: &App,
+    ) -> yororen_ui::headless::scroll_view::ScrollViewController {
+        self.state.read(cx).scroll_view_controller.clone()
     }
 
     pub fn menu_state(&self, cx: &App) -> Entity<yororen_ui::headless::menu::MenuState> {
@@ -366,6 +387,14 @@ impl Controller {
 
     pub fn list_items(&self, cx: &App) -> Vec<gpui::SharedString> {
         self.state.read(cx).list_items.clone()
+    }
+
+    /// Rows for the standalone `scroll_view` demo: 24 short labels.
+    pub fn sv_rows(&self, cx: &App) -> Vec<String> {
+        let template = cx.t("demo.lists.sv_row");
+        (0..24)
+            .map(|i| template.replacen("{}", &i.to_string(), 1))
+            .collect()
     }
 
     pub fn tree_expanded(&self, cx: &App) -> BTreeSet<TreeNodeId> {
@@ -755,6 +784,16 @@ impl Controller {
             .replacen("{}", &status, 1)
     }
 
+    pub fn pips_pager_status_text(&self, cx: &App) -> String {
+        let value = self.pips_pager_demo_value(cx);
+        let status = if value.is_empty() {
+            "1"
+        } else {
+            value.as_ref()
+        };
+        cx.t("demo.lists.pips_page").replacen("{}", status, 1)
+    }
+
     pub fn form_email_error_text(&self, cx: &App) -> String {
         self.form_email_error(cx).unwrap_or_default()
     }
@@ -1048,6 +1087,15 @@ impl Controller {
                 st.set_on_change(move |value, _w, cx| {
                     let v = value.to_string();
                     state_for_gridview.update(cx, |s, _cx| s.gridview_demo_value = v);
+                });
+            });
+
+            let state_for_pips = state.clone();
+            s.pips_pager_state.update(cx, |st, _cx| {
+                st.set_on_change(move |page, _w, cx| {
+                    state_for_pips.update(cx, |s, _cx| {
+                        s.pips_pager_demo_value = (page + 1).to_string();
+                    });
                 });
             });
 

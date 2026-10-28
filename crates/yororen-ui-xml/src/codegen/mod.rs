@@ -63,6 +63,7 @@ pub(crate) mod errors;
 pub(crate) mod events;
 pub(crate) mod includes;
 pub(crate) mod leaf;
+pub(crate) mod scroll_view;
 pub(crate) mod templates;
 pub(crate) mod text;
 pub(crate) mod virtual_list;

@@ -7,26 +7,26 @@
 //! keyed by the component's `XxxRenderState` type. Each
 //! `with_<x>(r: Arc<dyn XxxRenderer>)` setter inserts `r` under
 //! `TypeId::of::<XxxRenderState>()`; each `get_<x>() -> Option<&Arc<dyn XxxRenderer>>`
-//! looks it up. The `56 XxxRenderer` traits themselves stay public and
+//! looks it up. The `58 XxxRenderer` traits themselves stay public and
 //! unchanged — they are the **type-level** contract a theme implements,
 //! the HashMap is the **storage** layer.
 //!
-//! ## Why not 56 named fields?
+//! ## Why not 58 named fields?
 //!
-//! The 56-trait design (one trait per component) is the right level of
+//! The 58-trait design (one trait per component) is the right level of
 //! granularity for the *type system*: each `XxxRenderer` is callable
 //! with the component-specific `XxxRenderState` and returns the
 //! component-specific property shape. Trying to collapse them into a
 //! single `ComponentRenderer<S: RenderState>` trait would force a
-//! 200+-method union (because the 56 method sets are largely disjoint
+//! 200+-method union (because the 58 method sets are largely disjoint
 //! — `Switch` has `track_w/track_h/knob_size` while `Avatar` has
 //! `status_dot_size/status_inset`).
 //!
-//! What the 56-field `RendererRegistry` *didn't* need was the named
+//! What the 58-field `RendererRegistry` *didn't* need was the named
 //! fields themselves: there is no code that reads `theme.renderers.button`
 //! directly (all call sites go through `with_button` setters and
 //! `get_button` accessors). So the fields are private storage, the
-//! public surface is the 56 `with_<x>` / 56 `get_<x>` method pairs.
+//! public surface is the 58 `with_<x>` / 58 `get_<x>` method pairs.
 
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
@@ -64,10 +64,12 @@ use super::number_input::WinUINumberInputRenderer;
 use super::overlay::WinUIOverlayRenderer;
 use super::panel::WinUIPanelRenderer;
 use super::password_input::WinUIPasswordInputRenderer;
+use super::pips_pager::WinUIPipsPagerRenderer;
 use super::popover::WinUIPopoverRenderer;
 use super::progress::WinUIProgressBarRenderer;
 use super::radio::WinUIRadioRenderer;
 use super::radio_group::WinUIRadioGroupRenderer;
+use super::scroll_view::WinUIScrollViewRenderer;
 use super::search_input::WinUISearchInputRenderer;
 use super::select::WinUISelectRenderer;
 use super::shortcut_hint::WinUIShortcutHintRenderer;
@@ -120,10 +122,12 @@ use yororen_ui_core::renderer::number_input::NumberInputRenderer;
 use yororen_ui_core::renderer::overlay::OverlayRenderer;
 use yororen_ui_core::renderer::panel::PanelRenderer;
 use yororen_ui_core::renderer::password_input::PasswordInputRenderer;
+use yororen_ui_core::renderer::pips_pager::PipsPagerRenderer;
 use yororen_ui_core::renderer::popover::PopoverRenderer;
 use yororen_ui_core::renderer::progress::ProgressBarRenderer;
 use yororen_ui_core::renderer::radio::RadioRenderer;
 use yororen_ui_core::renderer::radio_group::RadioGroupRenderer;
+use yororen_ui_core::renderer::scroll_view::ScrollViewRenderer;
 use yororen_ui_core::renderer::search_input::SearchInputRenderer;
 use yororen_ui_core::renderer::select::SelectRenderer;
 use yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderer;
@@ -177,10 +181,12 @@ use yororen_ui_core::renderer::number_input::NumberInputRenderState;
 use yororen_ui_core::renderer::overlay::OverlayRenderState;
 use yororen_ui_core::renderer::panel::PanelRenderState;
 use yororen_ui_core::renderer::password_input::PasswordInputRenderState;
+use yororen_ui_core::renderer::pips_pager::PipsPagerRenderState;
 use yororen_ui_core::renderer::popover::PopoverRenderState;
 use yororen_ui_core::renderer::progress::ProgressBarRenderState;
 use yororen_ui_core::renderer::radio::RadioRenderState;
 use yororen_ui_core::renderer::radio_group::RadioGroupRenderState;
+use yororen_ui_core::renderer::scroll_view::ScrollViewRenderState;
 use yororen_ui_core::renderer::search_input::SearchInputRenderState;
 use yororen_ui_core::renderer::select::SelectRenderState;
 use yororen_ui_core::renderer::shortcut_hint::ShortcutHintRenderState;
@@ -205,7 +211,7 @@ use yororen_ui_core::renderer::virtual_list::VirtualListRenderState;
 /// Collection of component renderers. Looked up at render time by
 /// `XxxRenderState` `TypeId`.
 ///
-/// Public surface: 56 `with_<x>(Arc<dyn XxxRenderer>)` setters + 56
+/// Public surface: 58 `with_<x>(Arc<dyn XxxRenderer>)` setters + 58
 /// `get_<x>() -> Option<&Arc<dyn XxxRenderer>>` accessors. The
 /// underlying HashMap is private.
 #[derive(Clone)]
@@ -264,11 +270,11 @@ impl RendererRegistry {
     /// `with_<x>(...)` line here but forgets to mirror it in `REQUIRED`,
     /// `token_based()` panics with the full list of missing entries
     /// the first time it is called. This is the single coupling point
-    /// between the 56 setters and the 56 `REQUIRED` entries.
+    /// between the 58 setters and the 58 `REQUIRED` entries.
     pub fn token_based() -> Self {
         // Cannot use `Self::default()` here — `default` is implemented
         // as `token_based`, so that would recurse forever. Construct
-        // the empty registry directly and chain the 56 setters.
+        // the empty registry directly and chain the 58 setters.
         let registry = Self {
             map: HashMap::new(),
         }
@@ -327,7 +333,9 @@ impl RendererRegistry {
         .with_empty_state(Arc::new(WinUIEmptyStateRenderer))
         .with_image(Arc::new(WinUIImageRenderer))
         .with_keybinding_display(Arc::new(WinUIKeybindingDisplayRenderer))
-        .with_shortcut_hint(Arc::new(WinUIShortcutHintRenderer));
+        .with_shortcut_hint(Arc::new(WinUIShortcutHintRenderer))
+        .with_scroll_view(Arc::new(WinUIScrollViewRenderer))
+        .with_pips_pager(Arc::new(WinUIPipsPagerRenderer));
 
         if registry.validate().is_err() {
             panic_missing_renderers(&registry);
@@ -335,7 +343,7 @@ impl RendererRegistry {
         registry
     }
 
-    // -- 56 setters (one per component) ---------------------------------
+    // -- 58 setters (one per component) ---------------------------------
     // Each setter preserves the original `with_<x>(Arc<dyn XxxRenderer>)`
     // signature exactly — theme packages and downstream apps call them
     // unchanged. The renderer is stored under
@@ -391,6 +399,8 @@ impl RendererRegistry {
     renderer_setter!(with_form, FormRenderState, FormRenderer);
     renderer_setter!(with_form_field, FormFieldRenderState, FormFieldRenderer);
     renderer_setter!(with_grid_view, GridViewRenderState, GridViewRenderer);
+    renderer_setter!(with_scroll_view, ScrollViewRenderState, ScrollViewRenderer);
+    renderer_setter!(with_pips_pager, PipsPagerRenderState, PipsPagerRenderer);
     renderer_setter!(with_list_item, ListItemRenderState, ListItemRenderer);
     renderer_setter!(with_listbox, ListboxRenderState, ListboxRenderer);
     renderer_setter!(with_menu, MenuRenderState, MenuRenderer);
@@ -473,7 +483,7 @@ impl RendererRegistry {
             .and_then(|arc| arc.downcast_ref::<Arc<R>>())
     }
 
-    // -- 56 typed accessors (one per component) -------------------------
+    // -- 58 typed accessors (one per component) -------------------------
     // Each returns `Option<&Arc<dyn XxxRenderer>>`. Components call
     // these in their `RenderOnce::render` body; theme packages and
     // downstream code do not need them (the setter is enough to
@@ -529,6 +539,8 @@ impl RendererRegistry {
     renderer_getter!(get_form, FormRenderState, FormRenderer);
     renderer_getter!(get_form_field, FormFieldRenderState, FormFieldRenderer);
     renderer_getter!(get_grid_view, GridViewRenderState, GridViewRenderer);
+    renderer_getter!(get_scroll_view, ScrollViewRenderState, ScrollViewRenderer);
+    renderer_getter!(get_pips_pager, PipsPagerRenderState, PipsPagerRenderer);
     renderer_getter!(get_list_item, ListItemRenderState, ListItemRenderer);
     renderer_getter!(get_listbox, ListboxRenderState, ListboxRenderer);
     renderer_getter!(get_menu, MenuRenderState, MenuRenderer);
@@ -596,7 +608,7 @@ impl RendererRegistry {
         ShortcutHintRenderer
     );
 
-    /// All 56 `(TypeId, "name")` pairs that a complete registry must
+    /// All 58 `(TypeId, "name")` pairs that a complete registry must
     /// contain. Single source of truth for `validate()` and for the
     /// self-check at the end of `token_based()`.
     ///
@@ -643,6 +655,8 @@ impl RendererRegistry {
         (TypeId::of::<FormRenderState>(), "form"),
         (TypeId::of::<FormFieldRenderState>(), "form_field"),
         (TypeId::of::<GridViewRenderState>(), "grid_view"),
+        (TypeId::of::<ScrollViewRenderState>(), "scroll_view"),
+        (TypeId::of::<PipsPagerRenderState>(), "pips_pager"),
         (TypeId::of::<ListItemRenderState>(), "list_item"),
         (TypeId::of::<ListboxRenderState>(), "listbox"),
         (TypeId::of::<MenuRenderState>(), "menu"),
@@ -672,7 +686,7 @@ impl RendererRegistry {
         (TypeId::of::<ShortcutHintRenderState>(), "shortcut_hint"),
     ];
 
-    /// Verify that this registry contains a renderer for **all** 56
+    /// Verify that this registry contains a renderer for **all** 58
     /// `XxxRenderState` types. Returns `Ok(())` if complete, or
     /// `Err(missing)` listing the names of every absent renderer.
     ///
@@ -681,7 +695,7 @@ impl RendererRegistry {
     /// Component render paths look up their renderer via
     /// `get_<x>().expect("XxxRenderer registered")`. That `expect`
     /// is the *last line of defense*; if it ever fires in production
-    /// it means a theme package was constructed without all 54
+    /// it means a theme package was constructed without all 58
     /// renderers registered. This is a *configuration* bug, not a
     /// runtime condition, and the fix is "add `with_<x>(...)` to your
     /// theme's registry builder".
@@ -727,7 +741,7 @@ fn panic_missing_renderers(registry: &RendererRegistry) -> ! {
         Ok(()) => unreachable!("panic_missing_renderers called on a valid registry"),
         Err(missing) => panic!(
             "RendererRegistry::token_based() is missing {} renderer(s): {}. \
-             This is an internal bug: token_based() must register all 56 components. \
+             This is an internal bug: token_based() must register all 58 components. \
              Please report this as a yororen-ui bug.",
             missing.len(),
             missing.join(", "),
@@ -747,7 +761,7 @@ mod tests {
     use std::any::TypeId;
 
     /// Build a registry that has *only* `ButtonRenderState`
-    /// registered. Used to assert validate() reports the other 54
+    /// registered. Used to assert validate() reports the other 57
     /// as missing.
     fn only_button() -> RendererRegistry {
         let mut map: HashMap<TypeId, Arc<dyn Any + Send + Sync>> = HashMap::new();
@@ -767,8 +781,8 @@ mod tests {
         let err = r.validate().unwrap_err();
         assert_eq!(
             err.len(),
-            56,
-            "expected 56 missing entries, got {}: {:?}",
+            58,
+            "expected 58 missing entries, got {}: {:?}",
             err.len(),
             err
         );
@@ -784,6 +798,8 @@ mod tests {
         assert!(err.contains(&"uniform_virtual_list"));
         assert!(err.contains(&"listbox"));
         assert!(err.contains(&"grid_view"));
+        assert!(err.contains(&"scroll_view"));
+        assert!(err.contains(&"pips_pager"));
     }
 
     #[test]
@@ -792,8 +808,8 @@ mod tests {
         let err = r.validate().unwrap_err();
         assert_eq!(
             err.len(),
-            55,
-            "expected 55 missing entries, got {}: {:?}",
+            57,
+            "expected 57 missing entries, got {}: {:?}",
             err.len(),
             err
         );
@@ -827,7 +843,7 @@ mod tests {
     fn override_after_token_based_still_passes() {
         // The realistic theme-package pattern: take `token_based()`
         // and override one renderer. The override path must not
-        // accidentally drop the other 53.
+        // accidentally drop the other 57.
         let r = RendererRegistry::token_based()
             .with_button(Arc::new(super::super::button::WinUIButtonRenderer));
         r.validate()
@@ -863,7 +879,7 @@ mod tests {
         //
         // The realistic mirror is: rebuild the registry from a
         // `token_based()` snapshot but skip one setter. We do that
-        // by constructing an almost-complete registry (55 of 56) and
+        // by constructing an almost-complete registry (57 of 58) and
         // asking the same code path to validate. Since we can't
         // reuse the production self-check without code duplication,
         // we rely on the `panic_missing_renderers` helper directly

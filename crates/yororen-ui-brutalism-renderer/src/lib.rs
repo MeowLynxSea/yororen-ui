@@ -1,6 +1,6 @@
 //! Neo-Brutalism style renderer for yororen-ui.
 //!
-//! Implements all 55 `XxxRenderer` traits with sharp corners, thick
+//! Implements all 58 `XxxRenderer` traits with sharp corners, thick
 //! black borders, hard offset shadows, and monospace typography.
 //!
 //! Two bundled themes: `brutalism-light.json` and
@@ -68,15 +68,16 @@ use crate::renderers::{
         BrutalSelectRenderer, BrutalTextAreaRenderer, BrutalTextInputRenderer,
     },
     lists::{
-        BrutalFormFieldRenderer, BrutalFormRenderer, BrutalGridViewRenderer, BrutalListItemRenderer,
-        BrutalListboxRenderer, BrutalTableRenderer, BrutalTreeItemRenderer, BrutalTreeRenderer,
-        BrutalUniformVirtualListRenderer, BrutalVirtualListRenderer,
+        BrutalFormFieldRenderer, BrutalFormRenderer, BrutalGridViewRenderer,
+        BrutalListItemRenderer, BrutalListboxRenderer, BrutalTableRenderer, BrutalTreeItemRenderer,
+        BrutalTreeRenderer, BrutalUniformVirtualListRenderer, BrutalVirtualListRenderer,
     },
     notifications::{BrutalNotificationRenderer, BrutalToastRenderer},
     overlays::{
         BrutalDisclosureRenderer, BrutalDropdownMenuRenderer, BrutalMenuRenderer,
         BrutalModalRenderer, BrutalOverlayRenderer, BrutalPopoverRenderer,
     },
+    scroll::{BrutalPipsPagerRenderer, BrutalScrollViewRenderer},
     surfaces::{
         BrutalAvatarRenderer, BrutalCardRenderer, BrutalImageRenderer, BrutalPanelRenderer,
         BrutalTooltipRenderer,
@@ -113,7 +114,7 @@ fn brutal_theme_for(appearance: WindowAppearance) -> Theme {
     Theme::from_json(json).expect("brutalism theme json is valid")
 }
 
-/// Register all 56 brutalist `XxxRenderer` impls against the core
+/// Register all 58 brutalist `XxxRenderer` impls against the core
 /// `RendererRegistry`. Public so a caller who already installed
 /// the theme (e.g. for tests) can still wire up the brutalist
 /// look without re-installing the theme.
@@ -219,9 +220,7 @@ pub fn register_brutal_renderers(cx: &mut App) {
     // Lists (10)
     cx.register_renderer_arc::<m::ListItem, dyn ListItemRenderer>(Arc::new(BrutalListItemRenderer));
     cx.register_renderer_arc::<m::Listbox, dyn ListboxRenderer>(Arc::new(BrutalListboxRenderer));
-    cx.register_renderer_arc::<m::GridView, dyn GridViewRenderer>(Arc::new(
-        BrutalGridViewRenderer,
-    ));
+    cx.register_renderer_arc::<m::GridView, dyn GridViewRenderer>(Arc::new(BrutalGridViewRenderer));
     cx.register_renderer_arc::<m::TreeItem, dyn TreeItemRenderer>(Arc::new(BrutalTreeItemRenderer));
     cx.register_renderer_arc::<m::Tree, dyn TreeRenderer>(Arc::new(BrutalTreeRenderer));
     cx.register_renderer_arc::<m::Form, dyn FormRenderer>(Arc::new(BrutalFormRenderer));
@@ -234,5 +233,11 @@ pub fn register_brutal_renderers(cx: &mut App) {
     ));
     cx.register_renderer_arc::<m::UniformVirtualList, dyn UniformVirtualListRenderer>(Arc::new(
         BrutalUniformVirtualListRenderer,
+    ));
+    cx.register_renderer_arc::<m::ScrollView, dyn ScrollViewRenderer>(Arc::new(
+        BrutalScrollViewRenderer,
+    ));
+    cx.register_renderer_arc::<m::PipsPager, dyn PipsPagerRenderer>(Arc::new(
+        BrutalPipsPagerRenderer,
     ));
 }

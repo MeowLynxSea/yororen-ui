@@ -28,16 +28,16 @@ use crate::renderers::{
     TokenDividerRenderer, TokenDropdownMenuRenderer, TokenEmptyStateRenderer,
     TokenFilePathInputRenderer, TokenFocusRingRenderer, TokenFormFieldRenderer, TokenFormRenderer,
     TokenGridViewRenderer, TokenHeadingRenderer, TokenIconButtonRenderer, TokenIconRenderer,
-    TokenImageRenderer,
-    TokenKeybindingDisplayRenderer, TokenKeybindingInputRenderer, TokenLabelRenderer,
-    TokenListItemRenderer, TokenListboxRenderer, TokenMenuRenderer, TokenModalRenderer,
-    TokenNotificationRenderer, TokenNumberInputRenderer, TokenOverlayRenderer, TokenPanelRenderer,
-    TokenPasswordInputRenderer, TokenPopoverRenderer, TokenProgressBarRenderer,
-    TokenRadioGroupRenderer, TokenRadioRenderer, TokenSearchInputRenderer, TokenSelectRenderer,
-    TokenShortcutHintRenderer, TokenSkeletonRenderer, TokenSliderRenderer, TokenSpacerRenderer,
-    TokenSplitButtonRenderer, TokenSwitchRenderer, TokenTableRenderer, TokenTagRenderer,
-    TokenTextAreaRenderer, TokenTextInputRenderer, TokenTextRenderer, TokenToastRenderer,
-    TokenToggleButtonRenderer, TokenTooltipRenderer, TokenTreeItemRenderer, TokenTreeRenderer,
+    TokenImageRenderer, TokenKeybindingDisplayRenderer, TokenKeybindingInputRenderer,
+    TokenLabelRenderer, TokenListItemRenderer, TokenListboxRenderer, TokenMenuRenderer,
+    TokenModalRenderer, TokenNotificationRenderer, TokenNumberInputRenderer, TokenOverlayRenderer,
+    TokenPanelRenderer, TokenPasswordInputRenderer, TokenPipsPagerRenderer, TokenPopoverRenderer,
+    TokenProgressBarRenderer, TokenRadioGroupRenderer, TokenRadioRenderer, TokenScrollViewRenderer,
+    TokenSearchInputRenderer, TokenSelectRenderer, TokenShortcutHintRenderer,
+    TokenSkeletonRenderer, TokenSliderRenderer, TokenSpacerRenderer, TokenSplitButtonRenderer,
+    TokenSwitchRenderer, TokenTableRenderer, TokenTagRenderer, TokenTextAreaRenderer,
+    TokenTextInputRenderer, TokenTextRenderer, TokenToastRenderer, TokenToggleButtonRenderer,
+    TokenTooltipRenderer, TokenTreeItemRenderer, TokenTreeRenderer,
     TokenUniformVirtualListRenderer, TokenVirtualListRenderer,
 };
 
@@ -257,5 +257,11 @@ pub fn register_default_renderers(cx: &mut App) {
     );
     cx.register_renderer_arc::<markers::ShortcutHint, dyn crate::renderers::ShortcutHintRenderer>(
         Arc::new(TokenShortcutHintRenderer),
+    );
+    cx.register_renderer_arc::<markers::ScrollView, dyn crate::renderers::ScrollViewRenderer>(
+        Arc::new(TokenScrollViewRenderer),
+    );
+    cx.register_renderer_arc::<markers::PipsPager, dyn crate::renderers::PipsPagerRenderer>(
+        Arc::new(TokenPipsPagerRenderer),
     );
 }

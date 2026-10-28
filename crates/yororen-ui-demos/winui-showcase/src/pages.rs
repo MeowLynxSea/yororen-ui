@@ -26,6 +26,7 @@ use yororen_ui::headless::listbox::listbox;
 use yororen_ui::headless::menu::menu;
 use yororen_ui::headless::number_input::number_input;
 use yororen_ui::headless::password_input::password_input;
+use yororen_ui::headless::pips_pager::pips_pager;
 use yororen_ui::headless::radio::radio;
 use yororen_ui::headless::radio_group::radio_group;
 use yororen_ui::headless::search_input::search_input;
@@ -524,6 +525,27 @@ fn inputs_page(
         })
         .render(cx, window);
 
+    // Text area with a long, pre-filled document: the text area's
+    // OWN vertical scroller (auto-persisted, renderer-drawn
+    // scrollbar) kicks in once the content exceeds its max height.
+    // Rendering it directly — NOT wrapped in a second scroll_view —
+    // keeps the wheel-propagation stop at the text area itself; a
+    // nested scroll view would also scroll the page under it.
+    let entity_ta_scroll = entity.clone();
+    let long_document = (1..=40)
+        .map(|i| {
+            format!("Line {i} of a long document — scroll me with the wheel, thumb, or PgUp/PgDn.")
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let scroll_ta = text_area("wi-text-area-scroll")
+        .placeholder("Long document…")
+        .value(long_document)
+        .on_change(move |new: &str, _w, cx| {
+            entity_ta_scroll.update(cx, |s, _cx| s.text_area = new.to_string());
+        })
+        .render(cx, window);
+
     column("winui-inputs", cx)
         .p(px(32.0))
         .gap(Spacing::Lg)
@@ -538,6 +560,12 @@ fn inputs_page(
                 .child(labeled("wi-lb-search", "Search", search_el, cx))
                 .child(labeled("wi-lb-fp", "File path", fp_el, cx))
                 .child(labeled("wi-lb-ta", "Text area", ta_el, cx))
+                .child(labeled(
+                    "wi-lb-ta-scroll",
+                    "Text area — long doc (scroll_view)",
+                    scroll_ta,
+                    cx,
+                ))
                 .child(status_line(
                     "inputs",
                     format!(
@@ -1346,6 +1374,36 @@ fn data_page(
         .render(cx);
     let _ = entity_li;
 
+    // PipsPager: 12 pages elided to a window of 5 with prev/next
+    // chevrons; dots and ‹ › drive the page, ←/→/Home/End work via
+    // the keyboard.
+    let entity_pips = entity.clone();
+    let pips_pager_state = app.pips_pager_state.clone();
+    pips_pager_state.update(cx, |s, _cx| {
+        s.set_on_change(move |page, _w, cx| {
+            entity_pips.update(cx, |s, _cx| {
+                s.pips_pager_value = (page + 1).to_string();
+            });
+        });
+    });
+    let pips_el = column("wd-pips-col", cx)
+        .gap(Spacing::Sm)
+        .child(pips_pager("wd-pips-pager", pips_pager_state.clone()).render(cx))
+        .child(
+            label(
+                "wd-pips-status",
+                if app.pips_pager_value.is_empty() {
+                    "page: 1".to_string()
+                } else {
+                    format!("page: {}", app.pips_pager_value)
+                },
+                cx,
+            )
+            .muted(true)
+            .render(cx),
+        )
+        .render(cx);
+
     // Tree: flatten the visible rows from app state.
     let tree_data = app.tree_data.clone();
     let tree_expanded = app.tree_expanded.clone();
@@ -1525,6 +1583,7 @@ fn data_page(
                     cx,
                 ))
                 .child(section("data-list-items", "List items", list_items, cx))
+                .child(section("data-pips-pager", "Pips pager", pips_el, cx))
                 .child(section("data-tree", "Tree view", tree_el, cx))
                 .child(section(
                     "data-tree-multi",

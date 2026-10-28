@@ -33,6 +33,18 @@ pub struct TextAreaElement {
     /// area is tappable even when empty). The actual height is
     /// `max(min_h, line_count * line_height)`.
     pub min_h: Pixels,
+    /// When embedded in a vertical scroll container, the handle of
+    /// that container. Enables caret-follow scrolling: the caret's
+    /// row is kept inside the viewport as it moves, mirroring the
+    /// long-standing horizontal `scroll_x` follow. `None` renders
+    /// unscrolled (legacy behaviour, clipped by the wrapper).
+    ///
+    /// The element's `bounds` arrive already scroll-translated
+    /// (gpui wraps child prepaint in `with_element_offset`), so
+    /// the caret's visual Y is `bounds.top() + caret_row *
+    /// line_height` with no extra correction — and the click /
+    /// IME hit-testing stored in `last_bounds` stays correct too.
+    pub scroll_handle: Option<gpui::ScrollHandle>,
 }
 
 pub struct TextAreaPrepaintState {
@@ -185,6 +197,39 @@ impl Element for TextAreaElement {
         }
         scroll_x = scroll_x.clamp(Pixels::ZERO, max_scroll_x);
 
+        // Vertical caret-follow: keep the caret's row inside the
+        // scroll container's viewport. `set_offset` takes effect
+        // from the next frame (the container already clamped and
+        // translated this frame's prepaint before reaching us), so
+        // the follow lags the caret by one frame — imperceptible
+        // next to the cursor blink.
+        //
+        // It only runs when the caret actually MOVED since the last
+        // frame (`followed_caret` is written back in `paint`): a
+        // continuous follow would fight wheel scrolling — the wheel
+        // moves the viewport, not the caret, so an unconditional
+        // follow would force the viewport right back to the caret
+        // (and, due to a sign error, only ever downward).
+        let follow_vertical = input.followed_caret != caret && input.followed_caret != usize::MAX;
+        if follow_vertical && let Some(handle) = &self.scroll_handle {
+            let vp = handle.bounds();
+            if vp.size.height > Pixels::ZERO {
+                let caret_top = bounds.top() + line_height_px * (caret_row as f32);
+                let caret_bottom = caret_top + line_height_px;
+                let mut offset = handle.offset();
+                // Caret above the viewport → scroll up (offset toward
+                // 0). `bounds` is already scroll-translated, so
+                // `vp.top() - caret_top` is the positive delta that
+                // brings the caret's top back into view.
+                if caret_top < vp.top() {
+                    offset.y += vp.top() - caret_top;
+                } else if caret_bottom > vp.bottom() {
+                    offset.y -= caret_bottom - vp.bottom();
+                }
+                handle.set_offset(offset);
+            }
+        }
+
         let mut selection_quads = Vec::new();
         if !selection.is_empty() && !is_empty {
             for (i, line) in shaped.iter().enumerate() {
@@ -289,6 +334,10 @@ impl Element for TextAreaElement {
             input.last_line_height = Some(line_height_px);
             input.last_bounds = Some(bounds);
             input.scroll_x = prepaint.scroll_x;
+            // Remember which caret position we already scrolled into
+            // view so the next prepaint's follow only re-runs on an
+            // actual caret move (see `prepaint`).
+            input.followed_caret = input.caret;
         });
     }
 }
