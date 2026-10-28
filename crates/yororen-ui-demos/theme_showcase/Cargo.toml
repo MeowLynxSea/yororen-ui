@@ -2,12 +2,13 @@
 name = "theme-showcase-demo"
 version = "0.1.0"
 edition.workspace = true
+rust-version.workspace = true
 # Demo / example binary — never published to crates.io.
 publish = false
 
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.2.2" }
-gpui-ce-platform = { package = "gpui_ce_platform", version = "0.1" }
+gpui.workspace = true
+gpui-ce-platform.workspace = true
 yororen-ui = { package = "yororen_ui", path = "../../yororen-ui" }
 yororen-ui-default-renderer = { package = "yororen_ui_default_renderer", path = "../../yororen-ui-default-renderer" }
 

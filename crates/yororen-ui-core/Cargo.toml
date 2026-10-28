@@ -2,13 +2,14 @@
 name = "yororen_ui_core"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 description = "Headless UI primitives, animation, a11y, RTL, and i18n mechanism for gpui-based apps. Theme tokens live in DesignTokens; no default theme ships here."
 readme = "../../README.md"
 repository.workspace = true
 
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.2.2" }
+gpui.workspace = true
 
 # rust-embed is retained for asset/icon embedding (`assets/icons/**`).
 # Locale data is no longer embedded here; it ships in dedicated

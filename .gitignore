@@ -1,7 +1,10 @@
 /target
 **/*.DS_Store
 
-Cargo.lock
+# The workspace lock is committed so CI and demos use the audited dependency graph.
+# The standalone fuzz workspace maintains its own lock.
+crates/yororen-ui-xml/fuzz/Cargo.lock
+crates/yororen-ui-demos/counter/Cargo.lock
 
 # Demo targets (legacy and workspace paths)
 demo/**/target

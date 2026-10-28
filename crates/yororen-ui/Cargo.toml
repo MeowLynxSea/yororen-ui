@@ -2,6 +2,7 @@
 name = "yororen_ui"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 description = "Reusable UI components and widgets built on top of gpui. Meta-crate that re-exports core + system theme + 13 universal icons."
 readme = "../../README.md"
@@ -16,7 +17,7 @@ yororen-ui-locale-zh-cn = { package = "yororen_ui_locale_zh_cn", path = "../yoro
 yororen-ui-locale-ar = { package = "yororen_ui_locale_ar", path = "../yororen-ui-locale-ar", version = "0.3" }
 yororen-ui-xml = { package = "yororen_ui_xml", path = "../yororen-ui-xml", version = "0.3", optional = true }
 yororen-ui-xml-macro = { package = "yororen_ui_xml_macro", path = "../yororen-ui-xml-macro", version = "0.3", optional = true }
-gpui = { package = "gpui-ce", version = "0.2.2" }
+gpui.workspace = true
 serde_json = "1"
 
 [features]

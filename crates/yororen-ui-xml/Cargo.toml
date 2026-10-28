@@ -2,6 +2,7 @@
 name = "yororen_ui_xml"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 description = "Compile-time XML UI layer for yororen-ui. Provides the `xml!` proc-macro and supporting schema/parser/codegen used by the yororen-ui-xml-macro crate."
 readme = "../../README.md"
@@ -9,7 +10,7 @@ repository.workspace = true
 
 [dependencies]
 yororen-ui-core = { package = "yororen_ui_core", path = "../yororen-ui-core", version = "0.3" }
-gpui = { package = "gpui-ce", version = "0.2.2" }
+gpui.workspace = true
 roxmltree = "0.20"
 proc-macro2 = "1"
 quote = "1"

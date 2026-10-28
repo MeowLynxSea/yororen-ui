@@ -2,17 +2,18 @@
 name = "winui-showcase"
 version = "0.1.0"
 edition.workspace = true
+rust-version.workspace = true
 # Demo / example binary — never published to crates.io.
 publish = false
 
 [dependencies]
-gpui = { package = "gpui-ce", version = "0.2.2" }
-gpui-ce-platform = { package = "gpui_ce_platform", version = "0.1" }
+gpui.workspace = true
+gpui-ce-platform.workspace = true
 yororen-ui = { package = "yororen_ui", path = "../../yororen-ui" }
 yororen-ui-winui-renderer = { package = "yororen_ui_winui_renderer", path = "../../yororen-ui-winui-renderer" }
 
 [dev-dependencies]
-gpui = { package = "gpui-ce", version = "0.2.2", features = ["test-support"] }
+gpui = { workspace = true, features = ["test-support"] }
 
 [lints]
 workspace = true

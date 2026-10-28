@@ -2,6 +2,7 @@
 name = "yororen_ui_xml_macro"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 description = "Proc-macro crate providing the `xml!` and `xml_file!` macros for yororen-ui."
 readme = "../../README.md"
