@@ -1,4 +1,0 @@
-interface:
-  display_name: "Yororen UI State + Inputs"
-  short_description: "Inputs, forms, modals, composites"
-  default_prompt: "Use $yororen-ui-state-inputs to implement text inputs, forms, modals, popovers, dropdowns, listbox, tree, virtual list, and the on_change / on_pick / on_close closure patterns in Yororen UI."

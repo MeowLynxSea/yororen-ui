@@ -1,4 +1,0 @@
-interface:
-  display_name: "Yororen UI Recipes"
-  short_description: "Copy demo patterns"
-  default_prompt: "Use $yororen-ui-recipes to provide end-to-end Yororen UI examples — counter, layers_demo, inputs_demo, gallery_demo, theme_showcase — and composition rules for overlays, lists, i18n, and renderer selection."
