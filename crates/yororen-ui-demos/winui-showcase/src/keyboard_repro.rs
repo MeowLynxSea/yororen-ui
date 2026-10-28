@@ -8,6 +8,75 @@
 //! gets selected, then presses arrow keys and asserts the
 //! highlight index moved.
 
+fn migration_showcase(
+    page: crate::app::WinuiPage,
+    cx: &mut gpui::TestAppContext,
+) -> (gpui::Entity<crate::app::WinuiApp>, gpui::VisualTestContext) {
+    use gpui::AppContext;
+    use std::ops::Deref;
+
+    cx.executor().allow_parking();
+    cx.update(|cx| {
+        yororen_ui::headless::text_input::init(cx);
+        yororen_ui_winui_renderer::install_with(cx, yororen_ui_winui_renderer::winui_dark());
+    });
+    let app = cx.new(|cx| {
+        let mut app = crate::app::WinuiApp::new(cx);
+        app.page = page;
+        app
+    });
+    let window = cx
+        .update(|cx| {
+            cx.open_window(
+                gpui::WindowOptions::default().window_bounds(gpui::WindowBounds::Windowed(
+                    gpui::Bounds::new(
+                        gpui::point(gpui::px(0.), gpui::px(0.)),
+                        gpui::size(gpui::px(1120.), gpui::px(900.)),
+                    ),
+                )),
+                |_, _| app.clone(),
+            )
+        })
+        .unwrap();
+    let visual = gpui::VisualTestContext::from_window(window.into(), cx.deref());
+    visual.run_until_parked();
+    (app, visual)
+}
+
+#[gpui::test]
+fn migrated_showcase_accepts_unicode_and_keyboard_edits(cx: &mut gpui::TestAppContext) {
+    let (app, mut cx) = migration_showcase(crate::app::WinuiPage::Inputs, cx);
+    let bounds = cx.debug_bounds("showcase-wi-lb-text").expect("text input is painted");
+    cx.simulate_click(
+        gpui::point(bounds.center().x, bounds.bottom() - gpui::px(10.)),
+        gpui::Modifiers::default(),
+    );
+    cx.simulate_input("你好🙂");
+    assert_eq!(cx.update(|_, cx| app.read(cx).text.clone()), "你好🙂");
+    cx.simulate_keystrokes("backspace");
+    assert_eq!(cx.update(|_, cx| app.read(cx).text.clone()), "你好");
+}
+
+#[gpui::test]
+fn migrated_showcase_dropdown_picks_through_deferred_layer(cx: &mut gpui::TestAppContext) {
+    let (app, mut cx) = migration_showcase(crate::app::WinuiPage::Lists, cx);
+    let bounds = cx.debug_bounds("showcase-select").expect("select is painted");
+    cx.simulate_click(bounds.center(), gpui::Modifiers::default());
+    assert!(cx.update(|_, cx| app.read(cx).select_state.read(cx).is_open()));
+    cx.executor().advance_clock(std::time::Duration::from_millis(500));
+    cx.run_until_parked();
+    cx.simulate_click(
+        gpui::point(bounds.left() + gpui::px(20.), bounds.bottom() + gpui::px(24.)),
+        gpui::Modifiers::default(),
+    );
+    cx.update(|_, cx| {
+        let app = app.read(cx);
+        assert_eq!(app.select_state.read(cx).value.as_deref(), Some("apple"));
+        assert_eq!(app.select_value, "apple");
+        assert!(!app.select_state.read(cx).is_open());
+    });
+}
+
 #[gpui::test]
 fn showcase_listbox_arrows_after_click(cx: &mut gpui::TestAppContext) {
     use gpui::{AppContext, Modifiers, px};

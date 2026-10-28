@@ -643,7 +643,7 @@ mod input_interaction_tests {
         // Cycle 2 ended with the caret hidden; after blur the
         // task's next tick restores a solid caret and releases
         // the flag so a later focus-in can respawn.
-        cx.update(|window, _| window.blur());
+        cx.update(|window, cx| window.blur(cx));
         cx.executor().advance_clock(CURSOR_BLINK_INTERVAL);
         cx.run_until_parked();
         assert!(state.read_with(cx, |s, _| s.core.cursor_visible));

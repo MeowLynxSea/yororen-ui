@@ -7,6 +7,8 @@
 use gpui::{
     Context, IntoElement, ParentElement, StatefulInteractiveElement, Styled, Window, div, px,
 };
+#[cfg(test)]
+use gpui::InteractiveElement;
 
 use yororen_ui::ActionVariantKind;
 use yororen_ui::headless::button::button;
@@ -587,7 +589,7 @@ fn labeled(
     child: impl IntoElement,
     cx: &mut Context<WinuiApp>,
 ) -> gpui::AnyElement {
-    column(format!("winui-labeled-{id}"), cx)
+    let el = column(format!("winui-labeled-{id}"), cx)
         // WinUI TextBox / ComboBox default width is 296px; use
         // cross-axis stretch so the input actually fills this width.
         .w(px(296.0))
@@ -595,8 +597,10 @@ fn labeled(
         .items(AlignItems::Stretch)
         .child(label(format!("winui-labeled-{id}-lbl"), text, cx).render(cx))
         .child(child)
-        .render(cx)
-        .into_any_element()
+        .render(cx);
+    #[cfg(test)]
+    let el = el.debug_selector(|| format!("showcase-{id}"));
+    el.into_any_element()
 }
 
 // ---------------------------------------------------------------------
@@ -709,6 +713,8 @@ fn lists_page(
         });
     });
     let select_el = select("wi-select", select_state.clone()).render(cx);
+    #[cfg(test)]
+    let select_el = select_el.debug_selector(|| "showcase-select".into());
 
     // combo box
     let entity_combo = entity.clone();

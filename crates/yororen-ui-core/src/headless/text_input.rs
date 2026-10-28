@@ -21,7 +21,7 @@
 //! Key dispatch lives in the renderer (the wrapper `div` has
 //! `.key_context("UITextInput")` and a stack of `.on_action(...)`
 //! calls). `init()` registers the keymap against the
-//! `"UITextInput"` context (idempotent via `OnceLock`); apps that
+//! `"UITextInput"` context (idempotent per `App`); apps that
 //! want a different keymap simply don't call it.
 //!
 //! ## Shared core
@@ -45,7 +45,7 @@
 //! state lives on `TextInputCore`.
 
 use std::ops::{Deref, DerefMut, Range};
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
 
 use gpui::{
     App, Bounds, Context, EntityInputHandler, FocusHandle, Focusable, Hsla, KeyBinding, Pixels,
@@ -88,10 +88,10 @@ actions!(
 /// (e.g. an editor that uses `secondary-v` for paste globally)
 /// simply don't call this.
 pub fn init(cx: &mut App) {
-    static DONE: OnceLock<()> = OnceLock::new();
-    if DONE.set(()).is_err() {
+    if cx.has_global::<TextInputKeymapInstalled>() {
         return;
     }
+    cx.set_global(TextInputKeymapInstalled);
     cx.bind_keys([
         KeyBinding::new("backspace", Backspace, Some("UITextInput")),
         KeyBinding::new("delete", Delete, Some("UITextInput")),
@@ -114,6 +114,9 @@ pub fn init(cx: &mut App) {
         ),
     ]);
 }
+
+struct TextInputKeymapInstalled;
+impl gpui::Global for TextInputKeymapInstalled {}
 
 // =====================================================================
 // `action_handler!` — for each action the renderer's wrapper div
