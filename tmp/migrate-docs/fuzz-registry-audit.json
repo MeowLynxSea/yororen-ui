@@ -1,8 +1,0 @@
-{
-  "checked_at": "2026-10-28T09:51:57.892622+00:00",
-  "lock": "crates/yororen-ui-xml/fuzz/Cargo.lock",
-  "lock_sha256": "a71e72817ecee47a04ef9c9904afeaa752ac28d39db013c5ef8748864a30b746",
-  "registry_package_versions": 397,
-  "errors": [],
-  "note": "Fresh standalone fuzz resolution; overlapping versions reuse the current root registry audit. Ignored fuzz lock is not the release lock."
-}
