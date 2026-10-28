@@ -71,7 +71,7 @@ impl DropdownMenuRenderer for TokenDropdownMenuRenderer {
                 .left_0()
                 .rounded(r)
                 .shadow(vec![gpui::BoxShadow {
-                    color: gpui::hsla(0.0, 0.0, 0.0, alpha),
+                    color: gpui::hsla(0.0, 0.0, 0.0, alpha).into(),
                     blur_radius: gpui::px(12.0),
                     spread_radius: gpui::px(0.0),
                     inset: false,
@@ -99,7 +99,7 @@ impl DropdownMenuRenderer for TokenDropdownMenuRenderer {
                         panel,
                     ),
                 ))
-                .with_priority(1),
+                .priority(1),
             );
         }
 

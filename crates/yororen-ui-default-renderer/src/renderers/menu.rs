@@ -149,7 +149,7 @@ impl MenuRenderer for TokenMenuRenderer {
             .rounded(radius)
             .p(pad)
             .shadow(vec![gpui::BoxShadow {
-                color: gpui::hsla(0.0, 0.0, 0.0, alpha),
+                color: gpui::hsla(0.0, 0.0, 0.0, alpha).into(),
                 blur_radius: px(12.0),
                 spread_radius: px(0.0),
                 inset: false,

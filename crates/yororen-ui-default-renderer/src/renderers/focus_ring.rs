@@ -63,7 +63,7 @@ impl FocusRingRenderer for TokenFocusRingRenderer {
             .track_focus(&props.focus_handle)
             .rounded(radius)
             .shadow(vec![BoxShadow {
-                color,
+                color: color.into(),
                 offset: point(gpui::px(0.), gpui::px(0.)),
                 blur_radius: gpui::px(0.),
                 spread_radius: width,

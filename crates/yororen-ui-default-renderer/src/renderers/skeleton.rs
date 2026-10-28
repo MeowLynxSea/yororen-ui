@@ -5,9 +5,9 @@ use std::sync::{Arc, OnceLock};
 use std::time::Instant;
 
 use gpui::{
-    AbsoluteLength, App, BorderStyle, Bounds, Corners, DefiniteLength, Div, Edges, Element,
-    ElementId, GlobalElementId, Hsla, InspectorElementId, IntoElement, LayoutId, Length, Pixels,
-    Position, Style, Styled, Window, div, hsla,
+    AbsoluteLength, App, Bounds, Corners, DefiniteLength, Div, Edges, Element, ElementId,
+    GlobalElementId, Hsla, InspectorElementId, IntoElement, LayoutId, Length, Pixels, Position,
+    Style, Styled, Window, div, hsla,
 };
 
 use yororen_ui_core::animation::ease_in_out;
@@ -164,23 +164,25 @@ impl Element for SkeletonPulseElement {
         let eased = ease_in_out(tri);
         // Lerp alpha multiplier between min and max.
         let alpha_mult = SKELETON_PULSE_MIN + (SKELETON_PULSE_MAX - SKELETON_PULSE_MIN) * eased;
-        let color = hsla(self.bg.color.hue.into_degrees() / 360.0, self.bg.saturation, self.bg.lightness, self.bg.alpha * alpha_mult);
+        let color = hsla(
+            self.bg.color.hue.into_degrees() / 360.0,
+            self.bg.saturation,
+            self.bg.lightness,
+            self.bg.alpha * alpha_mult,
+        );
 
-        window.paint_quad(gpui::PaintQuad {
-            bounds,
-            // Clamp the corner radii to fit inside the quad's
-            // bounds. gpui's `paint_quad` allows radii to exceed
-            // the bounds, but that creates "sharp corners where
-            // the circular arcs meet" — for a pill-shaped line
-            // (h=12, radius=9999) the arcs intersect inside the
-            // 12px space, leaving almost nothing visible. The
-            // clamp gives us a clean pill at half the height.
-            corner_radii: Corners::all(self.radius).clamp_radii_for_quad_size(bounds.size),
-            background: color.into(),
-            border_color: hsla(0., 0., 0., 0.),
-            border_widths: Edges::default(),
-            border_style: BorderStyle::default(),
-        });
+        window.paint_quad(
+            gpui::PaintQuad::new(bounds)
+                // Clamp the corner radii to fit inside the quad's
+                // bounds. gpui's `paint_quad` allows radii to exceed
+                // the bounds, but that creates "sharp corners where
+                // the circular arcs meet" — for a pill-shaped line
+                // (h=12, radius=9999) the arcs intersect inside the
+                // 12px space, leaving almost nothing visible. The
+                // clamp gives us a clean pill at half the height.
+                .corner_radii(Corners::all(self.radius).clamp_radii_for_quad_size(bounds.size))
+                .background(color),
+        );
     }
 }
 

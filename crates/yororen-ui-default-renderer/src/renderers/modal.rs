@@ -66,7 +66,7 @@ impl ModalRenderer for TokenModalRenderer {
             .w_full()
             .children(children)
             .shadow(vec![gpui::BoxShadow {
-                color: gpui::hsla(0.0, 0.0, 0.0, alpha),
+                color: gpui::hsla(0.0, 0.0, 0.0, alpha).into(),
                 blur_radius: gpui::px(12.0),
                 spread_radius: gpui::px(0.0),
                 inset: false,

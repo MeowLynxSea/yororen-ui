@@ -150,7 +150,7 @@ impl SelectRenderer for TokenSelectRenderer {
                 .flex_col()
                 .gap(px(2.))
                 .shadow(vec![gpui::BoxShadow {
-                    color: gpui::hsla(0.0, 0.0, 0.0, 0.12),
+                    color: gpui::hsla(0.0, 0.0, 0.0, 0.12).into(),
                     offset: gpui::point(px(0.), px(4.)),
                     blur_radius: px(12.),
                     spread_radius: px(0.),
@@ -234,7 +234,7 @@ impl SelectRenderer for TokenSelectRenderer {
                         div().child(dropdown),
                     ),
                 ))
-                .with_priority(1),
+                .priority(1),
             );
         }
 
