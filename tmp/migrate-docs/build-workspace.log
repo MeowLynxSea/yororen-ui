@@ -1,0 +1,23 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+   Compiling yororen_ui_xml v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml)
+   Compiling yororen_ui_locale_zh_cn v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-zh-CN)
+   Compiling yororen_ui_locale_en v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-en)
+   Compiling yororen_ui_locale_ar v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-ar)
+   Compiling yororen_ui_default_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-default-renderer)
+   Compiling yororen_ui_winui_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-winui-renderer)
+   Compiling yororen_ui_xml_macro v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml-macro)
+   Compiling yororen_ui v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui)
+   Compiling theme-showcase-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/theme_showcase)
+   Compiling inputs-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/inputs_demo)
+   Compiling variant-showcase-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/variant_showcase)
+   Compiling layers-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/layers_demo)
+   Compiling showcase-xml-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/showcase_xml)
+   Compiling counter-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/counter)
+   Compiling winui-showcase v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/winui-showcase)
+   Compiling gallery-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/gallery_demo)
+   Compiling gallery-xml-demo v0.1.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-demos/gallery_xml)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 34.33s

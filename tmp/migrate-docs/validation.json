@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-28",
+  "branch": "codex/migrate-gpui-ce-0.3",
+  "validated_source_commit": "3ad67e59129d0e892db9a8e947cb2cc7daeb22eb",
+  "note": "Code and manifests at this commit; only migration reports/API snapshots remained to commit. Exit codes observed from completed commands.",
+  "lock_sha256": "a3ae7799d2fb28d58a8a65b0a34de4c6c8662d919e5062f5495a7a6f42600e2f",
+  "checks": [
+    {
+      "command": "cargo build --workspace",
+      "exit_code": 0,
+      "log": "build-workspace.log",
+      "log_sha256": "7d384abff31e46275570731493216e9883765fc3d6558839865dc8419645fbb2"
+    },
+    {
+      "command": "cargo test --workspace",
+      "exit_code": 0,
+      "log": "test-workspace.log",
+      "log_sha256": "688bc719089d0ff14caf280e03fc11728614ec1bbc615fe54d9bce65d2a56d31"
+    },
+    {
+      "command": "cargo clippy --workspace -- -D warnings",
+      "exit_code": 0,
+      "log": "clippy-workspace.log",
+      "log_sha256": "e5cb443007c1d978d680b1de480dd95bfae10f9d639a2f4eb3f801609154caf7"
+    },
+    {
+      "command": "cargo check --workspace --all-targets --all-features",
+      "exit_code": 0,
+      "log": "check-all-targets-features.log",
+      "log_sha256": "7bed4eea43c68dde2f615cd21c6b0368606342db0ceac917911b629254e2eda6"
+    },
+    {
+      "command": "cargo generate-lockfile --manifest-path crates/yororen-ui-xml/fuzz/Cargo.toml; CARGO_TARGET_DIR=target cargo check --manifest-path crates/yororen-ui-xml/fuzz/Cargo.toml",
+      "exit_code": 0,
+      "log": "fuzz-check.log",
+      "log_sha256": "9a97143d8bad4bd0ecbbe7112514128395378edd722c6ecac0be3f163d28787f"
+    },
+    {
+      "command": "python3 tmp/migrate-docs/check_downstream.py",
+      "exit_code": 0,
+      "log": "downstream-check.log",
+      "log_sha256": "f0e89817f16bca09fe1b8894b2ec502cd9f643e3b7110d71345340a891729f3f"
+    },
+    {
+      "command": "cargo package -p yororen_ui_core -p yororen_ui_default_renderer -p yororen_ui_winui_renderer -p yororen_ui_locale_en -p yororen_ui_locale_zh_cn -p yororen_ui_locale_ar -p yororen_ui_xml -p yororen_ui_xml_macro -p yororen_ui --no-verify --allow-dirty",
+      "exit_code": 0,
+      "log": "package-publishable.log",
+      "log_sha256": "8314c616214d31eb96440632318d19d6409201e5194e3563e7f3ea57bd184868"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=target/public-api bash scripts/regen-public-api.sh --all",
+      "exit_code": 0,
+      "log": "public-api.log",
+      "log_sha256": "979441ef750968268500f3f4b7292eae6476c803350d252d3417862d919959e0"
+    },
+    {
+      "command": "python3 tmp/migrate-docs/audit_registry.py --output tmp/migrate-docs/registry-audit.json",
+      "exit_code": 0,
+      "log": "registry-audit.log",
+      "log_sha256": "f3d1eba5dee251207eb5aaef0993a94e8ab8095d4dd2443b7c86fbb256f84bd5"
+    }
+  ],
+  "test_results": {
+    "passed": 424,
+    "failed": 0,
+    "ignored_existing": 45,
+    "result_groups": 32
+  },
+  "registry_package_versions": 778,
+  "all_registry_checks_passed": true,
+  "wiki_diff_empty": true,
+  "manual_native_gui": "unavailable: host Mac locked; automated GPUI demo window tests passed",
+  "external_publication": false
+}

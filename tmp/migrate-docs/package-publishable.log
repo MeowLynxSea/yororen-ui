@@ -1,0 +1,39 @@
+   Packaging yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Packaged 192 files, 852.8KiB (200.8KiB compressed)
+   Packaging yororen_ui_default_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-default-renderer)
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+    Packaged 73 files, 566.6KiB (114.5KiB compressed)
+   Packaging yororen_ui_locale_ar v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-ar)
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+    Packaged 6 files, 98.8KiB (27.7KiB compressed)
+   Packaging yororen_ui_locale_en v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-en)
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+    Packaged 6 files, 97.6KiB (27.1KiB compressed)
+   Packaging yororen_ui_locale_zh_cn v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-zh-CN)
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+    Packaged 6 files, 97.7KiB (27.5KiB compressed)
+   Packaging yororen_ui_winui_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-winui-renderer)
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+    Packaged 76 files, 742.9KiB (147.1KiB compressed)
+   Packaging yororen_ui_xml v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml)
+    Updating crates.io index
+    Packaged 32 files, 580.9KiB (134.4KiB compressed)
+   Packaging yororen_ui_xml_macro v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml-macro)
+    Updating crates.io index
+    Packaged 6 files, 127.4KiB (35.3KiB compressed)
+   Packaging yororen_ui v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui)
+    Updating crates.io index
+    Packaged 7 files, 120.3KiB (33.3KiB compressed)

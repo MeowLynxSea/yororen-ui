@@ -1,0 +1,83 @@
+   Compiling bytemuck v1.25.2
+   Compiling zerofrom v0.1.8
+   Compiling phf_macros v0.13.1
+   Compiling serde v1.0.229
+   Compiling gpui-ce v0.3.0
+   Compiling zerocopy v0.8.63
+   Compiling rust-embed-impl v8.13.0
+   Compiling equator v0.4.2
+   Compiling yoke v0.8.4
+   Compiling zerovec v0.11.9
+   Compiling zerotrie v0.2.5
+   Compiling aligned-vec v0.6.4
+   Compiling v_frame v0.3.9
+   Compiling font-types v0.12.7
+   Compiling thiserror v2.0.21
+   Compiling futures-io v0.3.34
+   Compiling tiny-skia-path v0.12.0
+   Compiling futures-util v0.3.34
+   Compiling av-scenechange v0.14.1
+    Checking phf v0.13.1
+   Compiling tinystr v0.8.5
+   Compiling potential_utf v0.1.6
+   Compiling read-fonts v0.41.0
+   Compiling icu_locale_core v2.4.0
+   Compiling icu_collections v2.4.0
+   Compiling av1-grain v0.2.5
+   Compiling rgb v0.8.53
+   Compiling num-complex v0.4.6
+    Checking palette v0.7.7
+   Compiling profiling v1.0.18
+   Compiling icu_provider v2.4.0
+   Compiling rav1e v0.8.1
+   Compiling icu_normalizer v2.4.0
+   Compiling icu_properties v2.4.0
+   Compiling pulp v0.22.3
+    Checking rust-embed v8.13.0
+   Compiling idna_adapter v1.2.2
+   Compiling futures-executor v0.3.34
+   Compiling ref-cast v1.0.27
+   Compiling getrandom v0.4.3
+   Compiling schemars v1.2.3
+   Compiling futures v0.3.34
+   Compiling uuid v1.29.0
+   Compiling tracing v0.1.44
+   Compiling idna v1.1.0
+   Compiling chrono v0.4.45
+   Compiling half v2.7.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling tiff v0.11.3
+   Compiling rand_chacha v0.9.0
+   Compiling rand v0.9.5
+   Compiling tiny-skia v0.12.0
+   Compiling qoi v0.4.1
+   Compiling gpui_ce_collections v0.3.0
+   Compiling gpui_ce_scheduler v0.3.0
+   Compiling gpui_ce_shared_string v0.3.0
+   Compiling ravif v0.13.0
+   Compiling url v2.5.8
+   Compiling gpui_ce_sum_tree v0.3.0
+   Compiling accesskit v0.24.1
+   Compiling serde_spanned v0.6.9
+   Compiling exr v1.74.2
+   Compiling toml_datetime v0.6.11
+   Compiling pin-project v1.1.13
+   Compiling gpui_ce_refineable v0.3.0
+   Compiling skrifa v0.44.0
+   Compiling harfrust v0.12.0
+   Compiling strum v0.28.0
+   Compiling derive_more v2.1.1
+   Compiling toml_edit v0.22.27
+   Compiling usvg v0.48.1
+   Compiling image v0.25.10
+   Compiling toml v0.8.23
+   Compiling resvg v0.48.1
+    Checking yororen_ui_core v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+    Checking yororen_ui_locale_zh_cn v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-zh-CN)
+    Checking yororen_ui_xml v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml)
+    Checking yororen_ui_default_renderer v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-default-renderer)
+    Checking yororen_ui_locale_en v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-en)
+    Checking yororen_ui_locale_ar v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-ar)
+   Compiling yororen_ui_xml_macro v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml-macro)
+    Checking yororen_ui v0.3.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 24.73s

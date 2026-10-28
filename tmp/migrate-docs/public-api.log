@@ -1,0 +1,944 @@
+[regen-public-api] regenerating yororen_ui_default_renderer -> upstream/yororen_ui_default_renderer.api.txt
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling serde_core v1.0.229
+   Compiling autocfg v1.5.1
+   Compiling libm v0.2.16
+    Checking cfg-if v1.0.5
+    Checking memchr v2.8.3
+   Compiling libc v0.2.191
+   Compiling typeid v1.0.3
+    Checking stable_deref_trait v1.2.1
+   Compiling erased-serde v0.4.11
+   Compiling num-traits v0.2.19
+    Checking arrayvec v0.7.8
+    Checking smallvec v1.16.4
+    Checking simd-adler32 v0.3.10
+   Compiling crossbeam-utils v0.8.23
+    Checking adler2 v2.0.1
+   Compiling version_check v0.9.5
+   Compiling zerocopy v0.8.63
+   Compiling crossbeam-epoch v0.9.21
+    Checking serde_fmt v1.1.0
+   Compiling syn v3.0.9
+   Compiling syn v2.0.119
+   Compiling crossbeam-deque v0.8.8
+    Checking pin-project-lite v0.2.17
+   Compiling anyhow v1.0.104
+    Checking value-bag-serde1 v1.14.1
+    Checking value-bag v1.14.1
+    Checking log v0.4.34
+   Compiling synstructure v0.14.0
+    Checking miniz_oxide v0.9.1
+   Compiling crc32fast v1.5.3
+   Compiling rayon-core v1.13.0
+    Checking once_cell v1.21.4
+   Compiling zerocopy-derive v0.8.63
+   Compiling bytemuck_derive v1.12.1
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.4
+    Checking bytemuck v1.25.2
+    Checking zerofrom v0.1.8
+   Compiling zerovec-derive v0.11.7
+   Compiling displaydoc v0.2.7
+   Compiling equator-macro v0.4.2
+    Checking num-integer v0.1.47
+    Checking bitflags v2.13.2
+   Compiling serde v1.0.229
+    Checking equator v0.4.2
+   Compiling paste v1.0.15
+    Checking litemap v0.8.3
+    Checking either v1.19.0
+    Checking futures-core v0.3.34
+    Checking writeable v0.6.4
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+    Checking num-bigint v0.4.8
+   Compiling serde_derive v1.0.229
+    Checking euclid v0.22.14
+   Compiling getrandom v0.3.4
+    Checking yoke v0.8.4
+   Compiling icu_properties_data v2.4.0
+    Checking utf8_iter v1.0.4
+    Checking futures-sink v0.3.34
+   Compiling thiserror v2.0.21
+    Checking scopeguard v1.2.0
+    Checking siphasher v1.0.4
+   Compiling icu_normalizer_data v2.4.0
+    Checking aligned-vec v0.6.4
+    Checking v_frame v0.3.9
+    Checking lock_api v0.4.14
+    Checking num-rational v0.4.2
+    Checking font-types v0.12.7
+    Checking zerovec v0.11.9
+    Checking zerotrie v0.2.5
+    Checking flate2 v1.1.10
+    Checking rayon v1.12.0
+   Compiling thiserror-impl v2.0.21
+   Compiling slotmap v1.1.1
+    Checking miniz_oxide v0.8.9
+    Checking as-slice v0.2.1
+    Checking aho-corasick v1.1.5
+    Checking quick-error v2.0.1
+   Compiling winnow v1.0.4
+   Compiling av-scenechange v0.14.1
+   Compiling built v0.8.1
+    Checking float-cmp v0.9.0
+   Compiling zmij v1.0.23
+    Checking hashbrown v0.17.1
+    Checking regex-syntax v0.8.11
+    Checking equivalent v1.0.3
+   Compiling phf_shared v0.13.1
+   Compiling rav1e v0.8.1
+    Checking indexmap v2.14.2
+    Checking strict-num v0.1.1
+   Compiling toml_parser v1.1.5+spec-1.1.0
+    Checking aligned v0.4.3
+    Checking regex-automata v0.4.18
+    Checking read-fonts v0.41.0
+    Checking tinystr v0.8.5
+    Checking potential_utf v0.1.6
+    Checking icu_collections v2.4.0
+    Checking icu_locale_core v2.4.0
+    Checking futures-channel v0.3.34
+   Compiling serde_spanned v1.1.2
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+    Checking lyon_geom v1.0.20
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling futures-macro v0.3.34
+    Checking icu_provider v2.4.0
+   Compiling arg_enum_proc_macro v0.3.4
+   Compiling profiling-procmacros v1.0.18
+   Compiling pulp v0.22.3
+    Checking fdeflate v0.3.7
+    Checking polycool v0.4.0
+    Checking no_std_io2 v0.9.4
+    Checking nom v8.0.0
+    Checking zune-core v0.5.3
+    Checking futures-task v0.3.34
+   Compiling getrandom v0.4.3
+   Compiling ident_case v1.0.1
+    Checking itoa v1.0.18
+   Compiling find-msvc-tools v0.1.15
+   Compiling pastey v0.1.1
+    Checking arrayref v0.3.9
+   Compiling fnv v1.0.7
+   Compiling fastrand v2.5.0
+    Checking weezl v0.1.12
+    Checking futures-io v0.3.34
+   Compiling unicase v2.10.0
+   Compiling serde_json v1.0.154
+   Compiling const-oid v0.10.2
+   Compiling toml_writer v1.1.3+spec-1.1.0
+   Compiling ref-cast v1.0.27
+    Checking slab v0.4.12
+   Compiling semver v1.0.28
+   Compiling shlex v2.0.1
+    Checking y4m v0.8.0
+   Compiling strsim v0.11.1
+   Compiling parking_lot_core v0.9.12
+   Compiling darling_core v0.21.3
+   Compiling rustc_version v0.4.1
+   Compiling cc v1.10.0
+    Checking futures-util v0.3.34
+   Compiling toml v1.1.8+spec-1.1.0
+    Checking av1-grain v0.2.5
+   Compiling mime_guess v2.0.5
+   Compiling digest v0.11.3
+   Compiling phf_generator v0.13.1
+    Checking tiny-skia-path v0.12.0
+    Checking zune-jpeg v0.5.15
+    Checking png v0.18.1
+    Checking bitstream-io v4.10.0
+    Checking kurbo v0.13.1
+    Checking profiling v1.0.18
+    Checking icu_normalizer v2.4.0
+    Checking icu_properties v2.4.0
+    Checking lyon_path v1.0.19
+   Compiling cpufeatures v0.3.1
+    Checking rand_core v0.9.5
+    Checking half v2.7.1
+    Checking ppv-lite86 v0.2.21
+    Checking rgb v0.8.53
+    Checking num-complex v0.4.6
+    Checking itertools v0.14.0
+   Compiling ref-cast-impl v1.0.27
+   Compiling num-derive v0.4.2
+   Compiling serde_derive_internals v0.30.0
+    Checking memmap2 v0.9.12
+   Compiling simd_helpers v0.1.0
+   Compiling bstr v1.13.1
+    Checking maybe-rayon v0.1.1
+    Checking new_debug_unreachable v1.0.6
+    Checking tinyvec v1.13.3
+    Checking gimli v0.34.0
+   Compiling same-file v1.0.6
+    Checking byteorder-lite v0.1.0
+    Checking pulp-wasm-simd-flag v0.1.1
+    Checking foldhash v0.2.0
+    Checking byteorder v1.5.0
+   Compiling noop_proc_macro v0.3.0
+    Checking parking v2.2.1
+    Checking core-foundation-sys v0.8.7
+    Checking imgref v1.12.3
+   Compiling heapless v0.9.3
+    Checking reborrow v0.5.5
+    Checking color_quant v1.1.0
+   Compiling heck v0.5.0
+   Compiling unicode-segmentation v1.13.3
+    Checking loop9 v0.1.5
+    Checking iana-time-zone v0.1.65
+    Checking gif v0.14.2
+    Checking image-webp v0.2.4
+    Checking hash32 v0.3.1
+   Compiling schemars_derive v1.2.3
+    Checking event-listener v5.4.2
+   Compiling convert_case v0.10.0
+    Checking fontdb v0.24.0
+   Compiling sha2 v0.11.1
+   Compiling walkdir v2.5.0
+   Compiling globset v0.4.21
+    Checking futures-executor v0.3.34
+    Checking addr2line v0.27.1
+    Checking rand_chacha v0.9.0
+    Checking idna_adapter v1.2.2
+    Checking svgtypes v0.16.1
+   Compiling darling_macro v0.21.3
+   Compiling phf_macros v0.13.1
+    Checking harfrust v0.12.0
+    Checking skrifa v0.44.0
+   Compiling embed-resource v3.0.12
+    Checking spin v0.9.9
+   Compiling tracing-attributes v0.1.31
+    Checking tracing-core v0.1.36
+    Checking simplecss v0.2.2
+    Checking zune-inflate v0.2.54
+    Checking avif-serialize v0.8.9
+    Checking roxmltree v0.21.2
+    Checking object v0.40.0
+    Checking bit_field v0.10.3
+    Checking fax v0.2.7
+    Checking float_next_after v1.0.0
+    Checking percent-encoding v2.3.2
+    Checking data-url v0.3.2
+    Checking unicode-bidi v0.3.18
+    Checking sha1_smol v1.0.1
+    Checking lebe v0.5.3
+    Checking dyn-clone v1.0.20
+    Checking base64 v0.23.1
+    Checking imagesize v0.15.0
+    Checking xmlwriter v0.1.0
+   Compiling unicode-xid v0.2.6
+    Checking rustc-demangle v0.1.28
+    Checking unicode-vo v0.1.0
+    Checking pico-args v0.5.0
+    Checking unicode-script v0.5.8
+    Checking pxfm v0.1.30
+   Compiling by_address v1.2.1
+   Compiling mime v0.3.17
+   Compiling palette_derive v0.7.7
+    Checking flume v0.12.0
+    Checking usvg v0.48.1
+   Compiling derive_more-impl v2.1.1
+    Checking schemars v1.2.3
+    Checking exr v1.74.2
+    Checking uuid v1.29.0
+    Checking tracing v0.1.44
+    Checking form_urlencoded v1.2.2
+    Checking lyon_tessellation v1.0.23
+    Checking moxcms v0.8.1
+    Checking tiff v0.11.3
+    Checking phf v0.13.1
+   Compiling gpui-ce v0.3.0
+    Checking parking_lot v0.12.5
+   Compiling darling v0.21.3
+    Checking rand v0.9.5
+    Checking idna v1.1.0
+    Checking futures v0.3.34
+   Compiling rust-embed-utils v8.13.0
+    Checking event-listener-strategy v0.5.4
+   Compiling strum_macros v0.28.0
+    Checking chrono v0.4.45
+    Checking lyon_algorithms v1.0.22
+    Checking backtrace v0.3.77
+    Checking ravif v0.13.0
+    Checking tiny-skia v0.12.0
+    Checking qoi v0.4.1
+    Checking gpui_ce_util v0.3.0
+   Compiling enumn v0.1.14
+   Compiling gpui_ce_derive_refineable v0.3.0
+   Compiling pin-project-internal v1.1.13
+    Checking concurrent-queue v2.5.0
+    Checking approx v0.5.1
+    Checking smol_str v0.3.7
+    Checking svg_fmt v0.4.5
+    Checking async-task v4.7.1
+    Checking rustc-hash v2.1.3
+    Checking link-section v0.19.3
+   Compiling linktime-proc-macro v0.2.3
+    Checking bytes v1.12.1
+    Checking objc2-core-foundation v0.3.2
+    Checking web-time v1.1.0
+    Checking palette_math v0.7.7
+    Checking resvg v0.48.1
+    Checking palette v0.7.7
+    Checking objc2-core-video v0.3.2
+    Checking http v1.5.0
+    Checking gpui_ce_scheduler v0.3.0
+    Checking image v0.25.10
+    Checking gpui_ce_refineable v0.3.0
+    Checking pin-project v1.1.13
+    Checking ctor v1.0.13
+    Checking gpui_ce_collections v0.3.0
+    Checking gpui_ce_shared_string v0.3.0
+    Checking etagere v0.2.15
+    Checking strum v0.28.0
+    Checking accesskit v0.24.1
+    Checking async-channel v2.5.0
+    Checking gpui_ce_sum_tree v0.3.0
+    Checking lyon v1.0.19
+   Compiling derive_setters v0.1.9
+   Compiling rust-embed-impl v8.13.0
+    Checking url v2.5.8
+    Checking derive_more v2.1.1
+   Compiling gpui_ce_macros v0.3.0
+    Checking regex v1.13.1
+    Checking spin v0.10.1
+    Checking num_cpus v1.17.0
+    Checking taffy v0.14.0
+    Checking raw-window-handle v0.6.2
+    Checking seahash v4.1.0
+    Checking inventory v0.3.25
+   Compiling yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+    Checking pollster v0.4.0
+    Checking waker-fn v1.2.0
+    Checking ttf-parser v0.25.1
+    Checking rust-embed v8.13.0
+ Documenting yororen_ui_default_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-default-renderer)
+warning: unresolved link to `AnimatedVisibility`
+  --> crates/yororen-ui-default-renderer/src/animation.rs:18:7
+   |
+18 | /// [`AnimatedVisibility`] held in a `gpui::Entity<S>`.
+   |       ^^^^^^^^^^^^^^^^^^ no item named `AnimatedVisibility` in scope
+   |
+   = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+   = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
+
+warning: redundant explicit link target
+  --> crates/yororen-ui-default-renderer/src/renderers/tree_item.rs:20:32
+   |
+20 | //! [`DOUBLE_CLICK_THRESHOLD`](yororen_ui_core::headless::tree_item::DOUBLE_CLICK_THRESHOLD)
+   |      ------------------------  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ explicit target is redundant
+   |      |
+   |      because label contains path that resolves to same destination
+   |
+   = note: when a link's destination is not specified,
+           the label is used to resolve intra-doc links
+   = note: `#[warn(rustdoc::redundant_explicit_links)]` on by default
+help: remove explicit link target
+   |
+20 - //! [`DOUBLE_CLICK_THRESHOLD`](yororen_ui_core::headless::tree_item::DOUBLE_CLICK_THRESHOLD)
+20 + //! [`DOUBLE_CLICK_THRESHOLD`]
+   |
+
+warning: `yororen_ui_default_renderer` (lib doc) generated 2 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 43.06s
+[regen-public-api] regenerating yororen_ui_winui_renderer -> upstream/yororen_ui_winui_renderer.api.txt
+ Documenting yororen_ui_winui_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-winui-renderer)
+warning: unresolved link to `AnimatedVisibility`
+   --> crates/yororen-ui-winui-renderer/src/animation.rs:301:7
+    |
+301 | /// [`AnimatedVisibility`] held in a `gpui::Entity<S>`.
+    |       ^^^^^^^^^^^^^^^^^^ no item named `AnimatedVisibility` in scope
+    |
+    = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+    = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
+
+warning: unresolved link to `border`
+   --> crates/yororen-ui-winui-renderer/src/renderers/button.rs:117:61
+    |
+117 |     /// The lighter top edge of the elevation border (see [`border`]).
+    |                                                             ^^^^^^ no item named `border` in scope
+    |
+    = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+
+warning: redundant explicit link target
+  --> crates/yororen-ui-winui-renderer/src/renderers/tree_item.rs:20:32
+   |
+20 | //! [`DOUBLE_CLICK_THRESHOLD`](yororen_ui_core::headless::tree_item::DOUBLE_CLICK_THRESHOLD)
+   |      ------------------------  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ explicit target is redundant
+   |      |
+   |      because label contains path that resolves to same destination
+   |
+   = note: when a link's destination is not specified,
+           the label is used to resolve intra-doc links
+   = note: `#[warn(rustdoc::redundant_explicit_links)]` on by default
+help: remove explicit link target
+   |
+20 - //! [`DOUBLE_CLICK_THRESHOLD`](yororen_ui_core::headless::tree_item::DOUBLE_CLICK_THRESHOLD)
+20 + //! [`DOUBLE_CLICK_THRESHOLD`]
+   |
+
+warning: `yororen_ui_winui_renderer` (lib doc) generated 3 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.56s
+[regen-public-api] regenerating yororen_ui -> upstream/yororen_ui.api.txt
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling libc v0.2.191
+   Compiling typeid v1.0.3
+   Compiling libm v0.2.16
+   Compiling stable_deref_trait v1.2.1
+   Compiling arrayvec v0.7.8
+   Compiling smallvec v1.16.4
+   Compiling fastrand v2.5.0
+   Compiling phf_shared v0.13.1
+   Compiling regex-syntax v0.8.11
+   Compiling simd-adler32 v0.3.10
+   Compiling crossbeam-utils v0.8.23
+   Compiling phf_generator v0.13.1
+   Compiling adler2 v2.0.1
+   Compiling pin-project-lite v0.2.17
+   Compiling miniz_oxide v0.9.1
+   Compiling cpufeatures v0.3.1
+   Compiling sha2 v0.11.1
+   Compiling syn v3.0.9
+   Compiling syn v2.0.119
+   Compiling num-traits v0.2.19
+   Compiling simd_helpers v0.1.0
+   Compiling crossbeam-epoch v0.9.21
+   Compiling once_cell v1.21.4
+   Compiling num-integer v0.1.47
+   Compiling crossbeam-deque v0.8.8
+   Compiling anyhow v1.0.104
+   Compiling either v1.19.0
+   Compiling bitflags v2.13.2
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling hashbrown v0.17.1
+   Compiling regex-automata v0.4.18
+   Compiling futures-core v0.3.34
+   Compiling equivalent v1.0.3
+   Compiling num-bigint v0.4.8
+   Compiling rayon-core v1.13.0
+   Compiling erased-serde v0.4.11
+   Compiling serde_fmt v1.1.0
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling value-bag-serde1 v1.14.1
+   Compiling value-bag v1.14.1
+   Compiling serde_spanned v1.1.2
+   Compiling indexmap v2.14.2
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling euclid v0.22.14
+   Compiling log v0.4.34
+   Compiling crc32fast v1.5.3
+   Compiling utf8_iter v1.0.4
+   Compiling scopeguard v1.2.0
+   Compiling futures-sink v0.3.34
+   Compiling flate2 v1.1.10
+   Compiling lock_api v0.4.14
+   Compiling embed-resource v3.0.12
+   Compiling num-rational v0.4.2
+   Compiling rayon v1.12.0
+   Compiling miniz_oxide v0.8.9
+   Compiling darling_core v0.21.3
+   Compiling synstructure v0.14.0
+   Compiling serde_derive_internals v0.30.0
+   Compiling globset v0.4.21
+   Compiling gpui-ce v0.3.0
+   Compiling rust-embed-utils v8.13.0
+   Compiling as-slice v0.2.1
+   Compiling quick-error v2.0.1
+   Compiling float-cmp v0.9.0
+   Compiling aligned v0.4.3
+   Compiling futures-channel v0.3.34
+   Compiling strict-num v0.1.1
+   Compiling lyon_geom v1.0.20
+   Compiling getrandom v0.3.4
+   Compiling fdeflate v0.3.7
+   Compiling polycool v0.4.0
+   Compiling icu_normalizer_data v2.4.0
+   Compiling icu_properties_data v2.4.0
+   Compiling zerocopy-derive v0.8.63
+   Compiling equator-macro v0.4.2
+   Compiling bytemuck_derive v1.12.1
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.4
+   Compiling zerovec-derive v0.11.7
+   Compiling serde_derive v1.0.229
+   Compiling displaydoc v0.2.7
+   Compiling thiserror-impl v2.0.21
+    Checking bytemuck v1.25.2
+    Checking zerofrom v0.1.8
+   Compiling futures-macro v0.3.34
+   Compiling arg_enum_proc_macro v0.3.4
+   Compiling profiling-procmacros v1.0.18
+    Checking yoke v0.8.4
+   Compiling ref-cast-impl v1.0.27
+   Compiling num-derive v0.4.2
+    Checking zerocopy v0.8.63
+   Compiling schemars_derive v1.2.3
+   Compiling phf_macros v0.13.1
+   Compiling tracing-attributes v0.1.31
+    Checking equator v0.4.2
+    Checking serde v1.0.229
+    Checking zerovec v0.11.9
+    Checking zerotrie v0.2.5
+   Compiling darling_macro v0.21.3
+   Compiling enumn v0.1.14
+   Compiling pin-project-internal v1.1.13
+   Compiling strum_macros v0.28.0
+    Checking aligned-vec v0.6.4
+   Compiling gpui_ce_derive_refineable v0.3.0
+   Compiling palette_derive v0.7.7
+   Compiling derive_more-impl v2.1.1
+    Checking v_frame v0.3.9
+   Compiling darling v0.21.3
+    Checking font-types v0.12.7
+    Checking thiserror v2.0.21
+    Checking read-fonts v0.41.0
+    Checking tinystr v0.8.5
+    Checking potential_utf v0.1.6
+    Checking icu_collections v2.4.0
+    Checking icu_locale_core v2.4.0
+   Compiling gpui_ce_macros v0.3.0
+   Compiling rust-embed-impl v8.13.0
+   Compiling derive_setters v0.1.9
+    Checking icu_provider v2.4.0
+    Checking icu_normalizer v2.4.0
+    Checking icu_properties v2.4.0
+    Checking av-scenechange v0.14.1
+    Checking ppv-lite86 v0.2.21
+    Checking half v2.7.1
+    Checking av1-grain v0.2.5
+    Checking rgb v0.8.53
+    Checking num-complex v0.4.6
+    Checking tiny-skia-path v0.12.0
+    Checking profiling v1.0.18
+    Checking futures-util v0.3.34
+    Checking pulp v0.22.3
+    Checking idna_adapter v1.2.2
+    Checking rand_chacha v0.9.0
+    Checking rav1e v0.8.1
+    Checking ref-cast v1.0.27
+    Checking rand v0.9.5
+    Checking idna v1.1.0
+    Checking tiny-skia v0.12.0
+    Checking tiff v0.11.3
+    Checking schemars v1.2.3
+    Checking chrono v0.4.45
+    Checking tracing v0.1.44
+    Checking harfrust v0.12.0
+    Checking skrifa v0.44.0
+    Checking futures-executor v0.3.34
+    Checking futures v0.3.34
+    Checking phf v0.13.1
+    Checking qoi v0.4.1
+   Compiling no_std_io2 v0.9.4
+   Compiling nom v8.0.0
+   Compiling futures-task v0.3.34
+   Compiling futures-io v0.3.34
+   Compiling slab v0.4.12
+   Compiling zune-core v0.5.3
+    Checking exr v1.74.2
+   Compiling itoa v1.0.18
+   Compiling y4m v0.8.0
+   Compiling weezl v0.1.12
+    Checking usvg v0.48.1
+   Compiling arrayref v0.3.9
+    Checking palette v0.7.7
+    Checking gpui_ce_scheduler v0.3.0
+   Compiling zune-jpeg v0.5.15
+    Checking resvg v0.48.1
+   Compiling bitstream-io v4.10.0
+    Checking gpui_ce_shared_string v0.3.0
+    Checking gpui_ce_sum_tree v0.3.0
+    Checking url v2.5.8
+    Checking derive_more v2.1.1
+    Checking strum v0.28.0
+    Checking gpui_ce_refineable v0.3.0
+    Checking ravif v0.13.0
+    Checking pin-project v1.1.13
+    Checking image v0.25.10
+    Checking accesskit v0.24.1
+   Compiling lyon_path v1.0.19
+   Compiling png v0.18.1
+   Compiling kurbo v0.13.1
+   Compiling rand_core v0.9.5
+   Compiling itertools v0.14.0
+   Compiling memmap2 v0.9.12
+   Compiling zmij v1.0.23
+   Compiling slotmap v1.1.1
+   Compiling maybe-rayon v0.1.1
+   Compiling imgref v1.12.3
+   Compiling foldhash v0.2.0
+   Compiling parking v2.2.1
+   Compiling new_debug_unreachable v1.0.6
+   Compiling byteorder v1.5.0
+   Compiling core-foundation-sys v0.8.7
+   Compiling tinyvec v1.13.3
+   Compiling reborrow v0.5.5
+   Compiling pulp-wasm-simd-flag v0.1.1
+   Compiling byteorder-lite v0.1.0
+   Compiling gimli v0.34.0
+   Compiling color_quant v1.1.0
+   Compiling gif v0.14.2
+   Compiling image-webp v0.2.4
+   Compiling fontdb v0.24.0
+   Compiling iana-time-zone v0.1.65
+   Compiling hash32 v0.3.1
+   Compiling loop9 v0.1.5
+   Compiling serde_json v1.0.154
+   Compiling event-listener v5.4.2
+   Compiling svgtypes v0.16.1
+    Checking rust-embed v8.13.0
+   Compiling spin v0.9.9
+   Compiling simplecss v0.2.2
+   Compiling tracing-core v0.1.36
+   Compiling getrandom v0.4.3
+   Compiling parking_lot_core v0.9.12
+   Compiling addr2line v0.27.1
+   Compiling zune-inflate v0.2.54
+   Compiling avif-serialize v0.8.9
+   Compiling object v0.40.0
+   Compiling roxmltree v0.21.2
+   Compiling fax v0.2.7
+   Compiling pico-args v0.5.0
+   Compiling unicode-script v0.5.8
+   Compiling sha1_smol v1.0.1
+   Compiling base64 v0.23.1
+   Compiling xmlwriter v0.1.0
+   Compiling float_next_after v1.0.0
+   Compiling unicode-vo v0.1.0
+   Compiling unicode-bidi v0.3.18
+   Compiling bit_field v0.10.3
+   Compiling lebe v0.5.3
+   Compiling percent-encoding v2.3.2
+   Compiling imagesize v0.15.0
+   Compiling pxfm v0.1.30
+   Compiling data-url v0.3.2
+   Compiling rustc-demangle v0.1.28
+   Compiling dyn-clone v1.0.20
+   Compiling form_urlencoded v1.2.2
+   Compiling lyon_tessellation v1.0.23
+   Compiling moxcms v0.8.1
+   Compiling uuid v1.29.0
+   Compiling backtrace v0.3.77
+   Compiling parking_lot v0.12.5
+   Compiling flume v0.12.0
+   Compiling event-listener-strategy v0.5.4
+   Compiling heapless v0.9.3
+   Compiling lyon_algorithms v1.0.22
+   Compiling gpui_ce_util v0.3.0
+   Compiling smol_str v0.3.7
+   Compiling approx v0.5.1
+   Compiling concurrent-queue v2.5.0
+   Compiling link-section v0.19.3
+   Compiling rustc-hash v2.1.3
+   Compiling async-task v4.7.1
+   Compiling web-time v1.1.0
+   Compiling bytes v1.12.1
+   Compiling svg_fmt v0.4.5
+   Compiling objc2-core-foundation v0.3.2
+   Compiling palette_math v0.7.7
+   Compiling etagere v0.2.15
+   Compiling objc2-core-video v0.3.2
+   Compiling ctor v1.0.13
+   Compiling http v1.5.0
+   Compiling gpui_ce_collections v0.3.0
+   Compiling async-channel v2.5.0
+   Compiling lyon v1.0.19
+   Compiling serde_spanned v0.6.9
+   Compiling toml_datetime v0.6.11
+   Compiling regex v1.13.1
+   Compiling spin v0.10.1
+   Compiling num_cpus v1.17.0
+   Compiling taffy v0.14.0
+   Compiling seahash v4.1.0
+   Compiling inventory v0.3.25
+    Checking unicode-ident v1.0.27
+   Compiling waker-fn v1.2.0
+   Compiling ttf-parser v0.25.1
+   Compiling pollster v0.4.0
+   Compiling toml_write v0.1.2
+   Compiling raw-window-handle v0.6.2
+   Compiling winnow v0.7.15
+   Compiling roxmltree v0.20.0
+    Checking yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+   Compiling toml_edit v0.22.27
+    Checking toml v0.8.23
+    Checking yororen_ui_locale_en v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-en)
+    Checking yororen_ui_locale_ar v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-ar)
+    Checking yororen_ui_locale_zh_cn v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-locale-zh-CN)
+    Checking yororen_ui_xml v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml)
+    Checking yororen_ui_default_renderer v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-default-renderer)
+   Compiling yororen_ui_xml_macro v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml-macro)
+ Documenting yororen_ui v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 52.36s
+[regen-public-api] regenerating yororen_ui_core -> upstream/yororen_ui_core.api.txt
+    Blocking waiting for file lock on package cache
+ Documenting yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+warning: public documentation for `AnimationConfig` links to private item `super::orchestrator`
+  --> crates/yororen-ui-core/src/animation/config.rs:23:7
+   |
+23 | /// [`super::orchestrator`]. That module is the public API for
+   |       ^^^^^^^^^^^^^^^^^^^ this item is private
+   |
+   = note: this link will resolve properly if you pass `--document-private-items`
+   = note: `#[warn(rustdoc::private_intra_doc_links)]` on by default
+
+warning: public documentation for `to_gpui_animation` links to private item `super::orchestrator`
+  --> crates/yororen-ui-core/src/animation/config.rs:74:11
+   |
+74 |     /// [`super::orchestrator`] for the API surface that does
+   |           ^^^^^^^^^^^^^^^^^^^ this item is private
+   |
+   = note: this link will resolve properly if you pass `--document-private-items`
+
+warning: unresolved link to `then`
+   --> crates/yororen-ui-core/src/animation/orchestrator.rs:137:56
+    |
+137 |     /// - `track_id` refers to the track returned by [`then`] / [`with_parallel`].
+    |                                                        ^^^^ no item named `then` in scope
+    |
+    = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+    = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
+
+warning: unresolved link to `with_parallel`
+   --> crates/yororen-ui-core/src/animation/orchestrator.rs:137:67
+    |
+137 |     /// - `track_id` refers to the track returned by [`then`] / [`with_parallel`].
+    |                                                                   ^^^^^^^^^^^^^ no item named `with_parallel` in scope
+    |
+    = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+
+warning: unresolved link to `compose_embedded`
+   --> crates/yororen-ui-core/src/headless/scroll_view.rs:469:11
+    |
+469 |     /// [`compose_embedded`] with an explicit `occlude` flag. Set it
+    |           ^^^^^^^^^^^^^^^^ no item named `compose_embedded` in scope
+    |
+    = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+
+warning: public documentation for `sticky` links to private item `NotificationCenter::maybe_schedule_auto_dismiss`
+   --> crates/yororen-ui-core/src/notification/center.rs:162:11
+    |
+162 |     /// [`NotificationCenter::maybe_schedule_auto_dismiss`] also
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ this item is private
+    |
+    = note: this link will resolve properly if you pass `--document-private-items`
+
+warning: unresolved link to `NotificationHost`
+   --> crates/yororen-ui-core/src/notification/center.rs:369:63
+    |
+369 |     /// Note: the actual persisted state entity is owned by [`NotificationHost`], because
+    |                                                               ^^^^^^^^^^^^^^^^ no item named `NotificationHost` in scope
+    |
+    = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+
+warning: unresolved link to `RendererRegistry`
+ --> crates/yororen-ui-core/src/renderer/markers.rs:4:31
+  |
+4 | //! component in the global [`RendererRegistry`]. Renderer
+  |                               ^^^^^^^^^^^^^^^^ no item named `RendererRegistry` in scope
+  |
+  = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+
+warning: unresolved link to `PipsPagerState::pip_slots`
+ --> crates/yororen-ui-core/src/renderer/pips_pager.rs:8:7
+  |
+8 | //! [`PipsPagerState::pip_slots`] — the renderer never re-derives
+  |       ^^^^^^^^^^^^^^^^^^^^^^^^^ no item named `PipsPagerState` in scope
+
+warning: unresolved link to `crate::headless::virtual_list::VirtualListElement`
+  --> crates/yororen-ui-core/src/renderer/virtual_list.rs:10:44
+   |
+10 | //! 2. Wrapping the [`VirtualListElement`](crate::headless::virtual_list::VirtualListElement)
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no item named `VirtualListElement` in module `virtual_list`
+
+warning: unresolved link to `FlexDirection`
+  --> crates/yororen-ui-core/src/rtl.rs:41:30
+   |
+41 | /// Return the appropriate [`FlexDirection`] for a horizontal flex container.
+   |                              ^^^^^^^^^^^^^ no item named `FlexDirection` in scope
+   |
+   = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+
+warning: unresolved link to `JustifyContent::FlexStart`
+  --> crates/yororen-ui-core/src/rtl.rs:55:15
+   |
+55 | /// Returns [`JustifyContent::FlexStart`], which respects `RowReverse`.
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^ no item named `JustifyContent` in scope
+
+warning: unresolved link to `JustifyContent::FlexEnd`
+  --> crates/yororen-ui-core/src/rtl.rs:62:15
+   |
+62 | /// Returns [`JustifyContent::FlexEnd`], which respects `RowReverse`.
+   |               ^^^^^^^^^^^^^^^^^^^^^^^ no item named `JustifyContent` in scope
+
+warning: redundant explicit link target
+  --> crates/yororen-ui-core/src/headless/text_input.rs:31:48
+   |
+31 | //! input. It's extracted to [`TextInputCore`](self::TextInputCore)
+   |                               ---------------  ^^^^^^^^^^^^^^^^^^^ explicit target is redundant
+   |                               |
+   |                               because label contains path that resolves to same destination
+   |
+   = note: when a link's destination is not specified,
+           the label is used to resolve intra-doc links
+   = note: `#[warn(rustdoc::redundant_explicit_links)]` on by default
+help: remove explicit link target
+   |
+31 - //! input. It's extracted to [`TextInputCore`](self::TextInputCore)
+31 + //! input. It's extracted to [`TextInputCore`]
+   |
+
+warning: redundant explicit link target
+  --> crates/yororen-ui-core/src/renderer/uniform_virtual_list.rs:42:33
+   |
+42 | /// [`UniformVirtualListProps`](crate::headless::virtual_list::UniformVirtualListProps)
+   |      -------------------------  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ explicit target is redundant
+   |      |
+   |      because label contains path that resolves to same destination
+   |
+   = note: when a link's destination is not specified,
+           the label is used to resolve intra-doc links
+help: remove explicit link target
+   |
+42 - /// [`UniformVirtualListProps`](crate::headless::virtual_list::UniformVirtualListProps)
+42 + /// [`UniformVirtualListProps`]
+   |
+
+warning: redundant explicit link target
+  --> crates/yororen-ui-core/src/renderer/virtual_list.rs:26:26
+   |
+26 | /// [`VirtualListProps`](crate::headless::virtual_list::VirtualListProps)
+   |      ------------------  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ explicit target is redundant
+   |      |
+   |      because label contains path that resolves to same destination
+   |
+   = note: when a link's destination is not specified,
+           the label is used to resolve intra-doc links
+help: remove explicit link target
+   |
+26 - /// [`VirtualListProps`](crate::headless::virtual_list::VirtualListProps)
+26 + /// [`VirtualListProps`]
+   |
+
+warning: `crate::headless::virtual_list` is both a function and a module
+ --> crates/yororen-ui-core/src/headless/scroll_view.rs:6:25
+  |
+6 | //! Same reasoning as [`crate::headless::virtual_list`]'s
+  |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ambiguous link
+  |
+help: to link to the function, add parentheses
+  |
+6 | //! Same reasoning as [`crate::headless::virtual_list()`]'s
+  |                                                      ++
+help: to link to the module, prefix with `mod@`
+  |
+6 | //! Same reasoning as [`mod@crate::headless::virtual_list`]'s
+  |                         ++++
+
+warning: `yororen_ui_core` (lib doc) generated 17 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.76s
+[regen-public-api] regenerating yororen_ui_xml -> upstream/yororen_ui_xml.api.txt
+   Compiling phf_macros v0.13.1
+   Compiling rust-embed-impl v8.13.0
+    Checking phf v0.13.1
+    Checking rust-embed v8.13.0
+    Checking palette v0.7.7
+    Checking gpui-ce v0.3.0
+    Checking yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+ Documenting yororen_ui_xml v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml)
+warning: public documentation for `parser` links to private item `normalise_bool_attrs`
+  --> crates/yororen-ui-xml/src/parser.rs:11:37
+   |
+11 | //! value-less attributes, so the [`normalise_bool_attrs`]
+   |                                     ^^^^^^^^^^^^^^^^^^^^ this item is private
+   |
+   = note: this link will resolve properly if you pass `--document-private-items`
+   = note: `#[warn(rustdoc::private_intra_doc_links)]` on by default
+
+warning: unresolved link to `register_xml_component`
+ --> crates/yororen-ui-xml/src/runtime.rs:7:11
+  |
+7 | //! the [`register_xml_component!`] declarative macro
+  |           ^^^^^^^^^^^^^^^^^^^^^^^ no item named `register_xml_component` in scope
+  |
+  = note: `macro_rules` named `register_xml_component` exists in this crate, but it is not in scope at this link's location
+  = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
+
+warning: unresolved link to `register_xml_component`
+  --> crates/yororen-ui-xml/src/runtime.rs:61:7
+   |
+61 | /// [`register_xml_component!`] (re-exported from
+   |       ^^^^^^^^^^^^^^^^^^^^^^^ no item named `register_xml_component` in scope
+   |
+   = note: `macro_rules` named `register_xml_component` exists in this crate, but it is not in scope at this link's location
+
+warning: unresolved link to `register_xml_component`
+  --> crates/yororen-ui-xml/src/runtime.rs:85:34
+   |
+85 | /// rejected at submit time by [`register_xml_component!`]).
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^ no item named `register_xml_component` in scope
+   |
+   = note: `macro_rules` named `register_xml_component` exists in this crate, but it is not in scope at this link's location
+
+warning: unresolved link to `register_xml_component`
+   --> crates/yororen-ui-xml/src/runtime.rs:132:9
+    |
+132 | ///   [`register_xml_component!`].
+    |         ^^^^^^^^^^^^^^^^^^^^^^^ no item named `register_xml_component` in scope
+    |
+    = note: `macro_rules` named `register_xml_component` exists in this crate, but it is not in scope at this link's location
+
+warning: unresolved link to `register_xml_component`
+   --> crates/yororen-ui-xml/src/runtime.rs:433:38
+    |
+433 | /// Declarative macro companion to [`register_xml_component!`].
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^ no item named `register_xml_component` in scope
+    |
+    = note: `macro_rules` named `register_xml_component` exists in this crate, but it is not in scope at this link's location
+
+warning: could not parse code block as Rust code
+  --> crates/yororen-ui-xml/src/codegen/mod.rs:23:5
+   |
+23 |   //! ```ignore
+   |  _____^
+24 | | //! xml! { cx = &mut **cx,
+25 | | //!     <Column>…</Column>
+26 | | //! }
+27 | | //! ```
+   | |_______^
+   |
+help: `ignore` code blocks require valid Rust code for syntax highlighting; mark blocks that do not contain Rust code as text: ```text
+  --> crates/yororen-ui-xml/src/codegen/mod.rs:23:5
+   |
+23 | //! ```ignore
+   |     ^^^
+   = note: error from rustc: unknown start of token: \u{2026}
+   = note: `#[warn(rustdoc::invalid_rust_codeblocks)]` on by default
+
+warning: could not parse code block as Rust code
+  --> crates/yororen-ui-xml/src/codegen/mod.rs:38:5
+   |
+38 |   //! ```ignore
+   |  _____^
+39 | | //! xml! { cx,
+40 | | //!     <Column>…</Column>
+41 | | //! }
+42 | | //! ```
+   | |_______^
+   |
+help: `ignore` code blocks require valid Rust code for syntax highlighting; mark blocks that do not contain Rust code as text: ```text
+  --> crates/yororen-ui-xml/src/codegen/mod.rs:38:5
+   |
+38 | //! ```ignore
+   |     ^^^
+   = note: error from rustc: unknown start of token: \u{2026}
+
+warning: `yororen_ui_xml` (lib doc) generated 8 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.05s

@@ -50,6 +50,7 @@ impl core::default::Default for yororen_ui_core::a11y::ClickOutsideCapture
 pub fn yororen_ui_core::a11y::ClickOutsideCapture::default() -> Self
 impl gpui::element::IntoElement for yororen_ui_core::a11y::ClickOutsideCapture
 pub type yororen_ui_core::a11y::ClickOutsideCapture::Element = gpui::view::ViewElement<yororen_ui_core::a11y::ClickOutsideCapture>
+pub fn yororen_ui_core::a11y::ClickOutsideCapture::into_any_element(self) -> gpui::element::AnyElement
 pub fn yororen_ui_core::a11y::ClickOutsideCapture::into_element(self) -> Self::Element
 impl gpui::element::ParentElement for yororen_ui_core::a11y::ClickOutsideCapture
 pub fn yororen_ui_core::a11y::ClickOutsideCapture::extend(&mut self, impl core::iter::traits::collect::IntoIterator<Item = gpui::element::AnyElement>)
@@ -196,6 +197,7 @@ impl core::default::Default for yororen_ui_core::a11y::FocusTrap
 pub fn yororen_ui_core::a11y::FocusTrap::default() -> Self
 impl gpui::element::IntoElement for yororen_ui_core::a11y::FocusTrap
 pub type yororen_ui_core::a11y::FocusTrap::Element = gpui::view::ViewElement<yororen_ui_core::a11y::FocusTrap>
+pub fn yororen_ui_core::a11y::FocusTrap::into_any_element(self) -> gpui::element::AnyElement
 pub fn yororen_ui_core::a11y::FocusTrap::into_element(self) -> Self::Element
 impl gpui::element::ParentElement for yororen_ui_core::a11y::FocusTrap
 pub fn yororen_ui_core::a11y::FocusTrap::extend(&mut self, impl core::iter::traits::collect::IntoIterator<Item = gpui::element::AnyElement>)
@@ -4950,8 +4952,8 @@ impl core::marker::Send for yororen_ui_core::headless::text_area_element::TextAr
 impl core::marker::Sync for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
 impl core::marker::Unpin for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
 impl core::marker::UnsafeUnpin for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
-impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
-impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
+impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
+impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::text_area_element::TextAreaPrepaintState
 pub mod yororen_ui_core::headless::text_input
 pub struct yororen_ui_core::headless::text_input::Backspace
 impl core::clone::Clone for yororen_ui_core::headless::text_input::Backspace
@@ -5703,8 +5705,8 @@ impl core::marker::Send for yororen_ui_core::headless::text_input_element::Prepa
 impl core::marker::Sync for yororen_ui_core::headless::text_input_element::PrepaintState
 impl core::marker::Unpin for yororen_ui_core::headless::text_input_element::PrepaintState
 impl core::marker::UnsafeUnpin for yororen_ui_core::headless::text_input_element::PrepaintState
-impl core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::text_input_element::PrepaintState
-impl core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::text_input_element::PrepaintState
+impl !core::panic::unwind_safe::RefUnwindSafe for yororen_ui_core::headless::text_input_element::PrepaintState
+impl !core::panic::unwind_safe::UnwindSafe for yororen_ui_core::headless::text_input_element::PrepaintState
 pub struct yororen_ui_core::headless::text_input_element::TextInputElement<T: yororen_ui_core::headless::text_input_element::TextInputPainterHost + gpui::input::EntityInputHandler>
 pub yororen_ui_core::headless::text_input_element::TextInputElement::cursor_color: palette::hsl::Hsla
 pub yororen_ui_core::headless::text_input_element::TextInputElement::disabled: bool

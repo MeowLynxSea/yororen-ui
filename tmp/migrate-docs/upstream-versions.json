@@ -1,0 +1,306 @@
+{
+  "date": "2026-10-28",
+  "crates": [
+    {
+      "crate": "gpui-ce",
+      "source": "https://crates.io/api/v1/crates/gpui-ce",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": "1.95",
+          "created_at": "2026-10-20T22:32:59.729648Z",
+          "checksum": "7691a905fc9b283228c14b9b5ca93d002be88e203aa5878746152210b33c8dbf"
+        },
+        {
+          "num": "0.2.2",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-08-28T23:15:07.555749Z",
+          "checksum": "b0af79c6659e0fea67773cfbd751fc5c8e51be00139827f365d7d1237a468a4d"
+        },
+        {
+          "num": "0.3.3",
+          "yanked": true,
+          "rust_version": null,
+          "created_at": "2025-12-27T18:35:24.797495Z",
+          "checksum": "e44a107ce223acf01c69a901edfa5bb7d233e3f226aaefe017d2268e9cfe11ca"
+        },
+        {
+          "num": "0.3.2",
+          "yanked": true,
+          "rust_version": null,
+          "created_at": "2025-12-27T18:26:22.574135Z",
+          "checksum": "69cf2c0f4eb13b87fbf528cc201b3a101389b406a5d6a7b143b2f08198a853de"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_apple",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_apple",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:36:04.388430Z",
+          "checksum": "fa083d7db19daf89b46955f73b86712790f5b29658e83636344f12ec218031e2"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_collections",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_collections",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:31:02.503013Z",
+          "checksum": "9a50a4b92bb986496158b619d9b0bc730dc5dcdb27f6cbc84359227e0b70894b"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_derive_refineable",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_derive_refineable",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:31:10.059627Z",
+          "checksum": "f2093181860ea347ba22f9645aac164becd52ce5ac157a1f9ccce5a07b01cea9"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_ios",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_ios",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:56:57.323175Z",
+          "checksum": "380935ab92414a1c1c054e3a217b032a0012d1128c662e94005785cfd8cf7086"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_linux",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_linux",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:36:33.026716Z",
+          "checksum": "e471c10455ec436ba6d9a41f2e08db60576283ccd1f51a844e4d72810a297e28"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_macos",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_macos",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:36:26.589081Z",
+          "checksum": "3956b3383e204f0455aea6129da9676c4ffbf09351bf685df5ec8c2bb8572d36"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_macros",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_macros",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:32:24.599068Z",
+          "checksum": "3b28e8c6c9f75c3cc2c3d07918572ff9d8f78bd61a72b1a545bea88daefbb978"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_mobile",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_mobile",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:37:25.525123Z",
+          "checksum": "7a1d3851dba337d09aa5e0a0ba1f0a68459f87b0948280addf2544bab3c869c2"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_parley",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_parley",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:34:23.738053Z",
+          "checksum": "2254b91da65d1e8823708275347e88a83141dbb9cb58d3ab0736168ea4d9673c"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_platform",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_platform",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:57:15.123Z",
+          "checksum": "9e195209c604737d67a1d9ae56345209cd1a6d74abe45f8f3f16c31e278440b3"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_refineable",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_refineable",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:31:14.538016Z",
+          "checksum": "bc760d0665a16cd3058a4076a02ed7b7422102bac4c8551ec13943599f586a98"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_render",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_render",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:33:56.431646Z",
+          "checksum": "3b326f0a39d3ca9c3e40efa3156bf4d371158e1c2281258bb6dafd97a6f321ca"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_scheduler",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_scheduler",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:31:31.468287Z",
+          "checksum": "09be7fb293688e06a2ea871715fbb57fdb9e17f88d8629ed53c9ee1a60e69515"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_shared_string",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_shared_string",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:32:20.619842Z",
+          "checksum": "5310ad372bd963a7fb527fda31bfb75e6ed86b7f44e2e076ced47d0e28d655eb"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_sum_tree",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_sum_tree",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:31:21.584529Z",
+          "checksum": "56017a4f9a24251a1ef38715b1e9a415be7066410a7e6002bb3267544740736f"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_util",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_util",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:30:56.338409Z",
+          "checksum": "89433e8e93ee8684fc076dab4b8fc1085ca2fadbe4f42c28311940afae61ef1d"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_web",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_web",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:37:14.999535Z",
+          "checksum": "f887b0a426caf694fcc7ef204c5bf344236b8ff6bddf354e35426506073da29c"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_wgpu",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_wgpu",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:34:59.196265Z",
+          "checksum": "d3168d4877f63a3e4a36dce067dd3c19d6df5604be3ac0d357da2aedc9e44db0"
+        }
+      ]
+    },
+    {
+      "crate": "gpui_ce_windows",
+      "source": "https://crates.io/api/v1/crates/gpui_ce_windows",
+      "latest": "0.3.0",
+      "releases": [
+        {
+          "num": "0.3.0",
+          "yanked": false,
+          "rust_version": null,
+          "created_at": "2026-10-20T22:37:09.482581Z",
+          "checksum": "2bd1d66220d98bb604541c74c4922ca27576008d03e6266b241d91bc0e17e6f0"
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 import argparse
 import concurrent.futures
 import datetime
+import hashlib
 import json
 from pathlib import Path
 import time
@@ -92,6 +93,7 @@ def main():
     report = {
         "checked_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "lock": str(args.lock),
+        "lock_sha256": hashlib.sha256(args.lock.read_bytes()).hexdigest(),
         "registry_package_versions": len(results),
         "workspace_packages": len(packages) - sum(map(len, grouped.values())),
         "errors": errors,

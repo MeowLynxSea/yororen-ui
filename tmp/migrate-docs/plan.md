@@ -60,7 +60,7 @@ rust-version = "1.95"，所有成员继承，独立 fuzz 工作区单独声明�
 | 所有 crate / 类型身份 | 历史 0.3.x 与重新发布线不兼容，不能混用 | 统一 workspace 依赖；无锁解析后检查 gpui 单一版本及所有 registry 元数据 |
 | 应用初始化 | Application::new() → gpui_ce_platform::application() | 平台归档 src/gpui_platform.rs:64；基线 demos 已迁移，README 仍旧 |
 | AppContext | notify、emit、global entity 操作由 inherent 方法移入 AppContext；借用接口调整 | src/gpui.rs:258、src/app/context.rs；显式导入 trait / prelude；发布版仍为 AppContext，不猜测 main 的分域 trait |
-| 焦点 | FocusHandle::focus(window) → focus(window, cx)；Window::focus/focus_next/focus_prev 同样需要 App | src/window.rs:701、3119、3166、3180；基线大多已吸收 |
+| 焦点 | FocusHandle::focus(window) → focus(window, cx)；Window::focus/focus_next/focus_prev/blur 同样需要 App | src/window.rs:701、3119、3166、3180；基线大多已吸收，blink 测试补 window.blur(cx) |
 | 自绘 Element | request_layout/prepaint/paint 增加 inspector 参数；命中测试 boolean → HitboxBehavior | src/element.rs、src/window.rs:6965；基线已部分吸收，核查全部自绘控件 |
 | 颜色 | 自有 Rgba/Hsla → palette 类型与转换/ColorExt 扩展；字段与方法不同 | src/color.rs、src/style.rs；检查所有直接字段访问、blend/alpha/conversion，不能仅换版本 |
 | 绘制矩形 | PaintQuad 新增 corner_smoothing、border_dashed_length/gap；border_color 改为 Background | src/window.rs:9810；采用 PaintQuad::new(bounds) 及已验证的 builder，保留原边框/背景/圆角 |
@@ -70,6 +70,8 @@ rust-version = "1.95"，所有成员继承，独立 fuzz 工作区单独声明�
 | 浮层 | Deferred::with_priority(usize) → derive_setters 生成的 priority(impl Into<DeferredPriority>)；新自动优先级 | src/elements/deferred.rs；保留原显式优先级，避免改变 popover/modal/notification 层次 |
 | 长度/布局 | DefiniteLength::Fraction(f32) → Relative(Relative)；方向、inline 等新布局模型 | src/geometry.rs、src/style.rs；对照 relative helper；未使用的变动只记录 |
 | 文本 / IME | Parley 文本系统；Font 新增 width，TextRun 新增 letter_spacing；行布局、换行、字节位置与方向语义变化 | src/text_system/、examples/text_input.rs；核查单行、多行、UTF-8/UTF-16、点击选区和焦点测试 |
+| 文本几何（编译确认） | shape_line 四参 → 三参；ShapedLine 不再提供 x_for_index/index_for_x | src/text_system/window_text_system.rs:86、line_layout.rs:223；保留公开 ShapedLine 缓存，使用公开 platform_layout.caret_bounds(CaretPosition, line_height) 和 byte_index_from_pixel_point；越界 Err 也携带有效边界，必须保留 |
+| 裁剪（编译确认） | ContentMask 新增 fade_out: Edges<P> | src/window.rs:2780；使用 Default 保持零渐隐的硬裁剪 |
 | 资源 | with_assets 接受 Into<AssetRegistry>；App::asset_source → assets | src/assets.rs、src/app.rs；AssetSource 有 From 实现，UiAsset 可继续传入；核查图标加载 |
 | 拖放 | Drag API / DropListener；on_drop 调用模型变化 | src/elements/div.rs；检索实际使用，未使用不引入替代代码 |
 | 窗口 | activate_window → activate；WindowOptions 分平台背景与 builder | src/platform.rs、src/window.rs；保留有效字面量写法，核对实际用到字段 |
@@ -99,7 +101,7 @@ div.rs 中仍使用 hover/active，并无对应弃用标记。迁移不能盲从
    浮层与输入；检查内置 themes，保持 JSON token 兼容（渲染层阶段提交）。
 4. yororen_ui_locale_en、yororen_ui_locale_zh_cn、yororen_ui_locale_ar：
    逐一查询包名并检查；translations 数据保持语义不变。
-5. yororen_ui（门面）及 yororen_ui_xml_macro、yororen_ui_xml：依赖顺序由
+5. yororen_ui_xml → yororen_ui_xml_macro → yororen_ui（门面）：依赖顺序由
    Cargo metadata 确认；编译期宏、运行时 XML、tests/benches/fuzz 同步检查。
 6. 所有九个 demos：counter、showcase_xml、gallery_demo、gallery_xml、
    inputs_demo、layers_demo、theme_showcase、variant_showcase、winui-showcase。
@@ -136,10 +138,23 @@ div.rs 中仍使用 hover/active，并无对应弃用标记。迁移不能盲从
 
 ## 临时 workaround 登记
 
-尚未引入。调研用下载源码只在 tmp/migrate-docs/research，不参与 Cargo 构建。
-任何后续临时处理在此登记并在完成前清除；不接受依赖替换作为交付物。
+未引入依赖 workaround。调研用下载源码只在 tmp/migrate-docs/research，
+不参与 Cargo 构建；无 patch、replace、git 或私有 registry 依赖。
+分阶段提交时暂时跳过会提前触发全库编译的本地 pre-commit hook，最终已用
+scripts/regen-public-api.sh --all 显式重建全部公开 API 基线。没有修改 hook
+配置或提交豁免配置。独立下游检查只对尚未发布的 Yororen 源码使用本地路径，
+所有上游依赖均正常从 crates.io 解析；详见 summary.md 的验证边界。
 
 ## 公开 API 变化清单
 
-待逐层编译确认后补全到 summary.md。目标是保留 yororen 自身组件、token、
-locale、XML schema 的公开接口；gpui 升级与 MSRV 变化必须明确披露。
+已整理到 summary.md 的「公开 API 变化清单」，包括两个预绘制状态的 unwind
+auto-trait 变化、GPUI 类型身份变化与工具链要求。组件、token、locale、
+XML schema 无主动删除或参数调整。逐项快照差异见 public-api-review.json。
+
+## 发布版本修订（调研后续发现）
+
+crates.io API 确认 yororen_ui、yororen_ui_core 的 0.3.0 已发布，不能覆盖同版本。
+由于公开组件接口中的 gpui 类型身份跨越了不兼容版本，采用 yororen 0.4.0
+发布线；内部发布依赖统一 version = "0.4"，避免依赖下限仍允许已发布的旧
+0.3 组件。所有发布 crate 需按依赖拓扑一起发布；仅提交锁文件不会修复下游
+库依赖解析。README 的 crates.io 接入示例与标签说明同步版本。

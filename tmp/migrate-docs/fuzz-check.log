@@ -1,0 +1,22 @@
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+     Locking 399 packages to latest Rust 1.95 compatible versions
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+   Compiling jobserver v0.1.35
+   Compiling rust-embed-utils v8.13.0
+   Compiling yororen_ui_core v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-core)
+    Checking arbitrary v1.5.0
+   Compiling cc v1.10.0
+   Compiling rust-embed-impl v8.13.0
+    Checking rust-embed v8.13.0
+   Compiling embed-resource v3.0.12
+   Compiling libfuzzer-sys v0.4.13
+   Compiling gpui-ce v0.3.0
+    Checking yororen_ui_xml v0.4.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml)
+    Checking yororen-ui-xml-fuzz v0.0.0 (/Users/MeowLynxSea/Development/Rust/yororen-ui/crates/yororen-ui-xml/fuzz)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 35.37s

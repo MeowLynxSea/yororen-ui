@@ -1,0 +1,78 @@
+{
+  "command": "cargo package (nine publishable packages) --no-verify --allow-dirty",
+  "note": "Archive and normalized-manifest validation; compilation verification is recorded separately. No upload.",
+  "packages": [
+    {
+      "crate": "yororen_ui",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui-0.4.0.crate",
+      "sha256": "53537b92dc32865941deb955f272e8bac5d2324d8db3f1f77f0e0c990ed65f89",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 10
+    },
+    {
+      "crate": "yororen_ui_core",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_core-0.4.0.crate",
+      "sha256": "4f1a44259f9be9a331de7293600f1d261e731ad93201db3f2ad8bc079138dd13",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 8
+    },
+    {
+      "crate": "yororen_ui_default_renderer",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_default_renderer-0.4.0.crate",
+      "sha256": "3bd3c9ebaa420559160ff1b32dbaae9077cfcbc3202b633829ea09c467cf07b7",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 3
+    },
+    {
+      "crate": "yororen_ui_locale_ar",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_locale_ar-0.4.0.crate",
+      "sha256": "f9b5da5872b6a4c1f717fa8dafa2a5aa1fe18a4a3247520a7c0ab44f460ab441",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 3
+    },
+    {
+      "crate": "yororen_ui_locale_en",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_locale_en-0.4.0.crate",
+      "sha256": "e31898a1c90f71bf6cd0cb92d07513374495d55b6212a1b2fe088711dca9ec1a",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 3
+    },
+    {
+      "crate": "yororen_ui_locale_zh_cn",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_locale_zh_cn-0.4.0.crate",
+      "sha256": "4bd76c75241a427895f2e2eeccf983d7e211cf91dae899f19719387e305b030a",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 3
+    },
+    {
+      "crate": "yororen_ui_winui_renderer",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_winui_renderer-0.4.0.crate",
+      "sha256": "3b23453d278bd59b29fb4c4a907859432acd88a7d89524cac68ad6902d906bc8",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 4
+    },
+    {
+      "crate": "yororen_ui_xml",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_xml-0.4.0.crate",
+      "sha256": "0b7419e554909651d60ea1e78b92dcbf3fa09319150a17784e4c8afe22ac6d3a",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 11
+    },
+    {
+      "crate": "yororen_ui_xml_macro",
+      "version": "0.4.0",
+      "archive": "target/package/yororen_ui_xml_macro-0.4.0.crate",
+      "sha256": "f4f2f8ab79d6a829e8c8c501fa24c4180a6d31c1678df00513744a56cdcbddf4",
+      "normalized_manifest_registry_only": true,
+      "dependency_entries_checked": 6
+    }
+  ]
+}

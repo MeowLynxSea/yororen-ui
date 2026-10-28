@@ -1,0 +1,12 @@
+{
+  "stage": "/var/folders/zc/9wybr8p574g1qy1tt59qxjjw0000gp/T/yororen-gpui-migration-idr8e7vw",
+  "fresh_workspace_external_versions_match_audited_lock": true,
+  "external_package_versions": 778,
+  "consumer_check": "passed",
+  "gpui_versions": [
+    "0.3.0"
+  ],
+  "patches": false,
+  "git_dependencies": false,
+  "note": "Only unpublished Yororen 0.4 source uses local paths; all upstream dependencies resolve normally from crates.io."
+}
