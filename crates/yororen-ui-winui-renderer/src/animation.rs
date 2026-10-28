@@ -11,7 +11,7 @@ use std::time::{Duration, Instant};
 use gpui::ColorExt;
 use gpui::{
     AnyElement, App, Div, Element, ElementId, Entity, Global, GlobalElementId, Hsla,
-    InspectorElementId, InteractiveElement, IntoElement, LayoutId, ParentElement, Pixels, Rgba,
+    InspectorElementId, InteractiveElement, IntoElement, LayoutId, ParentElement, Pixels,
     Stateful, Styled, Window, div, px,
 };
 use yororen_ui_core::animation::{AnimatedPresenceState, AnimationConfig, SlideDirection};

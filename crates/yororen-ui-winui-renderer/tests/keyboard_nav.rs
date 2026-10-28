@@ -303,7 +303,7 @@ fn winui_pips_pager_keyboard_nav(cx: &mut TestAppContext) {
 
     window
         .update(cx, |root, window, cx| {
-            root.state.read(cx).focus_handle().focus(window);
+            root.state.read(cx).focus_handle().focus(window, cx);
         })
         .unwrap();
 
