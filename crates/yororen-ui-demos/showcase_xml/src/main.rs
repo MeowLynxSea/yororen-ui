@@ -40,8 +40,7 @@ mod state;
 mod view;
 
 use gpui::{
-    App, AppContext, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px,
-    size,
+    App, AppContext, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px, size,
 };
 
 use yororen_ui::assets::UiAsset;
@@ -88,7 +87,10 @@ fn render_custom_widget(id: String, cx: &mut gpui::App) -> gpui::AnyElement {
     // float. We rely on the trait `Display` from gpui.
     let label = format!(
         "theme.surface.base = h {:.2}°  s {:.2}  l {:.2}  a {:.2}",
-        swatch.color.hue.into_degrees(), swatch.saturation, swatch.lightness, swatch.alpha
+        swatch.color.hue.into_degrees(),
+        swatch.saturation,
+        swatch.lightness,
+        swatch.alpha
     );
 
     // 2-row composition: a 48×48 swatch on top, an
@@ -125,42 +127,49 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // Install the default theme + renderers.
-        renderer::install(cx, cx.window_appearance());
-
-        // Bind the global keymap for text-input
-        // actions (Backspace, Delete, Left/Right,
-        // SelectAll, Paste, etc.). Without this the
-        // TextInput can't accept backspace or other
-        // editing keys - they're bound to the
-        // "UITextInput" key context that this
-        // registers (idempotent — safe to call once).
-        yororen_ui::headless::text_input::init(cx);
-
-        // English translations.
-        locale_en::install(cx);
-
-        // Build the state and the controller that owns it.
-        // The controller is `Clone` so each event handler
-        // closure in the XML gets its own handle.
-        let state = cx.new(|cx| ShowcaseState::new_data(cx));
-        let controller = Controller::new(state.clone());
-
-        // Make the state available to the view as a global
-        // (the view reads it via `cx.global::<StateRef>()`).
-        cx.set_global(StateRef { state });
-
-        // Open the main window.
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(720.0), px(620.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let _ = cx.open_window(options, |_, cx| {
-            cx.new(|cx| ShowcaseApp::new(cx, controller))
-        });
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // Install the default theme + renderers.
+    renderer::install(cx, cx.window_appearance());
+
+    // Bind the global keymap for text-input
+    // actions (Backspace, Delete, Left/Right,
+    // SelectAll, Paste, etc.). Without this the
+    // TextInput can't accept backspace or other
+    // editing keys - they're bound to the
+    // "UITextInput" key context that this
+    // registers (idempotent — safe to call once).
+    yororen_ui::headless::text_input::init(cx);
+
+    // English translations.
+    locale_en::install(cx);
+
+    // Build the state and the controller that owns it.
+    // The controller is `Clone` so each event handler
+    // closure in the XML gets its own handle.
+    let state = cx.new(|cx| ShowcaseState::new_data(cx));
+    let controller = Controller::new(state.clone());
+
+    // Make the state available to the view as a global
+    // (the view reads it via `cx.global::<StateRef>()`).
+    cx.set_global(StateRef { state });
+
+    // Open the main window.
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(720.0), px(620.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| {
+        cx.new(|cx| ShowcaseApp::new(cx, controller))
+    })
+    .expect("failed to open showcase xml demo window");
+    cx.activate(true);
 }

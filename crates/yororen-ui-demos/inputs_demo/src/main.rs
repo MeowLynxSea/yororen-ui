@@ -94,26 +94,33 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // Bind the text-input keymap once at startup. The
-        // renderer wires the actions; this call only registers
-        // the keymap (idempotent — see
-        // `headless::text_input::init`).
-        yororen_ui::headless::text_input::init(cx);
-
-        // Demo-local theme: black/white/grey, with action
-        // palette hover deltas of ~8% lightness so the
-        // interactive states are visually obvious.
-        let theme = Theme::from_json(DEMO_THEME_JSON).expect("valid theme JSON");
-        default_renderer::install_with(cx, theme);
-
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(900.0), px(900.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let _ = cx.open_window(options, |_, cx| cx.new(|_cx| inputs_app::InputsApp::new()));
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // Bind the text-input keymap once at startup. The
+    // renderer wires the actions; this call only registers
+    // the keymap (idempotent — see
+    // `headless::text_input::init`).
+    yororen_ui::headless::text_input::init(cx);
+
+    // Demo-local theme: black/white/grey, with action
+    // palette hover deltas of ~8% lightness so the
+    // interactive states are visually obvious.
+    let theme = Theme::from_json(DEMO_THEME_JSON).expect("valid theme JSON");
+    default_renderer::install_with(cx, theme);
+
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(900.0), px(900.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| cx.new(|_cx| inputs_app::InputsApp::new()))
+        .expect("failed to open inputs demo demo window");
+    cx.activate(true);
 }

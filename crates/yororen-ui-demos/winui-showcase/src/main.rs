@@ -31,33 +31,40 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // 1. Bind the text-input keymap once (text_input /
-        //    password / number / search / file_path / text_area).
-        yororen_ui::headless::text_input::init(cx);
-
-        // 2. Install the WinUI renderer + dark theme. The WinUI
-        //    Gallery you're matching is a dark, Mica-style app, so
-        //    the showcase boots dark by default.
-        install_with(cx, winui_dark());
-
-        // 3. Open a single window with the WinUI app attached.
-        let window_options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(1120.0), px(760.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let app_entity = cx.new(|cx| {
-            let mut app = app::WinuiApp::new(cx);
-            if let Some(page) = initial_page_from_env() {
-                app.page = page;
-            }
-            app
-        });
-        let _ = cx.open_window(window_options, |_, _cx| app_entity);
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // 1. Bind the text-input keymap once (text_input /
+    //    password / number / search / file_path / text_area).
+    yororen_ui::headless::text_input::init(cx);
+
+    // 2. Install the WinUI renderer + dark theme. The WinUI
+    //    Gallery you're matching is a dark, Mica-style app, so
+    //    the showcase boots dark by default.
+    install_with(cx, winui_dark());
+
+    // 3. Open a single window with the WinUI app attached.
+    let window_options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(1120.0), px(760.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    let app_entity = cx.new(|cx| {
+        let mut app = app::WinuiApp::new(cx);
+        if let Some(page) = initial_page_from_env() {
+            app.page = page;
+        }
+        app
+    });
+    cx.open_window(window_options, |_, _cx| app_entity)
+        .expect("failed to open winui-showcase demo window");
+    cx.activate(true);
 }
 
 /// Debug hook: boot straight to a page by its sidebar label via the

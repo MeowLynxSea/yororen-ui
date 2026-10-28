@@ -34,41 +34,48 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // 1. Bind the text-input keymap once.
-        yororen_ui::headless::text_input::init(cx);
-
-        // 2. Install the notification center (toast / notification
-        //    trigger from the toolbar).
-        cx.set_global(NotificationCenter::new());
-
-        // 3. Install English as the default locale. The
-        //    `gallery_demo::i18n::install_for_locale` helper uses
-        //    `yororen_ui::locale::install_with_translations` to layer
-        //    this crate's own demo translations on top of the framework
-        //    defaults from `yororen-ui-locale-en`.
-        //    The toolbar locale toggle calls it again to hot-swap.
-        crate::i18n::install_for_locale(cx, crate::state::LocaleChoice::En);
-
-        // 4. Install the default renderer + light theme. The
-        //    toolbar will hot-swap at runtime via
-        //    `install_renderer` (called per render in
-        //    `gallery_app`).
-        theme_switcher::install_renderer(
-            cx,
-            theme_switcher::RendererKind::default(),
-            theme_switcher::DarkMode::default(),
-        );
-
-        // 5. Open a single window.
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(1280.0), px(900.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let app_entity = cx.new(crate::state::GalleryApp::new);
-        let _ = cx.open_window(options, |_, _cx| app_entity);
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // 1. Bind the text-input keymap once.
+    yororen_ui::headless::text_input::init(cx);
+
+    // 2. Install the notification center (toast / notification
+    //    trigger from the toolbar).
+    cx.set_global(NotificationCenter::new());
+
+    // 3. Install English as the default locale. The
+    //    `gallery_demo::i18n::install_for_locale` helper uses
+    //    `yororen_ui::locale::install_with_translations` to layer
+    //    this crate's own demo translations on top of the framework
+    //    defaults from `yororen-ui-locale-en`.
+    //    The toolbar locale toggle calls it again to hot-swap.
+    crate::i18n::install_for_locale(cx, crate::state::LocaleChoice::En);
+
+    // 4. Install the default renderer + light theme. The
+    //    toolbar will hot-swap at runtime via
+    //    `install_renderer` (called per render in
+    //    `gallery_app`).
+    theme_switcher::install_renderer(
+        cx,
+        theme_switcher::RendererKind::default(),
+        theme_switcher::DarkMode::default(),
+    );
+
+    // 5. Open a single window.
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(1280.0), px(900.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    let app_entity = cx.new(crate::state::GalleryApp::new);
+    cx.open_window(options, |_, _cx| app_entity)
+        .expect("failed to open gallery demo demo window");
+    cx.activate(true);
 }

@@ -84,27 +84,35 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // 1) Renderer + theme — picks system-light or system-dark by OS appearance,
-        //    installs the global Theme, and registers 58 default XxxRenderer impls.
-        renderer::install(cx, cx.window_appearance());
-
-        // 2) Text-input keymap (idempotent).
-        yororen_ui::headless::text_input::init(cx);
-
-        // 3) Locale.
-        locale_en::install(cx);
-
-        // 4) Main window.
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(
-                Bounds::centered(None, size(px(800.), px(600.)), cx),
-            )),
-            ..Default::default()
-        };
-        cx.open_window(options, |_, cx| cx.new(|_| my_app::MyApp));
+        cx.spawn(async |cx| cx.update(open_window)).detach();
     });
 }
+
+fn open_window(cx: &mut App) {
+    // 1) Renderer + theme — picks system-light or system-dark by OS appearance,
+    //    installs the global Theme, and registers 58 default XxxRenderer impls.
+    renderer::install(cx, cx.window_appearance());
+
+    // 2) Text-input keymap (idempotent).
+    yororen_ui::headless::text_input::init(cx);
+
+    // 3) Locale.
+    locale_en::install(cx);
+
+    // 4) Main window.
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(
+            Bounds::centered(None, size(px(800.), px(600.)), cx),
+        )),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| cx.new(|_| my_app::MyApp))
+        .expect("failed to open main window");
+    cx.activate(true);
+}
 ```
+
+With gpui-ce 0.3.0 on macOS, schedule window setup with `App::spawn` as shown: the native launch callback holds a platform lock that `open_window` also needs. The foreground task runs after that callback returns.
 
 Inside your `Render::render`:
 

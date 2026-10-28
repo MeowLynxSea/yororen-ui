@@ -84,27 +84,35 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // 1) 渲染器 + 主题 —— 根据系统外观选择 system-light 或 system-dark，
-        //    安装全局 Theme，并注册 58 个默认渲染器实现。
-        renderer::install(cx, cx.window_appearance());
-
-        // 2) 初始化文本输入的键位映射（幂等）。
-        yororen_ui::headless::text_input::init(cx);
-
-        // 3) Locale。
-        locale_en::install(cx);
-
-        // 4) 主窗口。
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(
-                Bounds::centered(None, size(px(800.), px(600.)), cx),
-            )),
-            ..Default::default()
-        };
-        cx.open_window(options, |_, cx| cx.new(|_| my_app::MyApp));
+        cx.spawn(async |cx| cx.update(open_window)).detach();
     });
 }
+
+fn open_window(cx: &mut App) {
+    // 1) 渲染器 + 主题 —— 根据系统外观选择 system-light 或 system-dark，
+    //    安装全局 Theme，并注册 58 个默认渲染器实现。
+    renderer::install(cx, cx.window_appearance());
+
+    // 2) 初始化文本输入的键位映射（幂等）。
+    yororen_ui::headless::text_input::init(cx);
+
+    // 3) Locale。
+    locale_en::install(cx);
+
+    // 4) 主窗口。
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(
+            Bounds::centered(None, size(px(800.), px(600.)), cx),
+        )),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| cx.new(|_| my_app::MyApp))
+        .expect("failed to open main window");
+    cx.activate(true);
+}
 ```
+
+使用 gpui-ce 0.3.0 时，请按示例通过 `App::spawn` 调度窗口初始化：macOS 原生启动回调持有 `open_window` 也需要的平台锁，前台任务会在该回调返回后执行。
 
 在 <code>Render::render</code> 中：
 

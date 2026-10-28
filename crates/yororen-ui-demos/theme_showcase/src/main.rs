@@ -26,22 +26,29 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // Register the 54 default `TokenXxxRenderer` impls. We
-        // do *not* install a theme here — the demo installs a
-        // theme on every `Render::render` from `theme_app`, so
-        // that clicking "Next theme" can swap the active JSON
-        // and the whole window re-themes instantly.
-        default_renderer::install(cx, cx.window_appearance());
-
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(700.0), px(500.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let app_entity = cx.new(|_cx| theme_app::ThemeApp::new());
-        let _ = cx.open_window(options, |_, _cx| app_entity);
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // Register the 54 default `TokenXxxRenderer` impls. We
+    // do *not* install a theme here — the demo installs a
+    // theme on every `Render::render` from `theme_app`, so
+    // that clicking "Next theme" can swap the active JSON
+    // and the whole window re-themes instantly.
+    default_renderer::install(cx, cx.window_appearance());
+
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(700.0), px(500.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    let app_entity = cx.new(|_cx| theme_app::ThemeApp::new());
+    cx.open_window(options, |_, _cx| app_entity)
+        .expect("failed to open theme showcase demo window");
+    cx.activate(true);
 }

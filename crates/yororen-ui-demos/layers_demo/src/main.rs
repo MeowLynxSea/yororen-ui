@@ -107,30 +107,37 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // Bind the text-input keymap once at startup. The
-        // renderer wires the actions (Backspace, Delete, Left,
-        // Right, Enter, etc.); this call only registers the
-        // keymap against the "UITextInput" key context
-        // (idempotent — see `headless::text_input::init`).
-        yororen_ui::headless::text_input::init(cx);
-
-        // Demo-local theme: black/white/grey, with action
-        // palette hover deltas of ~10% lightness so the
-        // interactive states are visually obvious. The
-        // shared `system-light.json` ships a darker default
-        // (action.primary 2.6% delta) that the demo
-        // overrides here.
-        let theme = Theme::from_json(DEMO_THEME_JSON).expect("DEMO_THEME_JSON is valid");
-        default_renderer::install_with(cx, theme);
-
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(800.0), px(600.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let _ = cx.open_window(options, |_, cx| cx.new(|_cx| layers_app::LayersApp::new()));
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // Bind the text-input keymap once at startup. The
+    // renderer wires the actions (Backspace, Delete, Left,
+    // Right, Enter, etc.); this call only registers the
+    // keymap against the "UITextInput" key context
+    // (idempotent — see `headless::text_input::init`).
+    yororen_ui::headless::text_input::init(cx);
+
+    // Demo-local theme: black/white/grey, with action
+    // palette hover deltas of ~10% lightness so the
+    // interactive states are visually obvious. The
+    // shared `system-light.json` ships a darker default
+    // (action.primary 2.6% delta) that the demo
+    // overrides here.
+    let theme = Theme::from_json(DEMO_THEME_JSON).expect("DEMO_THEME_JSON is valid");
+    default_renderer::install_with(cx, theme);
+
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(800.0), px(600.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| cx.new(|_cx| layers_app::LayersApp::new()))
+        .expect("failed to open layers demo demo window");
+    cx.activate(true);
 }

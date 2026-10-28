@@ -23,26 +23,33 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // Install the default theme + 54 default renderers in
-        // one call.
-        renderer::install(cx, cx.window_appearance());
-
-        // Set up i18n with English translations.
-        locale_en::install(cx);
-
-        // Set up counter state.
-        let counter_state = state::CounterState::new(cx);
-        cx.set_global(counter_state);
-
-        // Open the main window.
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(400.0), px(300.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let _ = cx.open_window(options, |_, cx| cx.new(|_cx| counter_app::CounterApp));
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // Install the default theme + 54 default renderers in
+    // one call.
+    renderer::install(cx, cx.window_appearance());
+
+    // Set up i18n with English translations.
+    locale_en::install(cx);
+
+    // Set up counter state.
+    let counter_state = state::CounterState::new(cx);
+    cx.set_global(counter_state);
+
+    // Open the main window.
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(400.0), px(300.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| cx.new(|_cx| counter_app::CounterApp))
+        .expect("failed to open counter demo window");
+    cx.activate(true);
 }

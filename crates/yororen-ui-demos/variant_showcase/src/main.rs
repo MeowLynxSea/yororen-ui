@@ -24,18 +24,25 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        renderer::install(cx, cx.window_appearance());
-
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(700.0), px(420.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let _ = cx.open_window(options, |_, cx| {
-            cx.new(|_cx| variant_app::VariantApp::new())
-        });
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    renderer::install(cx, cx.window_appearance());
+
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(700.0), px(420.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| {
+        cx.new(|_cx| variant_app::VariantApp::new())
+    })
+    .expect("failed to open variant showcase demo window");
+    cx.activate(true);
 }

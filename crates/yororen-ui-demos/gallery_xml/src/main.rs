@@ -11,8 +11,7 @@ mod theme_switcher;
 mod view;
 
 use gpui::{
-    App, AppContext, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px,
-    size,
+    App, AppContext, InteractiveElement, IntoElement, WindowBounds, WindowOptions, px, size,
 };
 
 use yororen_ui::assets::UiAsset;
@@ -85,43 +84,50 @@ fn main() {
     let app = gpui_ce_platform::application().with_assets(UiAsset);
 
     app.run(|cx: &mut App| {
-        // 1. Install the default renderer + theme (light).
-        //    The view will reinstall per render so toolbar
-        //    toggles take effect immediately.
-        theme_switcher::install_renderer(
-            cx,
-            theme_switcher::RendererKind::default(),
-            theme_switcher::DarkMode::default(),
-        );
-
-        // 2. Bind the text-input keymap once (idempotent).
-        yororen_ui::headless::text_input::init(cx);
-
-        // 3. Install the notification center (toast /
-        //    notification trigger from the toolbar).
-        cx.set_global(NotificationCenter::new());
-
-        // 4. Install English locale + the demo's own translations.
-        crate::i18n::install_for_locale(cx, crate::state::LocaleChoice::En);
-
-        // 5. Build the state + the controller that owns it.
-        let state = cx.new(|cx| GalleryState::new_data(cx));
-        let controller = Controller::new(state.clone(), cx);
-
-        // 6. Make the state available to the view as a global.
-        cx.set_global(StateRef { state });
-
-        // 7. Open the main window.
-        let options = WindowOptions {
-            window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
-                None,
-                size(px(1280.0), px(900.0)),
-                cx,
-            ))),
-            ..Default::default()
-        };
-        let _ = cx.open_window(options, |_, cx| {
-            cx.new(|cx| GalleryApp::new(cx, controller))
-        });
+        // gpui-ce 0.3.0 holds the macOS platform lock in the launch callback.
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
     });
+}
+
+fn open_demo(cx: &mut App) {
+    // 1. Install the default renderer + theme (light).
+    //    The view will reinstall per render so toolbar
+    //    toggles take effect immediately.
+    theme_switcher::install_renderer(
+        cx,
+        theme_switcher::RendererKind::default(),
+        theme_switcher::DarkMode::default(),
+    );
+
+    // 2. Bind the text-input keymap once (idempotent).
+    yororen_ui::headless::text_input::init(cx);
+
+    // 3. Install the notification center (toast /
+    //    notification trigger from the toolbar).
+    cx.set_global(NotificationCenter::new());
+
+    // 4. Install English locale + the demo's own translations.
+    crate::i18n::install_for_locale(cx, crate::state::LocaleChoice::En);
+
+    // 5. Build the state + the controller that owns it.
+    let state = cx.new(|cx| GalleryState::new_data(cx));
+    let controller = Controller::new(state.clone(), cx);
+
+    // 6. Make the state available to the view as a global.
+    cx.set_global(StateRef { state });
+
+    // 7. Open the main window.
+    let options = WindowOptions {
+        window_bounds: Some(WindowBounds::Windowed(gpui::Bounds::centered(
+            None,
+            size(px(1280.0), px(900.0)),
+            cx,
+        ))),
+        ..Default::default()
+    };
+    cx.open_window(options, |_, cx| {
+        cx.new(|cx| GalleryApp::new(cx, controller))
+    })
+    .expect("failed to open gallery xml demo window");
+    cx.activate(true);
 }

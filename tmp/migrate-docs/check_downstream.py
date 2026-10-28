@@ -79,11 +79,17 @@ impl Render for Example {
 
 fn main() {
     gpui_ce_platform::application().with_assets(UiAsset).run(|cx: &mut App| {
+        cx.spawn(async |cx| cx.update(open_demo)).detach();
+    });
+}
+
+fn open_demo(cx: &mut App) {
         yororen_ui::renderer::install(cx, cx.window_appearance());
         yororen_ui::headless::text_input::init(cx);
         yororen_ui::locale_en::install(cx);
-        let _ = cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_| Example));
-    });
+        cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_| Example))
+            .expect("failed to open example window");
+        cx.activate(true);
 }
 """
 )
