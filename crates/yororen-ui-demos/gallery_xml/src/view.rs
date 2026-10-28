@@ -114,7 +114,7 @@ fn build_modal_overlay(
     cx: &mut Context<GalleryApp>,
 ) -> gpui::Deferred {
     if !is_modal_open {
-        return gpui::deferred(div()).with_priority(2);
+        return gpui::deferred(div()).priority(2);
     }
 
     // `controller` is bound for the modal body XML, which
@@ -140,5 +140,5 @@ fn build_modal_overlay(
             .bg(hsla(0.0, 0.0, 0.0, 0.55))
             .child(modal_panel),
     )
-    .with_priority(2)
+    .priority(2)
 }

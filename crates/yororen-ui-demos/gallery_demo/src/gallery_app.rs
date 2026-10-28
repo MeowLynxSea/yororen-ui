@@ -217,7 +217,7 @@ fn section_row(
 fn build_modal_overlay(app: &GalleryApp, cx: &mut Context<GalleryApp>) -> gpui::Deferred {
     let is_modal_visible = app.modal_state.read(cx).is_visible();
     if !is_modal_visible {
-        return gpui::deferred(div()).with_priority(2);
+        return gpui::deferred(div()).priority(2);
     }
 
     let modal_state_for_close = app.modal_state.clone();
@@ -247,7 +247,7 @@ fn build_modal_overlay(app: &GalleryApp, cx: &mut Context<GalleryApp>) -> gpui::
             .inset_0()
             .bg(hsla(0.0, 0.0, 0.0, 0.55)),
     )
-    .with_priority(2)
+    .priority(2)
 }
 
 /// Toolbar at the top of the window.

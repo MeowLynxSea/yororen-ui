@@ -437,7 +437,7 @@ impl WinuiApp {
 
         let is_visible = self.modal_state.read(cx).is_visible();
         if !is_visible {
-            return gpui::deferred(div()).with_priority(2);
+            return gpui::deferred(div()).priority(2);
         }
 
         let modal_state_for_close = self.modal_state.clone();
@@ -515,7 +515,7 @@ impl WinuiApp {
             yororen_ui_winui_renderer::animation::fast_out_slow_in,
         );
 
-        gpui::deferred(scrim_el).with_priority(2)
+        gpui::deferred(scrim_el).priority(2)
     }
 
     // -----------------------------------------------------------------

@@ -30,7 +30,7 @@
 //!
 //! ## Paint order
 //!
-//! The host is wrapped in [`gpui::deferred(...).with_priority(3)`]
+//! The host is wrapped in [`gpui::deferred(...).priority(3)`]
 //! when added to the root by [`crate::gallery_app::GalleryApp`]'s
 //! `Render`. Priority 3 places it above the modal scrim (priority
 //! 2) and the popover / dropdown panels (priority 1) so toasts
@@ -292,5 +292,5 @@ fn adjust_lightness(color: Hsla, delta: f32) -> Hsla {
 /// [`gpui::deferred`] at the correct priority. Add this as a
 /// child of the root element from `Render::render`.
 pub fn deferred_host(cx: &mut Context<GalleryApp>) -> impl IntoElement {
-    deferred(render(cx)).with_priority(HOST_PRIORITY)
+    deferred(render(cx)).priority(HOST_PRIORITY)
 }
