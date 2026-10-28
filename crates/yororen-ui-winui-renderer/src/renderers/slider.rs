@@ -4,10 +4,10 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use gpui::{
-    App, BorderStyle, Bounds, Corners, CursorStyle, Edges, Element, ElementId, GlobalElementId,
-    Hsla, InteractiveElement, IntoElement, LayoutId, MouseButton, PaintQuad, ParentElement, Path,
-    PathBuilder, Pixels, Point, StatefulInteractiveElement, Style, Styled, Window, div, hsla,
-    point, px, size,
+    App, Bounds, Corners, CursorStyle, Element, ElementId, GlobalElementId, Hsla,
+    InteractiveElement, IntoElement, LayoutId, MouseButton, PaintQuad, ParentElement, Path,
+    PathBuilder, Pixels, Point, StatefulInteractiveElement, Style, Styled, Window, div, point, px,
+    size,
 };
 
 use yororen_ui_core::headless::slider::SliderProps;
@@ -300,34 +300,32 @@ impl Element for SliderTrackElement {
             point(bounds.left(), track_y),
             size(bounds.size.width, px(self.track_h)),
         );
-        window.paint_quad(PaintQuad {
-            bounds: track_bounds,
-            corner_radii: Corners::all(track_radius).clamp_radii_for_quad_size(track_bounds.size),
-            background: self.track_bg.into(),
-            border_color: hsla(0., 0., 0., 0.),
-            border_widths: Edges::default(),
-            border_style: BorderStyle::default(),
-        });
+        window.paint_quad(
+            PaintQuad::new(track_bounds)
+                .corner_radii(
+                    Corners::all(track_radius).clamp_radii_for_quad_size(track_bounds.size),
+                )
+                .background(self.track_bg),
+        );
 
         // Fill — rounded on the left end only.
         let fill_bounds = Bounds::new(
             point(bounds.left(), track_y),
             size(fill_w, px(self.track_h)),
         );
-        window.paint_quad(PaintQuad {
-            bounds: fill_bounds,
-            corner_radii: Corners {
-                top_left: track_radius,
-                top_right: px(0.),
-                bottom_left: track_radius,
-                bottom_right: px(0.),
-            }
-            .clamp_radii_for_quad_size(fill_bounds.size),
-            background: self.fill_bg.into(),
-            border_color: hsla(0., 0., 0., 0.),
-            border_widths: Edges::default(),
-            border_style: BorderStyle::default(),
-        });
+        window.paint_quad(
+            PaintQuad::new(fill_bounds)
+                .corner_radii(
+                    Corners {
+                        top_left: track_radius,
+                        top_right: px(0.),
+                        bottom_left: track_radius,
+                        bottom_right: px(0.),
+                    }
+                    .clamp_radii_for_quad_size(fill_bounds.size),
+                )
+                .background(self.fill_bg),
+        );
 
         // Knob — WinUI style: solid outer circle with an accent inner
         // dot that scales and recolours on hover / press.
@@ -344,8 +342,9 @@ impl Element for SliderTrackElement {
         window.paint_drop_shadows(
             knob_bounds,
             Corners::all(outer_radius),
+            0.0,
             &[gpui::BoxShadow {
-                color: self.thumb_shadow,
+                color: self.thumb_shadow.into(),
                 offset: point(px(0.), px(1.)),
                 blur_radius: px(3.),
                 spread_radius: px(0.),

@@ -132,14 +132,14 @@ impl TooltipRenderer for WinUITooltipRenderer {
             .unwrap_or_else(|| gpui::hsla(0., 0., 0., 0.18));
         let shadow = vec![
             gpui::BoxShadow {
-                color: shadow_shadow,
+                color: shadow_shadow.into(),
                 offset: gpui::Point::new(px(0.), px(8.)),
                 blur_radius: px(16.),
                 spread_radius: px(0.),
                 inset: false,
             },
             gpui::BoxShadow {
-                color: halo_shadow,
+                color: halo_shadow.into(),
                 offset: gpui::Point::new(px(0.), px(0.)),
                 blur_radius: px(2.),
                 spread_radius: px(0.),

@@ -309,7 +309,7 @@ impl SelectRenderer for WinUISelectRenderer {
                 .py(px(4.))
                 .flex_col()
                 .shadow(vec![gpui::BoxShadow {
-                    color: shadow_color,
+                    color: shadow_color.into(),
                     offset: gpui::point(px(0.), px(5.)),
                     blur_radius: px(15.),
                     spread_radius: px(0.),
@@ -477,7 +477,7 @@ impl SelectRenderer for WinUISelectRenderer {
                         .with_configs(enter, exit),
                     ),
                 )
-                .with_priority(1),
+                .priority(1),
             );
         }
 

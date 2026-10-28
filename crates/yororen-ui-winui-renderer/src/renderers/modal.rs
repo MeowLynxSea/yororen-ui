@@ -92,7 +92,7 @@ impl ModalRenderer for WinUIModalRenderer {
             .w_full()
             .children(children)
             .shadow(vec![gpui::BoxShadow {
-                color: gpui::hsla(0.0, 0.0, 0.0, alpha),
+                color: gpui::hsla(0.0, 0.0, 0.0, alpha).into(),
                 blur_radius: gpui::px(64.0),
                 spread_radius: gpui::px(0.0),
                 inset: false,

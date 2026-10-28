@@ -81,7 +81,7 @@ impl DropdownMenuRenderer for WinUIDropdownMenuRenderer {
                 .text_color(theme.get_color("content.primary").unwrap_or_default())
                 .rounded(r)
                 .shadow(vec![gpui::BoxShadow {
-                    color: gpui::hsla(0.0, 0.0, 0.0, alpha),
+                    color: gpui::hsla(0.0, 0.0, 0.0, alpha).into(),
                     blur_radius: gpui::px(15.0),
                     spread_radius: gpui::px(0.0),
                     inset: false,
@@ -127,7 +127,7 @@ impl DropdownMenuRenderer for WinUIDropdownMenuRenderer {
                         .with_configs(enter, exit),
                     ),
                 )
-                .with_priority(1),
+                .priority(1),
             );
         }
 

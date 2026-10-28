@@ -64,7 +64,7 @@ impl FocusRingRenderer for WinUIFocusRingRenderer {
             .rounded(radius)
             .text_color(theme.get_color("content.primary").unwrap_or_default())
             .shadow(vec![BoxShadow {
-                color,
+                color: color.into(),
                 offset: point(gpui::px(0.), gpui::px(0.)),
                 blur_radius: gpui::px(0.),
                 spread_radius: width,

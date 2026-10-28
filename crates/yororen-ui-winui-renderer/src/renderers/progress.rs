@@ -250,25 +250,30 @@ impl Element for IndeterminateBarElement {
         // off-screen right; clip to the track bounds so the
         // out-of-band portions never paint over neighbours (the
         // reference relies on CSS `overflow: hidden`).
-        window.with_content_mask(Some(gpui::ContentMask { bounds }), |window| {
-            let segments = [(0.4, segment1_offset(p)), (0.6, segment2_offset(p))];
-            for (width_ratio, offset) in segments {
-                let seg_w = track_w * width_ratio;
-                let seg_x = offset * seg_w;
-                let seg_bounds = Bounds::new(
-                    point(bounds.left() + px(seg_x), bounds.top()),
-                    size(px(seg_w), px(h)),
-                );
-                window.paint_quad(PaintQuad {
-                    bounds: seg_bounds,
-                    corner_radii: Corners::all(r).clamp_radii_for_quad_size(seg_bounds.size),
-                    background: self.fill.into(),
-                    border_color: gpui::hsla(0.0, 0.0, 0.0, 0.0),
-                    border_widths: gpui::Edges::default(),
-                    border_style: gpui::BorderStyle::default(),
-                });
-            }
-        });
+        window.with_content_mask(
+            Some(gpui::ContentMask {
+                bounds,
+                ..Default::default()
+            }),
+            |window| {
+                let segments = [(0.4, segment1_offset(p)), (0.6, segment2_offset(p))];
+                for (width_ratio, offset) in segments {
+                    let seg_w = track_w * width_ratio;
+                    let seg_x = offset * seg_w;
+                    let seg_bounds = Bounds::new(
+                        point(bounds.left() + px(seg_x), bounds.top()),
+                        size(px(seg_w), px(h)),
+                    );
+                    window.paint_quad(
+                        PaintQuad::new(seg_bounds)
+                            .corner_radii(
+                                Corners::all(r).clamp_radii_for_quad_size(seg_bounds.size),
+                            )
+                            .background(self.fill),
+                    );
+                }
+            },
+        );
     }
 }
 

@@ -427,7 +427,7 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                 .flex_col()
                 .gap(px(2.))
                 .shadow(vec![BoxShadow {
-                    color: shadow_color,
+                    color: shadow_color.into(),
                     offset: point(px(0.), px(5.)),
                     blur_radius: px(15.),
                     spread_radius: px(0.),
@@ -584,7 +584,7 @@ impl SplitButtonRenderer for WinUISplitButtonRenderer {
                         .with_configs(enter, exit),
                     ),
                 )
-                .with_priority(1),
+                .priority(1),
             )
         } else {
             root

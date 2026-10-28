@@ -670,7 +670,7 @@ impl Element for AnimatedRevealElement {
             window.request_animation_frame();
         }
 
-        window.with_content_mask(Some(gpui::ContentMask { bounds }), |window| {
+        window.with_content_mask(Some(gpui::ContentMask { bounds, ..Default::default() }), |window| {
             state.element.prepaint(window, cx)
         });
     }
@@ -685,7 +685,7 @@ impl Element for AnimatedRevealElement {
         window: &mut Window,
         cx: &mut App,
     ) {
-        window.with_content_mask(Some(gpui::ContentMask { bounds }), |window| {
+        window.with_content_mask(Some(gpui::ContentMask { bounds, ..Default::default() }), |window| {
             state.element.paint(window, cx)
         });
     }
