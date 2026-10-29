@@ -294,12 +294,19 @@ impl ComboBoxRenderer for WinUIComboBoxRenderer {
             focused,
         );
 
-        // Filtered options: case-insensitive `contains`.
+        // Filtered options: case-insensitive `contains`. A
+        // selection-only combo (WinUI `IsEditable = false`) must ignore
+        // the text: `set_value` / `pick` write the chosen label into
+        // `text`, and filtering by it would hide every other option with
+        // no way to clear the filter by editing.
         let needle = text.to_lowercase();
+        let editable = state.editable;
         let filtered: Vec<(usize, &yororen_ui_core::headless::combo_box::ComboBoxOption)> = options
             .iter()
             .enumerate()
-            .filter(|(_, opt)| needle.is_empty() || opt.label.to_lowercase().contains(&needle))
+            .filter(|(_, opt)| {
+                !editable || needle.is_empty() || opt.label.to_lowercase().contains(&needle)
+            })
             .collect();
 
         let mut outer = div().relative().child(trigger);

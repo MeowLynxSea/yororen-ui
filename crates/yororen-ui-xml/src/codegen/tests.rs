@@ -2143,6 +2143,106 @@ fn scroll_view_wraps_children_and_mints_controller() {
 }
 
 #[test]
+fn scroll_view_merges_if_else_children_into_one_chain() {
+    // <ScrollView> children must be merged the same way a container's
+    // are: a run of If/ElseIf/Else becomes ONE `child(...)` argument
+    // holding a complete if/else expression. Emitting the branches as
+    // separate `.child(...)` calls puts a bare `else { … }` in
+    // argument position, which is not a Rust expression at all.
+    let xml = r#"<ScrollView id="sv">
+    <If condition={show_first}>
+        <Label id="a" text="A" />
+    </If>
+    <Else>
+        <Label id="b" text="B" />
+    </Else>
+</ScrollView>"#;
+    let ts = codegen(xml, Span::call_site(), None, None, &[]).expect("codegen succeeds");
+    let s = ts.to_string();
+
+    if let Err(err) = syn::parse2::<syn::Expr>(ts.clone()) {
+        panic!("generated <ScrollView> code is not valid Rust: {err}\n{s}");
+    }
+    assert_eq!(
+        s.matches("__props . child").count(),
+        1,
+        "the If/Else run must collapse into a single child call, got:\n{s}"
+    );
+}
+
+/// Walk the generated (possibly nested) block down to the argument of
+/// the first `__props = __props.child(…)` statement.
+fn find_child_call(expr: &syn::Expr) -> Option<&syn::Expr> {
+    match expr {
+        syn::Expr::Block(block) => block.block.stmts.iter().find_map(|stmt| match stmt {
+            syn::Stmt::Expr(inner, _) => find_child_call(inner),
+            _ => None,
+        }),
+        syn::Expr::Assign(assign) => match &*assign.right {
+            syn::Expr::MethodCall(call) => call.args.first(),
+            syn::Expr::Call(call) => call.args.first(),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// Strip the extra `{ … }` that `codegen_if_chain` wraps around the
+/// chain so the tail expression can be inspected directly.
+fn unwrap_blocks(expr: &syn::Expr) -> &syn::Expr {
+    match expr {
+        syn::Expr::Block(block) => block
+            .block
+            .stmts
+            .iter()
+            .find_map(|stmt| match stmt {
+                syn::Stmt::Expr(inner, None) => Some(unwrap_blocks(inner)),
+                _ => None,
+            })
+            .unwrap_or(expr),
+        other => other,
+    }
+}
+
+#[test]
+fn scroll_view_if_without_else_stays_a_complete_expression() {
+    // A lone <If> child is fine on its own, but as the argument of
+    // `.child(...)` it needs an else arm — otherwise the expression
+    // is the `E0317` "if may be missing an else clause" case and the
+    // generated widget cannot compile.
+    let xml = r#"<ScrollView id="sv">
+    <If condition={show}>
+        <Label id="a" text="A" />
+    </If>
+</ScrollView>"#;
+    let ts = codegen(xml, Span::call_site(), None, None, &[]).expect("codegen succeeds");
+    let s = ts.to_string();
+
+    assert!(
+        s.contains("else"),
+        "an <If> used as a ScrollView child must be closed with an else \
+         fallback, got:\n{s}"
+    );
+
+    // Structurally: the child argument must be an `if` expression that
+    // carries an else branch.
+    let expr = syn::parse2::<syn::Expr>(ts)
+        .expect("generated <ScrollView> code must parse as a Rust expression");
+    let child_arg =
+        find_child_call(&expr).expect("expected a `__props = __props.child(...)` statement");
+    match unwrap_blocks(child_arg) {
+        syn::Expr::If(if_expr) => assert!(
+            if_expr.else_branch.is_some(),
+            "the <If> child must carry an else branch, got:\n{s}"
+        ),
+        other => panic!(
+            "expected the child argument to be an if expression, got {}",
+            quote::quote!(#other)
+        ),
+    }
+}
+
+#[test]
 fn scroll_view_external_controller_skips_keyed_state() {
     let s = render(
         r#"<ScrollView id="sv" controller={self.scroller}>

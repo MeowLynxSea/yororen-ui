@@ -333,6 +333,13 @@ impl ButtonRenderer for WinUIButtonRenderer {
                     let id = props.id.clone();
                     move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
                 })
+                // A release outside the button never reaches
+                // `on_mouse_up`; without this the pressed fill stays on
+                // forever after press-drag-release.
+                .on_mouse_up_out(MouseButton::Left, {
+                    let id = props.id.clone();
+                    move |_, _win, cx| set_interaction_pressed(cx, id.clone(), false)
+                })
                 .cursor(CursorStyle::PointingHand);
         }
 

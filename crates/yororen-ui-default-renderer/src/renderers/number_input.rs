@@ -186,6 +186,9 @@ impl NumberInputRenderer for TokenNumberInputRenderer {
                     .justify_center()
                     .cursor(CursorStyle::PointingHand)
                     .on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
+                        if disabled {
+                            return;
+                        }
                         let next = value - step;
                         let clamped = match min {
                             Some(m) => next.max(m),
@@ -217,6 +220,9 @@ impl NumberInputRenderer for TokenNumberInputRenderer {
                     .justify_center()
                     .cursor(CursorStyle::PointingHand)
                     .on_mouse_down(MouseButton::Left, move |_ev, window, cx| {
+                        if disabled {
+                            return;
+                        }
                         let next = value + step;
                         let clamped = match max {
                             Some(m) => next.min(m),

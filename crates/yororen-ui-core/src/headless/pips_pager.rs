@@ -174,12 +174,13 @@ impl PipsPagerState {
         }
     }
 
-    /// The elided-window width actually in effect: `None` when
-    /// every pip renders.
+    /// The elided-window width actually in effect: 1 (a single
+    /// step) when every pip renders, so `skip_forward` /
+    /// `skip_backward` still have a finite step to add or subtract.
     fn window_width(&self) -> usize {
         match self.max_visible_pips {
             Some(n) if self.page_count > n => n,
-            _ => usize::MAX,
+            _ => 1,
         }
     }
 
@@ -451,6 +452,106 @@ mod tests {
                 PipSlot::Page(0),
                 PipSlot::EllipsisAfter,
             ]
+        );
+    }
+
+    // =================================================================
+    // Ellipsis-slot navigation without an elided window.
+    //
+    // `window_width()` must stay finite when every pip renders: the
+    // width feeds `current_page + step` in `skip_forward` /
+    // `skip_backward`, so a `usize::MAX` sentinel would panic on
+    // overflow (debug) or jump to a nonsensical page (release). Both
+    // methods document a single-step fallback when no window is set.
+    // =================================================================
+
+    #[gpui::test]
+    fn skip_forward_without_an_elided_window_steps_one_page(cx: &mut gpui::TestAppContext) {
+        let state = cx.update(PipsPagerState::new);
+        let vcx = cx.add_empty_window();
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| {
+                s.set_page_count(5);
+                s.go_to(1, window, cx);
+            });
+        });
+        assert_eq!(
+            vcx.read(|cx| state.read(cx).current_page),
+            1,
+            "precondition: the pager starts on page 1"
+        );
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| s.skip_forward(window, cx));
+        });
+
+        assert_eq!(
+            vcx.read(|cx| state.read(cx).current_page),
+            2,
+            "without `max_visible_pips` the forward skip must fall back to a single step"
+        );
+    }
+
+    #[gpui::test]
+    fn skip_backward_without_an_elided_window_steps_one_page(cx: &mut gpui::TestAppContext) {
+        let state = cx.update(PipsPagerState::new);
+        let vcx = cx.add_empty_window();
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| {
+                s.set_page_count(5);
+                s.go_to(3, window, cx);
+            });
+        });
+        assert_eq!(
+            vcx.read(|cx| state.read(cx).current_page),
+            3,
+            "precondition: the pager starts on page 3"
+        );
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| s.skip_backward(window, cx));
+        });
+
+        assert_eq!(
+            vcx.read(|cx| state.read(cx).current_page),
+            2,
+            "without `max_visible_pips` the backward skip must fall back to a single step"
+        );
+    }
+
+    /// The elided-window path must keep jumping a whole window: the
+    /// fix for the no-window case must not flatten the real skip.
+    #[gpui::test]
+    fn skip_with_an_elided_window_still_jumps_a_whole_window(cx: &mut gpui::TestAppContext) {
+        let state = cx.update(PipsPagerState::new);
+        let vcx = cx.add_empty_window();
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| {
+                s.set_page_count(10);
+                s.set_max_visible_pips(Some(3));
+                s.go_to(4, window, cx);
+            });
+        });
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| s.skip_forward(window, cx));
+        });
+        assert_eq!(
+            vcx.read(|cx| state.read(cx).current_page),
+            7,
+            "forward skip jumps the full 3-page window"
+        );
+
+        vcx.update(|window, cx| {
+            state.update(cx, |s, cx| s.skip_backward(window, cx));
+        });
+        assert_eq!(
+            vcx.read(|cx| state.read(cx).current_page),
+            4,
+            "backward skip jumps the full 3-page window"
         );
     }
 }

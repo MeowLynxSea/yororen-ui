@@ -19,7 +19,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::ast::{AstAttribute, AstElement};
+use crate::ast::{AstAttribute, AstElement, AstNode};
 use crate::error::{XmlError, XmlErrorKind};
 use crate::schema::ComponentDef;
 
@@ -27,6 +27,7 @@ use crate::codegen::{
     attr::{attr_expr_only, require_attr_expr},
     codegen_child,
     container::apply_container_attr,
+    control_flow::codegen_if_chain,
     events::auto_wrap_event_expr,
     parse_ts,
 };
@@ -87,10 +88,39 @@ pub(crate) fn codegen_scroll_view(
         )
         .at(element.byte_offset));
     }
+    // Merge consecutive If/ElseIf/Else into one Rust if/else
+    // expression, exactly like a container's children. Emitting each
+    // branch as its own `child(…)` puts a bare `else { … }` in argument
+    // position (not an expression), and a lone `If` misses its else arm.
     let mut child_stmts: Vec<TokenStream> = Vec::with_capacity(element.children.len());
-    for child in &element.children {
-        let body = codegen_child(child, cx, source_file, user_schema)?;
-        child_stmts.push(quote! { __props = __props.child(#body); });
+    let mut i = 0;
+    while i < element.children.len() {
+        let child = &element.children[i];
+        if matches!(
+            child,
+            AstNode::Element(e)
+                if matches!(e.tag.as_str(), "If" | "ElseIf" | "Else")
+        ) {
+            let mut j = i;
+            while j < element.children.len() {
+                if let AstNode::Element(e) = &element.children[j] {
+                    if !matches!(e.tag.as_str(), "If" | "ElseIf" | "Else") {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+                j += 1;
+            }
+            let chain_expr =
+                codegen_if_chain(&element.children[i..j], cx, source_file, user_schema)?;
+            child_stmts.push(quote! { __props = __props.child(#chain_expr); });
+            i = j;
+        } else {
+            let body = codegen_child(child, cx, source_file, user_schema)?;
+            child_stmts.push(quote! { __props = __props.child(#body); });
+            i += 1;
+        }
     }
 
     // --- optional bool setters -------------------------------------
