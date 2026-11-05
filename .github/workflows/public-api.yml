@@ -26,6 +26,10 @@ jobs:
             libssl-dev
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Install nightly toolchain (rustdoc JSON)
+        # cargo-public-api builds rustdoc JSON, which requires a nightly
+        # toolchain even when the analyzed crates use the pinned 1.95.0.
+        run: rustup toolchain install nightly --profile minimal
       - name: Install cargo-public-api
         # Install outside the repo so rust-toolchain.toml (1.95.0) does not
         # pin the build compiler: freshly-resolved deps can have a newer

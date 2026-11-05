@@ -12,7 +12,7 @@ pub yororen_ui_xml::ast::AstNode::Text::byte_offset: usize
 pub yororen_ui_xml::ast::AstNode::Text::span: proc_macro2::Span
 pub yororen_ui_xml::ast::AstNode::Text::text: alloc::string::String
 impl core::clone::Clone for yororen_ui_xml::ast::AstNode
-pub fn yororen_ui_xml::ast::AstNode::clone(&self) -> yororen_ui_xml::ast::AstNode
+pub fn yororen_ui_xml::ast::AstNode::clone(&self) -> Self
 impl core::fmt::Debug for yororen_ui_xml::ast::AstNode
 pub fn yororen_ui_xml::ast::AstNode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for yororen_ui_xml::ast::AstNode
@@ -29,7 +29,7 @@ pub yororen_ui_xml::ast::AstAttribute::name: alloc::string::String
 pub yororen_ui_xml::ast::AstAttribute::raw: alloc::string::String
 pub yororen_ui_xml::ast::AstAttribute::span: proc_macro2::Span
 impl core::clone::Clone for yororen_ui_xml::ast::AstAttribute
-pub fn yororen_ui_xml::ast::AstAttribute::clone(&self) -> yororen_ui_xml::ast::AstAttribute
+pub fn yororen_ui_xml::ast::AstAttribute::clone(&self) -> Self
 impl core::fmt::Debug for yororen_ui_xml::ast::AstAttribute
 pub fn yororen_ui_xml::ast::AstAttribute::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for yororen_ui_xml::ast::AstAttribute
@@ -46,7 +46,7 @@ pub yororen_ui_xml::ast::AstElement::children: alloc::vec::Vec<yororen_ui_xml::a
 pub yororen_ui_xml::ast::AstElement::span: proc_macro2::Span
 pub yororen_ui_xml::ast::AstElement::tag: alloc::string::String
 impl core::clone::Clone for yororen_ui_xml::ast::AstElement
-pub fn yororen_ui_xml::ast::AstElement::clone(&self) -> yororen_ui_xml::ast::AstElement
+pub fn yororen_ui_xml::ast::AstElement::clone(&self) -> Self
 impl core::fmt::Debug for yororen_ui_xml::ast::AstElement
 pub fn yororen_ui_xml::ast::AstElement::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for yororen_ui_xml::ast::AstElement
@@ -67,7 +67,7 @@ pub yororen_ui_xml::error::XmlErrorKind::UnknownAttribute
 pub yororen_ui_xml::error::XmlErrorKind::UnknownTag
 pub yororen_ui_xml::error::XmlErrorKind::Unsupported
 impl core::clone::Clone for yororen_ui_xml::error::XmlErrorKind
-pub fn yororen_ui_xml::error::XmlErrorKind::clone(&self) -> yororen_ui_xml::error::XmlErrorKind
+pub fn yororen_ui_xml::error::XmlErrorKind::clone(&self) -> Self
 impl core::fmt::Debug for yororen_ui_xml::error::XmlErrorKind
 pub fn yororen_ui_xml::error::XmlErrorKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for yororen_ui_xml::error::XmlErrorKind
@@ -90,7 +90,7 @@ pub fn yororen_ui_xml::error::XmlError::render(&self) -> alloc::string::String
 pub fn yororen_ui_xml::error::XmlError::render_with(&self, core::option::Option<&yororen_ui_xml::parser::LocationTracker<'_>>) -> alloc::string::String
 pub fn yororen_ui_xml::error::XmlError::rendered(self, impl core::convert::Into<alloc::string::String>) -> Self
 impl core::clone::Clone for yororen_ui_xml::error::XmlError
-pub fn yororen_ui_xml::error::XmlError::clone(&self) -> yororen_ui_xml::error::XmlError
+pub fn yororen_ui_xml::error::XmlError::clone(&self) -> Self
 impl core::error::Error for yororen_ui_xml::error::XmlError
 impl core::fmt::Debug for yororen_ui_xml::error::XmlError
 pub fn yororen_ui_xml::error::XmlError::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
@@ -126,7 +126,7 @@ pub struct yororen_ui_xml::runtime::ComponentDescriptor
 pub yororen_ui_xml::runtime::ComponentDescriptor::factory: fn(alloc::string::String, &mut gpui::app::App) -> gpui::element::AnyElement
 pub yororen_ui_xml::runtime::ComponentDescriptor::tag: &'static str
 impl core::clone::Clone for yororen_ui_xml::runtime::ComponentDescriptor
-pub fn yororen_ui_xml::runtime::ComponentDescriptor::clone(&self) -> yororen_ui_xml::runtime::ComponentDescriptor
+pub fn yororen_ui_xml::runtime::ComponentDescriptor::clone(&self) -> Self
 impl inventory::Collect for yororen_ui_xml::runtime::ComponentDescriptor
 impl core::marker::Freeze for yororen_ui_xml::runtime::ComponentDescriptor
 impl core::marker::Send for yororen_ui_xml::runtime::ComponentDescriptor
@@ -145,10 +145,10 @@ pub yororen_ui_xml::schema::ComponentKind::ControlFlow(yororen_ui_xml::schema::C
 pub yororen_ui_xml::schema::ComponentKind::Leaf(yororen_ui_xml::schema::LeafDef)
 pub yororen_ui_xml::schema::ComponentKind::RuntimeLeaf
 impl core::clone::Clone for yororen_ui_xml::schema::ComponentKind
-pub fn yororen_ui_xml::schema::ComponentKind::clone(&self) -> yororen_ui_xml::schema::ComponentKind
+pub fn yororen_ui_xml::schema::ComponentKind::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::ComponentKind
 impl core::cmp::PartialEq for yororen_ui_xml::schema::ComponentKind
-pub fn yororen_ui_xml::schema::ComponentKind::eq(&self, &yororen_ui_xml::schema::ComponentKind) -> bool
+pub fn yororen_ui_xml::schema::ComponentKind::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::ComponentKind
 pub fn yororen_ui_xml::schema::ComponentKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::ComponentKind
@@ -176,10 +176,10 @@ pub yororen_ui_xml::schema::ControlFlowDef::Template
 pub yororen_ui_xml::schema::ControlFlowDef::UniformVirtualList
 pub yororen_ui_xml::schema::ControlFlowDef::VirtualList
 impl core::clone::Clone for yororen_ui_xml::schema::ControlFlowDef
-pub fn yororen_ui_xml::schema::ControlFlowDef::clone(&self) -> yororen_ui_xml::schema::ControlFlowDef
+pub fn yororen_ui_xml::schema::ControlFlowDef::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::ControlFlowDef
 impl core::cmp::PartialEq for yororen_ui_xml::schema::ControlFlowDef
-pub fn yororen_ui_xml::schema::ControlFlowDef::eq(&self, &yororen_ui_xml::schema::ControlFlowDef) -> bool
+pub fn yororen_ui_xml::schema::ControlFlowDef::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::ControlFlowDef
 pub fn yororen_ui_xml::schema::ControlFlowDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::ControlFlowDef
@@ -204,10 +204,10 @@ pub yororen_ui_xml::schema::ExtraArgKind::StringList
 pub yororen_ui_xml::schema::ExtraArgKind::Text
 pub yororen_ui_xml::schema::ExtraArgKind::UInt
 impl core::clone::Clone for yororen_ui_xml::schema::ExtraArgKind
-pub fn yororen_ui_xml::schema::ExtraArgKind::clone(&self) -> yororen_ui_xml::schema::ExtraArgKind
+pub fn yororen_ui_xml::schema::ExtraArgKind::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::ExtraArgKind
 impl core::cmp::PartialEq for yororen_ui_xml::schema::ExtraArgKind
-pub fn yororen_ui_xml::schema::ExtraArgKind::eq(&self, &yororen_ui_xml::schema::ExtraArgKind) -> bool
+pub fn yororen_ui_xml::schema::ExtraArgKind::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::ExtraArgKind
 pub fn yororen_ui_xml::schema::ExtraArgKind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::ExtraArgKind
@@ -242,10 +242,10 @@ pub yororen_ui_xml::schema::PropValue::UInt
 pub yororen_ui_xml::schema::PropValue::Unknown
 pub yororen_ui_xml::schema::PropValue::Variant
 impl core::clone::Clone for yororen_ui_xml::schema::PropValue
-pub fn yororen_ui_xml::schema::PropValue::clone(&self) -> yororen_ui_xml::schema::PropValue
+pub fn yororen_ui_xml::schema::PropValue::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::PropValue
 impl core::cmp::PartialEq for yororen_ui_xml::schema::PropValue
-pub fn yororen_ui_xml::schema::PropValue::eq(&self, &yororen_ui_xml::schema::PropValue) -> bool
+pub fn yororen_ui_xml::schema::PropValue::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::PropValue
 pub fn yororen_ui_xml::schema::PropValue::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::PropValue
@@ -261,10 +261,10 @@ pub enum yororen_ui_xml::schema::RenderMode
 pub yororen_ui_xml::schema::RenderMode::Apply
 pub yororen_ui_xml::schema::RenderMode::Default
 impl core::clone::Clone for yororen_ui_xml::schema::RenderMode
-pub fn yororen_ui_xml::schema::RenderMode::clone(&self) -> yororen_ui_xml::schema::RenderMode
+pub fn yororen_ui_xml::schema::RenderMode::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::RenderMode
 impl core::cmp::PartialEq for yororen_ui_xml::schema::RenderMode
-pub fn yororen_ui_xml::schema::RenderMode::eq(&self, &yororen_ui_xml::schema::RenderMode) -> bool
+pub fn yororen_ui_xml::schema::RenderMode::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::RenderMode
 pub fn yororen_ui_xml::schema::RenderMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::RenderMode
@@ -283,7 +283,7 @@ pub yororen_ui_xml::schema::ComponentDef::tag: &'static str
 impl yororen_ui_xml::schema::ComponentDef
 pub fn yororen_ui_xml::schema::ComponentDef::lookup(&str) -> core::option::Option<&'static yororen_ui_xml::schema::ComponentDef>
 impl core::clone::Clone for yororen_ui_xml::schema::ComponentDef
-pub fn yororen_ui_xml::schema::ComponentDef::clone(&self) -> yororen_ui_xml::schema::ComponentDef
+pub fn yororen_ui_xml::schema::ComponentDef::clone(&self) -> Self
 impl core::fmt::Debug for yororen_ui_xml::schema::ComponentDef
 pub fn yororen_ui_xml::schema::ComponentDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for yororen_ui_xml::schema::ComponentDef
@@ -297,10 +297,10 @@ pub struct yororen_ui_xml::schema::ContainerDef
 pub yororen_ui_xml::schema::ContainerDef::fixed_methods: &'static [(&'static str, &'static str)]
 pub yororen_ui_xml::schema::ContainerDef::style_hint: &'static str
 impl core::clone::Clone for yororen_ui_xml::schema::ContainerDef
-pub fn yororen_ui_xml::schema::ContainerDef::clone(&self) -> yororen_ui_xml::schema::ContainerDef
+pub fn yororen_ui_xml::schema::ContainerDef::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::ContainerDef
 impl core::cmp::PartialEq for yororen_ui_xml::schema::ContainerDef
-pub fn yororen_ui_xml::schema::ContainerDef::eq(&self, &yororen_ui_xml::schema::ContainerDef) -> bool
+pub fn yororen_ui_xml::schema::ContainerDef::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::ContainerDef
 pub fn yororen_ui_xml::schema::ContainerDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::ContainerDef
@@ -316,10 +316,10 @@ pub struct yororen_ui_xml::schema::ExtraArg
 pub yororen_ui_xml::schema::ExtraArg::attr: &'static str
 pub yororen_ui_xml::schema::ExtraArg::kind: yororen_ui_xml::schema::ExtraArgKind
 impl core::clone::Clone for yororen_ui_xml::schema::ExtraArg
-pub fn yororen_ui_xml::schema::ExtraArg::clone(&self) -> yororen_ui_xml::schema::ExtraArg
+pub fn yororen_ui_xml::schema::ExtraArg::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::ExtraArg
 impl core::cmp::PartialEq for yororen_ui_xml::schema::ExtraArg
-pub fn yororen_ui_xml::schema::ExtraArg::eq(&self, &yororen_ui_xml::schema::ExtraArg) -> bool
+pub fn yororen_ui_xml::schema::ExtraArg::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::ExtraArg
 pub fn yororen_ui_xml::schema::ExtraArg::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::ExtraArg
@@ -344,10 +344,10 @@ pub yororen_ui_xml::schema::LeafDef::slots: &'static [yororen_ui_xml::schema::Sl
 pub yororen_ui_xml::schema::LeafDef::supports_text_child: bool
 pub yororen_ui_xml::schema::LeafDef::unwrap_children: bool
 impl core::clone::Clone for yororen_ui_xml::schema::LeafDef
-pub fn yororen_ui_xml::schema::LeafDef::clone(&self) -> yororen_ui_xml::schema::LeafDef
+pub fn yororen_ui_xml::schema::LeafDef::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::LeafDef
 impl core::cmp::PartialEq for yororen_ui_xml::schema::LeafDef
-pub fn yororen_ui_xml::schema::LeafDef::eq(&self, &yororen_ui_xml::schema::LeafDef) -> bool
+pub fn yororen_ui_xml::schema::LeafDef::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::LeafDef
 pub fn yororen_ui_xml::schema::LeafDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::LeafDef
@@ -364,10 +364,10 @@ pub yororen_ui_xml::schema::PropDef::name: &'static str
 pub yororen_ui_xml::schema::PropDef::setter: &'static str
 pub yororen_ui_xml::schema::PropDef::value: yororen_ui_xml::schema::PropValue
 impl core::clone::Clone for yororen_ui_xml::schema::PropDef
-pub fn yororen_ui_xml::schema::PropDef::clone(&self) -> yororen_ui_xml::schema::PropDef
+pub fn yororen_ui_xml::schema::PropDef::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::PropDef
 impl core::cmp::PartialEq for yororen_ui_xml::schema::PropDef
-pub fn yororen_ui_xml::schema::PropDef::eq(&self, &yororen_ui_xml::schema::PropDef) -> bool
+pub fn yororen_ui_xml::schema::PropDef::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::PropDef
 pub fn yororen_ui_xml::schema::PropDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::PropDef
@@ -383,10 +383,10 @@ pub struct yororen_ui_xml::schema::SlotDef
 pub yororen_ui_xml::schema::SlotDef::name: &'static str
 pub yororen_ui_xml::schema::SlotDef::setter: &'static str
 impl core::clone::Clone for yororen_ui_xml::schema::SlotDef
-pub fn yororen_ui_xml::schema::SlotDef::clone(&self) -> yororen_ui_xml::schema::SlotDef
+pub fn yororen_ui_xml::schema::SlotDef::clone(&self) -> Self
 impl core::cmp::Eq for yororen_ui_xml::schema::SlotDef
 impl core::cmp::PartialEq for yororen_ui_xml::schema::SlotDef
-pub fn yororen_ui_xml::schema::SlotDef::eq(&self, &yororen_ui_xml::schema::SlotDef) -> bool
+pub fn yororen_ui_xml::schema::SlotDef::eq(&self, &Self) -> bool
 impl core::fmt::Debug for yororen_ui_xml::schema::SlotDef
 pub fn yororen_ui_xml::schema::SlotDef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Copy for yororen_ui_xml::schema::SlotDef
