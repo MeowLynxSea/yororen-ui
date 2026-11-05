@@ -18,7 +18,7 @@ set -euo pipefail
 
 if ! command -v cargo-public-api >/dev/null 2>&1; then
     echo "[regen-public-api] cargo-public-api is not installed; skipping" >&2
-    echo "[regen-public-api] install with: cargo install cargo-public-api" >&2
+    echo "[regen-public-api] install with: cargo install cargo-public-api --locked" >&2
     exit 0
 fi
 

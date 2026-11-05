@@ -27,7 +27,11 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-public-api
-        run: cargo install cargo-public-api
+        # Install outside the repo so rust-toolchain.toml (1.95.0) does not
+        # pin the build compiler: freshly-resolved deps can have a newer
+        # MSRV (e.g. cargo-util 0.2.32 requires 1.97). --locked keeps the
+        # dependency set reproducible from the tool's own Cargo.lock.
+        run: cd "$RUNNER_TEMP" && cargo install cargo-public-api --locked
       - name: Regenerate baselines and diff against committed upstream/
         run: |
           bash scripts/regen-public-api.sh --all
